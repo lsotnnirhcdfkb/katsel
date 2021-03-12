@@ -8,196 +8,465 @@ class Span;
 #include <string>
 #include "ast/astfwd.h"
 #include "utils/location.h"
+#include "message/errors.h"
 
-// ERRH START
-
-// E0000 - bad-char
-#define ERR_BAD_CHAR E0000
-void E0000(Span const &tok);
-
-// E0001 - unterm-charlit
-#define ERR_UNTERM_CHARLIT E0001
-void E0001(Span const &tok);
-
-// E0002 - unterm-strlit
-#define ERR_UNTERM_STRLIT E0002
-void E0002(Span const &tok);
-
-// E0003 - indent-block-cbrace
-#define ERR_INDENT_BLOCK_CBRACE E0003
-void E0003(Span const &tok);
-
-// E0004 - invalid-numlit-base
-#define ERR_INVALID_NUMLIT_BASE E0004
-void E0004(Span const &tok);
-
-// E0005 - nondecimal-floatlit
-#define ERR_NONDECIMAL_FLOATLIT E0005
-void E0005(Span const &tok);
-
-// E0006 - invalid-char-for-base
-#define ERR_INVALID_CHAR_FOR_BASE E0006
-void E0006(Span const &tok);
-
-// E0007 - intlit-no-digits
-#define ERR_INTLIT_NO_DIGITS E0007
-void E0007(Span const &tok);
-
-// E0008 - multichar-charlit
-#define ERR_MULTICHAR_CHARLIT E0008
-void E0008(Span const &tok);
-
-// E0009 - unterm-multiline-comment
-#define ERR_UNTERM_MULTILINE_COMMENT E0009
-void E0009(Span const &tok);
-
-// E0010 - dedent-nomatch
-#define ERR_DEDENT_NOMATCH E0010
-void E0010(Span const &tok);
-
-// E0011 - char-after-backslash
-#define ERR_CHAR_AFTER_BACKSLASH E0011
-void E0011(Span const &tok);
-
-// E0012 - expected
-#define ERR_EXPECTED E0012
-void E0012(Span const &expected, std::string const &name);
-
-// E0013 - lhs-unsupported-op
-#define ERR_LHS_UNSUPPORTED_OP E0013
-void E0013(Located<NNPtr<IR::Value>> const &lhs, Span const &op);
-
-// E0014 - unary-unsupported-op
-#define ERR_UNARY_UNSUPPORTED_OP E0014
-void E0014(Located<NNPtr<IR::Value>> const &operand, Located<ASTNS::UnaryOperator> const &op);
-
-// E0015 - call-noncallable
-#define ERR_CALL_NONCALLABLE E0015
-void E0015(Located<NNPtr<IR::Value>> const &func, Span const &oparn);
-
-// E0016 - incorrect-arg
-#define ERR_INCORRECT_ARG E0016
-void E0016(Located<NNPtr<IR::Value>> const &arg, IR::Type const &expected);
-
-// E0017 - confl-tys-ifexpr
-#define ERR_CONFL_TYS_IFEXPR E0017
-void E0017(Located<NNPtr<IR::Value>> const &truev, Located<NNPtr<IR::Value>> const &falsev, Span const &iftok, Span const &elsetok);
-
-// E0018 - assign-conflict-tys
-#define ERR_ASSIGN_CONFLICT_TYS E0018
-void E0018(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Span const &eq);
-
-// E0019 - conflict-ret-ty
-#define ERR_CONFLICT_RET_TY E0019
-void E0019(Located<NNPtr<IR::Value>> const &val, IR::Function const &f);
-
-// E0020 - no-deref
-#define ERR_NO_DEREF E0020
-void E0020(Span const &op, Located<NNPtr<IR::Value>> const &val);
-
-// E0021 - conflict-var-init-ty
-#define ERR_CONFLICT_VAR_INIT_TY E0021
-void E0021(Span const &eq, Span const &name, ASTNS::Type const &type_ast, Located<NNPtr<IR::Value>> const &init, IR::Type const &expected_type);
-
-// E0022 - invalid-cast
-#define ERR_INVALID_CAST E0022
-void E0022(ASTNS::AST const &ast, Located<NNPtr<IR::Value>> v, IR::Type const &newty);
-
-// E0023 - conflict-tys-binary-op
-#define ERR_CONFLICT_TYS_BINARY_OP E0023
-void E0023(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Span const &op);
-
-// E0024 - cond-not-bool
-#define ERR_COND_NOT_BOOL E0024
-void E0024(Located<NNPtr<IR::Value>> const &v);
-
-// E0025 - ptr-arith-rhs-not-num
-#define ERR_PTR_ARITH_RHS_NOT_NUM E0025
-void E0025(Located<NNPtr<IR::Value>> const &lhs, Located<ASTNS::BinaryOperator> const &optok, Located<NNPtr<IR::Value>> const &rhs);
-
-// E0026 - no-else-not-void
-#define ERR_NO_ELSE_NOT_VOID E0026
-void E0026(Located<NNPtr<IR::Value>> const &truev, Span const &iftok);
-
-// E0027 - typeless-this
-#define ERR_TYPELESS_THIS E0027
-void E0027(ASTNS::ThisParam const &p);
-
-// E0028 - wrong-num-args
-#define ERR_WRONG_NUM_ARGS E0028
-void E0028(IR::Function const &func, ASTNS::AST const &func_ref_ast, Span const &oparn, std::vector<Located<NNPtr<IR::Value>>> const &args);
-
-// E0029 - redecl-sym
-#define ERR_REDECL_SYM E0029
-void E0029(Span const &name, IR::Value const &val);
-
-// E0030 - undecl-symb
-#define ERR_UNDECL_SYMB E0030
-void E0030(Span const &path);
-
-// E0031 - redecl-param
-#define ERR_REDECL_PARAM E0031
-void E0031(ASTNS::ParamB const &param, IR::Register const &prev);
-
-// E0032 - redecl-var
-#define ERR_REDECL_VAR E0032
-void E0032(Span const &name, IR::Register const &prev);
-
-// E0033 - not-a-type
-#define ERR_NOT_A_TYPE E0033
-void E0033(Span const &notty);
-
-// E0034 - no-member-in
-#define ERR_NO_MEMBER_IN E0034
-void E0034(IR::DeclSymbol const &prev, Span const &current);
-
-// E0035 - no-this
-#define ERR_NO_THIS E0035
-void E0035(Span const &th);
-
-// E0036 - no-method
-#define ERR_NO_METHOD E0036
-void E0036(Located<NNPtr<IR::Value>> const &op, Span const &name);
-
-// E0037 - no-field
-#define ERR_NO_FIELD E0037
-void E0037(Located<NNPtr<IR::Value>> const &op, Span const &name);
-
-// E0038 - addrof-not-lvalue
-#define ERR_ADDROF_NOT_LVALUE E0038
-void E0038(Span const &op, Located<NNPtr<IR::Value>> const &val);
-
-// E0039 - assign-invalid-lhs
-#define ERR_ASSIGN_INVALID_LHS E0039
-void E0039(Span const &eq, Located<NNPtr<IR::Value>> const &lhs);
-
-// E0040 - assign-not-mut
-#define ERR_ASSIGN_NOT_MUT E0040
-void E0040(Located<NNPtr<IR::Value>> const &v, Span const &eq, IR::Register const &reg);
-
-// E0041 - mut-addrof-nonmut-op
-#define ERR_MUT_ADDROF_NONMUT_OP E0041
-void E0041(Span const &op, IR::Register const &reg);
-
-// E0042 - no-suppress
-#define ERR_NO_SUPPRESS E0042
-void E0042(Span const &dollar);
-
-// E0043 - this-not-first
-#define ERR_THIS_NOT_FIRST E0043
-void E0043(ASTNS::ThisParam const &ast);
-
-// ===> warnings <===
-
-// W0000 - Wextra-semi
-#define WARN_EXTRA_SEMI W0000
-void W0000(Span const &semi);
-
-// W0001 - Wimmut-noinit
-#define WARN_IMMUT_NOINIT W0001
-void W0001(ASTNS::VarStmt const &ast);
-
-// W0002 - Wblock-no-indent
-#define WARN_BLOCK_NO_INDENT W0002
-void W0002(Span const &obrace, Span const &cbrace);
-// ERRH END
+namespace Errors {
+    // ERR DECLS START {{{
+    class BadChar : public Error {
+    public:
+        BadChar(Span const &tok);
+    private:
+        static constexpr char const *CODE = "E0000";
+        static constexpr char const *NAME = "bad-char";
+        Span tok;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class UntermCharlit : public Error {
+    public:
+        UntermCharlit(Span const &tok);
+    private:
+        static constexpr char const *CODE = "E0001";
+        static constexpr char const *NAME = "unterm-charlit";
+        Span tok;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class UntermStrlit : public Error {
+    public:
+        UntermStrlit(Span const &tok);
+    private:
+        static constexpr char const *CODE = "E0002";
+        static constexpr char const *NAME = "unterm-strlit";
+        Span tok;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class IndentBlockCbrace : public Error {
+    public:
+        IndentBlockCbrace(Span const &tok);
+    private:
+        static constexpr char const *CODE = "E0003";
+        static constexpr char const *NAME = "indent-block-cbrace";
+        Span tok;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class InvalidNumlitBase : public Error {
+    public:
+        InvalidNumlitBase(Span const &tok);
+    private:
+        static constexpr char const *CODE = "E0004";
+        static constexpr char const *NAME = "invalid-numlit-base";
+        Span tok;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class NondecimalFloatlit : public Error {
+    public:
+        NondecimalFloatlit(Span const &tok);
+    private:
+        static constexpr char const *CODE = "E0005";
+        static constexpr char const *NAME = "nondecimal-floatlit";
+        Span tok;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class InvalidCharForBase : public Error {
+    public:
+        InvalidCharForBase(Span const &tok);
+    private:
+        static constexpr char const *CODE = "E0006";
+        static constexpr char const *NAME = "invalid-char-for-base";
+        Span tok;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class IntlitNoDigits : public Error {
+    public:
+        IntlitNoDigits(Span const &tok);
+    private:
+        static constexpr char const *CODE = "E0007";
+        static constexpr char const *NAME = "intlit-no-digits";
+        Span tok;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class MulticharCharlit : public Error {
+    public:
+        MulticharCharlit(Span const &tok);
+    private:
+        static constexpr char const *CODE = "E0008";
+        static constexpr char const *NAME = "multichar-charlit";
+        Span tok;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class UntermMultilineComment : public Error {
+    public:
+        UntermMultilineComment(Span const &tok);
+    private:
+        static constexpr char const *CODE = "E0009";
+        static constexpr char const *NAME = "unterm-multiline-comment";
+        Span tok;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class DedentNomatch : public Error {
+    public:
+        DedentNomatch(Span const &tok);
+    private:
+        static constexpr char const *CODE = "E0010";
+        static constexpr char const *NAME = "dedent-nomatch";
+        Span tok;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class Expected : public Error {
+    public:
+        Expected(Span const &where, std::string const &what);
+    private:
+        static constexpr char const *CODE = "E0011";
+        static constexpr char const *NAME = "expected";
+        Span where;
+        std::string what;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class LhsUnsupportedOp : public Error {
+    public:
+        LhsUnsupportedOp(Located<NNPtr<IR::Value>> const &lhs, Span const &op);
+    private:
+        static constexpr char const *CODE = "E0012";
+        static constexpr char const *NAME = "lhs-unsupported-op";
+        Located<NNPtr<IR::Value>> lhs;
+        Span op;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class UnaryUnsupportedOp : public Error {
+    public:
+        UnaryUnsupportedOp(Located<NNPtr<IR::Value>> const &operand, Located<ASTNS::UnaryOperator> const &op);
+    private:
+        static constexpr char const *CODE = "E0013";
+        static constexpr char const *NAME = "unary-unsupported-op";
+        Located<NNPtr<IR::Value>> operand;
+        Located<ASTNS::UnaryOperator> op;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class NoCall : public Error {
+    public:
+        NoCall(Located<NNPtr<IR::Value>> const &func, Span const &oparn);
+    private:
+        static constexpr char const *CODE = "E0014";
+        static constexpr char const *NAME = "no-call";
+        Located<NNPtr<IR::Value>> func;
+        Span oparn;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class IncorrectArg : public Error {
+    public:
+        IncorrectArg(Located<NNPtr<IR::Value>> const &arg, NNPtr<IR::Type const> const &expected);
+    private:
+        static constexpr char const *CODE = "E0015";
+        static constexpr char const *NAME = "incorrect-arg";
+        Located<NNPtr<IR::Value>> arg;
+        NNPtr<IR::Type const> expected;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class ConflTysIfexpr : public Error {
+    public:
+        ConflTysIfexpr(Located<NNPtr<IR::Value>> const &truev, Located<NNPtr<IR::Value>> const &falsev, Span const &iftok, Span const &elsetok);
+    private:
+        static constexpr char const *CODE = "E0016";
+        static constexpr char const *NAME = "confl-tys-ifexpr";
+        Located<NNPtr<IR::Value>> truev;
+        Located<NNPtr<IR::Value>> falsev;
+        Span iftok;
+        Span elsetok;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class AssignConflictTys : public Error {
+    public:
+        AssignConflictTys(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Span const &eq);
+    private:
+        static constexpr char const *CODE = "E0017";
+        static constexpr char const *NAME = "assign-conflict-tys";
+        Located<NNPtr<IR::Value>> lhs;
+        Located<NNPtr<IR::Value>> rhs;
+        Span eq;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class ConflictRetTy : public Error {
+    public:
+        ConflictRetTy(Located<NNPtr<IR::Value>> const &val, NNPtr<IR::Function const> const &f);
+    private:
+        static constexpr char const *CODE = "E0018";
+        static constexpr char const *NAME = "conflict-ret-ty";
+        Located<NNPtr<IR::Value>> val;
+        NNPtr<IR::Function const> f;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class NoDeref : public Error {
+    public:
+        NoDeref(Span const &op, Located<NNPtr<IR::Value>> const &val);
+    private:
+        static constexpr char const *CODE = "E0019";
+        static constexpr char const *NAME = "no-deref";
+        Span op;
+        Located<NNPtr<IR::Value>> val;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class ConflictVarInitTy : public Error {
+    public:
+        ConflictVarInitTy(Span const &eq, Span const &name, NNPtr<ASTNS::Type> const &type_ast, Located<NNPtr<IR::Value>> const &init, NNPtr<IR::Type const> const &expected_type);
+    private:
+        static constexpr char const *CODE = "E0020";
+        static constexpr char const *NAME = "conflict-var-init-ty";
+        Span eq;
+        Span name;
+        NNPtr<ASTNS::Type> type_ast;
+        Located<NNPtr<IR::Value>> init;
+        NNPtr<IR::Type const> expected_type;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class InvalidCast : public Error {
+    public:
+        InvalidCast(NNPtr<ASTNS::AST const> const &ast, Located<NNPtr<IR::Value>> const &v, NNPtr<IR::Type const> const &newty);
+    private:
+        static constexpr char const *CODE = "E0021";
+        static constexpr char const *NAME = "invalid-cast";
+        NNPtr<ASTNS::AST const> ast;
+        Located<NNPtr<IR::Value>> v;
+        NNPtr<IR::Type const> newty;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class ConflictTysBinaryOp : public Error {
+    public:
+        ConflictTysBinaryOp(Located<NNPtr<IR::Value>> const &lhs, Located<NNPtr<IR::Value>> const &rhs, Span const &op);
+    private:
+        static constexpr char const *CODE = "E0022";
+        static constexpr char const *NAME = "conflict-tys-binary-op";
+        Located<NNPtr<IR::Value>> lhs;
+        Located<NNPtr<IR::Value>> rhs;
+        Span op;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class CondNotBool : public Error {
+    public:
+        CondNotBool(Located<NNPtr<IR::Value>> const &v);
+    private:
+        static constexpr char const *CODE = "E0023";
+        static constexpr char const *NAME = "cond-not-bool";
+        Located<NNPtr<IR::Value>> v;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class PtrArithRhsNotNum : public Error {
+    public:
+        PtrArithRhsNotNum(Located<NNPtr<IR::Value>> const &lhs, Located<ASTNS::BinaryOperator> const &optok, Located<NNPtr<IR::Value>> const &rhs);
+    private:
+        static constexpr char const *CODE = "E0024";
+        static constexpr char const *NAME = "ptr-arith-rhs-not-num";
+        Located<NNPtr<IR::Value>> lhs;
+        Located<ASTNS::BinaryOperator> optok;
+        Located<NNPtr<IR::Value>> rhs;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class NoElseNotVoid : public Error {
+    public:
+        NoElseNotVoid(Located<NNPtr<IR::Value>> const &truev, Span const &iftok);
+    private:
+        static constexpr char const *CODE = "E0025";
+        static constexpr char const *NAME = "no-else-not-void";
+        Located<NNPtr<IR::Value>> truev;
+        Span iftok;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class TypelessThis : public Error {
+    public:
+        TypelessThis(NNPtr<ASTNS::ThisParam> const &p);
+    private:
+        static constexpr char const *CODE = "E0026";
+        static constexpr char const *NAME = "typeless-this";
+        NNPtr<ASTNS::ThisParam> p;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class WrongNumArgs : public Error {
+    public:
+        WrongNumArgs(NNPtr<IR::Function const> const &func, Span const &oparn, std::vector<Located<NNPtr<IR::Value>>> const &args);
+    private:
+        static constexpr char const *CODE = "E0027";
+        static constexpr char const *NAME = "wrong-num-args";
+        NNPtr<IR::Function const> func;
+        Span oparn;
+        std::vector<Located<NNPtr<IR::Value>>> args;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class RedeclSym : public Error {
+    public:
+        RedeclSym(Span const &name, NNPtr<IR::Value> const &val);
+    private:
+        static constexpr char const *CODE = "E0028";
+        static constexpr char const *NAME = "redecl-sym";
+        Span name;
+        NNPtr<IR::Value> val;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class UndeclSymb : public Error {
+    public:
+        UndeclSymb(Span const &path);
+    private:
+        static constexpr char const *CODE = "E0029";
+        static constexpr char const *NAME = "undecl-symb";
+        Span path;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class RedeclParam : public Error {
+    public:
+        RedeclParam(NNPtr<ASTNS::ParamB> const &param, NNPtr<IR::Register> const &prev);
+    private:
+        static constexpr char const *CODE = "E0030";
+        static constexpr char const *NAME = "redecl-param";
+        NNPtr<ASTNS::ParamB> param;
+        NNPtr<IR::Register> prev;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class RedeclVar : public Error {
+    public:
+        RedeclVar(Span const &name, NNPtr<IR::Register> const &prev);
+    private:
+        static constexpr char const *CODE = "E0031";
+        static constexpr char const *NAME = "redecl-var";
+        Span name;
+        NNPtr<IR::Register> prev;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class NotA_Type : public Error {
+    public:
+        NotA_Type(Span const &notty);
+    private:
+        static constexpr char const *CODE = "E0032";
+        static constexpr char const *NAME = "not-a-type";
+        Span notty;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class NoMemberIn : public Error {
+    public:
+        NoMemberIn(NNPtr<IR::DeclSymbol> const &prev, Span const &current);
+    private:
+        static constexpr char const *CODE = "E0033";
+        static constexpr char const *NAME = "no-member-in";
+        NNPtr<IR::DeclSymbol> prev;
+        Span current;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class NoThis : public Error {
+    public:
+        NoThis(Span const &th);
+    private:
+        static constexpr char const *CODE = "E0034";
+        static constexpr char const *NAME = "no-this";
+        Span th;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class NoMethod : public Error {
+    public:
+        NoMethod(Located<NNPtr<IR::Value>> const &op, Span const &name);
+    private:
+        static constexpr char const *CODE = "E0035";
+        static constexpr char const *NAME = "no-method";
+        Located<NNPtr<IR::Value>> op;
+        Span name;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class NoField : public Error {
+    public:
+        NoField(Located<NNPtr<IR::Value>> const &op, Span const &name);
+    private:
+        static constexpr char const *CODE = "E0036";
+        static constexpr char const *NAME = "no-field";
+        Located<NNPtr<IR::Value>> op;
+        Span name;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class AddrofNotLvalue : public Error {
+    public:
+        AddrofNotLvalue(Span const &op, Located<NNPtr<IR::Value>> const &val);
+    private:
+        static constexpr char const *CODE = "E0037";
+        static constexpr char const *NAME = "addrof-not-lvalue";
+        Span op;
+        Located<NNPtr<IR::Value>> val;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class AssignInvalidLhs : public Error {
+    public:
+        AssignInvalidLhs(Span const &eq, Located<NNPtr<IR::Value>> const &lhs);
+    private:
+        static constexpr char const *CODE = "E0038";
+        static constexpr char const *NAME = "assign-invalid-lhs";
+        Span eq;
+        Located<NNPtr<IR::Value>> lhs;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class AssignNotMut : public Error {
+    public:
+        AssignNotMut(Located<NNPtr<IR::Value>> const &v, Span const &eq, NNPtr<IR::Register> const &reg);
+    private:
+        static constexpr char const *CODE = "E0039";
+        static constexpr char const *NAME = "assign-not-mut";
+        Located<NNPtr<IR::Value>> v;
+        Span eq;
+        NNPtr<IR::Register> reg;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class MutAddrofNonmutOp : public Error {
+    public:
+        MutAddrofNonmutOp(Span const &op, NNPtr<IR::Register> const &reg);
+    private:
+        static constexpr char const *CODE = "E0040";
+        static constexpr char const *NAME = "mut-addrof-nonmut-op";
+        Span op;
+        NNPtr<IR::Register> reg;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    class ThisNotFirst : public Error {
+    public:
+        ThisNotFirst(NNPtr<ASTNS::ThisParam> const &ast);
+    private:
+        static constexpr char const *CODE = "E0041";
+        static constexpr char const *NAME = "this-not-first";
+        NNPtr<ASTNS::ThisParam> ast;
+    protected:
+        SimpleError to_simple_error() const override;
+    };
+    // ERR DECLS END }}}
+}

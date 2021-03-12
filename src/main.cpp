@@ -81,11 +81,11 @@ int compile_file(OutFormats ofmt, std::string_view filename) {
             return false;
 
         while (true) {
-            Located<TokenData> t (lexer->next_token());
-            if (Tokens::is<Tokens::_EOF>(t.value))
+            Located<Token> t (lexer->next_token());
+            if (t.value.is<TokenType::_EOF>())
                 break;
 
-            os << format("{}: ({}) '{}'\n", t.span.as_rowcol(), Tokens::stringify_type(t.value), t.span.stringify());
+            os << format("{}: ({}) '{}'\n", t.span.as_rowcol(), t.value.stringify_type(), t.span.stringify());
         }
 
         os.close();

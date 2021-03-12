@@ -20,9 +20,9 @@ static bool is_alpha(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
 }
 void Lexer::lex_digit(char current) {
-    using Base = Tokens::IntLit::Base; // type less
+    using Base = TokenTypes::IntLit::Base; // type less
 
-    auto is_digit = [](char const &c, Tokens::IntLit::Base base) {
+    auto is_digit = [](char const &c, Base base) {
         switch (base) {
             case Base::DECIMAL:
                 return c >= '0' && c <= '9';
@@ -81,26 +81,26 @@ void Lexer::lex_digit(char current) {
         }
     }
 
-    // TODO: if num_float_digits == 0, rewind, this is like when its '2.', that should be Intlit, DOT, not ERR_FLOAT_LIT_NO_DIGITS
+    // TODO: if num_float_digits == 0, rewind, this is like when its '2.', that should be Intlit, DOT, not Errors::FloatLitNoDigits
     // TODO: any radix for number literals like smalltalk
 
     if (!base_valid)
-        add_token(make_token(Tokens::Error { ERR_INVALID_NUMLIT_BASE }));
+        add_token(make_error_token<Errors::InvalidNumlitBase>());
     else if (!digits_valid)
-        add_token(make_token(Tokens::Error { ERR_INVALID_CHAR_FOR_BASE }));
+        add_token(make_error_token<Errors::InvalidCharForBase>());
     else if (num_digits == 0)
-        add_token(make_token(Tokens::Error { ERR_INTLIT_NO_DIGITS }));
+        add_token(make_error_token<Errors::IntlitNoDigits>());
     else {
         if (is_float) {
             if (base != Base::DECIMAL)
-                add_token(make_token(Tokens::Error { ERR_NONDECIMAL_FLOATLIT }));
+                add_token(make_error_token<Errors::NondecimalFloatlit>());
             else {
                 double val = stold(std::string(start, end));
-                add_token(make_token(Tokens::FloatLit { val }));
+                add_token(make_token(TokenTypes::FloatLit { val }));
             }
         } else {
             uint64_t val = stoll(std::string(start, end));
-            add_token(make_token(Tokens::IntLit { val, base }));
+            add_token(make_token(TokenTypes::IntLit { val, base }));
         }
     }
 }
@@ -110,20 +110,21 @@ void Lexer::lex_identifier(bool apostrophes_allowed) {
     if (apostrophes_allowed)
         while (peek() == '\'') advance();
 
-    TokenData data = get_identifier_type();
-    add_token(make_token(data));
+    Token data = get_identifier_type();
+    add_token(make_token(std::move(data)));
 }
+
 // next token {{{1
-Located<TokenData> Lexer::next_token() {
+Located<Token> Lexer::next_token() {
     while (token_backlog.size() == 0)
         lex_more();
 
-    auto tok = token_backlog.front();
+    auto tok = std::move(token_backlog.front());
     token_backlog.pop();
     return tok;
 }
-void Lexer::add_token(Located<TokenData> const &tok) {
-    token_backlog.push(tok);
+void Lexer::add_token(Located<Token> tok) {
+    token_backlog.push(std::move(tok));
 }
 void Lexer::lex_more() {
     // indiscriminately skip whitespace, then check if the current character is the first char of the line
@@ -148,7 +149,7 @@ void Lexer::lex_more() {
                     }
 
                     if (at_end()) {
-                        add_token(make_token(Tokens::Error { ERR_UNTERM_MULTILINE_COMMENT }));
+                        add_token(make_error_token<Errors::UntermMultilineComment>());
                         return;
                     }
 
@@ -198,30 +199,31 @@ void Lexer::lex_more() {
             // TODO: do not insert '{' or ';' if the current char is '{'
             // TODO: support \ at the end of previous line to prevent line ending insertion
             if (indent > indent_stack.back().level) {
-                add_token(make_token(Tokens::Indent {}));
+                add_token(make_token(TokenTypes::Indent {}));
                 indent_stack.push_back(IndentFrame { true, indent });
             } else if (indent < indent_stack.back().level) {
-                add_token(make_token(Tokens::Newline {}));
+                add_token(make_token(TokenTypes::Newline {}));
                 while (indent < indent_stack.back().level && indent_stack.back().indentation_sensitive) {
                     // TODO: do not pop if empty
-                    add_token(make_token(Tokens::Dedent {}));
+                    add_token(make_token(TokenTypes::Dedent {}));
+
                     indent_stack.pop_back();
                 }
 
                 if (indent > indent_stack.back().level && indent_stack.back().indentation_sensitive)
-                    add_token(make_token(Tokens::Error { ERR_DEDENT_NOMATCH }));
+                    add_token(make_error_token<Errors::DedentNomatch>());
             } else { // indent == last indentation level
                 if (start != srcstart) {
                     // TODO: do not insert newline if last token is ';'
                     // TODO: put newline span at last char of last line
-                    add_token(make_token(Tokens::Newline {}));
+                    add_token(make_token(TokenTypes::Newline {}));
                 }
             }
         }
     }
 
     if (at_end()) {
-        add_token(make_token(Tokens::_EOF {}));
+        add_token(make_token(TokenTypes::_EOF {}));
         return;
     }
 
@@ -229,136 +231,136 @@ void Lexer::lex_more() {
 
     switch (current) {
         case '(':
-            add_token(make_token(Tokens::OParen {})); return;
+            add_token(make_token(TokenTypes::OParen {})); return;
         case ')':
-            add_token(make_token(Tokens::CParen {})); return;
+            add_token(make_token(TokenTypes::CParen {})); return;
         case '[':
-            add_token(make_token(Tokens::OBrack {})); return;
+            add_token(make_token(TokenTypes::OBrack {})); return;
         case ']':
-            add_token(make_token(Tokens::CBrack {})); return;
+            add_token(make_token(TokenTypes::CBrack {})); return;
         case '{':
-            add_token(make_token(Tokens::OBrace {}));
+            add_token(make_token(TokenTypes::OBrace {}));
             indent_stack.push_back(IndentFrame { false, -1 });
             return;
         case '}':
             if (!indent_stack.back().indentation_sensitive) {
                 // TODO: do not pop if empty
                 indent_stack.pop_back();
-                add_token(make_token(Tokens::CBrace {}));
+                add_token(make_token(TokenTypes::CBrace {}));
             } else {
-                add_token(make_token(Tokens::Error { ERR_INDENT_BLOCK_CBRACE }));
+                add_token(make_error_token<Errors::IndentBlockCbrace>());
             }
             return;
         case ';':
-            add_token(make_token(Tokens::Semicolon {})); return;
+            add_token(make_token(TokenTypes::Semicolon {})); return;
         case ',':
-            add_token(make_token(Tokens::Comma {})); return;
+            add_token(make_token(TokenTypes::Comma {})); return;
         case '.':
-            add_token(make_token(Tokens::Period {})); return;
+            add_token(make_token(TokenTypes::Period {})); return;
         case '?':
-            add_token(make_token(Tokens::Question {})); return;
+            add_token(make_token(TokenTypes::Question {})); return;
         case '~':
-            add_token(make_token(Tokens::Tilde {})); return;
+            add_token(make_token(TokenTypes::Tilde {})); return;
 
         case '#':
-            add_token(make_token(Tokens::Hash {})); return;
+            add_token(make_token(TokenTypes::Hash {})); return;
         case '$':
-            add_token(make_token(Tokens::Dollar {})); return;
+            add_token(make_token(TokenTypes::Dollar {})); return;
 
             // double and single
         case '=':
             add_token(make_token(
                 match('=')
-                ? TokenData(Tokens::DoubleEqual {})
-                : TokenData(Tokens::Equal {})));
+                ? Token(TokenTypes::DoubleEqual {})
+                : Token(TokenTypes::Equal {})));
             return;
         case ':':
             add_token(make_token(
                 match(':')
-                ? TokenData(Tokens::DoubleColon {})
-                : TokenData(Tokens::Colon {})));
+                ? Token(TokenTypes::DoubleColon {})
+                : Token(TokenTypes::Colon {})));
             return;
 
             // equal and single
         case '*':
             add_token(make_token(
                 match('=')
-                ? TokenData(Tokens::StarEqual {})
-                : TokenData(Tokens::Star {})));
+                ? Token(TokenTypes::StarEqual {})
+                : Token(TokenTypes::Star {})));
             return;
         case '/':
             add_token(make_token(
                 match('=')
-                ? TokenData(Tokens::SlashEqual {})
-                : TokenData(Tokens::Slash {})));
+                ? Token(TokenTypes::SlashEqual {})
+                : Token(TokenTypes::Slash {})));
             return;
         case '!':
             add_token(make_token(
                 match('=')
-                ? TokenData(Tokens::BangEqual {})
-                : TokenData(Tokens::Bang {})));
+                ? Token(TokenTypes::BangEqual {})
+                : Token(TokenTypes::Bang {})));
             return;
         case '%':
             add_token(make_token(
                 match('=')
-                ? TokenData(Tokens::PercentEqual {})
-                : TokenData(Tokens::Percent {})));
+                ? Token(TokenTypes::PercentEqual {})
+                : Token(TokenTypes::Percent {})));
             return;
         case '^':
             add_token(make_token(
                 match('=')
-                ? TokenData(Tokens::CaretEqual {})
-                : TokenData(Tokens::Caret {})));
+                ? Token(TokenTypes::CaretEqual {})
+                : Token(TokenTypes::Caret {})));
             return;
 
             // double and equal and single
         case '+':
             add_token(make_token(
                 match('+')
-                ? TokenData(Tokens::DoublePlus {})
+                ? Token(TokenTypes::DoublePlus {})
                 : match('=')
-                    ? TokenData(Tokens::PlusEqual {})
-                    : TokenData(Tokens::Plus {})));
+                    ? Token(TokenTypes::PlusEqual {})
+                    : Token(TokenTypes::Plus {})));
             return;
         case '&':
             add_token(make_token(
                 match('&')
-                ? TokenData(Tokens::DoubleAmper {})
+                ? Token(TokenTypes::DoubleAmper {})
                 : match('=')
-                    ? TokenData(Tokens::AmperEqual {})
-                    : TokenData(Tokens::Amper {})));
+                    ? Token(TokenTypes::AmperEqual {})
+                    : Token(TokenTypes::Amper {})));
             return;
         case '|':
             add_token(make_token(
                 match('|')
-                ? TokenData(Tokens::DoublePipe {})
+                ? Token(TokenTypes::DoublePipe {})
                 : match('=')
-                    ? TokenData(Tokens::PipeEqual {})
-                    : TokenData(Tokens::Pipe {})));
+                    ? Token(TokenTypes::PipeEqual {})
+                    : Token(TokenTypes::Pipe {})));
             return;
 
             // arrows
         case '-':
             add_token(make_token(
                 match('-')
-                ? TokenData(Tokens::DoubleMinus {})
+                ? Token(TokenTypes::DoubleMinus {})
                 : match('=')
-                    ? TokenData(Tokens::MinusEqual {})
+                    ? Token(TokenTypes::MinusEqual {})
                     : match('>')
-                        ? TokenData(Tokens::RightArrow {})
-                        : TokenData(Tokens::Minus {})));
+                        ? Token(TokenTypes::RightArrow {})
+                        : Token(TokenTypes::Minus {})));
             return;
         case '<':
             add_token(make_token(
                 match('<')
                 ? match('=')
-                    ? TokenData(Tokens::DoubleLessEqual {})
-                    : TokenData(Tokens::DoubleLess {})
+                    ? Token(TokenTypes::DoubleLessEqual {})
+                    : Token(TokenTypes::DoubleLess {})
                 : match('=')
-                    ? TokenData(Tokens::LessEqual {})
+                    ? Token(TokenTypes::LessEqual {})
                     : match('-')
-                        ? TokenData(Tokens::LeftArrow {})
-                        : TokenData(Tokens::Less {})));
+                        ? Token(TokenTypes::LeftArrow {})
+                        : Token(TokenTypes::Less {})));
             return;
 
             // double, doubleequal, singleequal, single
@@ -366,11 +368,11 @@ void Lexer::lex_more() {
             add_token(make_token(
                 match('>')
                 ? match('=')
-                    ? TokenData(Tokens::DoubleGreaterEqual {})
-                    : TokenData(Tokens::DoubleGreater {})
+                    ? Token(TokenTypes::DoubleGreaterEqual {})
+                    : Token(TokenTypes::DoubleGreater {})
                 : match('=')
-                    ? TokenData(Tokens::GreaterEqual {})
-                    : TokenData(Tokens::Greater {})));
+                    ? Token(TokenTypes::GreaterEqual {})
+                    : Token(TokenTypes::Greater {})));
             return;
 
         case '\'':
@@ -380,10 +382,10 @@ void Lexer::lex_more() {
                 advance();
 
             if (starting_quote == '"' && peek() != '"') {
-                add_token(make_token(Tokens::Error { ERR_UNTERM_STRLIT }));
+                add_token(make_error_token<Errors::UntermStrlit>());
                 return;
             } else if (starting_quote == '\'' && peek() != '\'') {
-                add_token(make_token(Tokens::Error { ERR_UNTERM_CHARLIT }));
+                add_token(make_error_token<Errors::UntermCharlit>());
                 return;
             }
 
@@ -391,12 +393,12 @@ void Lexer::lex_more() {
 
             if (starting_quote == '\'') {
                 if (std::distance(start, end) != 3) {
-                    add_token(make_token(Tokens::Error { ERR_MULTICHAR_CHARLIT }));
+                    add_token(make_error_token<Errors::MulticharCharlit>());
                 } else {
-                    add_token(make_token(Tokens::CharLit { *(start + 1) }));
+                    add_token(make_token(TokenTypes::CharLit { *(start + 1) }));
                 }
             } else {
-                add_token(make_token(Tokens::StringLit { std::string(start + 1, end - 2) }));
+                add_token(make_token(TokenTypes::StringLit { std::string(start + 1, end - 2) }));
             }
             return;
     }
@@ -406,89 +408,89 @@ void Lexer::lex_more() {
     } else if (is_alpha(current)) {
         lex_identifier(true);
     } else {
-        add_token(make_token(Tokens::Error { ERR_BAD_CHAR }));
+        add_token(make_error_token<Errors::BadChar>());
     }
 }
 // KWMATCH START {{{1
-TokenData Lexer::get_identifier_type() {
+Token Lexer::get_identifier_type() {
     switch (*(start + 0)) {
         case 'd':
-            if (std::distance(start, end) == 4 && *(start + 1) == 'a' && *(start + 2) == 't' && *(start + 3) == 'a') return Tokens::Data {  };
+            if (std::distance(start, end) == 4 && *(start + 1) == 'a' && *(start + 2) == 't' && *(start + 3) == 'a') return TokenTypes::Data {  };
             break;
         case 'i':
             switch (*(start + 1)) {
                 case 'm':
-                    if (std::distance(start, end) == 4 && *(start + 2) == 'p' && *(start + 3) == 'l') return Tokens::Impl {  };
+                    if (std::distance(start, end) == 4 && *(start + 2) == 'p' && *(start + 3) == 'l') return TokenTypes::Impl {  };
                     break;
                 case 'f':
-                    if (start + 2 == end) return Tokens::If {  };
+                    if (start + 2 == end) return TokenTypes::If {  };
                     break;
             }
             break;
         case 'f':
             switch (*(start + 1)) {
                 case 'u':
-                    if (std::distance(start, end) == 3 && *(start + 2) == 'n') return Tokens::Fun {  };
+                    if (std::distance(start, end) == 3 && *(start + 2) == 'n') return TokenTypes::Fun {  };
                     break;
                 case 'o':
-                    if (std::distance(start, end) == 3 && *(start + 2) == 'r') return Tokens::For {  };
+                    if (std::distance(start, end) == 3 && *(start + 2) == 'r') return TokenTypes::For {  };
                     break;
                 case 'a':
-                    if (std::distance(start, end) == 5 && *(start + 2) == 'l' && *(start + 3) == 's' && *(start + 4) == 'e') return Tokens::BoolLit { false };
+                    if (std::distance(start, end) == 5 && *(start + 2) == 'l' && *(start + 3) == 's' && *(start + 4) == 'e') return TokenTypes::BoolLit { false };
                     break;
             }
             break;
         case 'v':
-            if (std::distance(start, end) == 3 && *(start + 1) == 'a' && *(start + 2) == 'r') return Tokens::Var {  };
+            if (std::distance(start, end) == 3 && *(start + 1) == 'a' && *(start + 2) == 'r') return TokenTypes::Var {  };
             break;
         case 'm':
-            if (std::distance(start, end) == 3 && *(start + 1) == 'u' && *(start + 2) == 't') return Tokens::Mut {  };
+            if (std::distance(start, end) == 3 && *(start + 1) == 'u' && *(start + 2) == 't') return TokenTypes::Mut {  };
             break;
         case 'l':
-            if (std::distance(start, end) == 3 && *(start + 1) == 'e' && *(start + 2) == 't') return Tokens::Let {  };
+            if (std::distance(start, end) == 3 && *(start + 1) == 'e' && *(start + 2) == 't') return TokenTypes::Let {  };
             break;
         case 't':
             switch (*(start + 1)) {
                 case 'h':
-                    if (std::distance(start, end) == 4 && *(start + 2) == 'i' && *(start + 3) == 's') return Tokens::This {  };
+                    if (std::distance(start, end) == 4 && *(start + 2) == 'i' && *(start + 3) == 's') return TokenTypes::This {  };
                     break;
                 case 'r':
-                    if (std::distance(start, end) == 4 && *(start + 2) == 'u' && *(start + 3) == 'e') return Tokens::BoolLit { true };
+                    if (std::distance(start, end) == 4 && *(start + 2) == 'u' && *(start + 3) == 'e') return TokenTypes::BoolLit { true };
                     break;
             }
             break;
         case 'r':
-            if (std::distance(start, end) == 6 && *(start + 1) == 'e' && *(start + 2) == 't' && *(start + 3) == 'u' && *(start + 4) == 'r' && *(start + 5) == 'n') return Tokens::Return {  };
+            if (std::distance(start, end) == 6 && *(start + 1) == 'e' && *(start + 2) == 't' && *(start + 3) == 'u' && *(start + 4) == 'r' && *(start + 5) == 'n') return TokenTypes::Return {  };
             break;
         case 'w':
-            if (std::distance(start, end) == 5 && *(start + 1) == 'h' && *(start + 2) == 'i' && *(start + 3) == 'l' && *(start + 4) == 'e') return Tokens::While {  };
+            if (std::distance(start, end) == 5 && *(start + 1) == 'h' && *(start + 2) == 'i' && *(start + 3) == 'l' && *(start + 4) == 'e') return TokenTypes::While {  };
             break;
         case 'e':
-            if (std::distance(start, end) == 4 && *(start + 1) == 'l' && *(start + 2) == 's' && *(start + 3) == 'e') return Tokens::Else {  };
+            if (std::distance(start, end) == 4 && *(start + 1) == 'l' && *(start + 2) == 's' && *(start + 3) == 'e') return TokenTypes::Else {  };
             break;
         case 'c':
             switch (*(start + 1)) {
                 case 'a':
-                    if (std::distance(start, end) == 4 && *(start + 2) == 's' && *(start + 3) == 'e') return Tokens::Case {  };
+                    if (std::distance(start, end) == 4 && *(start + 2) == 's' && *(start + 3) == 'e') return TokenTypes::Case {  };
                     break;
                 case 'o':
-                    if (std::distance(start, end) == 8 && *(start + 2) == 'n' && *(start + 3) == 't' && *(start + 4) == 'i' && *(start + 5) == 'n' && *(start + 6) == 'u' && *(start + 7) == 'e') return Tokens::Continue {  };
+                    if (std::distance(start, end) == 8 && *(start + 2) == 'n' && *(start + 3) == 't' && *(start + 4) == 'i' && *(start + 5) == 'n' && *(start + 6) == 'u' && *(start + 7) == 'e') return TokenTypes::Continue {  };
                     break;
             }
             break;
         case 'b':
             switch (*(start + 1)) {
                 case 'r':
-                    if (std::distance(start, end) == 5 && *(start + 2) == 'e' && *(start + 3) == 'a' && *(start + 4) == 'k') return Tokens::Break {  };
+                    if (std::distance(start, end) == 5 && *(start + 2) == 'e' && *(start + 3) == 'a' && *(start + 4) == 'k') return TokenTypes::Break {  };
                     break;
                 case 'o':
-                    if (std::distance(start, end) == 4 && *(start + 2) == 'o' && *(start + 3) == 'm') return Tokens::Boom {  };
+                    if (std::distance(start, end) == 4 && *(start + 2) == 'o' && *(start + 3) == 'm') return TokenTypes::Boom {  };
                     break;
             }
             break;
     }
 
-    return Tokens::Identifier { std::string(start, end) };
+    return TokenTypes::Identifier { std::string(start, end) };
 }
 // KWMATCH END
 // helpers {{{1
@@ -531,11 +533,22 @@ char Lexer::consumed() {
 }
 
 // making tokens {{{1
-Located<TokenData> Lexer::make_token(TokenData const &data) {
-    bool end_inc = start == end;
+static Span make_span(std::string::const_iterator start, std::string::const_iterator end,
+        int startline, int startcolumn,
+        int endline, int endcolumn,
+        bool end_inc, File const &sourcefile) {
     Location tokstart (start, startline, startcolumn, sourcefile),
      // not perfect: endcolumn should wrap around to the next line if the current character is a newline but whatever
              tokend (end_inc ? end + 1 : end, endline, end_inc ? endcolumn + 1 : endcolumn, sourcefile);
-    Span span (tokstart, tokend);
-    return Located<TokenData> { span, data };
+
+    return Span(tokstart, tokend);
+}
+Located<Token> Lexer::make_token(Token data) {
+    Span span (make_span(start, end, startline, startcolumn, endline, endcolumn, start == end, sourcefile));
+    return Located<Token> { span, std::move(data) };
+}
+template <typename T>
+Located<Token> Lexer::make_error_token() {
+    Span span (make_span(start, end, startline, startcolumn, endline, endcolumn, start == end, sourcefile));
+    return Located<Token> { span, TokenTypes::Error { std::make_unique<T>(span) } };
 }

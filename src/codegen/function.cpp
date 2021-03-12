@@ -19,11 +19,11 @@ bool Function::value_declare() {
     auto path_visitor = std::make_unique<Helpers::PathVisitor>(Maybe<Helpers::Locals&>(), unit);
     auto type_visitor = std::make_unique<Helpers::TypeVisitor>(context, this_type, *path_visitor);
 
-    std::string const &fname (ast.name.value.name);
+    std::string const &fname (ast.name.value.as<TokenType::Identifier>().name);
 
     Maybe<IR::Value &> declbefore = parent_symbol.get_value(fname);
     if (declbefore.has()) {
-        ERR_REDECL_SYM(ast.name.span, declbefore.get());
+        Errors::RedeclSym(ast.name.span, declbefore.get()).report();
         return false;
     }
 
@@ -91,7 +91,7 @@ bool Function::value_define() {
 
         Maybe<Helpers::Local> foundparam = locals->get_local(pname);
         if (foundparam.has()) {
-            ERR_REDECL_PARAM(*param.ast, *foundparam.get().v);
+            Errors::RedeclParam(*param.ast, *foundparam.get().v).report();
             errored = true;
         } else
             locals->add_local(pname, reg);
@@ -105,13 +105,13 @@ bool Function::value_define() {
     locals->dec_scope();
 
     if (m_retval.has()) {
-        ir_builder->exit_block().branch(std::make_unique<IR::Instrs::Return>(Located<NNPtr<IR::Value>> { *ast.retty, *ir_builder->fun().ret_reg }));
+        ir_builder->exit_block().branch(std::make_unique<IR::Instrs::Return>(Located<NNPtr<IR::Value>>(*ast.retty, *ir_builder->fun().ret_reg)));
 
         Located<NNPtr<IR::Value>> retval = m_retval.get();
 
         retval = s1_data.fun->ty->ret->impl_cast(ir_builder->context(), ir_builder->fun(), ir_builder->cur_block(), retval);
         if (s1_data.fun->ty->ret.as_raw() != &retval.value->type()) {
-            ERR_CONFLICT_RET_TY(retval, *s1_data.fun);
+            Errors::ConflictRetTy(retval, *s1_data.fun).report();
             errored = true;
         } else {
             ir_builder->cur_block()->add<IR::Instrs::Copy>(*ir_builder->fun().ret_reg, retval);

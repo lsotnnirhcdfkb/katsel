@@ -11,12 +11,12 @@ class Lexer {
 public:
     Lexer(File &sourcefile);
 
-    Located<TokenData> next_token();
+    Located<Token> next_token();
 
 private:
     void lex_more();
-    void add_token(Located<TokenData> const &tok);
-    std::queue<Located<TokenData>> token_backlog;
+    void add_token(Located<Token> tok);
+    std::queue<Located<Token>> token_backlog;
 
     bool at_end();
 
@@ -32,7 +32,9 @@ private:
     void lex_digit(char current);
     void lex_identifier(bool apostrophes_allowed);
 
-    Located<TokenData> make_token(TokenData const &t);
+    Located<Token> make_token(Token t);
+    template <typename Err>
+    Located<Token> make_error_token();
 
     std::string::const_iterator start;
     std::string::const_iterator end;
@@ -51,7 +53,7 @@ private:
     std::string::const_iterator srcstart;
     std::string::const_iterator srcend;
 
-    TokenData get_identifier_type();
+    Token get_identifier_type();
 
     File &sourcefile;
 };

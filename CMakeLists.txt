@@ -26,7 +26,7 @@ set(GENCODEALLPY ${CMAKE_SOURCE_DIR}/utils/genall.py)
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/gencode.timestamp
     COMMAND ${Python_EXECUTABLE} ${GENCODEALLPY}
     COMMAND cmake -E touch ${CMAKE_BINARY_DIR}/gencode.timestamp
-    DEPENDS utils/astgen.py utils/genall.py utils/kwgen.py utils/errgen.py utils/instrgen.py
+    DEPENDS utils/astgen.py utils/genall.py utils/kwgen.py utils/instrgen.py utils/errgen.py
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Generate code into .h and .cpp files"
     VERBATIM)

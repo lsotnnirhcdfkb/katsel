@@ -34,8 +34,8 @@ jobs = [
     ('src/lower/lowererlocal.h'    , 'LOWER VISIT INSTR'     , lambda: instrgen.gen_method_decls('Instruction')),
     ('src/lower/lowererlocal.h'    , 'LOWER VISIT BRANCH'    , lambda: instrgen.gen_method_decls('Br')),
 
-    ('include/message/errmsgs.h'   , 'ERRH'                  , errgen.gen_h),
-    ('src/message/errmsgs.cpp'     , 'ERRCPP'                , errgen.gen_cpp),
+    ('include/message/errmsgs.h'   , 'ERR DECLS'             , errgen.gen_decls),
+    ('src/message/errmsgs.cpp'     , 'ERR DEFS'              , errgen.gen_defs),
 ]
 
 skipped = 0

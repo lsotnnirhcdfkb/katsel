@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <vector>
-#include "lex/tokens.h"
+#include "lex/token.h"
 #include "ast/astfwd.h"
 #include "ast/visitor.h"
 #include "utils/location.h"
@@ -82,12 +82,12 @@ namespace ASTNS {
     public:
         Span const _span;
         std::unique_ptr<Type> retty;
-        Located<Tokens::Identifier> name;
+        Located<Token> name;
         std::vector<std::unique_ptr<ParamB>> params;
         std::unique_ptr<Block> body;
         virtual void ast_accept(DeclVisitor &v) override;
         virtual Span const &span() const override;
-        FunctionDecl(Span const &span, std::unique_ptr<Type> retty, Located<Tokens::Identifier> name, std::vector<std::unique_ptr<ParamB>> params, std::unique_ptr<Block> body);
+        FunctionDecl(Span const &span, std::unique_ptr<Type> retty, Located<Token> name, std::vector<std::unique_ptr<ParamB>> params, std::unique_ptr<Block> body);
     };
     class FunctionImplMember : public ImplMember {
     public:
@@ -102,12 +102,12 @@ namespace ASTNS {
         Span const _span;
         std::unique_ptr<Type> type;
         bool mut;
-        Located<Tokens::Identifier> name;
-        Maybe<Located<Tokens::Equal>> equal;
+        Located<Token> name;
+        Maybe<Located<Token>> equal;
         std::unique_ptr<Expr> expr;
         virtual void ast_accept(StmtVisitor &v) override;
         virtual Span const &span() const override;
-        VarStmt(Span const &span, std::unique_ptr<Type> type, bool mut, Located<Tokens::Identifier> name, Maybe<Located<Tokens::Equal>> equal, std::unique_ptr<Expr> expr);
+        VarStmt(Span const &span, std::unique_ptr<Type> type, bool mut, Located<Token> name, Maybe<Located<Token>> equal, std::unique_ptr<Expr> expr);
     };
     class ExprStmt : public Stmt {
     public:
@@ -145,20 +145,20 @@ namespace ASTNS {
     class ThisType : public Type {
     public:
         Span const _span;
-        Located<Tokens::This> th;
+        Located<Token> th;
         virtual void ast_accept(TypeVisitor &v) override;
         virtual Span const &span() const override;
-        ThisType(Span const &span, Located<Tokens::This> th);
+        ThisType(Span const &span, Located<Token> th);
     };
     class Param : public ParamB {
     public:
         Span const _span;
         std::unique_ptr<Type> type;
-        Located<Tokens::Identifier> name;
+        Located<Token> name;
         bool mut;
         virtual void ast_accept(ParamBVisitor &v) override;
         virtual Span const &span() const override;
-        Param(Span const &span, std::unique_ptr<Type> type, Located<Tokens::Identifier> name, bool mut);
+        Param(Span const &span, std::unique_ptr<Type> type, Located<Token> name, bool mut);
     };
     class ThisParam : public ParamB {
     public:
@@ -180,14 +180,14 @@ namespace ASTNS {
     class IfExpr : public Expr {
     public:
         Span const _span;
-        Located<Tokens::If> iftok;
-        Maybe<Located<Tokens::Else>> elsetok;
+        Located<Token> iftok;
+        Maybe<Located<Token>> elsetok;
         std::unique_ptr<Expr> cond;
         std::unique_ptr<Expr> trues;
         std::unique_ptr<Expr> falses;
         virtual void ast_accept(ExprVisitor &v) override;
         virtual Span const &span() const override;
-        IfExpr(Span const &span, Located<Tokens::If> iftok, Maybe<Located<Tokens::Else>> elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses);
+        IfExpr(Span const &span, Located<Token> iftok, Maybe<Located<Token>> elsetok, std::unique_ptr<Expr> cond, std::unique_ptr<Expr> trues, std::unique_ptr<Expr> falses);
     };
     class WhileExpr : public Expr {
     public:
@@ -249,101 +249,101 @@ namespace ASTNS {
     class AddrofExpr : public Expr {
     public:
         Span const _span;
-        Located<Tokens::Amper> op;
+        Located<Token> op;
         std::unique_ptr<Expr> expr;
         bool mut;
         virtual void ast_accept(ExprVisitor &v) override;
         virtual Span const &span() const override;
-        AddrofExpr(Span const &span, Located<Tokens::Amper> op, std::unique_ptr<Expr> expr, bool mut);
+        AddrofExpr(Span const &span, Located<Token> op, std::unique_ptr<Expr> expr, bool mut);
     };
     class DerefExpr : public Expr {
     public:
         Span const _span;
-        Located<Tokens::Star> op;
+        Located<Token> op;
         std::unique_ptr<Expr> expr;
         virtual void ast_accept(ExprVisitor &v) override;
         virtual Span const &span() const override;
-        DerefExpr(Span const &span, Located<Tokens::Star> op, std::unique_ptr<Expr> expr);
+        DerefExpr(Span const &span, Located<Token> op, std::unique_ptr<Expr> expr);
     };
     class CallExpr : public Expr {
     public:
         Span const _span;
         std::unique_ptr<Expr> callee;
-        Located<Tokens::OParen> oparn;
+        Located<Token> oparn;
         std::vector<std::unique_ptr<Expr>> args;
         virtual void ast_accept(ExprVisitor &v) override;
         virtual Span const &span() const override;
-        CallExpr(Span const &span, std::unique_ptr<Expr> callee, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Expr>> args);
+        CallExpr(Span const &span, std::unique_ptr<Expr> callee, Located<Token> oparn, std::vector<std::unique_ptr<Expr>> args);
     };
     class FieldAccessExpr : public Expr {
     public:
         Span const _span;
         std::unique_ptr<Expr> operand;
-        Located<Tokens::Period> dot;
-        Located<Tokens::Identifier> field;
+        Located<Token> dot;
+        Located<Token> field;
         virtual void ast_accept(ExprVisitor &v) override;
         virtual Span const &span() const override;
-        FieldAccessExpr(Span const &span, std::unique_ptr<Expr> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> field);
+        FieldAccessExpr(Span const &span, std::unique_ptr<Expr> operand, Located<Token> dot, Located<Token> field);
     };
     class MethodCallExpr : public Expr {
     public:
         Span const _span;
         std::unique_ptr<Expr> operand;
-        Located<Tokens::Period> dot;
-        Located<Tokens::Identifier> method;
-        Located<Tokens::OParen> oparn;
+        Located<Token> dot;
+        Located<Token> method;
+        Located<Token> oparn;
         std::vector<std::unique_ptr<Expr>> args;
         virtual void ast_accept(ExprVisitor &v) override;
         virtual Span const &span() const override;
-        MethodCallExpr(Span const &span, std::unique_ptr<Expr> operand, Located<Tokens::Period> dot, Located<Tokens::Identifier> method, Located<Tokens::OParen> oparn, std::vector<std::unique_ptr<Expr>> args);
+        MethodCallExpr(Span const &span, std::unique_ptr<Expr> operand, Located<Token> dot, Located<Token> method, Located<Token> oparn, std::vector<std::unique_ptr<Expr>> args);
     };
     class BoolLit : public Expr {
     public:
         Span const _span;
-        Located<Tokens::BoolLit> val;
+        Located<Token> val;
         virtual void ast_accept(ExprVisitor &v) override;
         virtual Span const &span() const override;
-        BoolLit(Span const &span, Located<Tokens::BoolLit> val);
+        BoolLit(Span const &span, Located<Token> val);
     };
     class FloatLit : public Expr {
     public:
         Span const _span;
-        Located<Tokens::FloatLit> val;
+        Located<Token> val;
         virtual void ast_accept(ExprVisitor &v) override;
         virtual Span const &span() const override;
-        FloatLit(Span const &span, Located<Tokens::FloatLit> val);
+        FloatLit(Span const &span, Located<Token> val);
     };
     class IntLit : public Expr {
     public:
         Span const _span;
-        Located<Tokens::IntLit> val;
+        Located<Token> val;
         virtual void ast_accept(ExprVisitor &v) override;
         virtual Span const &span() const override;
-        IntLit(Span const &span, Located<Tokens::IntLit> val);
+        IntLit(Span const &span, Located<Token> val);
     };
     class CharLit : public Expr {
     public:
         Span const _span;
-        Located<Tokens::CharLit> val;
+        Located<Token> val;
         virtual void ast_accept(ExprVisitor &v) override;
         virtual Span const &span() const override;
-        CharLit(Span const &span, Located<Tokens::CharLit> val);
+        CharLit(Span const &span, Located<Token> val);
     };
     class StringLit : public Expr {
     public:
         Span const _span;
-        Located<Tokens::StringLit> val;
+        Located<Token> val;
         virtual void ast_accept(ExprVisitor &v) override;
         virtual Span const &span() const override;
-        StringLit(Span const &span, Located<Tokens::StringLit> val);
+        StringLit(Span const &span, Located<Token> val);
     };
     class ThisExpr : public Expr {
     public:
         Span const _span;
-        Located<Tokens::This> tok;
+        Located<Token> tok;
         virtual void ast_accept(ExprVisitor &v) override;
         virtual Span const &span() const override;
-        ThisExpr(Span const &span, Located<Tokens::This> tok);
+        ThisExpr(Span const &span, Located<Token> tok);
     };
     class PathExpr : public Expr {
     public:
@@ -356,10 +356,10 @@ namespace ASTNS {
     class Path : public PathB {
     public:
         Span const _span;
-        std::vector<Located<Tokens::Identifier>> segments;
+        std::vector<Located<Token>> segments;
         virtual void ast_accept(PathBVisitor &v) override;
         virtual Span const &span() const override;
-        Path(Span const &span, std::vector<Located<Tokens::Identifier>> segments);
+        Path(Span const &span, std::vector<Located<Token>> segments);
     };
     // ASTHEADER END
 }

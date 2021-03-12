@@ -5,5 +5,5 @@ namespace ASTNS { class CUB; }
 #include "utils/ptr.h"
 
 namespace Codegen {
-    Maybe<std::unique_ptr<IR::Unit>> codegen(File const &file, NNPtr<ASTNS::CUB> cub);
+    Maybe<IR::Unit> codegen(File const &file, NNPtr<ASTNS::CUB> cub);
 }

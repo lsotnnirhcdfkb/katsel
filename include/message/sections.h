@@ -22,6 +22,8 @@ namespace Errors {
                 std::string_view color;
             };
 
+            Underlines(std::vector<Message> const &messages);
+
             std::vector<Message> messages;
 
             int left_pad() const override;

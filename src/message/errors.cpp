@@ -1,4 +1,5 @@
 #include "message/errors.h"
+#include "message/sections.h"
 #include "json.h"
 
 #include "message/ansistuff.h"
@@ -13,10 +14,14 @@ Errors::ErrorFormat Errors::errformat = Errors::ErrorFormat::HUMAN;
 Errors::SimpleError::SimpleError(Type type, Span const &span, std::string const &code, std::string const &name):
     type(type), span(span),
     code(code), name(name) {}
+Errors::SimpleError::~SimpleError() = default;
 
 Errors::SimpleError& Errors::SimpleError::section(std::unique_ptr<Section> section) {
     sections.push_back(std::move(section));
     return *this;
+}
+Errors::SimpleError Errors::SimpleError::value() {
+    return std::move(*this);
 }
 
 void Errors::SimpleError::report() const {
@@ -25,11 +30,11 @@ void Errors::SimpleError::report() const {
         std::string_view msg_type_color;
         switch (type) {
             case Type::ERROR:
-                msg_type_str = "Error";
+                msg_type_str = "error";
                 msg_type_color = A_BOLD A_FG_RED;
                 break;
             case Type::WARNING:
-                msg_type_str = "Warning";
+                msg_type_str = "warning";
                 msg_type_color = A_BOLD A_FG_MAGENTA;
                 break;
         }

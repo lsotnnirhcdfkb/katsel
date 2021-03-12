@@ -1,4 +1,4 @@
-#include "../sections.h"
+#include "message/sections.h"
 #include "../utils.h"
 #include "message/ansistuff.h"
 #include "utils/maybe.h"
@@ -24,6 +24,5 @@ void Note::report(int left_pad) const {
             std::cerr << "note";
 
         std::cerr << if_ansi(A_RESET) << ": " << message << std::endl;
-
     }
 }
