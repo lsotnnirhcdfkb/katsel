@@ -9,6 +9,7 @@
 
 IR::Unit::Unit(File const &file): context(), file(file), mod("", Maybe<ASTNS::AST const &>()) {}
 IR::Unit::~Unit() = default;
+IR::Unit::Unit(Unit &&) = default;
 
 void IR::Unit::print(llvm::raw_ostream &ostream) const {
     ostream << "> Unit '" << file->filename << "'\n";

@@ -17,6 +17,9 @@ namespace Errors {
         SimpleError(Type type, Span const &span, std::string const &code, std::string const &name);
         ~SimpleError();
 
+        SimpleError (SimpleError const &) = default;
+        SimpleError (SimpleError &&) = default;
+
         SimpleError &section(std::unique_ptr<Section> section);
 
         void report() const;
@@ -25,8 +28,8 @@ namespace Errors {
         Type type;
         Span span;
 
-        std::string const code;
-        std::string const name;
+        std::string code;
+        std::string name;
         std::vector<std::unique_ptr<Section>> sections;
     };
 

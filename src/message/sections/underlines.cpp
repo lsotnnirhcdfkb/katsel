@@ -10,6 +10,8 @@
 using Errors::Sections::Underlines;
 using namespace Errors::Utils;
 
+Underlines::Underlines(std::vector<Message> const &messages): messages(messages) {}
+
 int Underlines::left_pad() const {
     int max_line_nr = 0;
     for (auto const &message : messages) {

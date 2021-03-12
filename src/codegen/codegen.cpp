@@ -18,18 +18,7 @@ namespace {
         void ast_visit(ASTNS::FunctionDecl &ast) override;
         // MAINCG METHODS END
 
-        // for reasons beyond my understanding, this member has to be
-        // wrapped in a unique_ptr, because if it is not, then even
-        // when using:
-        //     IR::Unit unit = std::move(cg.unit);
-        // where 'cg' is an instance of this class, it still needs to
-        // instantiate a constructor of the field 'Unit::functions' of
-        // type 'std::vector<std::unique_ptr<IR::Function>>', which for
-        // some reason instantiates std::uninitialized_copy, which
-        // requires that std::unique_ptr<IR::Function> has a copy
-        // constructor, and the copy constructor for std::unique_ptr is
-        // supposed to be (and is) explicitly deleted
-        std::unique_ptr<IR::Unit> unit;
+        IR::Unit unit;
 
         std::vector<std::unique_ptr<Codegen::CG>> codegens;
 

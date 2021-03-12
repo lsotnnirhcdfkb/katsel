@@ -17,6 +17,9 @@ namespace IR {
         Unit(File const &file);
         ~Unit();
 
+        Unit(Unit const &) = delete;
+        Unit(Unit &&);
+
         void print(llvm::raw_ostream &ostream) const;
 
         Codegen::Context context;
