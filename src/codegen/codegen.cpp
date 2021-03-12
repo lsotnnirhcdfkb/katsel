@@ -9,7 +9,7 @@ namespace {
     class _CG : public ASTNS::DeclVisitor, public ASTNS::CUBVisitor {
     public:
         _CG(File const &file):
-            unit(std::make_unique<IR::Unit>(file)),
+            unit(file),
             success(true) {}
 
         // MAINCG METHODS START
@@ -23,19 +23,19 @@ namespace {
         std::vector<std::unique_ptr<Codegen::CG>> codegens;
 
         void run() {
-            unit->mod.add_decl_symbol("void", unit->context.get_void_type());
-            unit->mod.add_decl_symbol("float", unit->context.get_float_type(32));
-            unit->mod.add_decl_symbol("double", unit->context.get_float_type(64));
-            unit->mod.add_decl_symbol("bool", unit->context.get_bool_type());
-            unit->mod.add_decl_symbol("char", unit->context.get_char_type());
-            unit->mod.add_decl_symbol("uint8", unit->context.get_int_type(8, false));
-            unit->mod.add_decl_symbol("uint16", unit->context.get_int_type(16, false));
-            unit->mod.add_decl_symbol("uint32", unit->context.get_int_type(32, false));
-            unit->mod.add_decl_symbol("uint64", unit->context.get_int_type(64, false));
-            unit->mod.add_decl_symbol("sint8", unit->context.get_int_type(8, true));
-            unit->mod.add_decl_symbol("sint16", unit->context.get_int_type(16, true));
-            unit->mod.add_decl_symbol("sint32", unit->context.get_int_type(32, true));
-            unit->mod.add_decl_symbol("sint64", unit->context.get_int_type(64, true));
+            unit.mod.add_decl_symbol("void", unit.context.get_void_type());
+            unit.mod.add_decl_symbol("float", unit.context.get_float_type(32));
+            unit.mod.add_decl_symbol("double", unit.context.get_float_type(64));
+            unit.mod.add_decl_symbol("bool", unit.context.get_bool_type());
+            unit.mod.add_decl_symbol("char", unit.context.get_char_type());
+            unit.mod.add_decl_symbol("uint8", unit.context.get_int_type(8, false));
+            unit.mod.add_decl_symbol("uint16", unit.context.get_int_type(16, false));
+            unit.mod.add_decl_symbol("uint32", unit.context.get_int_type(32, false));
+            unit.mod.add_decl_symbol("uint64", unit.context.get_int_type(64, false));
+            unit.mod.add_decl_symbol("sint8", unit.context.get_int_type(8, true));
+            unit.mod.add_decl_symbol("sint16", unit.context.get_int_type(16, true));
+            unit.mod.add_decl_symbol("sint32", unit.context.get_int_type(32, true));
+            unit.mod.add_decl_symbol("sint64", unit.context.get_int_type(64, true));
 
 #define DEFINE_PASS(input_codegens, output_codegens, stage_name) \
             std::vector<std::unique_ptr<Codegen::CG>> output_codegens; \
@@ -56,7 +56,7 @@ namespace {
     };
 }
 
-Maybe<std::unique_ptr<IR::Unit>> Codegen::codegen(File const &file, NNPtr<ASTNS::CUB> cub) {
+Maybe<IR::Unit> Codegen::codegen(File const &file, NNPtr<ASTNS::CUB> cub) {
     _CG cg (file);
 
     cub->ast_accept(cg);
@@ -65,7 +65,7 @@ Maybe<std::unique_ptr<IR::Unit>> Codegen::codegen(File const &file, NNPtr<ASTNS:
     if (cg.success)
         return std::move(cg.unit);
     else
-        return Maybe<std::unique_ptr<IR::Unit>>();
+        return Maybe<IR::Unit>();
 }
 
 void _CG::ast_visit(ASTNS::CU &ast) {
@@ -75,8 +75,8 @@ void _CG::ast_visit(ASTNS::CU &ast) {
 }
 
 void _CG::ast_visit(ASTNS::ImplDecl &ast) {
-    codegens.push_back(std::make_unique<Codegen::Impl>(*unit, unit->context, ast));
+    codegens.push_back(std::make_unique<Codegen::Impl>(unit, unit.context, ast));
 }
 void _CG::ast_visit(ASTNS::FunctionDecl &ast) {
-    codegens.push_back(std::make_unique<Codegen::Function>(*unit, unit->context, ast, Maybe<NNPtr<IR::Type>>(), unit->mod));
+    codegens.push_back(std::make_unique<Codegen::Function>(unit, unit.context, ast, Maybe<NNPtr<IR::Type>>(), unit.mod));
 }
