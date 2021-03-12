@@ -20,7 +20,7 @@ namespace Errors {
         static constexpr char const *NAME = "bad-char";
         Span tok;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class UntermCharlit : public Error {
     public:
@@ -30,7 +30,7 @@ namespace Errors {
         static constexpr char const *NAME = "unterm-charlit";
         Span tok;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class UntermStrlit : public Error {
     public:
@@ -40,7 +40,7 @@ namespace Errors {
         static constexpr char const *NAME = "unterm-strlit";
         Span tok;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class IndentBlockCbrace : public Error {
     public:
@@ -50,7 +50,7 @@ namespace Errors {
         static constexpr char const *NAME = "indent-block-cbrace";
         Span tok;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class InvalidNumlitBase : public Error {
     public:
@@ -60,7 +60,7 @@ namespace Errors {
         static constexpr char const *NAME = "invalid-numlit-base";
         Span tok;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class NondecimalFloatlit : public Error {
     public:
@@ -70,7 +70,7 @@ namespace Errors {
         static constexpr char const *NAME = "nondecimal-floatlit";
         Span tok;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class InvalidCharForBase : public Error {
     public:
@@ -80,7 +80,7 @@ namespace Errors {
         static constexpr char const *NAME = "invalid-char-for-base";
         Span tok;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class IntlitNoDigits : public Error {
     public:
@@ -90,7 +90,7 @@ namespace Errors {
         static constexpr char const *NAME = "intlit-no-digits";
         Span tok;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class MulticharCharlit : public Error {
     public:
@@ -100,7 +100,7 @@ namespace Errors {
         static constexpr char const *NAME = "multichar-charlit";
         Span tok;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class UntermMultilineComment : public Error {
     public:
@@ -110,7 +110,7 @@ namespace Errors {
         static constexpr char const *NAME = "unterm-multiline-comment";
         Span tok;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class DedentNomatch : public Error {
     public:
@@ -120,7 +120,7 @@ namespace Errors {
         static constexpr char const *NAME = "dedent-nomatch";
         Span tok;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class Expected : public Error {
     public:
@@ -131,7 +131,7 @@ namespace Errors {
         Span where;
         std::string what;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class LhsUnsupportedOp : public Error {
     public:
@@ -142,7 +142,7 @@ namespace Errors {
         Located<NNPtr<IR::Value>> lhs;
         Span op;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class UnaryUnsupportedOp : public Error {
     public:
@@ -153,7 +153,7 @@ namespace Errors {
         Located<NNPtr<IR::Value>> operand;
         Located<ASTNS::UnaryOperator> op;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class NoCall : public Error {
     public:
@@ -164,7 +164,7 @@ namespace Errors {
         Located<NNPtr<IR::Value>> func;
         Span oparn;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class IncorrectArg : public Error {
     public:
@@ -175,7 +175,7 @@ namespace Errors {
         Located<NNPtr<IR::Value>> arg;
         NNPtr<IR::Type const> expected;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class ConflTysIfexpr : public Error {
     public:
@@ -188,7 +188,7 @@ namespace Errors {
         Span iftok;
         Span elsetok;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class AssignConflictTys : public Error {
     public:
@@ -200,7 +200,7 @@ namespace Errors {
         Located<NNPtr<IR::Value>> rhs;
         Span eq;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class ConflictRetTy : public Error {
     public:
@@ -211,7 +211,7 @@ namespace Errors {
         Located<NNPtr<IR::Value>> val;
         NNPtr<IR::Function const> f;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class NoDeref : public Error {
     public:
@@ -222,7 +222,7 @@ namespace Errors {
         Span op;
         Located<NNPtr<IR::Value>> val;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class ConflictVarInitTy : public Error {
     public:
@@ -236,7 +236,7 @@ namespace Errors {
         Located<NNPtr<IR::Value>> init;
         NNPtr<IR::Type const> expected_type;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class InvalidCast : public Error {
     public:
@@ -248,7 +248,7 @@ namespace Errors {
         Located<NNPtr<IR::Value>> v;
         NNPtr<IR::Type const> newty;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class ConflictTysBinaryOp : public Error {
     public:
@@ -260,7 +260,7 @@ namespace Errors {
         Located<NNPtr<IR::Value>> rhs;
         Span op;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class CondNotBool : public Error {
     public:
@@ -270,7 +270,7 @@ namespace Errors {
         static constexpr char const *NAME = "cond-not-bool";
         Located<NNPtr<IR::Value>> v;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class PtrArithRhsNotNum : public Error {
     public:
@@ -282,7 +282,7 @@ namespace Errors {
         Located<ASTNS::BinaryOperator> optok;
         Located<NNPtr<IR::Value>> rhs;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class NoElseNotVoid : public Error {
     public:
@@ -293,7 +293,7 @@ namespace Errors {
         Located<NNPtr<IR::Value>> truev;
         Span iftok;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class TypelessThis : public Error {
     public:
@@ -303,7 +303,7 @@ namespace Errors {
         static constexpr char const *NAME = "typeless-this";
         NNPtr<ASTNS::ThisParam> p;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class WrongNumArgs : public Error {
     public:
@@ -315,7 +315,7 @@ namespace Errors {
         Span oparn;
         std::vector<Located<NNPtr<IR::Value>>> args;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class RedeclSym : public Error {
     public:
@@ -326,7 +326,7 @@ namespace Errors {
         Span name;
         NNPtr<IR::Value> val;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class UndeclSymb : public Error {
     public:
@@ -336,7 +336,7 @@ namespace Errors {
         static constexpr char const *NAME = "undecl-symb";
         Span path;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class RedeclParam : public Error {
     public:
@@ -347,7 +347,7 @@ namespace Errors {
         NNPtr<ASTNS::ParamB> param;
         NNPtr<IR::Register> prev;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class RedeclVar : public Error {
     public:
@@ -358,7 +358,7 @@ namespace Errors {
         Span name;
         NNPtr<IR::Register> prev;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class NotA_Type : public Error {
     public:
@@ -368,7 +368,7 @@ namespace Errors {
         static constexpr char const *NAME = "not-a-type";
         Span notty;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class NoMemberIn : public Error {
     public:
@@ -379,7 +379,7 @@ namespace Errors {
         NNPtr<IR::DeclSymbol> prev;
         Span current;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class NoThis : public Error {
     public:
@@ -389,7 +389,7 @@ namespace Errors {
         static constexpr char const *NAME = "no-this";
         Span th;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class NoMethod : public Error {
     public:
@@ -400,7 +400,7 @@ namespace Errors {
         Located<NNPtr<IR::Value>> op;
         Span name;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class NoField : public Error {
     public:
@@ -411,7 +411,7 @@ namespace Errors {
         Located<NNPtr<IR::Value>> op;
         Span name;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class AddrofNotLvalue : public Error {
     public:
@@ -422,7 +422,7 @@ namespace Errors {
         Span op;
         Located<NNPtr<IR::Value>> val;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class AssignInvalidLhs : public Error {
     public:
@@ -433,7 +433,7 @@ namespace Errors {
         Span eq;
         Located<NNPtr<IR::Value>> lhs;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class AssignNotMut : public Error {
     public:
@@ -445,7 +445,7 @@ namespace Errors {
         Span eq;
         NNPtr<IR::Register> reg;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class MutAddrofNonmutOp : public Error {
     public:
@@ -456,7 +456,7 @@ namespace Errors {
         Span op;
         NNPtr<IR::Register> reg;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     class ThisNotFirst : public Error {
     public:
@@ -466,7 +466,7 @@ namespace Errors {
         static constexpr char const *NAME = "this-not-first";
         NNPtr<ASTNS::ThisParam> ast;
     protected:
-        SimpleError toSimpleError() const override;
+        SimpleError to_simple_error() const override;
     };
     // ERR DECLS END }}}
 }

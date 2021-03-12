@@ -68,7 +68,7 @@ def gen_decls():
         output.append(f'    static constexpr char const *NAME = "{helpers.to_snake_case(err.name).replace("_", "-")}";\n')
         output.append(helpers.Field.as_fields(err.fields, indent=4))
         output.append( 'protected:\n')
-        output.append( '    SimpleError toSimpleError() const override;\n')
+        output.append( '    SimpleError to_simple_error() const override;\n')
         output.append( '};\n')
 
     return ''.join(output)

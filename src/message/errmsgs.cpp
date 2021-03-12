@@ -109,35 +109,35 @@ using namespace Errors::Sections;
 
 #define SIMPLE_ERROR_CONSTRUCT(where) SimpleError(SimpleError::Type::ERROR, where, CODE, NAME)
 
-Errors::SimpleError BadChar::toSimpleError() const {
+Errors::SimpleError BadChar::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(tok)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { tok, UNDER0, "bad character", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError UntermCharlit::toSimpleError() const {
+Errors::SimpleError UntermCharlit::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(tok)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { tok, UNDER0, "unclosed character literal", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError UntermStrlit::toSimpleError() const {
+Errors::SimpleError UntermStrlit::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(tok)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { tok, UNDER0, "unclosed string literal", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError IndentBlockCbrace::toSimpleError() const {
+Errors::SimpleError IndentBlockCbrace::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(tok)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { tok, UNDER0, "indentation block cannot be closed by explicit '}'", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError InvalidNumlitBase::toSimpleError() const {
+Errors::SimpleError InvalidNumlitBase::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(tok)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { tok, UNDER0, "invalid integer base", ERROR_COLOR },
@@ -145,56 +145,56 @@ Errors::SimpleError InvalidNumlitBase::toSimpleError() const {
         }))
         .value();
 }
-Errors::SimpleError NondecimalFloatlit::toSimpleError() const {
+Errors::SimpleError NondecimalFloatlit::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(tok)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { tok, UNDER0, "non-decimal floating point literal", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError InvalidCharForBase::toSimpleError() const {
+Errors::SimpleError InvalidCharForBase::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(tok)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { tok, UNDER0, "invalid digit for base", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError IntlitNoDigits::toSimpleError() const {
+Errors::SimpleError IntlitNoDigits::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(tok)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { tok, UNDER0, "integer literal with no digits", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError MulticharCharlit::toSimpleError() const {
+Errors::SimpleError MulticharCharlit::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(tok)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { tok, UNDER0, "character literal with more than one character", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError UntermMultilineComment::toSimpleError() const {
+Errors::SimpleError UntermMultilineComment::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(tok)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { tok, UNDER0, "multiline comment is missing closing '*/'", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError DedentNomatch::toSimpleError() const {
+Errors::SimpleError DedentNomatch::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(tok)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { tok, UNDER0, "dedent to level that does not match any other indentation level", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError Expected::toSimpleError() const {
+Errors::SimpleError Expected::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(where)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { where, UNDER0, format("expected {}", what), ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError LhsUnsupportedOp::toSimpleError() const {
+Errors::SimpleError LhsUnsupportedOp::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(op)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { op, UNDER0, "unsupported binary operator", ERROR_COLOR },
@@ -202,7 +202,7 @@ Errors::SimpleError LhsUnsupportedOp::toSimpleError() const {
         }))
         .value();
 }
-Errors::SimpleError UnaryUnsupportedOp::toSimpleError() const {
+Errors::SimpleError UnaryUnsupportedOp::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(op.span)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { op.span, UNDER0, "unsupported unary operator", ERROR_COLOR },
@@ -210,7 +210,7 @@ Errors::SimpleError UnaryUnsupportedOp::toSimpleError() const {
         }))
         .value();
 }
-Errors::SimpleError NoCall::toSimpleError() const {
+Errors::SimpleError NoCall::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(func.span)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { func.span, UNDER0, format("cannot call value of type {}", func.value->type()), ERROR_COLOR },
@@ -218,7 +218,7 @@ Errors::SimpleError NoCall::toSimpleError() const {
         .value();
 }
 
-Errors::SimpleError IncorrectArg::toSimpleError() const {
+Errors::SimpleError IncorrectArg::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(arg.span)
         .section(std::make_unique<Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { arg.span, UNDER0, format("wrong type passed to function call: {}", arg.value->type()), ERROR_COLOR },
@@ -226,7 +226,7 @@ Errors::SimpleError IncorrectArg::toSimpleError() const {
         }))
         .value();
 }
-Errors::SimpleError ConflTysIfexpr::toSimpleError() const {
+Errors::SimpleError ConflTysIfexpr::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(iftok)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { iftok, UNDER0, "conflicting types for branches of if expression", ERROR_COLOR },
@@ -235,7 +235,7 @@ Errors::SimpleError ConflTysIfexpr::toSimpleError() const {
         }))
         .value();
 }
-Errors::SimpleError AssignConflictTys::toSimpleError() const {
+Errors::SimpleError AssignConflictTys::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(eq)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { eq, UNDER0, "conflicting types for assignment", ERROR_COLOR },
@@ -244,7 +244,7 @@ Errors::SimpleError AssignConflictTys::toSimpleError() const {
         }))
         .value();
 }
-Errors::SimpleError ConflictRetTy::toSimpleError() const {
+Errors::SimpleError ConflictRetTy::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(val.span)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { val.span, UNDER0, "conflicting return type", ERROR_COLOR },
@@ -253,14 +253,14 @@ Errors::SimpleError ConflictRetTy::toSimpleError() const {
         }))
         .value();
 }
-Errors::SimpleError NoDeref::toSimpleError() const {
+Errors::SimpleError NoDeref::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(val.span)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { op, UNDER0, format("dereferencing of non-pointer type {}", val.value->type()), ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError ConflictVarInitTy::toSimpleError() const {
+Errors::SimpleError ConflictVarInitTy::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(eq)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { init.span, UNDER0, "conflicting types for variable initialization", ERROR_COLOR },
@@ -269,14 +269,14 @@ Errors::SimpleError ConflictVarInitTy::toSimpleError() const {
         }))
         .value();
 }
-Errors::SimpleError InvalidCast::toSimpleError() const {
+Errors::SimpleError InvalidCast::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(ast->span())
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { ast->span(), UNDER0, format("invalid cast from {} to {}", v.value->type(), *newty), ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError ConflictTysBinaryOp::toSimpleError() const {
+Errors::SimpleError ConflictTysBinaryOp::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(op)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { op, UNDER0, "conflicting types to binary operator", ERROR_COLOR },
@@ -285,14 +285,14 @@ Errors::SimpleError ConflictTysBinaryOp::toSimpleError() const {
         }))
         .value();
 }
-Errors::SimpleError CondNotBool::toSimpleError() const {
+Errors::SimpleError CondNotBool::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(v.span)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { v.span, UNDER0, format("usage of {} as condition", v.value->type()), ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError PtrArithRhsNotNum::toSimpleError() const {
+Errors::SimpleError PtrArithRhsNotNum::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(optok.span)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { optok.span, UNDER0, "pointer arithmetic requires an integral right-hand operand", ERROR_COLOR },
@@ -300,7 +300,7 @@ Errors::SimpleError PtrArithRhsNotNum::toSimpleError() const {
         }))
         .value();
 }
-Errors::SimpleError NoElseNotVoid::toSimpleError() const {
+Errors::SimpleError NoElseNotVoid::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(iftok)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { iftok, UNDER0, "if expression with non-void true expression and no else case", ERROR_COLOR },
@@ -308,14 +308,14 @@ Errors::SimpleError NoElseNotVoid::toSimpleError() const {
         }))
         .value();
 }
-Errors::SimpleError TypelessThis::toSimpleError() const {
+Errors::SimpleError TypelessThis::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(p->span())
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { p->span(), UNDER0, "'this' parameter not allowed outside of impl or class block", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError WrongNumArgs::toSimpleError() const {
+Errors::SimpleError WrongNumArgs::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(oparn)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { oparn, UNDER0, "wrong number of arguments to function call", ERROR_COLOR },
@@ -323,7 +323,7 @@ Errors::SimpleError WrongNumArgs::toSimpleError() const {
         }))
         .value();
 }
-Errors::SimpleError RedeclSym::toSimpleError() const {
+Errors::SimpleError RedeclSym::to_simple_error() const {
     auto se = SIMPLE_ERROR_CONSTRUCT(name);
     auto sec = std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
         Underlines::Message { name, UNDER0, "redeclaration of symbol", ERROR_COLOR },
@@ -336,14 +336,14 @@ Errors::SimpleError RedeclSym::toSimpleError() const {
 
     return se;
 }
-Errors::SimpleError UndeclSymb::toSimpleError() const {
+Errors::SimpleError UndeclSymb::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(path)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { path, UNDER0, "undeclared symbol", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError RedeclParam::toSimpleError() const {
+Errors::SimpleError RedeclParam::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(param->span())
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { param->span(), UNDER0, "redeclaration of parameter", ERROR_COLOR },
@@ -351,7 +351,7 @@ Errors::SimpleError RedeclParam::toSimpleError() const {
         }))
         .value();
 }
-Errors::SimpleError RedeclVar::toSimpleError() const {
+Errors::SimpleError RedeclVar::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(name)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { name, UNDER0, "redeclaration of variable", ERROR_COLOR },
@@ -359,56 +359,56 @@ Errors::SimpleError RedeclVar::toSimpleError() const {
         }))
         .value();
 }
-Errors::SimpleError NotA_Type::toSimpleError() const {
+Errors::SimpleError NotA_Type::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(notty)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { notty, UNDER0, "not a type", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError NoMemberIn::toSimpleError() const {
+Errors::SimpleError NoMemberIn::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(current)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { current, UNDER0, format("no member called {} in {}", current.stringify(), *prev), ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError NoThis::toSimpleError() const {
+Errors::SimpleError NoThis::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(th)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { th, UNDER0, "usage of 'this' outside method", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError NoMethod::toSimpleError() const {
+Errors::SimpleError NoMethod::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(name)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { name, UNDER0, format("no method called '{}' on value of type {}", name.stringify(), op.value->type()), ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError NoField::toSimpleError() const {
+Errors::SimpleError NoField::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(name)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { name, UNDER0, format("no field called '{}' on value of type {}", name.stringify(), op.value->type()), ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError AddrofNotLvalue::toSimpleError() const {
+Errors::SimpleError AddrofNotLvalue::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(val.span)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { op, UNDER0, "taking address of non-lvalue", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError AssignInvalidLhs::toSimpleError() const {
+Errors::SimpleError AssignInvalidLhs::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(eq)
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { eq, UNDER0, "non-lvalue assignment", ERROR_COLOR },
         }))
         .value();
 }
-Errors::SimpleError AssignNotMut::toSimpleError() const {
+Errors::SimpleError AssignNotMut::to_simple_error() const {
     auto se = SIMPLE_ERROR_CONSTRUCT(v.span);
     auto sec = std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
         Underlines::Message { eq, UNDER0, "cannot assign to immutable lvalue", ERROR_COLOR },
@@ -420,7 +420,7 @@ Errors::SimpleError AssignNotMut::toSimpleError() const {
     se.section(std::move(sec));
     return se;
 }
-Errors::SimpleError MutAddrofNonmutOp::toSimpleError() const {
+Errors::SimpleError MutAddrofNonmutOp::to_simple_error() const {
     auto se = SIMPLE_ERROR_CONSTRUCT(op);
     auto sec = std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
         Underlines::Message { op, UNDER0, "cannot take mutable pointer to non-mutable lvalue", ERROR_COLOR },
@@ -433,7 +433,7 @@ Errors::SimpleError MutAddrofNonmutOp::toSimpleError() const {
 
     return se;
 }
-Errors::SimpleError ThisNotFirst::toSimpleError() const {
+Errors::SimpleError ThisNotFirst::to_simple_error() const {
     return SIMPLE_ERROR_CONSTRUCT(ast->span())
         .section(std::make_unique<Sections::Underlines>(std::vector<Underlines::Message> {
             Underlines::Message { ast->span(), UNDER0, "'this' parameter must be the first parameter of a method", ERROR_COLOR },

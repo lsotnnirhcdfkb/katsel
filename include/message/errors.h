@@ -38,10 +38,10 @@ namespace Errors {
     public:
         virtual ~Error() = default;
         inline void report() const {
-            toSimpleError().report();
+            to_simple_error().report();
         }
 
     protected:
-        virtual SimpleError toSimpleError() const = 0;
+        virtual SimpleError to_simple_error() const = 0;
     };
 }
