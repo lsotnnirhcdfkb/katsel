@@ -122,13 +122,13 @@ int compile_file(OutFormats ofmt, std::string_view filename) {
         if (os.has_error())
             return false;
 
-        unit->print(os);
+        unit.print(os);
 
         os.close();
         return true;
     }
 
-    auto lowerer = std::make_unique<Lower::Lowerer>(*unit);
+    auto lowerer = std::make_unique<Lower::Lowerer>(unit);
     if (!lowerer->lower())
         return false;
 
