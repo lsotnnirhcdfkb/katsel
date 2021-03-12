@@ -204,7 +204,9 @@ void Lexer::lex_more() {
             } else if (indent < indent_stack.back().level) {
                 add_token(make_token(TokenTypes::Newline {}));
                 while (indent < indent_stack.back().level && indent_stack.back().indentation_sensitive) {
+                    // TODO: do not pop if empty
                     add_token(make_token(TokenTypes::Dedent {}));
+
                     indent_stack.pop_back();
                 }
 
@@ -242,6 +244,7 @@ void Lexer::lex_more() {
             return;
         case '}':
             if (!indent_stack.back().indentation_sensitive) {
+                // TODO: do not pop if empty
                 indent_stack.pop_back();
                 add_token(make_token(TokenTypes::CBrace {}));
             } else {
