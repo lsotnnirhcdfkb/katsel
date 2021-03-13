@@ -1,4 +1,4 @@
-# Katsel
+# katsel
 
 A language some things.
 I maintain this for fun; you probably wouldn't want to use this ever.
