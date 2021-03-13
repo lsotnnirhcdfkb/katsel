@@ -1,6 +1,3 @@
-# vim swap files
-*.swp
-
 # files of code in other languages in order to take inspiration from them
 # also the katsel scratch file that I use to mess around with
 _v/*
