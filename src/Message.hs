@@ -21,7 +21,7 @@ report (SimpleDiag ty loc (DiagCode code) name sections) =
     shownSections ++
     footer ++ "\n"
     where
-        header = show ty ++ " at " ++ asRowCol loc ++ ":"
+        header = show ty ++ " at " ++ show loc ++ ":"
         footer = indentStr ++ "==> [" ++ code ++ "]: " ++ name
 
         shownSections = concat $ map (showSection indentAmt) sections

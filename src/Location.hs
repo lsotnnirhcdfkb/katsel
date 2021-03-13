@@ -2,7 +2,6 @@ module Location
     ( Location
     , Span
     , Located(..)
-    , asRowCol
     ) where
 
 import File
@@ -12,11 +11,14 @@ newtype ColumnNum = ColumnNum Int
 newtype LineNum = LineNum Int
 
 data Location = Location File SourceIndex LineNum ColumnNum
+instance Show Location where
+    show (Location file _ (LineNum lnnr) (ColumnNum coln)) =
+        name file ++ ":" ++ show lnnr ++ show coln
 
 data Span = Span Location Int
+instance Show Span where
+    show (Span start len) = show start ++ "+" ++ show len
 
 data Located a = Located Span a
-
-asRowCol :: Location -> String
-asRowCol (Location file _ (LineNum lnnr) (ColumnNum coln)) =
-    name file ++ ":" ++ show lnnr ++ show coln
+instance Show a => Show (Located a) where
+    show (Located sp a) = "<" ++ show sp ++ ": " ++ show a ++ ">"

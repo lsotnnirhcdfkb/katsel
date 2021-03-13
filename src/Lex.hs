@@ -1,6 +1,7 @@
 module Lex where
 
 import File
+import Location
 
 data IntLitBase = Decimal
                 | Octal
@@ -92,12 +93,12 @@ data Lexer = Lexer
              , remaining :: String
              }
 
-lex :: File -> [Token]
+lex :: File -> [Located Token]
 lex f = lex' $ Lexer
            { sourcefile = f
            , sourceLocation = 0
            , remaining = source f
            }
 
-lex' :: Lexer -> [Token]
+lex' :: Lexer -> [Located Token]
 lex' _ = error "todo"
