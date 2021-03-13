@@ -100,8 +100,8 @@ lex f = lex' $ Lexer
            { sourcefile = f
            , sourceLocation = 0
            , remaining = source f
-           , lnn = 0
-           , coln = 0
+           , lnn = 1
+           , coln = 1
            }
 
 lex' :: Lexer -> [Located Token]
