@@ -1,16 +1,34 @@
 # vim swap files
 *.swp
 
-# python script caches, found in the utils/ directory
-*__pycache__*
-
 # files of code in other languages in order to take inspiration from them
 # also the katsel scratch file that I use to mess around with
-_v*
+_v/*
 
 # no DS_Store files please
 **/.DS_Store
 
-# python scripts that use libclang to search for certain AST elements through the source code,
-# so that I can easily make sweeping changes throughout the entire codebase
-finds/*
+# from the gitignore Haskell template
+dist
+dist-*
+cabal-dev
+*.o
+*.hi
+*.hie
+*.chi
+*.chs.h
+*.dyn_o
+*.dyn_hi
+.hpc
+.hsenv
+.cabal-sandbox/
+cabal.sandbox.config
+*.prof
+*.aux
+*.hp
+*.eventlog
+.stack-work/
+cabal.project.local
+cabal.project.local~
+.HTF/
+.ghc.environment.*
