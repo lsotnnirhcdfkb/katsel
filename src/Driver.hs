@@ -6,8 +6,6 @@ module Driver
 
 import File
 
-import Data.List(foldl')
-
 import qualified Lex
 
 data Backend = CBackend
@@ -20,4 +18,4 @@ data OutputFormat = Lexed
 run :: String -> IO ()
 run filename =
     openFile filename >>= \ file ->
-    putStrLn $ foldl' (\ acc new -> acc ++ " " ++ new) "" $ map show $ Lex.lex file
+    putStrLn $ concat $ map show $ Lex.lex file
