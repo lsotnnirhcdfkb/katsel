@@ -1,4 +1,11 @@
-module Message where
+module Message
+    ( Section
+    , SimpleDiagType
+    , SimpleDiag
+    , DiagCode
+    , report
+    , toDiagnostic
+    ) where
 
 import Location
 
@@ -14,6 +21,9 @@ instance Show SimpleDiagType where
 newtype DiagCode = DiagCode String
 
 data SimpleDiag = SimpleDiag SimpleDiagType Location DiagCode String [Section]
+
+class ToDiagnostic e where
+    toDiagnostic :: e -> SimpleDiag
 
 report :: SimpleDiag -> String
 report (SimpleDiag ty loc (DiagCode code) name sections) =
