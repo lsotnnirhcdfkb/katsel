@@ -4,7 +4,8 @@ A language some things.
 I maintain this for fun; you probably wouldn't want to use this ever.
 
 ## To do things
-You need Python, colorama (for testing script color coding), and LLVM
+You need [The Haskell Tool Stack](https://docs.haskellstack.org/en/stable/README/), and probably nothing else so far.
+Unlike in the `oldcpp` branch, I'm planning to have the Haskell port use C code as a backend.
 
 ## Inspiration/Resources/Info
 - [Crafting Interpreters by Bob Nystrom](https://craftinginterpreters.com/)
