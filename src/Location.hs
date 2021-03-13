@@ -15,7 +15,7 @@ newtype LineNum = LineNum Int
 data Location = Location File SourceIndex LineNum ColumnNum
 instance Show Location where
     show (Location file _ (LineNum lnnr) (ColumnNum coln)) =
-        name file ++ ":" ++ show lnnr ++ show coln
+        name file ++ ":" ++ show lnnr ++ ":" ++ show coln
 
 data Span = Span Location Int
 instance Show Span where
