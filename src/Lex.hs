@@ -3,6 +3,8 @@ module Lex where
 import File
 import Location
 
+import qualified Message
+
 data IntLitBase = Decimal
                 | Octal
                 | Hex
@@ -83,8 +85,6 @@ data Token = OParen
            | Indent
            | Dedent
            | Newline
-           | EOF
-           | Error String
            deriving Show
 
 data Lexer = Lexer
@@ -95,7 +95,20 @@ data Lexer = Lexer
              , coln :: Int
              }
 
-lex :: File -> [Located Token]
+data LexError = BadChar Char Span
+              | UntermMultiline Span
+
+instance Message.ToDiagnostic LexError where
+    toDiagnostic (BadChar ch sp) =
+        Message.SimpleDiag Message.Error sp (Message.DiagCode "E0001") "bad-char" [
+            Message.SimpleText $ "bad character '" ++ (ch : "'")
+        ]
+    toDiagnostic (UntermMultiline sp) =
+        Message.SimpleDiag Message.Error sp (Message.DiagCode "E0002") "unterm-multiline-cmt" [
+            Message.SimpleText $ "unterminated multiline comment"
+        ]
+
+lex :: File -> [Either LexError (Located Token)]
 lex f = lex' $ Lexer
            { sourcefile = f
            , sourceLocation = 0
@@ -104,7 +117,7 @@ lex f = lex' $ Lexer
            , coln = 1
            }
 
-lex' :: Lexer -> [Located Token]
+lex' :: Lexer -> [Either LexError (Located Token)]
 lex' lexer =
     case remaining lexer of
         '\r':_ -> skipChar
@@ -119,36 +132,38 @@ lex' lexer =
         '/':'*':next ->
             case commentLength of
                 Right cl -> continueLex cl
-                Left charsToEnd -> [makeToken charsToEnd $ Error "unterminated multiline comment"]
+                Left charsToEnd -> [Left $ makeError charsToEnd UntermMultiline]
             where
                 commentLength = case charsUntilCommentEnd next of
                     Right cl -> Right $ 4 + cl
-                    Left charsToEnd -> Right $ 2 + charsToEnd
+                    Left charsToEnd -> Left $ 2 + charsToEnd
 
-                charsUntilCommentEnd ('/':'*':next) = charsUntilCommentEnd next
+                charsUntilCommentEnd ('/':'*':rest) = charsUntilCommentEnd rest
                 charsUntilCommentEnd ('*':'/':_) = Right 0
-                charsUntilCommentEnd (_:next) =
-                    case charsUntilCommentEnd next of
+                charsUntilCommentEnd (_:rest) =
+                    case charsUntilCommentEnd rest of
                         Right l -> Right $ 1 + l
                         Left l -> Left $ 1 + l
                 charsUntilCommentEnd [] = Left 0
 
-        [] ->
-            [makeToken 1 EOF]
-        _ ->
-            continueLexWithTok 1 $ Error "No"
+        -- TODO: indentation
+
+        [] -> []
+        bad:_ ->
+            continueLexWithErr 1 $ BadChar bad
 
     where
+        continueLex advanceamt = lex' $ lexer `advance` advanceamt
         skipChar = continueLex 1
 
-        continueLexWithTok len tok =
-            (makeToken len tok) : continueLex len
+        continueLexWithTok len tok = (Right $ makeToken len tok) : continueLex len
+        continueLexWithErr len err = (Left $ makeError len err) : continueLex len
 
-        continueLex advanceamt =
-            lex' $ lexer `advance` advanceamt
+        makeToken len tok = Located (makeSpanFromLexer len) tok
+        makeError len err = err $ makeSpanFromLexer len
 
-        makeToken len tok =
-            Located (makeSpan file srci l c len) tok
+        makeSpanFromLexer len =
+            makeSpan file srci l c len
             where
                 file = sourcefile lexer
                 srci = sourceLocation lexer

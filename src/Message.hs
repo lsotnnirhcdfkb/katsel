@@ -39,7 +39,7 @@ sgrOfDiagType DebugMessage = [boldSGR, vividForeColorSGR ANSI.Green]
 
 newtype DiagCode = DiagCode String
 
-data SimpleDiag = SimpleDiag SimpleDiagType Location DiagCode String [Section]
+data SimpleDiag = SimpleDiag SimpleDiagType Span DiagCode String [Section]
 
 class ToDiagnostic e where
     toDiagnostic :: e -> SimpleDiag

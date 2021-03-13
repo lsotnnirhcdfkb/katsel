@@ -22,9 +22,11 @@ run filename =
     openFile filename >>= \ file ->
     putStrLn $ concat $ map (Message.report . TokenDebugMessage) $ Lex.lex file
 
-data TokenDebugMessage = TokenDebugMessage (Located Lex.Token)
+data TokenDebugMessage = TokenDebugMessage (Either Lex.LexError (Located Lex.Token))
 instance Message.ToDiagnostic TokenDebugMessage where
-    toDiagnostic (TokenDebugMessage (Located (Span loc _) tok)) =
-        Message.SimpleDiag (Message.DebugMessage) loc (Message.DiagCode "DXXXX") "token" [
+    toDiagnostic (TokenDebugMessage (Right (Located sp tok))) =
+        Message.SimpleDiag Message.DebugMessage sp (Message.DiagCode "DXXXX") "token" [
             Message.SimpleText $ show tok
         ]
+
+    toDiagnostic (TokenDebugMessage (Left err)) = Message.toDiagnostic err
