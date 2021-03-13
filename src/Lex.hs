@@ -148,9 +148,63 @@ lex' lexer =
 
         -- TODO: indentation
 
+
+        '<':'<':'=':_ -> continueLexWithTok 3 DoubleLessEqual
+        '>':'>':'=':_ -> continueLexWithTok 3 DoubleGreaterEqual
+
+        '+':'=':_ -> continueLexWithTok 2 PlusEqual
+        '-':'=':_ -> continueLexWithTok 2 MinusEqual
+        '*':'=':_ -> continueLexWithTok 2 StarEqual
+        '/':'=':_ -> continueLexWithTok 2 SlashEqual
+        '%':'=':_ -> continueLexWithTok 2 PercentEqual
+        '<':'=':_ -> continueLexWithTok 2 LessEqual
+        '>':'=':_ -> continueLexWithTok 2 GreaterEqual
+        '!':'=':_ -> continueLexWithTok 2 BangEqual
+        '&':'=':_ -> continueLexWithTok 2 AmperEqual
+        '|':'=':_ -> continueLexWithTok 2 PipeEqual
+        '^':'=':_ -> continueLexWithTok 2 CaretEqual
+
+        '=':'=':_ -> continueLexWithTok 2 DoubleEqual
+        '+':'+':_ -> continueLexWithTok 2 DoublePlus
+        '-':'-':_ -> continueLexWithTok 2 DoubleMinus
+        '&':'&':_ -> continueLexWithTok 2 DoubleAmper
+        '|':'|':_ -> continueLexWithTok 2 DoublePipe
+        '<':'<':_ -> continueLexWithTok 2 DoubleLess
+        '>':'>':_ -> continueLexWithTok 2 DoubleGreater
+        ':':':':_ -> continueLexWithTok 2 DoubleColon
+
+        '-':'>':_ -> continueLexWithTok 2 RightArrow
+        '<':'-':_ -> continueLexWithTok 2 LeftArrow
+
+        '(':_ -> singleCharTok OParen
+        ')':_ -> singleCharTok CParen
+        '[':_ -> singleCharTok OBrack
+        ']':_ -> singleCharTok CBrack
+        '{':_ -> singleCharTok OBrace
+        '}':_ -> singleCharTok CBrace
+        ';':_ -> singleCharTok Semicolon
+        ',':_ -> singleCharTok Comma
+        '.':_ -> singleCharTok Period
+        '?':_ -> singleCharTok Question
+        '~':_ -> singleCharTok Tilde
+        '#':_ -> singleCharTok Hash
+        '$':_ -> singleCharTok Dollar
+        '!':_ -> singleCharTok Bang
+        '=':_ -> singleCharTok Equal
+        ':':_ -> singleCharTok Colon
+        '+':_ -> singleCharTok Plus
+        '-':_ -> singleCharTok Minus
+        '*':_ -> singleCharTok Star
+        '/':_ -> singleCharTok Slash
+        '%':_ -> singleCharTok Percent
+        '<':_ -> singleCharTok Less
+        '>':_ -> singleCharTok Greater
+        '^':_ -> singleCharTok Caret
+        '&':_ -> singleCharTok Amper
+        '|':_ -> singleCharTok Pipe
+
         [] -> []
-        bad:_ ->
-            continueLexWithErr 1 $ BadChar bad
+        bad:_ -> continueLexWithErr 1 $ BadChar bad
 
     where
         continueLex advanceamt = lex' $ lexer `advance` advanceamt
@@ -161,6 +215,8 @@ lex' lexer =
 
         makeToken len tok = Located (makeSpanFromLexer len) tok
         makeError len err = err $ makeSpanFromLexer len
+
+        singleCharTok = continueLexWithTok 1
 
         makeSpanFromLexer len =
             makeSpan file srci startln startcoln len endln endcoln

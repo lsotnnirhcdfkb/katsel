@@ -22,9 +22,8 @@ import qualified System.Console.ANSI as ANSI
 boldSGR :: ANSI.SGR
 boldSGR = ANSI.SetConsoleIntensity ANSI.BoldIntensity
 
-vividForeColorSGR, dullForeColorSGR :: ANSI.Color -> ANSI.SGR
+vividForeColorSGR :: ANSI.Color -> ANSI.SGR
 vividForeColorSGR = ANSI.SetColor ANSI.Foreground ANSI.Vivid
-dullForeColorSGR = ANSI.SetColor ANSI.Foreground ANSI.Dull
 
 filePathSGR :: [ANSI.SGR]
 filePathSGR = [boldSGR, vividForeColorSGR ANSI.Cyan]
@@ -123,7 +122,7 @@ showSection indent (Underlines msgs linenrs) =
 
                 colorOfType ErrorUnderline = [boldSGR, vividForeColorSGR ANSI.Red]
                 colorOfType WarningUnderline = [boldSGR, vividForeColorSGR ANSI.Magenta]
-                colorOfType NoteUnderline = [dullForeColorSGR ANSI.Green]
+                colorOfType NoteUnderline = [boldSGR, vividForeColorSGR ANSI.Green]
                 colorOfType HintUnderline = [boldSGR, vividForeColorSGR ANSI.Blue]
 
                 assignedMessages =
