@@ -25,7 +25,7 @@ run filename =
 data TokenDebugMessage = TokenDebugMessage (Either Lex.LexError (Located Lex.Token))
 instance Message.ToDiagnostic TokenDebugMessage where
     toDiagnostic (TokenDebugMessage (Right (Located sp tok))) =
-        Message.SimpleDiag Message.DebugMessage sp (Message.DiagCode "DXXXX") "token" [
+        Message.SimpleDiag Message.DebugMessage (Just sp) Nothing Nothing [
             Message.SimpleText $ show tok
         ]
 

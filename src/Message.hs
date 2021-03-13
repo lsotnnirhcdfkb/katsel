@@ -2,10 +2,10 @@ module Message
     ( Section(..)
     , SimpleDiagType(..)
     , SimpleDiag(..)
-    , DiagCode(..)
     , ToDiagnostic
     , report
     , toDiagnostic
+    , makeCode
     ) where
 
 import Location
@@ -39,7 +39,10 @@ sgrOfDiagType DebugMessage = [boldSGR, vividForeColorSGR ANSI.Green]
 
 newtype DiagCode = DiagCode String
 
-data SimpleDiag = SimpleDiag SimpleDiagType Span DiagCode String [Section]
+makeCode :: String -> Maybe DiagCode
+makeCode str = Just $ DiagCode str
+
+data SimpleDiag = SimpleDiag SimpleDiagType (Maybe Span) (Maybe DiagCode) (Maybe String) [Section]
 
 class ToDiagnostic e where
     toDiagnostic :: e -> SimpleDiag
@@ -48,13 +51,29 @@ report :: (ToDiagnostic e) => e -> String
 report = report' . toDiagnostic
 
 report' :: SimpleDiag -> String
-report' (SimpleDiag ty loc (DiagCode code) name sections) =
+report' (SimpleDiag ty maybeSpan maybeDiagCode maybeName sections) =
     header ++ "\n" ++
     shownSections ++
-    footer ++ "\n"
+    footer
     where
-        header = ANSI.setSGRCode (sgrOfDiagType ty) ++ show ty ++ ANSI.setSGRCode [] ++ " at " ++ ANSI.setSGRCode filePathSGR ++ show loc ++ ANSI.setSGRCode [] ++ ":"
-        footer = indentStr ++ "==> [" ++ ANSI.setSGRCode [boldSGR] ++ code ++ ANSI.setSGRCode [] ++ "]: " ++ name
+        header =
+            ANSI.setSGRCode (sgrOfDiagType ty) ++ show ty ++ ANSI.setSGRCode [] ++
+            (case maybeSpan of
+                Just sp -> " at " ++ ANSI.setSGRCode filePathSGR ++ show sp ++ ANSI.setSGRCode []
+                Nothing -> ""
+            ) ++ ":"
+
+        footer =
+            (case (maybeDiagCode, maybeName) of
+                (Just (DiagCode diagCode), Just diagName) -> prefix ++ diagCodeFmt diagCode ++ ": " ++ diagName ++ "\n"
+                (Nothing                 , Just diagName) -> prefix ++ diagName ++ "\n"
+                (Just (DiagCode diagCode), Nothing      ) -> prefix ++ diagCodeFmt diagCode ++ "\n"
+
+                _ -> ""
+            )
+            where
+                diagCodeFmt code = "[" ++ ANSI.setSGRCode [boldSGR] ++ code ++ ANSI.setSGRCode [] ++ "]"
+                prefix = indentStr ++ "==> "
 
         shownSections = concat $ map (showSection indentAmt) sections
 

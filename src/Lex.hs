@@ -100,11 +100,11 @@ data LexError = BadChar Char Span
 
 instance Message.ToDiagnostic LexError where
     toDiagnostic (BadChar ch sp) =
-        Message.SimpleDiag Message.Error sp (Message.DiagCode "E0001") "bad-char" [
+        Message.SimpleDiag Message.Error (Just sp) (Message.makeCode "E0001") (Just "bad-char") [
             Message.SimpleText $ "bad character '" ++ (ch : "'")
         ]
     toDiagnostic (UntermMultiline sp) =
-        Message.SimpleDiag Message.Error sp (Message.DiagCode "E0002") "unterm-multiline-cmt" [
+        Message.SimpleDiag Message.Error (Just sp) (Message.makeCode "E0002") (Just "unterm-multiline-cmt") [
             Message.SimpleText $ "unterminated multiline comment"
         ]
 
