@@ -107,17 +107,26 @@ lex f = lex' $ Lexer
 lex' :: Lexer -> [Located Token]
 lex' lexer =
     case remaining lexer of
+        '\r':_ -> skipChar
+        '\n':_ -> skipChar
+        ' ' :_ -> skipChar
+        '\t':_ -> skipChar
+
+        -- '/':'/':_ -> error "comment"
+        -- '/':'*':_ -> error "multiline comment"
+
         [] ->
-            [fst $ makeToken 1 EOF]
+            [makeToken 1 EOF]
         _ ->
-            continueLex $ makeToken 1 $ Error "No"
+            continueLexWithTok 1 $ Error "No"
+
     where
-        makeToken len tok = (makeToken' len tok, lexer `advance` len)
+        skipChar = lex' $ lexer `advance` 1
 
-        continueLex (tok1, nextLexer) =
-            tok1 : lex' nextLexer
+        continueLexWithTok len tok =
+            (makeToken len tok) : lex' (lexer `advance` len)
 
-        makeToken' len tok =
+        makeToken len tok =
             Located (makeSpan file srci l c len) tok
             where
                 file = sourcefile lexer
