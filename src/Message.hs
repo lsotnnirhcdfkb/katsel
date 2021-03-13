@@ -68,4 +68,4 @@ showSection :: Int -> Section -> String
 showSection indent (SimpleText text) = makeIndentStr indent ++ text ++ "\n"
 
 makeIndentStr :: Int -> String
-makeIndentStr x = replicate x ' '
+makeIndentStr x = take x $ repeat ' '

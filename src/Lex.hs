@@ -112,8 +112,26 @@ lex' lexer =
         ' ' :_ -> skipChar
         '\t':_ -> skipChar
 
-        -- '/':'/':_ -> error "comment"
-        -- '/':'*':_ -> error "multiline comment"
+        '/':'/':_ ->
+            let comment = takeWhile (/='\n') (drop 2 $ remaining lexer)
+            in continueLex $ length comment + 3
+
+        '/':'*':_ ->
+            case commentLength of
+                Right cl -> continueLex cl
+                Left charsToEnd -> [makeToken charsToEnd $ Error "unterminated multiline comment"]
+            where
+                commentLength = case charsUntilCommentEnd (remaining lexer) of
+                    Right cl -> Right $ 4 + cl
+                    Left charsToEnd -> Right $ 2 + charsToEnd
+
+                charsUntilCommentEnd ('/':'*':next) = charsUntilCommentEnd next
+                charsUntilCommentEnd ('*':'/':_) = Right 0
+                charsUntilCommentEnd (_:next) =
+                    case charsUntilCommentEnd next of
+                        Right l -> Right $ 1 + l
+                        Left l -> Left $ 1 + l
+                charsUntilCommentEnd [] = Left 0
 
         [] ->
             [makeToken 1 EOF]
@@ -121,10 +139,13 @@ lex' lexer =
             continueLexWithTok 1 $ Error "No"
 
     where
-        skipChar = lex' $ lexer `advance` 1
+        skipChar = continueLex 1
 
         continueLexWithTok len tok =
-            (makeToken len tok) : lex' (lexer `advance` len)
+            (makeToken len tok) : continueLex len
+
+        continueLex advanceamt =
+            lex' $ lexer `advance` advanceamt
 
         makeToken len tok =
             Located (makeSpan file srci l c len) tok
