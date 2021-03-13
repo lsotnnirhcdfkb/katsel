@@ -1,8 +1,9 @@
 module Message
-    ( Section
-    , SimpleDiagType
-    , SimpleDiag
-    , DiagCode
+    ( Section(..)
+    , SimpleDiagType(..)
+    , SimpleDiag(..)
+    , DiagCode(..)
+    , ToDiagnostic
     , report
     , toDiagnostic
     ) where
@@ -13,10 +14,12 @@ data Section = SimpleText String
 
 data SimpleDiagType = Error
                     | Warning
+                    | DebugMessage
 
 instance Show SimpleDiagType where
     show Error = "error"
     show Warning = "warning"
+    show DebugMessage = "debug message"
 
 newtype DiagCode = DiagCode String
 
@@ -25,8 +28,11 @@ data SimpleDiag = SimpleDiag SimpleDiagType Location DiagCode String [Section]
 class ToDiagnostic e where
     toDiagnostic :: e -> SimpleDiag
 
-report :: SimpleDiag -> String
-report (SimpleDiag ty loc (DiagCode code) name sections) =
+report :: (ToDiagnostic e) => e -> String
+report = report' . toDiagnostic
+
+report' :: SimpleDiag -> String
+report' (SimpleDiag ty loc (DiagCode code) name sections) =
     header ++ "\n" ++
     shownSections ++
     footer ++ "\n"

@@ -1,6 +1,6 @@
 module Location
-    ( Location
-    , Span
+    ( Location(..)
+    , Span(..)
     , Located(..)
     ) where
 
