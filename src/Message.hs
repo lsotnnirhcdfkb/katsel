@@ -10,6 +10,17 @@ module Message
 
 import Location
 
+import qualified System.Console.ANSI as ANSI
+
+boldSGR :: ANSI.SGR
+boldSGR = ANSI.SetConsoleIntensity ANSI.BoldIntensity
+
+vividForeColorSGR :: ANSI.Color -> ANSI.SGR
+vividForeColorSGR = ANSI.SetColor ANSI.Foreground ANSI.Vivid
+
+filePathSGR :: [ANSI.SGR]
+filePathSGR = [boldSGR, vividForeColorSGR ANSI.Cyan]
+
 data Section = SimpleText String
 
 data SimpleDiagType = Error
@@ -20,6 +31,11 @@ instance Show SimpleDiagType where
     show Error = "error"
     show Warning = "warning"
     show DebugMessage = "debug message"
+
+sgrOfDiagType :: SimpleDiagType -> [ANSI.SGR]
+sgrOfDiagType Error = [boldSGR, vividForeColorSGR ANSI.Red]
+sgrOfDiagType Warning = [boldSGR, vividForeColorSGR ANSI.Magenta]
+sgrOfDiagType DebugMessage = [boldSGR, vividForeColorSGR ANSI.Green]
 
 newtype DiagCode = DiagCode String
 
@@ -37,8 +53,8 @@ report' (SimpleDiag ty loc (DiagCode code) name sections) =
     shownSections ++
     footer ++ "\n"
     where
-        header = show ty ++ " at " ++ show loc ++ ":"
-        footer = indentStr ++ "==> [" ++ code ++ "]: " ++ name
+        header = ANSI.setSGRCode (sgrOfDiagType ty) ++ show ty ++ ANSI.setSGRCode [] ++ " at " ++ ANSI.setSGRCode filePathSGR ++ show loc ++ ANSI.setSGRCode [] ++ ":"
+        footer = indentStr ++ "==> [" ++ ANSI.setSGRCode [boldSGR] ++ code ++ ANSI.setSGRCode [] ++ "]: " ++ name
 
         shownSections = concat $ map (showSection indentAmt) sections
 
