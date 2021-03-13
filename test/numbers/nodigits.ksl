@@ -1,7 +1,0 @@
-
-fun main(): uint32
-    0
-    0b /* expect compile error (intlit-no-digits) */ \
-    0x /* expect compile error (intlit-no-digits) */ \
-    0o /* expect compile error (intlit-no-digits) */ \
-    var x: uint32 // in order to not have an error on the eof token

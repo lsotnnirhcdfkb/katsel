@@ -1,4 +1,0 @@
-
-
-fun test(bool i): void
-    test(0) // expect compile error (incorrect-arg)

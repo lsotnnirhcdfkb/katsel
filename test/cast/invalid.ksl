@@ -1,7 +1,0 @@
-
-
-fun f(): void
-
-fun test(): void
-    (uint32) f() // expect compile error (invalid-cast)
-    (uint32) f // expect compile error (invalid-cast)

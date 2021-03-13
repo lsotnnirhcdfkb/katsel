@@ -1,7 +1,0 @@
-
-
-fun test(): void
-    var a: uint32
-    var b: sint64
-
-    a + b // expect compile error (conflict-tys-binary-op)

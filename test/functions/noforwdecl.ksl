@@ -1,9 +1,0 @@
-
-
-fun main(): uint32
-    thingy()
-    ^0
-
-fun thingy(): uint32
-    ^2
-

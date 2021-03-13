@@ -1,4 +1,0 @@
-
-
-fun test(): void
-    i // expect compile error (undecl-symb)

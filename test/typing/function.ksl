@@ -1,2 +1,0 @@
-fun test(): void
-    test + 2 // expect compile error (lhs-unsupported-op)

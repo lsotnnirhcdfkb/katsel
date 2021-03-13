@@ -1,5 +1,0 @@
-
-
-fun test(): void
-    'f  // expect compile error (unterm-charlit) // expect compile error (unrecoverable-invalid-syntax)
-    'fjwei' // expect compile error (multichar-charlit)

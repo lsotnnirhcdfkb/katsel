@@ -1,5 +1,0 @@
-
-fun main(): uint32
-    var a: uint32, a // expect compile error (redecl-var)
-    var a: uint32 // expect compile error (redecl-var)
-    ^0
