@@ -1,4 +1,12 @@
-module Driver where
+module Driver
+    ( Backend(..)
+    , OutputFormat(..)
+    , run
+    ) where
+
+import File
+
+import qualified Lex
 
 data Backend = CBackend
 
@@ -8,4 +16,6 @@ data OutputFormat = Lexed
                   | BackendCode Backend
 
 run :: String -> IO ()
-run fn = putStrLn $ "compile " ++ fn
+run filename =
+    openFile filename >>= \ file ->
+    putStrLn $ Lex.lex file
