@@ -1,17 +1,14 @@
 name:                katsel
-version:             0.1.0.0
+version:             0.0.0.0
 -- synopsis:
 -- description:
-homepage:            https://github.com/githubuser/katsel#readme
-license:             BSD3
+homepage:            https://github.com/lsotnnirhcdfkb/katsel#readme
+license:             MIT
 license-file:        LICENSE
-author:              Author name here
-maintainer:          example@example.com
-copyright:           2021 Author name here
-category:            Web
+author:              Jason Nguyen
+maintainer:          lsotnnirhcdfkb@gmail.com
 build-type:          Simple
 cabal-version:       >=1.10
-extra-source-files:  README.md
 
 executable katsel
   hs-source-dirs:      src
