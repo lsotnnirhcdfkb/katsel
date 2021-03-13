@@ -91,6 +91,8 @@ data Lexer = Lexer
              { sourcefile :: File
              , sourceLocation :: Int
              , remaining :: String
+             , lnn :: Int
+             , coln :: Int
              }
 
 lex :: File -> [Located Token]
@@ -98,7 +100,20 @@ lex f = lex' $ Lexer
            { sourcefile = f
            , sourceLocation = 0
            , remaining = source f
+           , lnn = 0
+           , coln = 0
            }
 
 lex' :: Lexer -> [Located Token]
-lex' _ = error "todo"
+lex' lexer =
+    case remaining lexer of
+        _ -> [makeToken lexer 1 $ Error "No"]
+
+makeToken :: Lexer -> Int -> Token -> Located Token
+makeToken lexer len tok =
+    Located (makeSpan file srci l c len) tok
+    where
+        file = sourcefile lexer
+        srci = sourceLocation lexer
+        l = lnn lexer
+        c = coln lexer

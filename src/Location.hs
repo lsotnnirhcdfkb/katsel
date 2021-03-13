@@ -2,6 +2,8 @@ module Location
     ( Location(..)
     , Span(..)
     , Located(..)
+    , makeLocation
+    , makeSpan
     ) where
 
 import File
@@ -22,3 +24,9 @@ instance Show Span where
 data Located a = Located Span a
 instance Show a => Show (Located a) where
     show (Located sp a) = "<" ++ show sp ++ ": " ++ show a ++ ">"
+
+makeLocation :: File -> Int -> Int -> Int -> Location
+makeLocation file srci lnn coln = Location file (SourceIndex srci) (LineNum lnn) (ColumnNum coln)
+
+makeSpan :: File -> Int -> Int -> Int -> Int -> Span
+makeSpan file srci lnn coln = Span (makeLocation file srci lnn coln)
