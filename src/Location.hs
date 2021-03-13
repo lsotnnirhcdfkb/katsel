@@ -1,6 +1,7 @@
 module Location
     ( Location
     , Span
+    , Located(..)
     , asRowCol
     ) where
 
@@ -13,6 +14,8 @@ newtype LineNum = LineNum Int
 data Location = Location File SourceIndex LineNum ColumnNum
 
 data Span = Span Location Int
+
+data Located a = Located Span a
 
 asRowCol :: Location -> String
 asRowCol (Location file _ (LineNum lnnr) (ColumnNum coln)) =
