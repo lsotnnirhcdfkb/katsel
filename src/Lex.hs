@@ -101,11 +101,11 @@ data LexError = BadChar Char Span
 instance Message.ToDiagnostic LexError where
     toDiagnostic (BadChar ch sp) =
         Message.SimpleDiag Message.Error (Just sp) (Message.makeCode "E0001") (Just "bad-char") [
-            Message.SimpleText $ "bad character '" ++ (ch : "'")
+            Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary $ "bad character '" ++ [ch] ++ "'"]
         ]
     toDiagnostic (UntermMultiline sp) =
         Message.SimpleDiag Message.Error (Just sp) (Message.makeCode "E0002") (Just "unterm-multiline-cmt") [
-            Message.SimpleText $ "unterminated multiline comment"
+            Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary $ "unterminated multiline comment"]
         ]
 
 lex :: File -> [Either LexError (Located Token)]
@@ -163,12 +163,16 @@ lex' lexer =
         makeError len err = err $ makeSpanFromLexer len
 
         makeSpanFromLexer len =
-            makeSpan file srci l c len
+            makeSpan file srci startln startcoln len endln endcoln
             where
                 file = sourcefile lexer
                 srci = sourceLocation lexer
-                l = lnn lexer
-                c = coln lexer
+                startln = lnn lexer
+                startcoln = coln lexer
+
+                advlexer = lexer `advance` len
+                endln = lnn advlexer
+                endcoln = coln advlexer
 
 advance :: Lexer -> Int -> Lexer
 advance lexer 0 = lexer

@@ -20,13 +20,15 @@ data OutputFormat = Lexed
 run :: String -> IO ()
 run filename =
     openFile filename >>= \ file ->
-    putStrLn $ concat $ map (Message.report . TokenDebugMessage) $ Lex.lex file
+    putStr $ concat $ map (Message.report . TokenDebugMessage) $ Lex.lex file
 
 data TokenDebugMessage = TokenDebugMessage (Either Lex.LexError (Located Lex.Token))
 instance Message.ToDiagnostic TokenDebugMessage where
     toDiagnostic (TokenDebugMessage (Right (Located sp tok))) =
         Message.SimpleDiag Message.DebugMessage (Just sp) Nothing Nothing [
-            Message.SimpleText $ show tok
+            Message.makeUnderlinesSection [
+                Message.UnderlineMessage sp Message.NoteUnderline Message.Primary $ "found token " ++ show tok
+            ]
         ]
 
     toDiagnostic (TokenDebugMessage (Left err)) = Message.toDiagnostic err
