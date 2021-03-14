@@ -8,87 +8,89 @@ import Data.List(foldl')
 
 import qualified Message
 
-data IntLitBase = Dec
-                | Oct
-                | Hex
-                | Bin
-                deriving Show
+data IntLitBase
+    = Dec
+    | Oct
+    | Hex
+    | Bin
+    deriving Show
 
-data Token = OParen
-           | CParen
-           | OBrack
-           | CBrack
-           | Comma
-           | Period
-           | Question
-           | Colon
-           | Bang
-           | Plus
-           | Minus
-           | Star
-           | Slash
-           | Percent
-           | Equal
-           | Greater
-           | Less
-           | Tilde
-           | Amper
-           | Pipe
-           | Caret
-           | Dollar
-           | Hash
-           | RightArrow
-           | LeftArrow
-           | DoublePlus
-           | DoubleMinus
-           | DoubleGreater
-           | DoubleLess
-           | DoubleAmper
-           | DoublePipe
-           | DoubleEqual
-           | DoubleColon
-           | PlusEqual
-           | MinusEqual
-           | StarEqual
-           | SlashEqual
-           | BangEqual
-           | GreaterEqual
-           | LessEqual
-           | PercentEqual
-           | DoubleLessEqual
-           | DoubleGreaterEqual
-           | AmperEqual
-           | PipeEqual
-           | CaretEqual
-           | Identifier String
-           | CharLit Char
-           | StringLit String
-           | IntLit IntLitBase Integer
-           | FloatLit Double
-           | BoolLit Bool
-           | This
-           | Var
-           | Fun
-           | Let
-           | Mut
-           | Data
-           | Impl
-           | Return
-           | While
-           | For
-           | If
-           | Else
-           | Case
-           | Break
-           | Continue
-           | Boom
-           | OBrace
-           | CBrace
-           | Semicolon
-           | Indent
-           | Dedent
-           | Newline
-           deriving Show
+data Token
+    = OParen
+    | CParen
+    | OBrack
+    | CBrack
+    | Comma
+    | Period
+    | Question
+    | Colon
+    | Bang
+    | Plus
+    | Minus
+    | Star
+    | Slash
+    | Percent
+    | Equal
+    | Greater
+    | Less
+    | Tilde
+    | Amper
+    | Pipe
+    | Caret
+    | Dollar
+    | Hash
+    | RightArrow
+    | LeftArrow
+    | DoublePlus
+    | DoubleMinus
+    | DoubleGreater
+    | DoubleLess
+    | DoubleAmper
+    | DoublePipe
+    | DoubleEqual
+    | DoubleColon
+    | PlusEqual
+    | MinusEqual
+    | StarEqual
+    | SlashEqual
+    | BangEqual
+    | GreaterEqual
+    | LessEqual
+    | PercentEqual
+    | DoubleLessEqual
+    | DoubleGreaterEqual
+    | AmperEqual
+    | PipeEqual
+    | CaretEqual
+    | Identifier String
+    | CharLit Char
+    | StringLit String
+    | IntLit IntLitBase Integer
+    | FloatLit Double
+    | BoolLit Bool
+    | This
+    | Var
+    | Fun
+    | Let
+    | Mut
+    | Data
+    | Impl
+    | Return
+    | While
+    | For
+    | If
+    | Else
+    | Case
+    | Break
+    | Continue
+    | Boom
+    | OBrace
+    | CBrace
+    | Semicolon
+    | Indent
+    | Dedent
+    | Newline
+    deriving Show
 
 data Lexer = Lexer
              { sourcefile :: File
@@ -98,15 +100,16 @@ data Lexer = Lexer
              , coln :: Int
              }
 
-data LexError = BadChar Char Span
-              | UntermMultilineComment Span
-              | UntermStr Span
-              | UntermChar Span
-              | MulticharChar Span
-              | InvalidBase Char Span Span
-              | InvalidDigit Char Span Span
-              | NonDecimalFloat Span
-              | MissingDigits Span
+data LexError
+    = BadChar Char Span
+    | UntermMultilineComment Span
+    | UntermStr Span
+    | UntermChar Span
+    | MulticharChar Span
+    | InvalidBase Char Span Span
+    | InvalidDigit Char Span Span
+    | NonDecimalFloat Span
+    | MissingDigits Span
 
 instance Message.ToDiagnostic LexError where
     toDiagnostic err =

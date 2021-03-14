@@ -12,10 +12,7 @@ import qualified Lex
 
 data Backend = CBackend
 
-data OutputFormat = Lexed
-                  | Parsed
-                  | KatselIR
-                  | BackendCode Backend
+data OutputFormat = Lexed | Parsed | KatselIR | BackendCode Backend
 
 run :: String -> IO ()
 run filename =
