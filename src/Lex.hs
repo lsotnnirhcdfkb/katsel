@@ -115,7 +115,7 @@ instance Message.ToDiagnostic LexError where
             UntermMultilineComment sp -> simple sp "E0002" "unterm-multiln-cmt" "unterminated multiline comment"
             UntermStr sp -> simple sp "E0003" "unterm-strlit" "string literal missing closing quote ('\"')"
             UntermChar sp -> simple sp "E0004" "unterm-chrlit" "character literal missing closing quote (''')"
-            MulticharChar sp -> simple sp "E0005" "multichr-chrlit" "character literal must contain only one character"
+            MulticharChar sp -> simple sp "E0005" "multichr-chrlit" "character literal must contain exactly one character"
 
             InvalidBase basechr basechrsp litsp ->
                 Message.SimpleDiag Message.Error (Just basechrsp) (Message.makeCode "E0006") (Just "invalid-intlit-base") [
@@ -165,21 +165,27 @@ lex' lexer =
             in continueLex $ length comment + 3
 
         '/':'*':next ->
-            case commentLength of
+            case commentLength next of
                 Right cl -> continueLex cl
                 Left charsToEnd -> [Left $ makeError 0 charsToEnd UntermMultilineComment]
             where
-                commentLength = case charsUntilCommentEnd next of
-                    Right cl -> Right $ 4 + cl
-                    Left charsToEnd -> Left $ 2 + charsToEnd
+                commentLength afterSlashStar =
+                    case charsUntilCommentEnd 0 afterSlashStar of
+                        Right cl -> Right $ 4 + cl
+                        Left charsToEnd -> Left $ 2 + charsToEnd
 
-                charsUntilCommentEnd ('/':'*':rest) = charsUntilCommentEnd rest
-                charsUntilCommentEnd ('*':'/':_) = Right 0
-                charsUntilCommentEnd (_:rest) =
-                    case charsUntilCommentEnd rest of
-                        Right l -> Right $ 1 + l
-                        Left l -> Left $ 1 + l
-                charsUntilCommentEnd [] = Left 0
+                charsUntilCommentEnd acc entire@('/':'*':rest) =
+                    case commentLength rest of
+                        Right innerCommentLength ->
+                            charsUntilCommentEnd (acc + innerCommentLength) afterInnerComment
+                            where
+                                afterInnerComment = drop innerCommentLength entire
+                        Left unterminatedInnerCommentLength -> Left $ acc + unterminatedInnerCommentLength
+
+                charsUntilCommentEnd acc ('*':'/':_) = Right acc
+                charsUntilCommentEnd acc [] = Left acc
+                charsUntilCommentEnd acc (_:rest) = charsUntilCommentEnd (acc + 1) rest
+
                 -- TODO: check for '* /' and put a note there
                 -- TODO: nesting multiline comments
         -- }}}
@@ -299,36 +305,35 @@ lex' lexer =
         -- }}}
         -- lexIden {{{
         lexIden entire =
-            continueLexWithTok totalLen $ tok
+            continueLexWithTok idenLen (
+                case idenContents of
+                    "data" -> Data
+                    "impl" -> Impl
+                    "fun" -> Fun
+                    "var" -> Var
+                    "mut" -> Mut
+                    "let" -> Let
+                    "this" -> This
+                    "return" -> Return
+                    "while" -> While
+                    "for" -> For
+                    "if" -> If
+                    "else" -> Else
+                    "case" -> Case
+                    "break" -> Break
+                    "continue" -> Continue
+                    "true" -> BoolLit True
+                    "false" -> BoolLit False
+                    "boom" -> Boom
+                    _ -> Identifier idenContents
+            )
             where
-                (idenContents, rest) = break (not . idenPred) entire
-                idenPred ch = isAlpha ch || isDigit ch
-
-                apostrophes = takeWhile (=='\'') rest
-
-                totalContents = idenContents ++ apostrophes
-                totalLen = length totalContents
-
-                tok = case totalContents of
-                        "data" -> Data
-                        "impl" -> Impl
-                        "fun" -> Fun
-                        "var" -> Var
-                        "mut" -> Mut
-                        "let" -> Let
-                        "this" -> This
-                        "return" -> Return
-                        "while" -> While
-                        "for" -> For
-                        "if" -> If
-                        "else" -> Else
-                        "case" -> Case
-                        "break" -> Break
-                        "continue" -> Continue
-                        "true" -> BoolLit True
-                        "false" -> BoolLit False
-                        "boom" -> Boom
-                        _ -> Identifier totalContents
+                idenContents = alphanum ++ apostrophes
+                    where
+                        idenPred ch = isAlpha ch || isDigit ch
+                        (alphanum, rest) = break (not . idenPred) entire
+                        apostrophes = takeWhile (=='\'') rest
+                idenLen = length idenContents
         -- }}}
         -- {{{ lexNr
         {- {{{ how the algorithm works
