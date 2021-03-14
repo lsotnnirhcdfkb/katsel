@@ -13,7 +13,6 @@ data IntLitBase
     | Oct
     | Hex
     | Bin
-    deriving Show
 
 data Token
     = OParen
@@ -90,12 +89,10 @@ data Token
     | Indent
     | Dedent
     | Newline
-    deriving Show
 
 data IndentFrame
     = IndentationSensitive Int
     | IndentationInsensitive
-    deriving Show
 
 data Lexer = Lexer
              { sourcefile :: File
@@ -120,7 +117,6 @@ data LexError
     -- TODO: make indentation frames more helpful, show where indent frame started by storing that span in the frame
     --       and then use that span to show what frame the mismatched brace is closing
     | BadBrace Span
-    deriving Show
 
 instance Message.ToDiagnostic LexError where
     toDiagnostic err =

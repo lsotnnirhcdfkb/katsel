@@ -9,6 +9,7 @@ import Location
 
 import qualified Message
 import qualified Lex
+import qualified Parse
 
 data Backend = CBackend
 
@@ -27,11 +28,15 @@ lexStage contents =
     let lexed = Lex.lex contents
     in ([x | Right x <- lexed], [Message.toDiagnostic x | Left x <- lexed])
 
+parseStage :: Stage [Located Lex.Token] Parse.DCU
+parseStage toks =
+    let (parsed, errs) = Parse.parse toks
+    in (parsed, map Message.toDiagnostic errs)
+
 run :: String -> IO ()
 run filename =
     openFile filename >>= \ file ->
-    let totalStages = lexStage
+    let totalStages = lexStage `joinStages` parseStage
         (finalOutput, finalErrs) = totalStages file
     in
-    (putStr $ concat $ map Message.report finalErrs) >>
-    (putStrLn $ show $ finalOutput)
+    (putStr $ concat $ map Message.report finalErrs)

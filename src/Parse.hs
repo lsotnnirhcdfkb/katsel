@@ -1,6 +1,8 @@
 module Parse where
 
 import Location
+import qualified Lex
+import qualified Message
 
 {-
     most asts are just a plain adt, but some asts are required in multiple asts
@@ -89,3 +91,13 @@ data DType
     | DType'This Span
 
 data DPath = DPath' [LocStr]
+
+data ParseError = ParseError
+instance Message.ToDiagnostic ParseError where
+    toDiagnostic _ = error "unimplemented"
+
+type ParseFun a = [Located Lex.Token] -> (a, [ParseError])
+
+
+parse :: ParseFun DCU
+parse = error "TODO"
