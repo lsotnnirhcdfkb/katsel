@@ -15,6 +15,7 @@ executable katsel
   other-modules:       Driver
                      , File
                      , Lex
+                     , Parse
                      , Location
                      , Message
 
