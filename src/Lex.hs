@@ -3,7 +3,7 @@ module Lex where
 import File
 import Location
 
-import Data.Char(isDigit, isAlpha, isHexDigit, isOctDigit, digitToInt)
+import Data.Char(isDigit, isAlpha, isHexDigit, isOctDigit, digitToInt, isSpace)
 import Data.List(foldl')
 
 import qualified Message
@@ -153,12 +153,6 @@ lex f = lex' $ Lexer
 lex' :: Lexer -> [Either LexError (Located Token)]
 lex' lexer =
     case remaining lexer of
-        -- TODO: replace this with Data.Char.isSpace
-        '\r':_ -> skipChar
-        '\n':_ -> skipChar
-        ' ' :_ -> skipChar
-        '\t':_ -> skipChar
-
         -- comments {{{
         '/':'/':next ->
             let comment = takeWhile (/='\n') next
@@ -187,7 +181,6 @@ lex' lexer =
                 charsUntilCommentEnd acc (_:rest) = charsUntilCommentEnd (acc + 1) rest
 
                 -- TODO: check for '* /' and put a note there
-                -- TODO: nesting multiline comments
         -- }}}
 
         -- TODO: indentation
@@ -254,6 +247,7 @@ lex' lexer =
         entire@(other:_)
             | isAlpha other -> lexIden entire
             | isDigit other -> lexNr entire
+            | isSpace other -> skipChar
             | otherwise -> continueLexWithErr 1 $ BadChar other
 
     where
