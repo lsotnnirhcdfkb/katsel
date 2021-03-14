@@ -69,6 +69,8 @@ data SimpleDiag = SimpleDiag SimpleDiagType (Maybe Span) (Maybe DiagCode) (Maybe
 
 class ToDiagnostic e where
     toDiagnostic :: e -> SimpleDiag
+instance ToDiagnostic SimpleDiag where
+    toDiagnostic = id
 
 report :: (ToDiagnostic e) => e -> String
 report = report' . toDiagnostic
