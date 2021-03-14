@@ -92,6 +92,11 @@ data Token
     | Newline
     deriving Show
 
+data IndentFrame
+    = IndentationSensitive Int
+    | IndentationInsensitive
+    deriving Show
+
 data Lexer = Lexer
              { sourcefile :: File
              , sourceLocation :: Int
@@ -110,6 +115,9 @@ data LexError
     | InvalidDigit Char Span Span
     | NonDecimalFloat Span
     | MissingDigits Span
+    -- TODO: add 4 fields: new indent level, before indent level, two closest indentation levels
+    | BadDedent Span
+    deriving Show
 
 instance Message.ToDiagnostic LexError where
     toDiagnostic err =
@@ -139,13 +147,15 @@ instance Message.ToDiagnostic LexError where
             NonDecimalFloat sp -> simple sp "E0008" "nondecimal-floatlit" "non-decimal floating point literals are not supported"
             MissingDigits sp -> simple sp "E0009" "no-digits" "integer literal must have digits"
 
+            BadDedent sp -> simple sp "E0010" "bad-dedent" "dedent to level that does not match any other indentation level"
+
         where
             simple sp code nm msg = Message.SimpleDiag Message.Error (Just sp) (Message.makeCode code) (Just nm) [
                     Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary msg]
                 ]
 
 lex :: File -> [Either LexError (Located Token)]
-lex f = lex' [] $ Lexer
+lex f = lex' [] [IndentationSensitive 0] $ Lexer
            { sourcefile = f
            , sourceLocation = 0
            , remaining = source f
@@ -153,8 +163,8 @@ lex f = lex' [] $ Lexer
            , coln = 1
            }
 
-lex' :: [Either LexError (Located Token)] -> Lexer -> [Either LexError (Located Token)]
-lex' prevtoks lexer =
+lex' :: [Either LexError (Located Token)] -> [IndentFrame] -> Lexer -> [Either LexError (Located Token)]
+lex' prevtoks indentStack lexer =
     case remaining lexer of
         -- comments {{{
         '/':'/':next ->
@@ -185,8 +195,6 @@ lex' prevtoks lexer =
 
                 -- TODO: check for '* /' and put a note there
         -- }}}
-
-        -- TODO: indentation
 
         '<':'<':'=':_ -> continueLexWithSingleTok 3 DoubleLessEqual
         '>':'>':'=':_ -> continueLexWithSingleTok 3 DoubleGreaterEqual
@@ -250,15 +258,83 @@ lex' prevtoks lexer =
         entire@(other:_)
             | isAlpha other -> lexIden entire
             | isDigit other -> lexNr entire
-            | isSpace other -> skipChar
+            | isSpace other -> continueLexWithNothing 1
             | otherwise -> continueLexWithSingleErr 1 $ BadChar other
 
     where
         -- helpers {{{
-        continueLexWith things advanceamt = lex' (prevtoks ++ things) $ lexer `advance` advanceamt
-        continueLexWithNothing advanceamt = lex' prevtoks $ lexer `advance` advanceamt
+        continueLexWith things advanceamt = lex' (prevtoks ++ indentTokens ++ things) newIndentStack $ lexer `advance` advanceamt
+        continueLexWithNothing advanceamt = lex' prevtoks indentStack $ lexer `advance` advanceamt
 
-        skipChar = continueLexWithNothing 1
+        (newIndentStack, indentTokens) =
+            case prevtoks of
+                [] -> ([IndentationSensitive 0], [])
+                _ ->
+                    processCurIndent
+
+            where
+                curIndent = countIndent (Just 0) indentStr
+                    where
+                        strBeforeLexer = reverse $ take (sourceLocation lexer) $ source $ sourcefile lexer
+                        indentStr = takeWhile (/='\n') strBeforeLexer
+
+                        countIndent res [] = res
+                        countIndent (Just acc) (' ':more) = countIndent (Just $ acc + 1) more
+                        countIndent (Just acc) ('\t':more) = countIndent (Just $ (acc `div` 8 + 1) * 8) more
+                        countIndent Nothing _ = Nothing
+                        countIndent _ _ = Nothing
+
+                processCurIndent =
+                    case head indentStack of
+                        IndentationInsensitive -> (indentStack, [])
+
+                        IndentationSensitive lastlvl ->
+                            -- TODO: to not insert any tokens if the current character is '{'
+                            -- TODO: support \ at the end of a line to prevent indent tokens
+                            -- TODO: support ~ at the end of a line to start a indentation sensitive frame
+                            case curIndent of
+                                Just curlvl
+                                    | curlvl < lastlvl -> doDedent curlvl
+                                    | curlvl > lastlvl -> doIndent curlvl
+                                    | curlvl == lastlvl -> doNewline curlvl
+
+                                _ -> (indentStack, [])
+                doDedent curlvl =
+                    -- TODO: this nl token's span should also be at the previous newline
+                    let getAmountToPop acc (cur:rest)
+                            | canPop cur = getAmountToPop (acc + 1) rest
+                            | otherwise = acc
+                        getAmountToPop _ [] = error "indent stack should never be empty"
+                        canPop (IndentationSensitive ind)
+                            | curlvl < ind = True
+                            | otherwise = False
+                        canPop IndentationInsensitive = False
+
+                        popAmt = getAmountToPop 0 indentStack
+                        poppedStack = drop popAmt indentStack
+
+                        isValidLevel =
+                            case head poppedStack of
+                                IndentationSensitive lvl
+                                    | curlvl > lvl -> False
+
+                                _ -> True
+                    in (
+                        poppedStack,
+                        (Right $ makeTokAtCur Newline) : (replicate popAmt $ Right $ makeTokAtCur Dedent) ++
+                        if isValidLevel
+                        then []
+                        else [Left $ makeError 0 1 BadDedent]
+                    )
+                doIndent curlvl =
+                    let newFrame = IndentationSensitive curlvl
+                    in (newFrame:indentStack, [Right $ makeTokAtCur Indent])
+                doNewline _ =
+                    -- TODO: do not insert if last token is ';'
+                    -- TODO: this span should be at the newline before
+                    (indentStack, [Right $ makeTokAtCur Newline])
+
+                makeTokAtCur = makeToken 0 1
 
         continueLexWithSingleTok len tok = continueLexWith [Right $ makeToken 0 len tok] len
         continueLexWithSingleErr len err = continueLexWith [Left $ makeError 0 len err] len

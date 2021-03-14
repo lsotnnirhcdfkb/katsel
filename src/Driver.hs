@@ -24,7 +24,7 @@ instance Message.ToDiagnostic TokenDebugMessage where
     toDiagnostic (TokenDebugMessage (Right (Located sp tok))) =
         Message.SimpleDiag Message.DebugMessage (Just sp) Nothing Nothing [
             Message.makeUnderlinesSection [
-                Message.UnderlineMessage sp Message.NoteUnderline Message.Primary $ "found token " ++ show tok
+                Message.UnderlineMessage sp Message.NoteUnderline Message.Primary $ show tok
             ]
         ]
 
