@@ -159,6 +159,7 @@ lex' lexer =
         ' ' :_ -> skipChar
         '\t':_ -> skipChar
 
+        -- comments {{{
         '/':'/':next ->
             let comment = takeWhile (/='\n') next
             in continueLex $ length comment + 3
@@ -181,9 +182,9 @@ lex' lexer =
                 charsUntilCommentEnd [] = Left 0
                 -- TODO: check for '* /' and put a note there
                 -- TODO: nesting multiline comments
+        -- }}}
 
         -- TODO: indentation
-
 
         '<':'<':'=':_ -> continueLexWithTok 3 DoubleLessEqual
         '>':'>':'=':_ -> continueLexWithTok 3 DoubleGreaterEqual
@@ -245,11 +246,12 @@ lex' lexer =
         [] -> []
 
         entire@(other:_)
-            -- | isAlpha other -> error "TODO"
+            | isAlpha other -> lexIden entire
             | isDigit other -> lexNr entire
             | otherwise -> continueLexWithErr 1 $ BadChar other
 
     where
+        -- helpers {{{
         continueLex advanceamt = lex' $ lexer `advance` advanceamt
         skipChar = continueLex 1
 
@@ -267,11 +269,12 @@ lex' lexer =
                 file = sourcefile lexer
                 startlexer = lexer `advance` start
                 endlexer = startlexer `advance` len
-
+        -- }}}
+        -- {{{ str and char literals
         lexStrOrCharLit isCharLit startingDelim rest =
             case litLength of
                 Right len
-                    | isCharLit && len > 1 -> continueLexWithErr (2 + len) MulticharChar
+                    | isCharLit && len /= 1 -> continueLexWithErr (2 + len) MulticharChar
                     | isCharLit -> continueLexWithTok (2 + len) $ CharLit $ rest !! 1
                     | otherwise -> continueLexWithTok (2 + len) $ StringLit $ take len rest
 
@@ -293,7 +296,16 @@ lex' lexer =
 
         lexStrLit = lexStrOrCharLit False '"'
         lexCharLit = lexStrOrCharLit True '\''
-
+        -- }}}
+        -- lexIden {{{
+        lexIden entire =
+            continueLexWithTok idenLen $ Identifier $ idenContents ++ aposes
+            where (idenContents, rest) = break (not . idenPred) entire
+                  aposes = takeWhile (=='\'') rest
+                  idenLen = length idenContents + length aposes
+                  idenPred ch = isAlpha ch || isDigit ch
+        -- }}}
+        -- {{{ lexNr
         {- {{{ how the algorithm works
             {{{ first scan
             a number literal has three components:
@@ -359,15 +371,15 @@ lex' lexer =
                         after -> (Nothing, 0, after)
 
                 (digits, digitsLen, afterDigits) =
-                    (d, length d, drop (length d) afterBase)
-                    where d = takeWhile isHexDigit afterBase
+                    (d, length d, after)
+                    where (d, after) = break (not . isHexDigit) afterBase
 
                 (decimalDigits, decimalLen, _) =
                     case afterDigits of
                         '.':(rest@(firstDigit:_))
                             | isHexDigit firstDigit ->
-                                (Just f, length f + 1, drop (length f + 1) afterDigits)
-                                where f = takeWhile isHexDigit rest
+                                (Just f, length f + 1, drop 1 more)
+                                where (f, more) = break (not . isHexDigit) rest
 
                         after -> (Nothing, 0, after)
 
@@ -416,6 +428,7 @@ lex' lexer =
 
                 Just b ->
                     continueLexWithErr totalLen $ InvalidBase b $ makeSpanFromLexer 1 1
+        -- }}}
 
 advance :: Lexer -> Int -> Lexer
 advance lexer 0 = lexer
