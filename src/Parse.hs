@@ -31,22 +31,12 @@ data Mutability = Mutable | Immutable
 data ThisParamKind = Value | Ref | MutRef
 
 data BinOp
-    = Plus
-    | Minus
-    | Star
-    | Slash
-    | Percent
-    | Greater
-    | Less
-    | GreaterEqual
-    | LessEqual
-    | Amper
-    | Pipe
-    | Caret
-    | DoubleGreater
-    | DoubleLess
-    | DoubleEqual
-    | BangEqual
+    = Plus | Minus | Star | Slash | Percent
+    | Greater | Less | GreaterEqual | LessEqual
+    | Amper | Pipe | Caret
+    | DoubleGreater | DoubleLess
+    | DoubleEqual | BangEqual
+
 data ShortOp = DoubleAmper | DoublePipe
 data UnaryOp = UnBang | UnTilde | UnMinus | UnAmper | UnStar
 data AssignOp = Equal
