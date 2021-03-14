@@ -299,11 +299,36 @@ lex' lexer =
         -- }}}
         -- lexIden {{{
         lexIden entire =
-            continueLexWithTok idenLen $ Identifier $ idenContents ++ aposes
-            where (idenContents, rest) = break (not . idenPred) entire
-                  aposes = takeWhile (=='\'') rest
-                  idenLen = length idenContents + length aposes
-                  idenPred ch = isAlpha ch || isDigit ch
+            continueLexWithTok totalLen $ tok
+            where
+                (idenContents, rest) = break (not . idenPred) entire
+                idenPred ch = isAlpha ch || isDigit ch
+
+                apostrophes = takeWhile (=='\'') rest
+
+                totalContents = idenContents ++ apostrophes
+                totalLen = length totalContents
+
+                tok = case totalContents of
+                        "data" -> Data
+                        "impl" -> Impl
+                        "fun" -> Fun
+                        "var" -> Var
+                        "mut" -> Mut
+                        "let" -> Let
+                        "this" -> This
+                        "return" -> Return
+                        "while" -> While
+                        "for" -> For
+                        "if" -> If
+                        "else" -> Else
+                        "case" -> Case
+                        "break" -> Break
+                        "continue" -> Continue
+                        "true" -> BoolLit True
+                        "false" -> BoolLit False
+                        "boom" -> Boom
+                        _ -> Identifier totalContents
         -- }}}
         -- {{{ lexNr
         {- {{{ how the algorithm works
