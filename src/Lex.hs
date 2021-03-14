@@ -117,6 +117,9 @@ data LexError
     | MissingDigits Span
     -- TODO: add 4 fields: new indent level, before indent level, two closest indentation levels
     | BadDedent Span
+    -- TODO: make indentation frames more helpful, show where indent frame started by storing that span in the frame
+    --       and then use that span to show what frame the mismatched brace is closing
+    | BadBrace Span
     deriving Show
 
 instance Message.ToDiagnostic LexError where
@@ -131,7 +134,7 @@ instance Message.ToDiagnostic LexError where
             InvalidBase basechr basechrsp litsp ->
                 Message.SimpleDiag Message.Error (Just basechrsp) (Message.makeCode "E0006") (Just "invalid-intlit-base") [
                     Message.makeUnderlinesSection [
-                        Message.UnderlineMessage basechrsp Message.ErrorUnderline Message.Primary $ "invalid integer literal base '" ++ [basechr] ++ "' (must be one of 'x', 'o', or 'b')",
+                        Message.UnderlineMessage basechrsp Message.ErrorUnderline Message.Primary $ "invalid integer literal base '" ++ [basechr] ++ "' (must be one of 'x', 'o', or 'b' or omitted)",
                         Message.UnderlineMessage litsp Message.NoteUnderline Message.Secondary "in this integer literal"
                     ]
                 ]
@@ -148,6 +151,7 @@ instance Message.ToDiagnostic LexError where
             MissingDigits sp -> simple sp "E0009" "no-digits" "integer literal must have digits"
 
             BadDedent sp -> simple sp "E0010" "bad-dedent" "dedent to level that does not match any other indentation level"
+            BadBrace sp -> simple sp "E0011" "bad-cbrace" "indentation block cannot be closed by explicit '}'"
 
         where
             simple sp code nm msg = Message.SimpleDiag Message.Error (Just sp) (Message.makeCode code) (Just nm) [
@@ -227,8 +231,6 @@ lex' prevtoks indentStack lexer =
         ')':_ -> continueLexWithSingleTok 1 CParen
         '[':_ -> continueLexWithSingleTok 1 OBrack
         ']':_ -> continueLexWithSingleTok 1 CBrack
-        '{':_ -> continueLexWithSingleTok 1 OBrace
-        '}':_ -> continueLexWithSingleTok 1 CBrace
         ';':_ -> continueLexWithSingleTok 1 Semicolon
         ',':_ -> continueLexWithSingleTok 1 Comma
         '.':_ -> continueLexWithSingleTok 1 Period
@@ -250,6 +252,11 @@ lex' prevtoks indentStack lexer =
         '&':_ -> continueLexWithSingleTok 1 Amper
         '|':_ -> continueLexWithSingleTok 1 Pipe
 
+        -- braces are handled by indentation tokens
+        -- cannot use continueLexWithNothing because that function does not include indent tokens
+        '{':_ -> continueLexWith [] 1
+        '}':_ -> continueLexWith [] 1
+
         '"':strlit -> lexStrLit strlit
         '\'':chrlit -> lexCharLit chrlit
 
@@ -266,13 +273,36 @@ lex' prevtoks indentStack lexer =
         continueLexWith things advanceamt = lex' (prevtoks ++ indentTokens ++ things) newIndentStack $ lexer `advance` advanceamt
         continueLexWithNothing advanceamt = lex' prevtoks indentStack $ lexer `advance` advanceamt
 
+        continueLexWithSingleTok len tok = continueLexWith [Right $ makeToken 0 len tok] len
+        continueLexWithSingleErr len err = continueLexWith [Left $ makeError 0 len err] len
+
+        makeToken start len tok = Located (makeSpanFromLexer start len) tok
+        makeError start len err = err $ makeSpanFromLexer start len
+
+        makeSpanFromLexer start len =
+            makeSpan file (sourceLocation startlexer) (lnn startlexer) (coln startlexer) len (lnn endlexer) (coln endlexer)
+            where
+                file = sourcefile lexer
+                startlexer = lexer `advance` start
+                endlexer = startlexer `advance` len
+
         (newIndentStack, indentTokens) =
             case prevtoks of
                 [] -> ([IndentationSensitive 0], [])
                 _ ->
-                    processCurIndent
-
+                    processBraces processCurIndent
             where
+                processBraces (stack, toks) =
+                    case remaining lexer of
+                        '{':_ -> (IndentationInsensitive : stack, toks ++ [Right $ makeTokAtCur OBrace])
+
+                        '}':_ ->
+                            case head stack of
+                                IndentationInsensitive -> (tail stack, toks ++ [Right $ makeTokAtCur CBrace])
+                                IndentationSensitive _ -> (stack, toks ++ [Left $ makeError 0 1 $ BadBrace])
+
+                        _ -> (stack, toks)
+
                 curIndent = countIndent (Just 0) indentStr
                     where
                         strBeforeLexer = reverse $ take (sourceLocation lexer) $ source $ sourcefile lexer
@@ -335,19 +365,6 @@ lex' prevtoks indentStack lexer =
                     (indentStack, [Right $ makeTokAtCur Newline])
 
                 makeTokAtCur = makeToken 0 1
-
-        continueLexWithSingleTok len tok = continueLexWith [Right $ makeToken 0 len tok] len
-        continueLexWithSingleErr len err = continueLexWith [Left $ makeError 0 len err] len
-
-        makeToken start len tok = Located (makeSpanFromLexer start len) tok
-        makeError start len err = err $ makeSpanFromLexer start len
-
-        makeSpanFromLexer start len =
-            makeSpan file (sourceLocation startlexer) (lnn startlexer) (coln startlexer) len (lnn endlexer) (coln endlexer)
-            where
-                file = sourcefile lexer
-                startlexer = lexer `advance` start
-                endlexer = startlexer `advance` len
         -- }}}
         -- {{{ str and char literals
         lexStrOrCharLit isCharLit startingDelim rest =
@@ -482,7 +499,7 @@ lex' prevtoks indentStack lexer =
                     case afterDigits of
                         '.':(rest@(firstDigit:_))
                             | isHexDigit firstDigit ->
-                                (Just f, length f + 1, drop 1 more)
+                                (Just f, length f + 1, tail more)
                                 where (f, more) = break (not . isHexDigit) rest
 
                         after -> (Nothing, 0, after)
@@ -538,7 +555,7 @@ advance :: Lexer -> Int -> Lexer
 advance lexer 0 = lexer
 advance lexer 1 = lexer
                   { sourceLocation = sourceLocation lexer + 1
-                  , remaining = drop 1 $ remaining lexer
+                  , remaining = tail $ remaining lexer
                   , lnn = nextlnn
                   , coln = nextcoln
                   }
