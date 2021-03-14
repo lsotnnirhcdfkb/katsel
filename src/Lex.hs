@@ -386,6 +386,7 @@ lex' lexer =
                 - invalid base (the base character is not 'o', 'b', or 'x')
                 - invalid digit for base (the digits have a character that is not valid for the given base)
                 - non-decimal float literal
+                - missing digits (there are no integral digits)
             }}}
         }}} -}
         lexNr entire =
