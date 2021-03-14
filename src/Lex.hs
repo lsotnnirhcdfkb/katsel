@@ -145,7 +145,7 @@ instance Message.ToDiagnostic LexError where
                 ]
 
 lex :: File -> [Either LexError (Located Token)]
-lex f = lex' $ Lexer
+lex f = lex' [] $ Lexer
            { sourcefile = f
            , sourceLocation = 0
            , remaining = source f
@@ -153,17 +153,17 @@ lex f = lex' $ Lexer
            , coln = 1
            }
 
-lex' :: Lexer -> [Either LexError (Located Token)]
-lex' lexer =
+lex' :: [Either LexError (Located Token)] -> Lexer -> [Either LexError (Located Token)]
+lex' prevtoks lexer =
     case remaining lexer of
         -- comments {{{
         '/':'/':next ->
             let comment = takeWhile (/='\n') next
-            in continueLex $ length comment + 3
+            in continueLexWithNothing $ length comment + 3
 
         '/':'*':next ->
             case commentLength next of
-                Right cl -> continueLex cl
+                Right cl -> continueLexWithNothing cl
                 Left charsToEnd -> [Left $ makeError 0 charsToEnd UntermMultilineComment]
             where
                 commentLength afterSlashStar =
@@ -188,83 +188,83 @@ lex' lexer =
 
         -- TODO: indentation
 
-        '<':'<':'=':_ -> continueLexWithTok 3 DoubleLessEqual
-        '>':'>':'=':_ -> continueLexWithTok 3 DoubleGreaterEqual
+        '<':'<':'=':_ -> continueLexWithSingleTok 3 DoubleLessEqual
+        '>':'>':'=':_ -> continueLexWithSingleTok 3 DoubleGreaterEqual
 
-        '+':'=':_ -> continueLexWithTok 2 PlusEqual
-        '-':'=':_ -> continueLexWithTok 2 MinusEqual
-        '*':'=':_ -> continueLexWithTok 2 StarEqual
-        '/':'=':_ -> continueLexWithTok 2 SlashEqual
-        '%':'=':_ -> continueLexWithTok 2 PercentEqual
-        '<':'=':_ -> continueLexWithTok 2 LessEqual
-        '>':'=':_ -> continueLexWithTok 2 GreaterEqual
-        '!':'=':_ -> continueLexWithTok 2 BangEqual
-        '&':'=':_ -> continueLexWithTok 2 AmperEqual
-        '|':'=':_ -> continueLexWithTok 2 PipeEqual
-        '^':'=':_ -> continueLexWithTok 2 CaretEqual
+        '+':'=':_ -> continueLexWithSingleTok 2 PlusEqual
+        '-':'=':_ -> continueLexWithSingleTok 2 MinusEqual
+        '*':'=':_ -> continueLexWithSingleTok 2 StarEqual
+        '/':'=':_ -> continueLexWithSingleTok 2 SlashEqual
+        '%':'=':_ -> continueLexWithSingleTok 2 PercentEqual
+        '<':'=':_ -> continueLexWithSingleTok 2 LessEqual
+        '>':'=':_ -> continueLexWithSingleTok 2 GreaterEqual
+        '!':'=':_ -> continueLexWithSingleTok 2 BangEqual
+        '&':'=':_ -> continueLexWithSingleTok 2 AmperEqual
+        '|':'=':_ -> continueLexWithSingleTok 2 PipeEqual
+        '^':'=':_ -> continueLexWithSingleTok 2 CaretEqual
 
-        '=':'=':_ -> continueLexWithTok 2 DoubleEqual
-        '+':'+':_ -> continueLexWithTok 2 DoublePlus
-        '-':'-':_ -> continueLexWithTok 2 DoubleMinus
-        '&':'&':_ -> continueLexWithTok 2 DoubleAmper
-        '|':'|':_ -> continueLexWithTok 2 DoublePipe
-        '<':'<':_ -> continueLexWithTok 2 DoubleLess
-        '>':'>':_ -> continueLexWithTok 2 DoubleGreater
-        ':':':':_ -> continueLexWithTok 2 DoubleColon
+        '=':'=':_ -> continueLexWithSingleTok 2 DoubleEqual
+        '+':'+':_ -> continueLexWithSingleTok 2 DoublePlus
+        '-':'-':_ -> continueLexWithSingleTok 2 DoubleMinus
+        '&':'&':_ -> continueLexWithSingleTok 2 DoubleAmper
+        '|':'|':_ -> continueLexWithSingleTok 2 DoublePipe
+        '<':'<':_ -> continueLexWithSingleTok 2 DoubleLess
+        '>':'>':_ -> continueLexWithSingleTok 2 DoubleGreater
+        ':':':':_ -> continueLexWithSingleTok 2 DoubleColon
 
-        '-':'>':_ -> continueLexWithTok 2 RightArrow
-        '<':'-':_ -> continueLexWithTok 2 LeftArrow
+        '-':'>':_ -> continueLexWithSingleTok 2 RightArrow
+        '<':'-':_ -> continueLexWithSingleTok 2 LeftArrow
 
-        '(':_ -> singleCharTok OParen
-        ')':_ -> singleCharTok CParen
-        '[':_ -> singleCharTok OBrack
-        ']':_ -> singleCharTok CBrack
-        '{':_ -> singleCharTok OBrace
-        '}':_ -> singleCharTok CBrace
-        ';':_ -> singleCharTok Semicolon
-        ',':_ -> singleCharTok Comma
-        '.':_ -> singleCharTok Period
-        '?':_ -> singleCharTok Question
-        '~':_ -> singleCharTok Tilde
-        '#':_ -> singleCharTok Hash
-        '$':_ -> singleCharTok Dollar
-        '!':_ -> singleCharTok Bang
-        '=':_ -> singleCharTok Equal
-        ':':_ -> singleCharTok Colon
-        '+':_ -> singleCharTok Plus
-        '-':_ -> singleCharTok Minus
-        '*':_ -> singleCharTok Star
-        '/':_ -> singleCharTok Slash
-        '%':_ -> singleCharTok Percent
-        '<':_ -> singleCharTok Less
-        '>':_ -> singleCharTok Greater
-        '^':_ -> singleCharTok Caret
-        '&':_ -> singleCharTok Amper
-        '|':_ -> singleCharTok Pipe
+        '(':_ -> continueLexWithSingleTok 1 OParen
+        ')':_ -> continueLexWithSingleTok 1 CParen
+        '[':_ -> continueLexWithSingleTok 1 OBrack
+        ']':_ -> continueLexWithSingleTok 1 CBrack
+        '{':_ -> continueLexWithSingleTok 1 OBrace
+        '}':_ -> continueLexWithSingleTok 1 CBrace
+        ';':_ -> continueLexWithSingleTok 1 Semicolon
+        ',':_ -> continueLexWithSingleTok 1 Comma
+        '.':_ -> continueLexWithSingleTok 1 Period
+        '?':_ -> continueLexWithSingleTok 1 Question
+        '~':_ -> continueLexWithSingleTok 1 Tilde
+        '#':_ -> continueLexWithSingleTok 1 Hash
+        '$':_ -> continueLexWithSingleTok 1 Dollar
+        '!':_ -> continueLexWithSingleTok 1 Bang
+        '=':_ -> continueLexWithSingleTok 1 Equal
+        ':':_ -> continueLexWithSingleTok 1 Colon
+        '+':_ -> continueLexWithSingleTok 1 Plus
+        '-':_ -> continueLexWithSingleTok 1 Minus
+        '*':_ -> continueLexWithSingleTok 1 Star
+        '/':_ -> continueLexWithSingleTok 1 Slash
+        '%':_ -> continueLexWithSingleTok 1 Percent
+        '<':_ -> continueLexWithSingleTok 1 Less
+        '>':_ -> continueLexWithSingleTok 1 Greater
+        '^':_ -> continueLexWithSingleTok 1 Caret
+        '&':_ -> continueLexWithSingleTok 1 Amper
+        '|':_ -> continueLexWithSingleTok 1 Pipe
 
         '"':strlit -> lexStrLit strlit
         '\'':chrlit -> lexCharLit chrlit
 
-        [] -> []
+        [] -> prevtoks
 
         entire@(other:_)
             | isAlpha other -> lexIden entire
             | isDigit other -> lexNr entire
             | isSpace other -> skipChar
-            | otherwise -> continueLexWithErr 1 $ BadChar other
+            | otherwise -> continueLexWithSingleErr 1 $ BadChar other
 
     where
         -- helpers {{{
-        continueLex advanceamt = lex' $ lexer `advance` advanceamt
-        skipChar = continueLex 1
+        continueLexWith things advanceamt = lex' (prevtoks ++ things) $ lexer `advance` advanceamt
+        continueLexWithNothing advanceamt = lex' prevtoks $ lexer `advance` advanceamt
 
-        continueLexWithTok len tok = (Right $ makeToken 0 len tok) : continueLex len
-        continueLexWithErr len err = (Left $ makeError 0 len err) : continueLex len
+        skipChar = continueLexWithNothing 1
+
+        continueLexWithSingleTok len tok = continueLexWith [Right $ makeToken 0 len tok] len
+        continueLexWithSingleErr len err = continueLexWith [Left $ makeError 0 len err] len
 
         makeToken start len tok = Located (makeSpanFromLexer start len) tok
         makeError start len err = err $ makeSpanFromLexer start len
-
-        singleCharTok = continueLexWithTok 1
 
         makeSpanFromLexer start len =
             makeSpan file (sourceLocation startlexer) (lnn startlexer) (coln startlexer) len (lnn endlexer) (coln endlexer)
@@ -277,13 +277,13 @@ lex' lexer =
         lexStrOrCharLit isCharLit startingDelim rest =
             case litLength of
                 Right len
-                    | isCharLit && len /= 1 -> continueLexWithErr (2 + len) MulticharChar
-                    | isCharLit -> continueLexWithTok (2 + len) $ CharLit $ rest !! 1
-                    | otherwise -> continueLexWithTok (2 + len) $ StringLit $ take len rest
+                    | isCharLit && len /= 1 -> continueLexWithSingleErr (2 + len) MulticharChar
+                    | isCharLit -> continueLexWithSingleTok (2 + len) $ CharLit $ rest !! 1
+                    | otherwise -> continueLexWithSingleTok (2 + len) $ StringLit $ take len rest
 
                 Left len
-                    | isCharLit -> continueLexWithErr (1 + len) UntermChar
-                    | otherwise -> continueLexWithErr (1 + len) UntermStr
+                    | isCharLit -> continueLexWithSingleErr (1 + len) UntermChar
+                    | otherwise -> continueLexWithSingleErr (1 + len) UntermStr
 
             where
                 litLength = charsUntilClosingDelim rest
@@ -302,7 +302,7 @@ lex' lexer =
         -- }}}
         -- lexIden {{{
         lexIden entire =
-            continueLexWithTok idenLen (
+            continueLexWithSingleTok idenLen (
                 case idenContents of
                     "data" -> Data
                     "impl" -> Impl
@@ -430,10 +430,10 @@ lex' lexer =
                         in if length invalidDigits == 0
                             then
                                 case decimalDigits of
-                                    Nothing -> continueLexWithTok totalLen tok
-                                    Just _ -> continueLexWithErr totalLen NonDecimalFloat
-                            else makeErrorsFromInvalidDigits invalidDigits ++ continueLex totalLen
-                    else continueLexWithErr totalLen MissingDigits
+                                    Nothing -> continueLexWithSingleTok totalLen tok
+                                    Just _ -> continueLexWithSingleErr totalLen NonDecimalFloat
+                            else continueLexWith (makeErrorsFromInvalidDigits invalidDigits) totalLen
+                    else continueLexWithSingleErr totalLen MissingDigits
 
             in case base of
                 Just 'x' ->
@@ -449,13 +449,13 @@ lex' lexer =
                         in if length invalidDigits == 0
                             then
                                 case decimalDigits of
-                                    Nothing -> continueLexWithTok totalLen $ IntLit Dec $ readLitDigits 10 (^)
-                                    Just dd -> continueLexWithTok totalLen $ FloatLit $ (fromIntegral $ readLitDigits 10 (^)) + (readDigits (map (fromIntegral . negate) [1..decimalLen]) 10 dd (**))
-                            else makeErrorsFromInvalidDigits invalidDigits ++ continueLex totalLen
-                    else continueLexWithErr totalLen MissingDigits
+                                    Nothing -> continueLexWithSingleTok totalLen $ IntLit Dec $ readLitDigits 10 (^)
+                                    Just dd -> continueLexWithSingleTok totalLen $ FloatLit $ (fromIntegral $ readLitDigits 10 (^)) + (readDigits (map (fromIntegral . negate) [1..decimalLen]) 10 dd (**))
+                            else continueLexWith (makeErrorsFromInvalidDigits invalidDigits) totalLen
+                    else continueLexWithSingleErr totalLen MissingDigits
 
                 Just b ->
-                    continueLexWithErr totalLen $ InvalidBase b $ makeSpanFromLexer 1 1
+                    continueLexWithSingleErr totalLen $ InvalidBase b $ makeSpanFromLexer 1 1
         -- }}}
 
 advance :: Lexer -> Int -> Lexer
