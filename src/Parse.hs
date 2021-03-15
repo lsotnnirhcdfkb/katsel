@@ -165,7 +165,7 @@ notpred :: ParseFun a -> ParseFun ()
 notpred ex = \ tokens ->
     case ex tokens of
         Left _ -> Right ((), tokens)
-        Right _ -> Left "expected not thing"
+        Right _ -> Left $ ParseError ["expected not thing"]
 
 parse :: ParseFun DCU
 parse = error "TODO"
