@@ -94,7 +94,10 @@ data DPath = DPath' [LocStr]
 
 data ParseError = ParseError [String]
 instance Message.ToDiagnostic ParseError where
-    toDiagnostic (ParseError _) = error "TODO"
+    toDiagnostic (ParseError msgs) =
+        Message.SimpleDiag Message.Error Nothing Nothing Nothing texts
+        where
+            texts = map Message.SimpleText msgs
 
 type TokenStream = [Located Lex.Token]
 data ParseFun a = ParseFun String (TokenStream -> (Either ParseError (a, TokenStream)))
