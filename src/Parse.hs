@@ -194,5 +194,17 @@ parse toks =
     then Right res
     else Left $ ParseError ["expected eof"]
     where
-        fun =
-            consume (\ tok -> case tok of { Located _ Lex.Var -> Just $ DCU'CU []; _ -> Nothing }) "'var' for var stmt"
+        fun = onemore (choice parseVarStmt parseRetStmt makeunit makeunit "var or ret stmt") makecu "list of var or ret stmt"
+
+        makeunit _ = ()
+        makecu _ = DCU'CU []
+
+        parseVarStmt =
+            (Parse.sequence
+                (consume (\ tok -> case tok of { Located _ Lex.Var -> Just (); _ -> Nothing }) "'var' for var stmt")
+                (consume (\ tok -> case tok of { Located _ (Lex.Identifier name) -> Just name; _ -> Nothing}) "var name")
+                (\ _ _ -> ())
+                "var stmt")
+
+        parseRetStmt =
+            (consume (\ tok -> case tok of { Located _ Lex.Return -> Just (); _ -> Nothing }) "'return' for return stmt")
