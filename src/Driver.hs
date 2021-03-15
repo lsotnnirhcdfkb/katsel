@@ -47,5 +47,5 @@ run filename =
     case ei of
         Right () -> return ()
         Left err ->
-            -- TODO: make this a diagnostic, print correctly
+            -- TODO: make this a diagnostic, print correctly and with color
             hPutStr stderr $ "!!! the compiler is broken! caught internal error: \n" ++ (unlines $ map ("  > " ++) $ lines $ show err)
