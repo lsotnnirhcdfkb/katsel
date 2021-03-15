@@ -92,12 +92,80 @@ data DType
 
 data DPath = DPath' [LocStr]
 
-data ParseError = ParseError
+data ParseError = ParseError [String]
 instance Message.ToDiagnostic ParseError where
-    toDiagnostic _ = error "unimplemented"
+    toDiagnostic (ParseError _) = error "TODO"
 
-type ParseFun a = [Located Lex.Token] -> (a, [ParseError])
+type ParseFun a = [Located Lex.Token] -> (Either ParseError (a, [Located Lex.Token]))
 
+consume :: (Located Lex.Token -> Maybe a) -> ParseFun a
+consume predicate = \ tokens ->
+    case tokens of
+        [] -> Left $ ParseError ["unexpected eof"]
+        tok:more ->
+            case predicate tok of
+                Just res -> Right (res, more)
+                Nothing -> Left $ ParseError ["expected thing"]
+
+empty :: ParseFun ()
+empty = \ tokens ->
+    Right $ ((), tokens)
+
+sequence :: ParseFun a -> ParseFun b -> (a -> b -> c) -> ParseFun c
+sequence a b converter = \ tokens ->
+    a tokens >>= \ (ares, aftera) ->
+    b aftera >>= \ (bres, afterb) ->
+    Right $ (converter ares bres, afterb)
+
+choice :: ParseFun a -> ParseFun b -> (a -> c) -> (b -> c) -> ParseFun c
+choice a b aconv bconv = \ tokens ->
+    case a tokens of
+        Right (res, after) -> Right (aconv res, after)
+        Left (ParseError aerr) ->
+            case b tokens of
+                Right (res, after) -> Right (bconv res, after)
+                Left (ParseError berr) -> Left $ ParseError $ aerr ++ berr
+
+zeromore :: ParseFun a -> ([a] -> b) -> ParseFun b
+zeromore ex conv = \ tokens ->
+    let (things, after) = helper tokens
+    in Right (conv things, after)
+    where
+        helper cur =
+            case ex cur of
+                Right (res, after) ->
+                    let (things, afterafter) = helper after
+                    in (res:things, afterafter)
+                Left _ -> ([], cur)
+
+onemore :: ParseFun a -> ([a] -> b) -> ParseFun b
+onemore ex conv = \ tokens ->
+    helper [] tokens
+    where
+        helper acc cur =
+            case ex cur of
+                Right (thing, rest) ->
+                    helper (acc ++ [thing]) rest
+
+                Left _ ->
+                    if length acc == 0
+                    then Left $ ParseError ["expected one or more of thing"]
+                    else Right (conv acc, cur)
+
+optional :: ParseFun a -> ParseFun (Maybe a)
+optional ex = choice ex empty Just (const Nothing)
+
+andpred :: ParseFun a -> ParseFun ()
+andpred ex = \ tokens ->
+    case ex tokens of
+        Right _ -> Right ((), tokens)
+        Left err -> Left err
+
+notpred :: ParseFun a -> ParseFun ()
+notpred ex = \ tokens ->
+    case ex tokens of
+        Left _ -> Right ((), tokens)
+        Right _ -> Left "expected not thing"
 
 parse :: ParseFun DCU
 parse = error "TODO"

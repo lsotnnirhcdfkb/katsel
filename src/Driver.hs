@@ -31,10 +31,11 @@ lexStage contents =
     let lexed = Lex.lex contents
     in ([x | Right x <- lexed], [Message.toDiagnostic x | Left x <- lexed])
 
-parseStage :: Stage [Located Lex.Token] Parse.DCU
+parseStage :: Stage [Located Lex.Token] (Maybe Parse.DCU)
 parseStage toks =
-    let (parsed, errs) = Parse.parse toks
-    in (parsed, map Message.toDiagnostic errs)
+    case Parse.parse toks of
+        Left e -> (Nothing, [Message.toDiagnostic e])
+        Right (ast, _) -> (Just ast, [])
 
 run :: String -> IO ()
 run filename =
