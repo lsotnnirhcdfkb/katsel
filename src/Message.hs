@@ -1,5 +1,5 @@
 module Message
-    ( Section(SimpleText)
+    ( Section(SimpleText, TreeSection)
     , makeUnderlinesSection
     , SimpleDiagType(..)
     , SimpleDiag(..)
@@ -45,9 +45,8 @@ makeUnderlinesSection msgs = Underlines msgs lineNumbers
 
 data Section
     = SimpleText String
-    | Divider
     | Underlines [UnderlineMessage] [(File, Int)]
-    | TreeSection (Maybe String) Section Section
+    | TreeSection (Maybe String) [(Maybe String, Section)]
 
 data SimpleDiagType
     = Error
@@ -111,11 +110,10 @@ report' (SimpleDiag ty maybeSpan maybeDiagCode maybeName sections) =
 indentOf :: Section -> Int
 indentOf (SimpleText _) = 4
 indentOf (Underlines _ fllnnrs) = 1 + (maximum $ map (length . show . snd) fllnnrs)
-indentOf Divider = 0
-indentOf (TreeSection _ _ _) = 0
+indentOf (TreeSection _ _) = 0
 
 showSection :: Int -> Section -> String
-showSection indent (SimpleText text) = makeIndentStr indent ++ text ++ "\n"
+showSection indent (SimpleText text) = makeIndentStr indent ++ " " ++ text ++ "\n"
 -- show Underlines {{{
 showSection indent (Underlines msgs linenrs) =
     foldl' concatLine "" $ zip linenrs (Nothing:(map Just linenrs))
@@ -233,18 +231,23 @@ showSection indent (Underlines msgs linenrs) =
 
             in acc ++ fileLine ++ elipsisLine ++ showLine flln
 -- }}}
-showSection indent Divider = makeIndentStr indent ++ "---" ++ "\n"
-showSection indent (TreeSection heading a b) =
+showSection indent (TreeSection heading sections) =
     headingStr ++
-    sectiona ++
-    sectionb
+    sectionsStr
     where
         headingStr = case heading of
             Just s -> makeIndentWithDivider '|' "" indent ++ s ++ "\n"
             Nothing -> ""
 
-        sectiona = showSection (indent + 4) a
-        sectionb = showSection (indent + 4) b
+        indentChild = unlines . (map ((makeIndentWithDivider '|' "" indent ++ "    ")++)) . lines
+
+        sectionsStr = concat $ map (showChild) sections
+
+        showChild (sectionHeading, section) =
+            let h = case sectionHeading of
+                        Just x -> makeIndentWithDivider '|' "" indent ++ x ++ "\n"
+                        Nothing -> ""
+            in h ++ (indentChild $ showSection (indentOf section) section)
 
 makeIndentWithDivider :: Char -> String -> Int -> String
 makeIndentWithDivider divider left indent =
