@@ -30,7 +30,9 @@ import qualified Message
 type LocStr = Located String
 
 data Mutability = Mutable | Immutable
+    deriving Show
 data ThisParamKind = Value | Ref | MutRef
+    deriving Show
 
 data BinOp
     = Plus | Minus | Star | Slash | Percent
@@ -38,28 +40,38 @@ data BinOp
     | Amper | Pipe | Caret
     | DoubleGreater | DoubleLess
     | DoubleEqual | BangEqual
+    deriving Show
 
 data ShortOp = DoubleAmper | DoublePipe
+    deriving Show
 data UnaryOp = UnBang | UnTilde | UnMinus | UnAmper | UnStar
+    deriving Show
 data AssignOp = Equal
+    deriving Show
 
 data SFunDecl = SFunDecl' DType LocStr [DParam] SBlockExpr
+    deriving Show
 
 data SBlockExpr = SBlockExpr' [DStmt]
+    deriving Show
 
 data DCU = DCU'CU [DDecl]
+    deriving Show
 
 data DDecl
     = DDecl'Fun SFunDecl
     | DDecl'Impl DType [DImplMember]
+    deriving Show
 
 data DImplMember
     = DImplMember'Fun SFunDecl
+    deriving Show
 
 data DStmt
     = DStmt'Var DType Mutability LocStr (Maybe (Span, DExpr))
     | DStmt'Expr DExpr
     | DStmt'Ret DExpr
+    deriving Show
 
 data DExpr
     = DExpr'Block SBlockExpr
@@ -80,19 +92,24 @@ data DExpr
     | DExpr'String String
     | DExpr'This Span
     | DExpr'Path DPath
+    deriving Show
 
 data DParam
     = DParam'Normal Mutability DType LocStr
     | DParam'This ThisParamKind
+    deriving Show
 
 data DType
     = DType'Path DPath
     | DType'Pointer Mutability DType
     | DType'This Span
+    deriving Show
 
 data DPath = DPath' [LocStr]
+    deriving Show
 
 data ParseError = ParseError [String]
+    deriving Show
 instance Message.ToDiagnostic ParseError where
     toDiagnostic (ParseError msgs) =
         Message.SimpleDiag Message.Error Nothing Nothing Nothing texts
@@ -163,9 +180,10 @@ onemore ex@(ParseFun exname _) conv name = ParseFun name fun
                 Right (thing, rest) ->
                     helper (acc ++ [thing]) rest
 
-                Left _ ->
+                Left (ParseError err) ->
                     if length acc == 0
-                    then Left $ ParseError ["expected one or more of " ++ exname ++ " (found 0)"]
+                    -- there are no other ones that matched, then the error matched by this branch is the reason why the first one couldnt match
+                    then Left $ ParseError ["expected one or more of " ++ exname ++ ", but could not find (at least) one because of the following reasons: " ++ show err]
                     else Right (conv acc, cur)
 
 optional :: ParseFun a -> ParseFun (Maybe a)
@@ -192,19 +210,28 @@ parse toks =
     runParseFun fun toks >>= \(res, rest) ->
     if length rest == 0
     then Right res
-    else Left $ ParseError ["expected eof"]
+    else Left $ ParseError ["expected eof, but got " ++ (show $ head rest) ++ ", rest" ++ (show $ tail rest)]
     where
         fun = onemore (choice parseVarStmt parseRetStmt makeunit makeunit "var or ret stmt") makecu "list of var or ret stmt"
+        -- fun = choice parseVarStmt parseRetStmt makecu makecu "var or ret stmt"
 
         makeunit _ = ()
         makecu _ = DCU'CU []
 
         parseVarStmt =
             (Parse.sequence
-                (consume (\ tok -> case tok of { Located _ Lex.Var -> Just (); _ -> Nothing }) "'var' for var stmt")
-                (consume (\ tok -> case tok of { Located _ (Lex.Identifier name) -> Just name; _ -> Nothing}) "var name")
+                (Parse.sequence 
+                    (consume (\ tok -> case tok of { Located _ Lex.Var -> Just (); _ -> Nothing }) "'var' for var stmt")
+                    (consume (\ tok -> case tok of { Located _ (Lex.Identifier name) -> Just name; _ -> Nothing}) "var name")
+                    (\ _ _ -> ())
+                    "first two tokens of var stsmt")
+                (consume (\ tok -> case tok of { Located _ Lex.Newline -> Just (); _ -> Nothing}) "nl")
                 (\ _ _ -> ())
                 "var stmt")
 
         parseRetStmt =
-            (consume (\ tok -> case tok of { Located _ Lex.Return -> Just (); _ -> Nothing }) "'return' for return stmt")
+            (Parse.sequence 
+                (consume (\ tok -> case tok of { Located _ Lex.Return -> Just (); _ -> Nothing }) "'return' for return stmt")
+                (consume (\ tok -> case tok of { Located _ Lex.Newline -> Just (); _ -> Nothing}) "nl")
+                (\ _ _ -> ())
+                "retr stmt")
