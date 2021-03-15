@@ -43,12 +43,15 @@ makeUnderlinesSection msgs = Underlines msgs lineNumbers
             then nr1 `compare` nr2
             else name fl1 `compare` name fl2
 
-data Section = SimpleText String
-             | Underlines [UnderlineMessage] [(File, Int)]
+data Section
+    = SimpleText String
+    | Divider
+    | Underlines [UnderlineMessage] [(File, Int)]
 
-data SimpleDiagType = Error
-                    | Warning
-                    | DebugMessage
+data SimpleDiagType
+    = Error
+    | Warning
+    | DebugMessage
 
 instance Show SimpleDiagType where
     show Error = "error"
@@ -231,4 +234,4 @@ makeIndentWithDivider divider left indent =
     (replicate (indent - length left - 1) ' ') ++ left ++ " " ++ [divider] ++ " "
 
 makeIndentStr :: Int -> String
-makeIndentStr x = take x $ repeat ' '
+makeIndentStr x = replicate x ' '

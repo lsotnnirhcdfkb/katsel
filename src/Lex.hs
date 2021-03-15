@@ -13,7 +13,6 @@ data IntLitBase
     | Oct
     | Hex
     | Bin
-    deriving Show
 
 data Token
     = OParen
@@ -90,7 +89,6 @@ data Token
     | Indent
     | Dedent
     | Newline
-    deriving Show
 
 data IndentFrame
     = IndentationSensitive Int
