@@ -185,4 +185,11 @@ notpred ex@(ParseFun name _) = ParseFun ("not " ++ name) fun
                 Right _ -> Left $ ParseError ["cannot have " ++ name ++ " here"]
 
 parse :: TokenStream -> Either ParseError DCU
-parse = error "TODO"
+parse toks =
+    runParseFun fun toks >>= \(res, rest) ->
+    if length rest == 0
+    then Right res
+    else Left $ ParseError ["expected eof"]
+    where
+        fun =
+            consume (\ tok -> case tok of { Located _ Lex.Var -> Just $ DCU'CU []; _ -> Nothing }) "'var' for var stmt"
