@@ -35,7 +35,7 @@ parseStage :: Stage [Located Lex.Token] (Maybe Parse.DCU)
 parseStage toks =
     case Parse.parse toks of
         Left e -> (Nothing, [Message.toDiagnostic e])
-        Right (ast, _) -> (Just ast, [])
+        Right ast -> (Just ast, [])
 
 run :: String -> IO ()
 run filename =

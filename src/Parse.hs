@@ -96,76 +96,93 @@ data ParseError = ParseError [String]
 instance Message.ToDiagnostic ParseError where
     toDiagnostic (ParseError _) = error "TODO"
 
-type ParseFun a = [Located Lex.Token] -> (Either ParseError (a, [Located Lex.Token]))
+type TokenStream = [Located Lex.Token]
+data ParseFun a = ParseFun String (TokenStream -> (Either ParseError (a, TokenStream)))
 
-consume :: (Located Lex.Token -> Maybe a) -> ParseFun a
-consume predicate = \ tokens ->
-    case tokens of
-        [] -> Left $ ParseError ["unexpected eof"]
-        tok:more ->
-            case predicate tok of
-                Just res -> Right (res, more)
-                Nothing -> Left $ ParseError ["expected thing"]
+runParseFun :: ParseFun a -> TokenStream -> (Either ParseError (a, TokenStream))
+runParseFun (ParseFun _ fun) = fun
 
-empty :: ParseFun ()
-empty = \ tokens ->
-    Right $ ((), tokens)
-
-sequence :: ParseFun a -> ParseFun b -> (a -> b -> c) -> ParseFun c
-sequence a b converter = \ tokens ->
-    a tokens >>= \ (ares, aftera) ->
-    b aftera >>= \ (bres, afterb) ->
-    Right $ (converter ares bres, afterb)
-
-choice :: ParseFun a -> ParseFun b -> (a -> c) -> (b -> c) -> ParseFun c
-choice a b aconv bconv = \ tokens ->
-    case a tokens of
-        Right (res, after) -> Right (aconv res, after)
-        Left (ParseError aerr) ->
-            case b tokens of
-                Right (res, after) -> Right (bconv res, after)
-                Left (ParseError berr) -> Left $ ParseError $ aerr ++ berr
-
-zeromore :: ParseFun a -> ([a] -> b) -> ParseFun b
-zeromore ex conv = \ tokens ->
-    let (things, after) = helper tokens
-    in Right (conv things, after)
+consume :: (Located Lex.Token -> Maybe a) -> String -> ParseFun a
+consume predicate name = ParseFun name fun
     where
+        fun = \ tokens ->
+            case tokens of
+                [] -> Left $ ParseError ["unexpected eof, expected " ++ name]
+                tok:more ->
+                    case predicate tok of
+                        Just res -> Right (res, more)
+                        Nothing -> Left $ ParseError ["expected " ++ name]
+
+empty :: String -> ParseFun ()
+empty name = ParseFun name fun
+    where
+        fun = \ tokens -> Right $ ((), tokens)
+
+sequence :: ParseFun a -> ParseFun b -> (a -> b -> c) -> String -> ParseFun c
+sequence a b converter name = ParseFun name fun
+    where
+        fun = \ tokens ->
+            runParseFun a tokens >>= \ (ares, aftera) ->
+            runParseFun b aftera >>= \ (bres, afterb) ->
+            Right $ (converter ares bres, afterb)
+
+choice :: ParseFun a -> ParseFun b -> (a -> c) -> (b -> c) -> String -> ParseFun c
+choice a b aconv bconv name = ParseFun name fun
+    where
+        fun = \ tokens ->
+            case runParseFun a tokens of
+                Right (res, after) -> Right (aconv res, after)
+                Left (ParseError aerr) ->
+                    case runParseFun b tokens of
+                        Right (res, after) -> Right (bconv res, after)
+                        Left (ParseError berr) -> Left $ ParseError $ aerr ++ berr
+
+zeromore :: ParseFun a -> ([a] -> b) -> String -> ParseFun b
+zeromore ex conv name = ParseFun name fun
+    where
+        fun = \ tokens ->
+            let (things, after) = helper tokens
+            in Right (conv things, after)
+
         helper cur =
-            case ex cur of
+            case runParseFun ex cur of
                 Right (res, after) ->
                     let (things, afterafter) = helper after
                     in (res:things, afterafter)
                 Left _ -> ([], cur)
 
-onemore :: ParseFun a -> ([a] -> b) -> ParseFun b
-onemore ex conv = \ tokens ->
-    helper [] tokens
+onemore :: ParseFun a -> ([a] -> b) -> String -> ParseFun b
+onemore ex@(ParseFun exname _) conv name = ParseFun name fun
     where
+        fun = \ tokens -> helper [] tokens
         helper acc cur =
-            case ex cur of
+            case runParseFun ex cur of
                 Right (thing, rest) ->
                     helper (acc ++ [thing]) rest
 
                 Left _ ->
                     if length acc == 0
-                    then Left $ ParseError ["expected one or more of thing"]
+                    then Left $ ParseError ["expected one or more of " ++ exname ++ " (found 0)"]
                     else Right (conv acc, cur)
 
 optional :: ParseFun a -> ParseFun (Maybe a)
-optional ex = choice ex empty Just (const Nothing)
+optional ex@(ParseFun name _) = choice ex (empty $ "omitted " ++ name) Just (const Nothing) name
 
 andpred :: ParseFun a -> ParseFun ()
-andpred ex = \ tokens ->
-    case ex tokens of
-        Right _ -> Right ((), tokens)
-        Left err -> Left err
+andpred ex@(ParseFun name _) = ParseFun ("required " ++ name) fun
+    where
+        fun = \ tokens ->
+            case runParseFun ex tokens of
+                Right _ -> Right ((), tokens)
+                Left err -> Left err
 
 notpred :: ParseFun a -> ParseFun ()
-notpred ex = \ tokens ->
-    case ex tokens of
-        Left _ -> Right ((), tokens)
-        Right _ -> Left $ ParseError ["expected not thing"]
+notpred ex@(ParseFun name _) = ParseFun ("not " ++ name) fun
+    where
+        fun = \ tokens ->
+            case runParseFun ex tokens of
+                Left _ -> Right ((), tokens)
+                Right _ -> Left $ ParseError ["cannot have " ++ name ++ " here"]
 
-parse :: ParseFun DCU
+parse :: TokenStream -> Either ParseError DCU
 parse = error "TODO"
