@@ -11,6 +11,9 @@ import qualified Message
 import qualified Lex
 import qualified Parse
 
+import System.IO(hPutStr, stderr)
+import Control.Exception(try, SomeException)
+
 data Backend = CBackend
 
 data OutputFormat = Lexed | Parsed | KatselIR | BackendCode Backend
@@ -38,5 +41,11 @@ run filename =
     openFile filename >>= \ file ->
     let totalStages = lexStage `joinStages` parseStage
         (finalOutput, finalErrs) = totalStages file
+        putErrs = hPutStr stderr $ concat $ map Message.report finalErrs
     in
-    (putStr $ concat $ map Message.report finalErrs)
+    (try putErrs :: IO (Either SomeException ())) >>= \ei ->
+    case ei of
+        Right () -> return ()
+        Left err ->
+            -- TODO: make this a diagnostic, print correctly
+            hPutStr stderr $ "!!! the compiler is broken! caught internal error: \n" ++ (unlines $ map ("  > " ++) $ lines $ show err)
