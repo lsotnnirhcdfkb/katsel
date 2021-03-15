@@ -265,7 +265,6 @@ grammar =
         (Consume "let variant" "introductory token 'let'" (\ tok -> case tok of { Located _ Lex.Let -> Just $ makecu (); _ -> Nothing }))
         makecu makecu)
 
-
 makecu :: a -> DCU
 makecu _ = DCU'CU []
 

@@ -47,6 +47,7 @@ data Section
     = SimpleText String
     | Divider
     | Underlines [UnderlineMessage] [(File, Int)]
+    | TreeSection (Maybe String) Section Section
 
 data SimpleDiagType
     = Error
@@ -110,9 +111,12 @@ report' (SimpleDiag ty maybeSpan maybeDiagCode maybeName sections) =
 indentOf :: Section -> Int
 indentOf (SimpleText _) = 4
 indentOf (Underlines _ fllnnrs) = 1 + (maximum $ map (length . show . snd) fllnnrs)
+indentOf Divider = 0
+indentOf (TreeSection _ _ _) = 0
 
 showSection :: Int -> Section -> String
 showSection indent (SimpleText text) = makeIndentStr indent ++ text ++ "\n"
+-- show Underlines {{{
 showSection indent (Underlines msgs linenrs) =
     foldl' concatLine "" $ zip linenrs (Nothing:(map Just linenrs))
     where
@@ -228,6 +232,19 @@ showSection indent (Underlines msgs linenrs) =
                 elipsisLine = if needElipsisLine then showElipsisLine else ""
 
             in acc ++ fileLine ++ elipsisLine ++ showLine flln
+-- }}}
+showSection indent Divider = makeIndentStr indent ++ "---" ++ "\n"
+showSection indent (TreeSection heading a b) =
+    headingStr ++
+    sectiona ++
+    sectionb
+    where
+        headingStr = case heading of
+            Just s -> makeIndentWithDivider '|' "" indent ++ s ++ "\n"
+            Nothing -> ""
+
+        sectiona = showSection (indent + 4) a
+        sectionb = showSection (indent + 4) b
 
 makeIndentWithDivider :: Char -> String -> Int -> String
 makeIndentWithDivider divider left indent =
