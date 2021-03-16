@@ -495,7 +495,7 @@ lex' prevtoks indentStack lexer =
                     case afterDigits of
                         '.':(rest@(firstDigit:_))
                             | isHexDigit firstDigit ->
-                                (Just f, length f + 1, tail more)
+                                (Just f, length f + 1, drop 1 more)
                                 where (f, more) = break (not . isHexDigit) rest
 
                         after -> (Nothing, 0, after)
@@ -551,7 +551,7 @@ advance :: Lexer -> Int -> Lexer
 advance lexer 0 = lexer
 advance lexer 1 = lexer
                   { sourceLocation = sourceLocation lexer + 1
-                  , remaining = tail $ remaining lexer
+                  , remaining = drop 1 $ remaining lexer
                   , lnn = nextlnn
                   , coln = nextcoln
                   }
