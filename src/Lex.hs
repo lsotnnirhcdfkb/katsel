@@ -101,8 +101,6 @@ data Lexer = Lexer
              { sourcefile :: File
              , sourceLocation :: Int
              , remaining :: String
-             , lnn :: Int
-             , coln :: Int
              }
 
 data LexError
@@ -162,8 +160,6 @@ lex f = lex' [] [IndentationSensitive 0] $ Lexer
            { sourcefile = f
            , sourceLocation = 0
            , remaining = source f
-           , lnn = 1
-           , coln = 1
            }
 
 lex' :: [Either LexError (Located Token)] -> [IndentFrame] -> Lexer -> [Either LexError (Located Token)]
@@ -280,11 +276,10 @@ lex' prevtoks indentStack lexer =
         makeError start len err = err $ makeSpanFromLexer start len
 
         makeSpanFromLexer start len =
-            makeSpan file (sourceLocation startlexer) (lnn startlexer) (coln startlexer) len (lnn endlexer) (coln endlexer)
+            Span (makeLocation file $ ind + start) (makeLocation file $ ind + start + len)
             where
                 file = sourcefile lexer
-                startlexer = lexer `advance` start
-                endlexer = startlexer `advance` len
+                ind = sourceLocation lexer
 
         (newIndentStack, indentTokens) =
             case prevtoks of
@@ -552,23 +547,7 @@ lex' prevtoks indentStack lexer =
         -- }}}
 
 advance :: Lexer -> Int -> Lexer
-advance lexer 0 = lexer
-advance lexer 1 = lexer
-                  { sourceLocation = sourceLocation lexer + 1
-                  , remaining = drop 1 $ remaining lexer
-                  , lnn = nextlnn
-                  , coln = nextcoln
+advance lexer n = lexer
+                  { sourceLocation = sourceLocation lexer + n
+                  , remaining = drop n $ remaining lexer
                   }
-    where
-        overNL = case remaining lexer of
-            '\n':_ -> True
-            _ -> False
-
-        nextlnn = if overNL
-            then lnn lexer + 1
-            else lnn lexer
-        nextcoln = if overNL
-            then 1
-            else coln lexer + 1
-
-advance lexer n = advance (advance lexer 1) $ n - 1

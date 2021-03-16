@@ -1,44 +1,51 @@
 module Location
-    ( Location(..)
+    ( Location
     , Span(..)
     , Located(..)
     , makeLocation
-    , makeSpan
-    , lineNumOfLocation
-    , colNumOfLocation
-    , endLocationOfSpan
+    , fmtLocation
+    , fmtSpan
+    , indOfLoc
+    , lnnOfLoc
+    , colnOfLoc
+    , fileOfLoc
     ) where
 
 import File
 
-newtype SourceIndex = SourceIndex Int
-newtype ColumnNum = ColumnNum Int
-newtype LineNum = LineNum Int
+data Location
+    = Location
+      { fileOfLoc :: File
+      , indOfLoc :: Int
+      , lnnOfLoc :: Int
+      , colnOfLoc :: Int
+      }
 
-data Location = Location File SourceIndex LineNum ColumnNum
-instance Show Location where
-    show (Location file _ (LineNum lnnr) (ColumnNum coln)) =
-        name file ++ ":" ++ show lnnr ++ ":" ++ show coln
+fmtLocation :: Location -> String
+fmtLocation (Location file _ lnnr coln) = name file ++ ":" ++ show lnnr ++ ":" ++ show coln
 
-data Span = Span Location Int LineNum ColumnNum
-instance Show Span where
-    show (Span start len _ _) = show start ++ "+" ++ show len
+data Span = Span Location Location
+fmtSpan :: Span -> String
+fmtSpan (Span (Location sfile _ slnnr scoln) (Location efile _ elnnr ecoln)) =
+    if sfile /= efile
+    then error "span that spans over different files"
+    else name sfile ++ ":(" ++ show slnnr ++ ":" ++ show scoln ++ " " ++ show elnnr ++ ":" ++ show ecoln ++ ")"
 
 data Located a = Located Span a
-instance Show a => Show (Located a) where
-    show (Located sp a) = "<" ++ show sp ++ ": " ++ show a ++ ">"
 
-makeLocation :: File -> Int -> Int -> Int -> Location
-makeLocation file srci lnn coln = Location file (SourceIndex srci) (LineNum lnn) (ColumnNum coln)
+makeLocation :: File -> Int -> Location
+makeLocation file srci = Location file srci (getlnn file srci) (getcoln file srci)
 
-makeSpan :: File -> Int -> Int -> Int -> Int -> Int -> Int -> Span
-makeSpan file srci slnn scoln len elnn ecoln = Span (makeLocation file srci slnn scoln) len (LineNum elnn) (ColumnNum ecoln)
+getlnn :: File -> Int -> Int
+getlnn file ind =
+    case drop ind $ source file of
+        "\n" -> getlnn file (ind-1)
+        _ -> 1 + (length $ filter ('\n'==) (take (ind + 1) $ source file))
 
-lineNumOfLocation :: Location -> Int
-lineNumOfLocation  (Location _ _ (LineNum nr) _) = nr
-
-colNumOfLocation :: Location -> Int
-colNumOfLocation  (Location _ _ _ (ColumnNum cr)) = cr
-
-endLocationOfSpan :: Span -> Location
-endLocationOfSpan (Span (Location file (SourceIndex ind) _ _) len endlnr endcoln) = Location file (SourceIndex $ ind + len) endlnr endcoln
+getcoln :: File -> Int -> Int
+getcoln = helper (1 :: Int)
+    where
+        helper acc file ind =
+            case reverse $ take ind $ source file of
+                '\n':_ -> acc
+                _ -> helper (acc + 1) file (ind - 1)

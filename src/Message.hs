@@ -32,11 +32,19 @@ data UnderlineImportance = Primary | Secondary | Tertiary
 data UnderlineType = ErrorUnderline | WarningUnderline | NoteUnderline | HintUnderline
 data UnderlineMessage = UnderlineMessage Span UnderlineType UnderlineImportance String
 
+locMinus1 :: Location -> Location
+locMinus1 loc = makeLocation (fileOfLoc loc) (indOfLoc loc - 1)
+
+lineOfMinus1 :: Location -> Int
+lineOfMinus1 loc = lnnOfLoc $ locMinus1 loc
+colOfMinus1 :: Location -> Int
+colOfMinus1 loc = colnOfLoc $ locMinus1 loc
+
 makeUnderlinesSection :: [UnderlineMessage] -> Section
 makeUnderlinesSection msgs = Underlines msgs lineNumbers
     where
-        lineNumbers = sortBy comparator $ nub $ map linenrof msgs
-        linenrof (UnderlineMessage (Span loc@(Location fi _ _ _) _ _ _) _ _ _) = (fi, lineNumOfLocation loc)
+        lineNumbers = sortBy comparator $ nub $ concatMap linenrsof msgs
+        linenrsof (UnderlineMessage (Span start end) _ _ _) = [(fileOfLoc start, lnnOfLoc start), (fileOfLoc start, lineOfMinus1 end)]
 
         comparator (fl1, nr1) (fl2, nr2) =
             if fl1 == fl2
@@ -87,7 +95,7 @@ report' (SimpleDiag ty maybeSpan maybeDiagCode maybeName sections) =
         header =
             ANSI.setSGRCode (sgrOfDiagType ty) ++ show ty ++ ANSI.setSGRCode [] ++
             (case maybeSpan of
-                Just sp -> " at " ++ ANSI.setSGRCode filePathSGR ++ show sp ++ ANSI.setSGRCode []
+                Just sp -> " at " ++ ANSI.setSGRCode filePathSGR ++ fmtSpan sp ++ ANSI.setSGRCode []
                 Nothing -> ""
             ) ++ ":"
 
@@ -127,7 +135,12 @@ showSection indent (Underlines msgs linenrs) =
 
                 lineMessages = filter isCorrectLine msgs
                     where
-                        isCorrectLine (UnderlineMessage (Span msgloc@(Location msgfl _ _ _) _ _ _) _ _ _) = (msgfl, lineNumOfLocation msgloc) == flnr
+                        isCorrectLine (UnderlineMessage (Span _ msgloc) _ _ _) = (fileOfLoc msgloc, lineOfMinus1 msgloc) == flnr
+
+                lineUnderlines = filter isCorrectLine msgs
+                    where
+                        isCorrectLine (UnderlineMessage (Span start end) _ _ _) =
+                            fl == fileOfLoc start && lnnOfLoc start <= nr && nr <= lineOfMinus1 end
 
                 colorOfType ErrorUnderline = [boldSGR, vividForeColorSGR ANSI.Red]
                 colorOfType WarningUnderline = [boldSGR, vividForeColorSGR ANSI.Magenta]
@@ -135,7 +148,7 @@ showSection indent (Underlines msgs linenrs) =
                 colorOfType HintUnderline = [boldSGR, vividForeColorSGR ANSI.Blue]
 
                 assignedMessages =
-                    assignMessages (sortBy (\ (UnderlineMessage sp1 _ _ _) (UnderlineMessage sp2 _ _ _) -> (colNumOfLocation $ endLocationOfSpan sp1) `compare` (colNumOfLocation $ endLocationOfSpan sp2)) msgs) []
+                    assignMessages (sortBy (\ (UnderlineMessage (Span _ msg1l) _ _ _) (UnderlineMessage (Span _ msg2l) _ _ _) -> (colOfMinus1 msg1l) `compare` (colOfMinus1 msg2l)) lineMessages) []
                     where
                         assignMessages [] a = a
                         assignMessages (toAssign:rest) alreadyAssigned =
@@ -161,19 +174,23 @@ showSection indent (Underlines msgs linenrs) =
                         makeAssignment msg@(UnderlineMessage _ ty _ _) row =
                             (row, startcolumn row msg, endcolumn row msg, ANSI.setSGRCode (colorOfType ty) ++ augmentedMessage row msg ++ ANSI.setSGRCode [])
 
-                        -- TODO: column number is broken sometimes; if the end of the span is the first char of a new line, the column will be 1 when it should not be
-                        startcolumn row (UnderlineMessage sp _ _ _) = (colNumOfLocation $ endLocationOfSpan sp) - if row == 0 then 0 else 1
+                        startcolumn row (UnderlineMessage (Span _ eloc) _ _ _) = (colOfMinus1 eloc) + if row == 0 then 1 else 0
                         endcolumn row msg = startcolumn row msg + length (augmentedMessage row msg)
                         augmentedMessage row (UnderlineMessage _ _ _ msgText) = (if row == 0 then "-- " else "`-- ") ++ msgText
 
                 underlineLinePrefix = makeIndentWithDivider '|' "" indent
 
-                -- TODO: do not use length quote here, find maximum column of underlines
-                underlinesForChars = map getUnderlineForChar $ take (length quote) [1..]
+                underlinesForChars = map getUnderlineForChar $ take (length quote + 1) [1..]
                     where
-                        getUnderlineForChar coln = find (\ msg -> startcol msg <= coln && coln < endcol msg) msgs
-                        startcol (UnderlineMessage (Span start _ _ _) _ _ _) = colNumOfLocation start
-                        endcol (UnderlineMessage sp _ _ _) = colNumOfLocation $ endLocationOfSpan sp
+                        getUnderlineForChar coln = find (\ msg -> startcol msg <= coln && coln < endcol msg) lineUnderlines
+                        startcol (UnderlineMessage (Span start _) _ _ _) =
+                            if lnnOfLoc start == nr
+                            then colnOfLoc start
+                            else 1
+                        endcol (UnderlineMessage (Span _ end) _ _ _) =
+                            if lnnOfLoc end == nr
+                            then colnOfLoc end
+                            else maxBound
 
                 shownUnderlines = map drawUnderline underlinesForChars
                     where
@@ -185,18 +202,18 @@ showSection indent (Underlines msgs linenrs) =
                         charOfImportance Tertiary = '.'
 
                 firstRow =
-                    if length lineMessages > 0
+                    if length lineUnderlines > 0
                     then underlineLinePrefix ++ showRow 0 ++ "\n"
                     else ""
 
                 showRow row =
                     let rowMessages = filter (\ (r, _, _, _) -> r == row) assignedMessages
-                        maxCol = maximum $ map (\ (_, _, ec, _) -> ec) rowMessages
+                        maxCol = maximum $ (length shownUnderlines) : (map (\ (_, _, ec, _) -> ec) rowMessages)
                         rowUnderline = if row == 0 then shownUnderlines else []
                     in putMsgs rowMessages 1 maxCol rowUnderline ""
 
                 putMsgs :: [(Int, Int, Int, String)] -> Int -> Int -> [String] -> String -> String
-                putMsgs [] _ _ _ acc = acc
+                putMsgs [] _ _ [] acc = acc
                 putMsgs rowMessages col maxCol underline acc
                     | col > maxCol = acc
                     | otherwise =
@@ -215,7 +232,7 @@ showSection indent (Underlines msgs linenrs) =
                 nextRows = concat $ map (\ ln -> underlineLinePrefix ++ ln ++ "\n") $ takeWhile ((>0) . length) $ map showRow [1..]
 
         showFileLine fl = makeIndentWithDivider '>' "" indent ++ ANSI.setSGRCode filePathSGR ++ name fl ++ ANSI.setSGRCode [] ++ "\n"
-        showElipsisLine = makeIndentWithDivider '|' (replicate (indent - 1) '.') indent ++ "..."
+        showElipsisLine = makeIndentWithDivider '|' (replicate (indent - 1) '.') indent ++ "...\n"
 
         concatLine acc (flln@(fl, curlnr), maybeLastFileNr) =
             let needFileLine = case maybeLastFileNr of
