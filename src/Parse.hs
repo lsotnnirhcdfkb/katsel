@@ -6,6 +6,8 @@ import Location
 import qualified Lex
 import qualified Message
 
+import Debug.Trace(trace)
+
 {-
     most asts are just a plain adt, but some asts are required in multiple asts
     for example, function declarations are needed in a standard Decl and also in an ImplMember
@@ -95,7 +97,7 @@ data DType
 data DPath = DPath' [LocStr]
 
 data ParseError
-    = MissingError String String (Maybe Span)
+    = MissingError String String Span
     | MustBeFollowedByFor String String String Span ParseError
     | InvalidChoice String String String Span ParseError ParseError
     | NeedOneOrMore String String Span ParseError
@@ -104,42 +106,41 @@ data ParseError
     | ExcessTokens Span
 
 -- TODO: TreeSection which takes two sections and indents them to show them as children
-parseErrorMsg :: ParseError -> (Maybe Span, Message.Section)
+parseErrorMsg :: ParseError -> (Span, Message.Section)
 
 parseErrorMsg (MissingError construct thing msp) = (msp,
-        let msg = construct ++ " is missing " ++ thing
-        in case msp of
-            Just sp -> Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary msg]
-            Nothing -> Message.SimpleText msg)
+    Message.makeUnderlinesSection [Message.UnderlineMessage msp Message.ErrorUnderline Message.Primary msg])
+    where
+        msg = construct ++ " is missing " ++ thing
 
 parseErrorMsg (MustBeFollowedByFor construct a b sp berr) =
-    (Just sp, Message.TreeSection (Just $ a ++ " of " ++ construct ++ " must be followed by " ++ b) [(Just $ b ++ " not found because of error:", snd (parseErrorMsg berr))])
+    (sp, Message.TreeSection (Just $ a ++ " of " ++ construct ++ " must be followed by " ++ b) [(Just $ b ++ " not found because of error:", snd (parseErrorMsg berr))])
 
 parseErrorMsg (InvalidChoice construct a b sp aerr berr) =
-    (Just sp, Message.TreeSection (Just $ "invalid " ++ construct ++ "; must be " ++ a ++ " or " ++ b) [
+    (sp, Message.TreeSection (Just $ "invalid " ++ construct ++ "; must be " ++ a ++ " or " ++ b) [
         (Just $ a ++ " not found because of error:", snd $ parseErrorMsg aerr), (Just $ b ++ " not found because of error:", snd $ parseErrorMsg berr)
     ])
 
 parseErrorMsg (NeedOneOrMore construct item sp err) =
-    (Just sp, Message.TreeSection (Just $ "need at least one " ++ item ++ " for " ++ construct ++ ", but found none") [
+    (sp, Message.TreeSection (Just $ "need at least one " ++ item ++ " for " ++ construct ++ ", but found none") [
         (Just $ item ++ " not found because of error:", snd $ parseErrorMsg err)
     ])
 
 parseErrorMsg (MustAppear thing sp err) =
-    (Just sp, Message.TreeSection (Just $ thing ++ " must appear here") [
+    (sp, Message.TreeSection (Just $ thing ++ " must appear here") [
         (Just $ thing ++ " not found because of error:", snd $ parseErrorMsg err)
     ])
 
 parseErrorMsg (NotAllowed thing sp) =
-    (Just sp, Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary $ thing ++ " not allowed here"])
+    (sp, Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary $ thing ++ " not allowed here"])
 
 parseErrorMsg (ExcessTokens sp) =
-    (Just sp, Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary "excess tokens in input"])
+    (sp, Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary "excess tokens in input"])
 
 instance Message.ToDiagnostic ParseError where
     toDiagnostic e =
-        let (msp, sec) = parseErrorMsg e
-        in Message.SimpleDiag Message.Error msp Nothing Nothing [sec]
+        let (sp, sec) = parseErrorMsg e
+        in Message.SimpleDiag Message.Error (Just sp) Nothing Nothing [sec]
 
 data PEGExpr r where
     Consume :: String -> String -> (Located Lex.Token -> Maybe r) -> PEGExpr r
@@ -164,16 +165,18 @@ advance 0 p = p
 advance 1 (Parser (t:ts) _) = Parser ts $ Just t
 advance n p = advance 1 $ advance (n - 1) p
 
-selectSpanFromParser :: Parser -> Maybe Span
-selectSpanFromParser (Parser ((Located sp _):_) _) = Just sp
-selectSpanFromParser (Parser [] (Just (Located sp _))) = Just sp
-selectSpanFromParser (Parser [] Nothing) = Nothing
-
-selectSpanFromParser' :: Parser -> Span
-selectSpanFromParser' p =
-    case selectSpanFromParser p of
-        Just x -> x
-        Nothing -> error "force select span from parser, but parser has no location information"
+selectSpanFromParser :: Parser -> Span
+selectSpanFromParser (Parser toks back) =
+    let front =
+            case toks of
+                x:_ -> Just x
+                [] -> Nothing
+    in case (front, back) of
+        (Just (Located _ Lex.EOF), Just (Located notEofSp _)) -> notEofSp
+        (Just (Located eofSp Lex.EOF), Nothing) -> eofSp
+        (Just (Located fsp _), _) -> fsp
+        (Nothing, Just (Located bsp _)) -> bsp
+        (Nothing, Nothing) -> error "parser has empty token stream, no last"
 
 nameof :: PEGExpr a -> String
 nameof (Consume n _ _) = n
@@ -211,7 +214,7 @@ runParseFun (Seq seqname a b conv) parser =
     case runParseFun b aftera of
         Right (bres, afterb) -> Right (conv ares bres, afterb)
         Left berr ->
-            Left $ MustBeFollowedByFor seqname (nameof a) (nameof b) (selectSpanFromParser' aftera) berr
+            Left $ MustBeFollowedByFor seqname (nameof a) (nameof b) (selectSpanFromParser aftera) berr
 
 runParseFun (Choice choicename a b aconv bconv) parser =
     case runParseFun a parser of
@@ -220,7 +223,7 @@ runParseFun (Choice choicename a b aconv bconv) parser =
             case runParseFun b parser of
                 Right (res, after) -> Right (bconv res, after)
                 Left berr ->
-                    Left $ InvalidChoice choicename (nameof a) (nameof b) (selectSpanFromParser' parser) aerr berr
+                    Left $ InvalidChoice choicename (nameof a) (nameof b) (selectSpanFromParser parser) aerr berr
 
 runParseFun (Zeromore _ ex lconv) parser =
     let (things, parser') = helper parser
@@ -242,7 +245,7 @@ runParseFun (Onemore listname ex lconv) parser = helper [] parser
                 Left err ->
                     if length acc == 0
                     -- there are no other ones that matched, then the error matched by this branch is the reason why the first one couldnt match
-                    then Left $ NeedOneOrMore listname (nameof ex) (selectSpanFromParser' curparser) err
+                    then Left $ NeedOneOrMore listname (nameof ex) (selectSpanFromParser curparser) err
                     else Right (lconv acc, curparser)
 
 runParseFun (Optional optname ex) parser = runParseFun asChoice parser
@@ -252,19 +255,18 @@ runParseFun (Optional optname ex) parser = runParseFun asChoice parser
 runParseFun (Must ex) parser =
     case runParseFun ex parser of
         Right _ -> Right $ ((), parser)
-        Left err -> Left $ MustAppear (nameof ex) (selectSpanFromParser' parser) err
+        Left err -> Left $ MustAppear (nameof ex) (selectSpanFromParser parser) err
 runParseFun (MustNot ex) parser =
     case runParseFun ex parser of
-        Right _ -> Left $ NotAllowed (nameof ex) (selectSpanFromParser' parser)
+        Right _ -> Left $ NotAllowed (nameof ex) (selectSpanFromParser parser)
         Left _ -> Right ((), parser)
 
 runParseFun (Main ex) parser =
     runParseFun ex parser >>= \ totalres@(_, (Parser aftertokens _)) ->
-    if length aftertokens == 0
-    then Right totalres
-    else
-        let (Located sp _) = head aftertokens
-        in Left $ ExcessTokens sp
+    case aftertokens of
+        [] -> error "parser should never be empty (in Main, EOF consumed elsewhere)"
+        [(Located _ Lex.EOF)] -> Right totalres
+        (Located sp thing):_ -> trace (show thing) $ Left $ ExcessTokens sp
 
 grammar :: PEGExpr DCU
 grammar =

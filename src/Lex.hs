@@ -13,6 +13,7 @@ data IntLitBase
     | Oct
     | Hex
     | Bin
+    deriving Show
 
 data Token
     = OParen
@@ -89,6 +90,8 @@ data Token
     | Indent
     | Dedent
     | Newline
+    | EOF
+    deriving Show
 
 data IndentFrame
     = IndentationSensitive Int
@@ -174,7 +177,7 @@ lex' prevtoks indentStack lexer =
         '/':'*':next ->
             case commentLength next of
                 Right cl -> continueLexWithNothing cl
-                Left charsToEnd -> [Left $ makeError 0 charsToEnd UntermMultilineComment]
+                Left charsToEnd -> continueLexWithSingleErr charsToEnd UntermMultilineComment
             where
                 commentLength afterSlashStar =
                     case charsUntilCommentEnd 0 afterSlashStar of
@@ -256,7 +259,7 @@ lex' prevtoks indentStack lexer =
         '"':strlit -> lexStrLit strlit
         '\'':chrlit -> lexCharLit chrlit
 
-        [] -> prevtoks
+        [] -> prevtoks ++ [Right $ makeToken 0 1 EOF]
 
         entire@(other:_)
             | isAlpha other -> lexIden entire
@@ -273,6 +276,7 @@ lex' prevtoks indentStack lexer =
         continueLexWithSingleErr len err = continueLexWith [Left $ makeError 0 len err] len
 
         makeToken start len tok = Located (makeSpanFromLexer start len) tok
+
         makeError start len err = err $ makeSpanFromLexer start len
 
         makeSpanFromLexer start len =
