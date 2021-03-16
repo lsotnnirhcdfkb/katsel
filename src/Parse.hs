@@ -264,7 +264,7 @@ runParseFun (Main ex) parser =
     case aftertokens of
         [] -> error "parser should never be empty (in Main, EOF consumed elsewhere)"
         [(Located _ Lex.EOF)] -> Right totalres
-        (Located sp thing):_ -> Left $ ExcessTokens sp
+        (Located sp _):_ -> Left $ ExcessTokens sp
 
 grammar :: PEGExpr DCU
 grammar =
