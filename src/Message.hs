@@ -120,7 +120,9 @@ showSection indent (Underlines msgs linenrs) =
     where
         showLine flnr@(fl, nr) = quoteLine ++ firstRow ++ nextRows
             where
-                quote = lines (source fl) !! (nr - 1)
+                quote = case drop (nr - 1) $ lines (source fl) of
+                    x:_ -> x
+                    [] -> ""
                 quoteLine = makeIndentWithDivider '|' (show nr) indent ++ quote ++ "\n"
 
                 lineMessages = filter isCorrectLine msgs
@@ -166,6 +168,7 @@ showSection indent (Underlines msgs linenrs) =
 
                 underlineLinePrefix = makeIndentWithDivider '|' "" indent
 
+                -- TODO: do not use length quote here, find maximum column of underlines
                 underlinesForChars = map getUnderlineForChar $ take (length quote) [1..]
                     where
                         getUnderlineForChar coln = find (\ msg -> startcol msg <= coln && coln < endcol msg) msgs
