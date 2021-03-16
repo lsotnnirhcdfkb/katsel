@@ -6,8 +6,6 @@ import Location
 import qualified Lex
 import qualified Message
 
-import Debug.Trace(trace)
-
 {-
     most asts are just a plain adt, but some asts are required in multiple asts
     for example, function declarations are needed in a standard Decl and also in an ImplMember
@@ -266,7 +264,7 @@ runParseFun (Main ex) parser =
     case aftertokens of
         [] -> error "parser should never be empty (in Main, EOF consumed elsewhere)"
         [(Located _ Lex.EOF)] -> Right totalres
-        (Located sp thing):_ -> trace (show thing) $ Left $ ExcessTokens sp
+        (Located sp thing):_ -> Left $ ExcessTokens sp
 
 grammar :: PEGExpr DCU
 grammar =
