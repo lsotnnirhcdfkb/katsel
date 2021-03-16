@@ -12,7 +12,7 @@ import qualified Lex
 import qualified Parse
 
 import System.IO(hPutStr, stderr)
-import Control.Exception(try, SomeException)
+import Control.Exception(try, SomeException, evaluate)
 
 data Backend = CBackend
 
@@ -50,4 +50,4 @@ run filename =
         Left err ->
             -- TODO: make this a diagnostic, print correctly and with color
             hPutStr stderr ("\n!!! the compiler is broken! caught internal error: \n" ++ (unlines $ map ("  > " ++) $ lines $ show err)) >>
-            (return $! error "stop after catching internal error")
+            (evaluate $ error "stop after catching internal error")
