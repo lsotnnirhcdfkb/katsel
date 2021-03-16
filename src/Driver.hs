@@ -49,4 +49,5 @@ run filename =
         Right () -> return ()
         Left err ->
             -- TODO: make this a diagnostic, print correctly and with color
-            hPutStr stderr $ "\n!!! the compiler is broken! caught internal error: \n" ++ (unlines $ map ("  > " ++) $ lines $ show err)
+            hPutStr stderr ("\n!!! the compiler is broken! caught internal error: \n" ++ (unlines $ map ("  > " ++) $ lines $ show err)) >>
+            (return $! error "stop after catching internal error")
