@@ -107,7 +107,7 @@ parseErrorMsg :: ParseError -> (Span, Message.Section)
 parseErrorMsg (MissingError construct thing msp gotInstead) = (msp,
     Message.makeUnderlinesSection [Message.UnderlineMessage msp Message.ErrorUnderline Message.Primary msg])
     where
-        msg = construct ++ " is missing " ++ thing ++ ", got " ++ Lex.fmtToken gotInstead ++ " instead"
+        msg = construct ++ " is missing " ++ thing ++ "; " ++ Lex.fmtToken gotInstead ++ " was found instead"
 
 parseErrorMsg (MustBeFollowedByFor construct a b sp berr) =
     (sp, Message.TreeSection (Just $ a ++ " of " ++ construct ++ " must be followed by " ++ b) [(Just $ b ++ " not recognized because of error:", snd (parseErrorMsg berr))])
