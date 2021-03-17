@@ -10,6 +10,7 @@ import Location
 import qualified Message
 import qualified Lex
 import qualified Parse
+import qualified AST
 
 import System.IO(hPutStr, stderr)
 import Control.Exception(try, SomeException, evaluate)
@@ -31,7 +32,7 @@ lexStage contents =
     let lexed = Lex.lex contents
     in ([x | Right x <- lexed], [Message.toDiagnostic x | Left x <- lexed])
 
-parseStage :: Stage [Located Lex.Token] (Maybe Parse.DCU)
+parseStage :: Stage [Located Lex.Token] (Maybe AST.DCU)
 parseStage toks =
     case Parse.parse toks of
         Left e -> (Nothing, [Message.toDiagnostic e])

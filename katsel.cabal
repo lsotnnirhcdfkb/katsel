@@ -16,6 +16,7 @@ executable katsel
                      , File
                      , Lex
                      , Parse
+                     , AST
                      , Location
                      , Message
 
