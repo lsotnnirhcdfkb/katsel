@@ -46,7 +46,10 @@ parseErrorMsg (NotAllowed thing sp) =
 instance Message.ToDiagnostic ParseError where
     toDiagnostic e =
         let (sp, sec) = parseErrorMsg e
-        in Message.SimpleDiag Message.Error (Just sp) Nothing Nothing [sec]
+        in Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
+            [ Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary "invalid syntax"]
+            , sec
+            ]
 
 data PEGExpr r where
     Consume :: String -> (Located Lex.Token -> Maybe r) -> PEGExpr r
