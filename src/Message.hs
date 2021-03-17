@@ -61,10 +61,10 @@ data SimpleDiagType
     | Warning
     | DebugMessage
 
-instance Show SimpleDiagType where
-    show Error = "error"
-    show Warning = "warning"
-    show DebugMessage = "debug message"
+textOfDiagType :: SimpleDiagType -> String
+textOfDiagType Error = "error"
+textOfDiagType Warning = "warning"
+textOfDiagType DebugMessage = "debug message"
 
 sgrOfDiagType :: SimpleDiagType -> [ANSI.SGR]
 sgrOfDiagType Error = [boldSGR, vividForeColorSGR ANSI.Red]
@@ -93,7 +93,7 @@ report' (SimpleDiag ty maybeSpan maybeDiagCode maybeName sections) =
     footer
     where
         header =
-            ANSI.setSGRCode (sgrOfDiagType ty) ++ show ty ++ ANSI.setSGRCode [] ++
+            ANSI.setSGRCode (sgrOfDiagType ty) ++ textOfDiagType ty ++ ANSI.setSGRCode [] ++
             (case maybeSpan of
                 Just sp -> " at " ++ ANSI.setSGRCode filePathSGR ++ fmtSpan sp ++ ANSI.setSGRCode []
                 Nothing -> ""
