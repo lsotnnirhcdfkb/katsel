@@ -1,4 +1,8 @@
-module Lex where
+module Lex
+    ( Token(..)
+    , Lex.lex
+    , fmtToken
+    ) where
 
 import File
 import Location
@@ -13,7 +17,6 @@ data IntLitBase
     | Oct
     | Hex
     | Bin
-    deriving Show
 
 data Token
     = OParen
@@ -91,7 +94,83 @@ data Token
     | Dedent
     | Newline
     | EOF
-    deriving Show
+
+fmtToken :: Token -> String
+fmtToken OParen = "'('"
+fmtToken CParen = "')'"
+fmtToken OBrack = "'{'"
+fmtToken CBrack = "'}'"
+fmtToken Comma = "','"
+fmtToken Period = "'.'"
+fmtToken Question = "'?'"
+fmtToken Colon = "':'"
+fmtToken Bang = "'!'"
+fmtToken Plus = "'+'"
+fmtToken Minus = "'-'"
+fmtToken Star = "'*'"
+fmtToken Slash = "'/'"
+fmtToken Percent = "'%'"
+fmtToken Equal = "'='"
+fmtToken Greater = "'>'"
+fmtToken Less = "'<'"
+fmtToken Tilde = "'~'"
+fmtToken Amper = "'&'"
+fmtToken Pipe = "'|'"
+fmtToken Caret = "'^'"
+fmtToken Dollar = "'$'"
+fmtToken Hash = "'#'"
+fmtToken RightArrow = "'->'"
+fmtToken LeftArrow = "'<-'"
+fmtToken DoublePlus = "'++'"
+fmtToken DoubleMinus = "'--'"
+fmtToken DoubleGreater = "'>>'"
+fmtToken DoubleLess = "'<<'"
+fmtToken DoubleAmper = "'&&'"
+fmtToken DoublePipe = "'||'"
+fmtToken DoubleEqual = "'=='"
+fmtToken DoubleColon = "'::'"
+fmtToken PlusEqual = "'+='"
+fmtToken MinusEqual = "'-='"
+fmtToken StarEqual = "'*='"
+fmtToken SlashEqual = "'/='"
+fmtToken BangEqual = "'!='"
+fmtToken GreaterEqual = "'>='"
+fmtToken LessEqual = "'<='"
+fmtToken PercentEqual = "'%="
+fmtToken DoubleLessEqual = "'<<='"
+fmtToken DoubleGreaterEqual = "'>>='"
+fmtToken AmperEqual = "'&='"
+fmtToken PipeEqual = "'|='"
+fmtToken CaretEqual = "'^='"
+fmtToken (Identifier n) = "identifier '" ++ n ++ "'"
+fmtToken (CharLit ch) = "character literal '" ++ [ch] ++ "'"
+fmtToken (StringLit s) = "string literal \"" ++ (if length s < 20 then s else "...") ++ "\""
+fmtToken (IntLit _ i) = "integer literal " ++ show i
+fmtToken (FloatLit d) = "floating point literal " ++ show d
+fmtToken (BoolLit b) = "bool literal " ++ if b then "true" else "false"
+fmtToken This = "'this'"
+fmtToken Var = "'var'"
+fmtToken Fun = "'fun'"
+fmtToken Let = "'let'"
+fmtToken Mut = "'mut'"
+fmtToken Data = "'data'"
+fmtToken Impl = "'impl'"
+fmtToken Return = "'return'"
+fmtToken While = "'while'"
+fmtToken For = "'for'"
+fmtToken If = "'if'"
+fmtToken Else = "'else'"
+fmtToken Case = "'case'"
+fmtToken Break = "'break'"
+fmtToken Continue = "'continue'"
+fmtToken Boom = "'boom'"
+fmtToken OBrace = "'{'"
+fmtToken CBrace = "'}'"
+fmtToken Semicolon = "';'"
+fmtToken Indent = "indent"
+fmtToken Dedent = "dedent"
+fmtToken Newline = "newline"
+fmtToken EOF = "end of file"
 
 data IndentFrame
     = IndentationSensitive Int

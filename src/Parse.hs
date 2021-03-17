@@ -95,21 +95,19 @@ data DType
 data DPath = DPath' [LocStr]
 
 data ParseError
-    = MissingError String String Span
+    = MissingError String String Span Lex.Token
     | MustBeFollowedByFor String String String Span ParseError
     | InvalidChoice String String String Span ParseError ParseError
     | NeedOneOrMore String String Span ParseError
     | MustAppear String Span ParseError
     | NotAllowed String Span
-    | ExcessTokens Span
 
--- TODO: TreeSection which takes two sections and indents them to show them as children
 parseErrorMsg :: ParseError -> (Span, Message.Section)
 
-parseErrorMsg (MissingError construct thing msp) = (msp,
+parseErrorMsg (MissingError construct thing msp gotInstead) = (msp,
     Message.makeUnderlinesSection [Message.UnderlineMessage msp Message.ErrorUnderline Message.Primary msg])
     where
-        msg = construct ++ " is missing " ++ thing
+        msg = construct ++ " is missing " ++ thing ++ ", got " ++ Lex.fmtToken gotInstead ++ " instead"
 
 parseErrorMsg (MustBeFollowedByFor construct a b sp berr) =
     (sp, Message.TreeSection (Just $ a ++ " of " ++ construct ++ " must be followed by " ++ b) [(Just $ b ++ " not found because of error:", snd (parseErrorMsg berr))])
@@ -132,9 +130,6 @@ parseErrorMsg (MustAppear thing sp err) =
 parseErrorMsg (NotAllowed thing sp) =
     (sp, Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary $ thing ++ " not allowed here"])
 
-parseErrorMsg (ExcessTokens sp) =
-    (sp, Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary "excess tokens in input"])
-
 instance Message.ToDiagnostic ParseError where
     toDiagnostic e =
         let (sp, sec) = parseErrorMsg e
@@ -142,7 +137,6 @@ instance Message.ToDiagnostic ParseError where
 
 data PEGExpr r where
     Consume :: String -> String -> (Located Lex.Token -> Maybe r) -> PEGExpr r
-    Predicate :: String -> String -> (Maybe (Located Lex.Token) -> Maybe r) -> PEGExpr r
     Empty :: String -> PEGExpr ()
     Seq :: String -> (PEGExpr a) -> (PEGExpr b) -> (a -> b -> r) -> PEGExpr r
     Choice :: String -> (PEGExpr a) -> (PEGExpr b) -> (a -> r) -> (b -> r) -> PEGExpr r
@@ -177,8 +171,7 @@ selectSpanFromParser (Parser toks back) =
         (Nothing, Nothing) -> error "parser has empty token stream, no last"
 
 nameof :: PEGExpr a -> String
-nameof (Consume n _ _) = n
-nameof (Predicate n _ _) = n
+nameof (Consume _ n _) = n
 nameof (Empty n) = n
 nameof (Seq n _ _ _) = n
 nameof (Choice n _ _ _ _) = n
@@ -191,19 +184,13 @@ nameof (Main ex) = nameof ex
 
 runParseFun :: PEGExpr r -> Parser -> (Either ParseError (ParseResult r))
 
-runParseFun (Consume construct thing predicate) parser = runParseFun asPredicate parser
-    where
-        asPredicate = Predicate construct thing maybeFilter
-        maybeFilter (Just x) = predicate x
-        maybeFilter Nothing = Nothing
-
-runParseFun (Predicate construct thing predicate) parser@(Parser tokens _) =
-    let arg = case tokens of
-            t:_ -> Just t
-            [] -> Nothing
-    in case predicate arg of
-        Just x -> Right (x, advance 1 parser)
-        Nothing -> Left $ MissingError construct thing $ selectSpanFromParser parser
+runParseFun (Consume construct thing predicate) parser@(Parser tokens _) =
+    case tokens of
+        (loct@(Located _ t)):_ ->
+            case predicate loct of
+                Just x -> Right (x, advance 1 parser)
+                Nothing -> Left $ MissingError construct thing (selectSpanFromParser parser) t
+        [] -> error "parser has an empty token stream"
 
 runParseFun (Empty _) parser = Right ((), parser)
 
@@ -260,15 +247,19 @@ runParseFun (MustNot ex) parser =
         Left _ -> Right ((), parser)
 
 runParseFun (Main ex) parser =
-    runParseFun ex parser >>= \ totalres@(_, (Parser aftertokens _)) ->
-    case aftertokens of
-        [] -> error "parser should never be empty (in Main, EOF consumed elsewhere)"
-        [(Located _ Lex.EOF)] -> Right totalres
-        (Located sp _):_ -> Left $ ExcessTokens sp
+    runParseFun newex parser
+    where
+        newex = Seq "compilation unit" ex consumeEOF const
+        consumeEOF = Consume "compilation unit" "end of file"
+            (\ mtok ->
+                case mtok of
+                    Located _ Lex.EOF -> Just ()
+                    _ -> Nothing
+            )
 
 grammar :: PEGExpr DCU
 grammar =
-    (Main (Choice "program"
+    (Main (Choice "token"
         (Consume "var variant" "introductory token 'var'" (\ tok -> case tok of { Located _ Lex.Var -> Just $ makecu (); _ -> Nothing }))
         (Consume "let variant" "introductory token 'let'" (\ tok -> case tok of { Located _ Lex.Let -> Just $ makecu (); _ -> Nothing }))
         makecu makecu))
