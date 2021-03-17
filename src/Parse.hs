@@ -110,21 +110,21 @@ parseErrorMsg (MissingError construct thing msp gotInstead) = (msp,
         msg = construct ++ " is missing " ++ thing ++ ", got " ++ Lex.fmtToken gotInstead ++ " instead"
 
 parseErrorMsg (MustBeFollowedByFor construct a b sp berr) =
-    (sp, Message.TreeSection (Just $ a ++ " of " ++ construct ++ " must be followed by " ++ b) [(Just $ b ++ " not found because of error:", snd (parseErrorMsg berr))])
+    (sp, Message.TreeSection (Just $ a ++ " of " ++ construct ++ " must be followed by " ++ b) [(Just $ b ++ " not recognized because of error:", snd (parseErrorMsg berr))])
 
 parseErrorMsg (InvalidChoice construct a b sp aerr berr) =
     (sp, Message.TreeSection (Just $ "invalid " ++ construct ++ "; must be " ++ a ++ " or " ++ b) [
-        (Just $ a ++ " not found because of error:", snd $ parseErrorMsg aerr), (Just $ b ++ " not found because of error:", snd $ parseErrorMsg berr)
+        (Just $ a ++ " not recognized because of error:", snd $ parseErrorMsg aerr), (Just $ b ++ " not recognized because of error:", snd $ parseErrorMsg berr)
     ])
 
 parseErrorMsg (NeedOneOrMore construct item sp err) =
     (sp, Message.TreeSection (Just $ "need at least one " ++ item ++ " for " ++ construct ++ ", but found none") [
-        (Just $ item ++ " not found because of error:", snd $ parseErrorMsg err)
+        (Just $ item ++ " not recognized because of error:", snd $ parseErrorMsg err)
     ])
 
 parseErrorMsg (MustAppear thing sp err) =
     (sp, Message.TreeSection (Just $ thing ++ " must appear here") [
-        (Just $ thing ++ " not found because of error:", snd $ parseErrorMsg err)
+        (Just $ thing ++ " not recognized because of error:", snd $ parseErrorMsg err)
     ])
 
 parseErrorMsg (NotAllowed thing sp) =
