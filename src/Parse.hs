@@ -95,7 +95,7 @@ data DType
 data DPath = DPath' [LocStr]
 
 data ParseError
-    = MissingError String String Span Lex.Token
+    = PredicateError String Span Lex.Token
     | MustBeFollowedByFor String String String Span ParseError
     | InvalidChoice String String String Span ParseError ParseError
     | NeedOneOrMore String String Span ParseError
@@ -104,10 +104,10 @@ data ParseError
 
 parseErrorMsg :: ParseError -> (Span, Message.Section)
 
-parseErrorMsg (MissingError construct thing msp gotInstead) = (msp,
+parseErrorMsg (PredicateError thing msp gotInstead) = (msp,
     Message.makeUnderlinesSection [Message.UnderlineMessage msp Message.ErrorUnderline Message.Primary msg])
     where
-        msg = construct ++ " is missing " ++ thing ++ "; " ++ Lex.fmtToken gotInstead ++ " was found instead"
+        msg = thing ++ " is missing; " ++ Lex.fmtToken gotInstead ++ " was found instead"
 
 parseErrorMsg (MustBeFollowedByFor construct a b sp berr) =
     (sp, Message.TreeSection (Just $ a ++ " of " ++ construct ++ " must be followed by " ++ b) [(Just $ b ++ " not recognized because of error:", snd (parseErrorMsg berr))])
@@ -136,7 +136,7 @@ instance Message.ToDiagnostic ParseError where
         in Message.SimpleDiag Message.Error (Just sp) Nothing Nothing [sec]
 
 data PEGExpr r where
-    Consume :: String -> String -> (Located Lex.Token -> Maybe r) -> PEGExpr r
+    Consume :: String -> (Located Lex.Token -> Maybe r) -> PEGExpr r
     Empty :: String -> PEGExpr ()
     Seq :: String -> (PEGExpr a) -> (PEGExpr b) -> (a -> b -> r) -> PEGExpr r
     Choice :: String -> (PEGExpr a) -> (PEGExpr b) -> (a -> r) -> (b -> r) -> PEGExpr r
@@ -171,7 +171,7 @@ selectSpanFromParser (Parser toks back) =
         (Nothing, Nothing) -> error "parser has empty token stream, no last"
 
 nameof :: PEGExpr a -> String
-nameof (Consume _ n _) = n
+nameof (Consume n _) = n
 nameof (Empty n) = n
 nameof (Seq n _ _ _) = n
 nameof (Choice n _ _ _ _) = n
@@ -184,12 +184,12 @@ nameof (Main ex) = nameof ex
 
 runParseFun :: PEGExpr r -> Parser -> (Either ParseError (ParseResult r))
 
-runParseFun (Consume construct thing predicate) parser@(Parser tokens _) =
+runParseFun (Consume thing predicate) parser@(Parser tokens _) =
     case tokens of
         (loct@(Located _ t)):_ ->
             case predicate loct of
                 Just x -> Right (x, advance 1 parser)
-                Nothing -> Left $ MissingError construct thing (selectSpanFromParser parser) t
+                Nothing -> Left $ PredicateError thing (selectSpanFromParser parser) t
         [] -> error "parser has an empty token stream"
 
 runParseFun (Empty _) parser = Right ((), parser)
@@ -250,7 +250,7 @@ runParseFun (Main ex) parser =
     runParseFun newex parser
     where
         newex = Seq "compilation unit" ex consumeEOF const
-        consumeEOF = Consume "compilation unit" "end of file"
+        consumeEOF = Consume "end of file"
             (\ mtok ->
                 case mtok of
                     Located _ Lex.EOF -> Just ()
@@ -260,8 +260,8 @@ runParseFun (Main ex) parser =
 grammar :: PEGExpr DCU
 grammar =
     (Main (Choice "token"
-        (Consume "var variant" "introductory token 'var'" (\ tok -> case tok of { Located _ Lex.Var -> Just $ makecu (); _ -> Nothing }))
-        (Consume "let variant" "introductory token 'let'" (\ tok -> case tok of { Located _ Lex.Let -> Just $ makecu (); _ -> Nothing }))
+        (Consume "'var' token" (\ tok -> case tok of { Located _ Lex.Var -> Just $ makecu (); _ -> Nothing }))
+        (Consume "'let' token" (\ tok -> case tok of { Located _ Lex.Let -> Just $ makecu (); _ -> Nothing }))
         makecu makecu))
 
 makecu :: a -> DCU

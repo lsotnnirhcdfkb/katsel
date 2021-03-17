@@ -8,7 +8,7 @@ import File
 import Location
 
 import Data.Char(isDigit, isAlpha, isHexDigit, isOctDigit, digitToInt, isSpace)
-import Data.List(foldl')
+import Data.List(foldl', findIndex)
 
 import qualified Message
 
@@ -404,7 +404,6 @@ lex' prevtoks indentStack lexer =
 
                                 _ -> (indentStack, [])
                 doDedent curlvl =
-                    -- TODO: this nl token's span should also be at the previous newline
                     let getAmountToPop acc (cur:rest)
                             | canPop cur = getAmountToPop (acc + 1) rest
                             | otherwise = acc
@@ -425,7 +424,7 @@ lex' prevtoks indentStack lexer =
                                 _ -> True
                     in (
                         poppedStack,
-                        (Right $ makeTokAtCur Newline) : (replicate popAmt $ Right $ makeTokAtCur Dedent) ++
+                        (Right $ makeTokAtNLBefore Newline) : (replicate popAmt $ Right $ makeTokAtCur Dedent) ++
                         if isValidLevel
                         then []
                         else [Left $ makeError 0 1 BadDedent]
@@ -435,10 +434,15 @@ lex' prevtoks indentStack lexer =
                     in (newFrame:indentStack, [Right $ makeTokAtCur Indent])
                 doNewline _ =
                     -- TODO: do not insert if last token is ';'
-                    -- TODO: this span should be at the newline before
-                    (indentStack, [Right $ makeTokAtCur Newline])
+                    (indentStack, [Right $ makeTokAtNLBefore Newline])
 
                 makeTokAtCur = makeToken 0 1
+                makeTokAtNLBefore = makeToken offToNL 1
+                    where
+                        offToNL =
+                            case findIndex (=='\n') $ reverse $ take (sourceLocation lexer + 1) (source $ sourcefile lexer) of
+                                Just x -> -x - 1
+                                Nothing -> error "make token at last nl where there is no nl before"
         -- }}}
         -- {{{ str and char literals
         lexStrOrCharLit isCharLit startingDelim rest =

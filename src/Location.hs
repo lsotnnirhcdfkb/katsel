@@ -34,18 +34,18 @@ fmtSpan (Span (Location sfile _ slnnr scoln) (Location efile _ elnnr ecoln)) =
 data Located a = Located Span a
 
 makeLocation :: File -> Int -> Location
-makeLocation file srci = Location file srci (getlnn file srci) (getcoln file srci)
+makeLocation file srci = if srci < 0 then error "boo" else Location file srci (getlnn file srci) (getcoln file srci)
 
 getlnn :: File -> Int -> Int
 getlnn file ind =
     case drop ind $ source file of
-        "\n" -> getlnn file (ind-1)
-        _ -> 1 + (length $ filter ('\n'==) (take (ind + 1) $ source file))
+        _ -> 1 + (length $ filter ('\n'==) (take ind $ source file))
 
 getcoln :: File -> Int -> Int
 getcoln = helper (1 :: Int)
     where
         helper acc file ind =
             case reverse $ take ind $ source file of
+                [] -> acc
                 '\n':_ -> acc
                 _ -> helper (acc + 1) file (ind - 1)
