@@ -10,7 +10,7 @@ import qualified AST
 data ParseError
     = PredicateError String Span Lex.Token
     | MustBeFollowedByFor String String String Span ParseError
-    | InvalidChoice String String String Span ParseError ParseError
+    | InvalidChoice String [(String, ParseError)] Span
     | NeedOneOrMore String String Span ParseError
     | MustAppear String Span ParseError
     | NotAllowed String Span
@@ -25,10 +25,10 @@ parseErrorMsg (PredicateError thing msp gotInstead) = (msp,
 parseErrorMsg (MustBeFollowedByFor construct a b sp berr) =
     (sp, Message.TreeSection (Just $ a ++ " of " ++ construct ++ " must be followed by " ++ b) [(Just $ b ++ " not recognized because of error:", snd (parseErrorMsg berr))])
 
-parseErrorMsg (InvalidChoice construct a b sp aerr berr) =
-    (sp, Message.TreeSection (Just $ "invalid " ++ construct ++ "; must be " ++ a ++ " or " ++ b) [
-        (Just $ a ++ " not recognized because of error:", snd $ parseErrorMsg aerr), (Just $ b ++ " not recognized because of error:", snd $ parseErrorMsg berr)
-    ])
+parseErrorMsg (InvalidChoice construct choices sp) =
+    -- TODO: format this nicer, don't include the brackets in the printing
+    (sp, Message.TreeSection (Just $ "invalid " ++ construct ++ "; must be one of " ++ show (map fst choices)) $
+    map (\ (name, err) -> (Just $ name ++ " not recognized because of error:", snd $ parseErrorMsg err)) choices)
 
 parseErrorMsg (NeedOneOrMore construct item sp err) =
     (sp, Message.TreeSection (Just $ "need at least one " ++ item ++ " for " ++ construct ++ ", but found none") [
@@ -51,22 +51,10 @@ instance Message.ToDiagnostic ParseError where
             , sec
             ]
 
-data PEGExpr r where
-    Consume :: String -> (Located Lex.Token -> Maybe r) -> PEGExpr r
-    Empty :: String -> PEGExpr ()
-    Seq :: String -> (PEGExpr a) -> (PEGExpr b) -> (a -> b -> r) -> PEGExpr r
-    Choice :: String -> (PEGExpr a) -> (PEGExpr b) -> (a -> r) -> (b -> r) -> PEGExpr r
-    Zeromore :: String -> (PEGExpr a) -> ([a] -> r) -> PEGExpr r
-    Onemore :: String -> (PEGExpr a) -> ([a] -> r) -> PEGExpr r
-    Optional :: String -> (PEGExpr a) -> PEGExpr (Maybe a)
-    Must :: (PEGExpr a) -> PEGExpr ()
-    MustNot :: (PEGExpr a) -> PEGExpr ()
-
-    Main :: (PEGExpr a) -> (PEGExpr a)
-
 type TokenStream = [Located Lex.Token]
 data Parser = Parser TokenStream (Maybe (Located Lex.Token))
 type ParseResult a = (a, Parser)
+data ParseFun a = ParseFun String (Parser -> (Either ParseError (ParseResult a)))
 
 advance :: Int -> Parser -> Parser
 advance 0 p = p
@@ -86,99 +74,106 @@ selectSpanFromParser (Parser toks back) =
         (Nothing, Just (Located bsp _)) -> bsp
         (Nothing, Nothing) -> error "parser has empty token stream, no last"
 
-nameof :: PEGExpr a -> String
-nameof (Consume n _) = n
-nameof (Empty n) = n
-nameof (Seq n _ _ _) = n
-nameof (Choice n _ _ _ _) = n
-nameof (Zeromore n _ _) = n
-nameof (Onemore n _ _) = n
-nameof (Optional n _) = n
-nameof (Must ex) = nameof ex
-nameof (MustNot ex) = nameof ex
-nameof (Main ex) = nameof ex
+nameof :: ParseFun a -> String
+nameof (ParseFun n _) = n
 
-runParseFun :: PEGExpr r -> Parser -> (Either ParseError (ParseResult r))
+runParseFun :: ParseFun r -> Parser -> (Either ParseError (ParseResult r))
+runParseFun (ParseFun _ fun) parser = fun parser
 
-runParseFun (Consume thing predicate) parser@(Parser tokens _) =
-    case tokens of
-        (loct@(Located _ t)):_ ->
-            case predicate loct of
-                Just x -> Right (x, advance 1 parser)
-                Nothing -> Left $ PredicateError thing (selectSpanFromParser parser) t
-        [] -> error "parser has an empty token stream"
-
-runParseFun (Empty _) parser = Right ((), parser)
-
-runParseFun (Seq seqname a b conv) parser =
-    runParseFun a parser >>= \ (ares, aftera) ->
-    case runParseFun b aftera of
-        Right (bres, afterb) -> Right (conv ares bres, afterb)
-        Left berr ->
-            Left $ MustBeFollowedByFor seqname (nameof a) (nameof b) (selectSpanFromParser aftera) berr
-
-runParseFun (Choice choicename a b aconv bconv) parser =
-    case runParseFun a parser of
-        Right (res, after) -> Right (aconv res, after)
-        Left aerr ->
-            case runParseFun b parser of
-                Right (res, after) -> Right (bconv res, after)
-                Left berr ->
-                    Left $ InvalidChoice choicename (nameof a) (nameof b) (selectSpanFromParser parser) aerr berr
-
-runParseFun (Zeromore _ ex lconv) parser =
-    let (things, parser') = helper parser
-    in Right $ (lconv things, parser')
+consume :: String -> (Located Lex.Token -> Maybe t) -> ParseFun t
+consume name predicate = ParseFun name fun
     where
-        helper curparser =
-            case runParseFun ex curparser of
+        fun parser@(Parser tokens _) =
+            case tokens of
+                (loct@(Located _ t)):_ ->
+                    case predicate loct of
+                        Just x -> Right (x, advance 1 parser)
+                        Nothing -> Left $ PredicateError name (selectSpanFromParser parser) t
+                [] -> error "parser has an empty token stream"
+
+empty :: String -> ParseFun ()
+empty name = ParseFun name $ \ parser -> Right ((), parser)
+
+choice :: String -> [ParseFun a] -> ParseFun a
+choice name choices = ParseFun name fun
+    where
+        fun parser =
+            case success of
+                Just s -> Right s
+                Nothing -> Left $ InvalidChoice name errors $ selectSpanFromParser parser
+            where
+                results = map (\ ch -> (nameof ch, runParseFun ch parser)) choices
+                successes = [x | (_, Right x) <- results]
+                success = case successes of
+                    x:_ -> Just x
+                    [] -> Nothing
+
+                errors = [(nm, err) | (nm, Left err) <- results]
+
+zeromore :: String -> ParseFun a -> ParseFun [a]
+zeromore name ex = ParseFun name (Right . fun)
+    where
+        fun parser =
+            case runParseFun ex parser of
                 Right (res, after) ->
-                    let (rest, afterrest) = helper after
+                    let (rest, afterrest) = fun after
                     in (res:rest, afterrest)
-                Left _ -> ([], curparser)
 
-runParseFun (Onemore listname ex lconv) parser = helper [] parser
+                Left _ -> ([], parser)
+
+onemore :: String -> ParseFun a -> ParseFun [a]
+onemore name ex = ParseFun name $ fun []
     where
-        helper acc curparser =
-            case runParseFun ex curparser of
+        fun acc parser =
+            case runParseFun ex parser of
                 Right (thing, nextparser) ->
-                    helper (acc ++ [thing]) nextparser
+                    fun (acc ++ [thing]) nextparser
                 Left err ->
                     if length acc == 0
                     -- there are no other ones that matched, then the error matched by this branch is the reason why the first one couldnt match
-                    then Left $ NeedOneOrMore listname (nameof ex) (selectSpanFromParser curparser) err
-                    else Right (lconv acc, curparser)
+                    then Left $ NeedOneOrMore name (nameof ex) (selectSpanFromParser parser) err
+                    else Right (acc, parser)
 
-runParseFun (Optional optname ex) parser = runParseFun asChoice parser
+optional :: String -> ParseFun a -> ParseFun (Maybe a)
+optional name ex = choice name [convert ex Just, convert (empty $ "omitted " ++ (nameof ex)) (const Nothing)]
+
+convert :: ParseFun a -> (a -> b) -> ParseFun b
+convert ex conv = ParseFun (nameof ex) fun
     where
-        asChoice = Choice optname ex (Empty $ "omitted " ++ (nameof ex)) Just (const Nothing)
+        fun parser = runParseFun ex parser >>= \ (res, nextparser) -> Right $ (conv res, nextparser)
 
-runParseFun (Must ex) parser =
-    case runParseFun ex parser of
-        Right _ -> Right $ ((), parser)
-        Left err -> Left $ MustAppear (nameof ex) (selectSpanFromParser parser) err
-runParseFun (MustNot ex) parser =
-    case runParseFun ex parser of
-        Right _ -> Left $ NotAllowed (nameof ex) (selectSpanFromParser parser)
-        Left _ -> Right ((), parser)
-
-runParseFun (Main ex) parser =
-    runParseFun newex parser
+mustMatch :: ParseFun a -> ParseFun ()
+mustMatch ex = ParseFun (nameof ex) fun
     where
-        newex = Seq "compilation unit" ex consumeEOF const
-        consumeEOF = Consume "end of file"
-            (\ mtok ->
-                case mtok of
-                    Located _ Lex.EOF -> Just ()
-                    _ -> Nothing
-            )
+        fun parser =
+            case runParseFun ex parser of
+                Right _ -> Right ((), parser)
+                Left err -> Left $ MustAppear (nameof ex) (selectSpanFromParser parser) err
 
-grammar :: PEGExpr AST.DCU
+mustNotMatch :: ParseFun a -> ParseFun ()
+mustNotMatch ex = ParseFun ("not a " ++ nameof ex) fun
+    where
+        fun parser =
+            case runParseFun ex parser of
+                Right _ -> Left $ NotAllowed (nameof ex) (selectSpanFromParser parser)
+                Left _ -> Right ((), parser)
+
+mainParser :: ParseFun a -> ParseFun a
+mainParser ex = ParseFun (nameof ex) fun
+    where
+        fun parser =
+            runParseFun ex parser >>= \ (res, parser') ->
+            runParseFun consumeEOF parser' >>= \ ((), parser'') ->
+            Right (res, parser'')
+
+        consumeEOF = consume "end of file" $ \ tok -> case tok of { Located _ Lex.EOF -> Just (); _ -> Nothing }
+
+grammar :: ParseFun AST.DCU
 grammar =
-    (Main (Choice "token"
-        (Consume "'var' token" (\ tok -> case tok of { Located _ Lex.Var -> Just $ makecu (); _ -> Nothing }))
-        (Consume "'let' token" (\ tok -> case tok of { Located _ Lex.Let -> Just $ makecu (); _ -> Nothing }))
-        makecu makecu))
+    (mainParser (choice "token" [
+        (consume "'var' token" (\ tok -> case tok of { Located _ Lex.Var -> Just $ makecu (); _ -> Nothing })),
+        (consume "'let' token" (\ tok -> case tok of { Located _ Lex.Let -> Just $ makecu (); _ -> Nothing }))
+    ]))
 
 makecu :: a -> AST.DCU
 makecu _ = AST.DCU'CU []
