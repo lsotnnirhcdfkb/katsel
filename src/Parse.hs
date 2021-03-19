@@ -110,6 +110,15 @@ choice name choices = ParseFun name fun
 
                 errors = [(nm, err) | (nm, Left err) <- results]
 
+sequence :: String -> ParseFun a -> ParseFun b -> ParseFun (a, b)
+sequence name a b = ParseFun name fun
+    where
+        fun parser =
+            runParseFun a parser >>= \ (ares, nextparser) ->
+            case runParseFun b nextparser of
+                Left e -> Left $ MustBeFollowedByFor name (nameof a) (nameof b) (selectSpanFromParser nextparser) e
+                Right (bres, lastparser) -> Right ((ares, bres), lastparser)
+
 zeromore :: String -> ParseFun a -> ParseFun [a]
 zeromore name ex = ParseFun name (Right . fun)
     where
