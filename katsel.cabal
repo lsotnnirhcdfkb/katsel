@@ -19,6 +19,7 @@ executable katsel
                      , AST
                      , Location
                      , Message
+                     , Message.Underlines
 
   main-is:             Main.hs
   default-language:    Haskell2010

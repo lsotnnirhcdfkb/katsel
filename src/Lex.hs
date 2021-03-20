@@ -13,6 +13,7 @@ import Data.Char(isDigit, isAlpha, isHexDigit, isOctDigit, digitToInt, isSpace)
 import Data.List(foldl', findIndex)
 
 import qualified Message
+import qualified Message.Underlines
 
 import Data.Data(Data)
 
@@ -219,17 +220,17 @@ instance Message.ToDiagnostic LexError where
 
             InvalidBase basechr basechrsp litsp ->
                 Message.SimpleDiag Message.Error (Just basechrsp) (Message.makeCode "E0006") (Just "invalid-intlit-base") [
-                    Message.makeUnderlinesSection [
-                        Message.UnderlineMessage basechrsp Message.ErrorUnderline Message.Primary $ "invalid integer literal base '" ++ [basechr] ++ "' (must be one of 'x', 'o', or 'b' or omitted)",
-                        Message.UnderlineMessage litsp Message.NoteUnderline Message.Secondary "in this integer literal"
+                    Message.Underlines $ Message.Underlines.UnderlinesSection [
+                        Message.Underlines.Message basechrsp Message.Underlines.Error Message.Underlines.Primary $ "invalid integer literal base '" ++ [basechr] ++ "' (must be one of 'x', 'o', or 'b' or omitted)",
+                        Message.Underlines.Message litsp Message.Underlines.Note Message.Underlines.Secondary "in this integer literal"
                     ]
                 ]
 
             InvalidDigit digitchr digitsp litsp ->
                 Message.SimpleDiag Message.Error (Just digitsp) (Message.makeCode "E0007") (Just "invalid-digit") [
-                    Message.makeUnderlinesSection [
-                        Message.UnderlineMessage digitsp Message.ErrorUnderline Message.Primary $ "invalid digit '" ++ [digitchr] ++ "'",
-                        Message.UnderlineMessage litsp Message.NoteUnderline Message.Secondary "in this integer literal"
+                    Message.Underlines $ Message.Underlines.UnderlinesSection [
+                        Message.Underlines.Message digitsp Message.Underlines.Error Message.Underlines.Primary $ "invalid digit '" ++ [digitchr] ++ "'",
+                        Message.Underlines.Message litsp Message.Underlines.Note Message.Underlines.Secondary "in this integer literal"
                     ]
                 ]
 
@@ -241,7 +242,7 @@ instance Message.ToDiagnostic LexError where
 
         where
             simple sp code nm msg = Message.SimpleDiag Message.Error (Just sp) (Message.makeCode code) (Just nm) [
-                    Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary msg]
+                    Message.Underlines $ Message.Underlines.UnderlinesSection [Message.Underlines.Message sp Message.Underlines.Error Message.Underlines.Primary msg]
                 ]
 
 lex :: File -> [Either LexError (Located Token)]

@@ -3,6 +3,7 @@ module Parse(parse) where
 import Location
 import qualified Lex
 import qualified Message
+import qualified Message.Underlines
 import qualified AST
 
 import Data.Data(toConstr, Data)
@@ -22,8 +23,8 @@ data ParseError = ParseError [Located String]
 instance Message.ToDiagnostic ParseError where
     toDiagnostic (ParseError msgs) =
         Message.SimpleDiag Message.Error Nothing Nothing Nothing
-            [Message.makeUnderlinesSection $
-                map (\ (Located sp str) -> Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary str) msgs
+            [Message.Underlines $ Message.Underlines.UnderlinesSection $
+                map (\ (Located sp str) -> Message.Underlines.Message sp Message.Underlines.Error Message.Underlines.Primary str) msgs
             ]
 
 data Parser = Parser [Located Lex.Token] (Maybe (Located Lex.Token)) [ErrorCondition]
