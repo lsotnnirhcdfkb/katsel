@@ -196,13 +196,19 @@ mainParser ex =
     return res
 
 grammar :: ParseFunM AST.DCU
-grammar = mainParser $ convert declList (AST.DCU'CU <$>)
+grammar = mainParser $ convert declList (const $ Just $ AST.DCU'CU [])
 
-declList :: ParseFunM [AST.DDecl]
+declList :: ParseFunM [()]
 declList = onemore decl
 
-decl :: ParseFunM AST.DDecl
-decl = error "todo"
+decl :: ParseFunM ()
+decl = choice [functionDecl, implDecl]
+
+functionDecl :: ParseFunM ()
+functionDecl = consume "'fun'" (\ tok -> case tok of { Located _ Lex.Fun -> Just (); _ -> Nothing })
+
+implDecl :: ParseFunM ()
+implDecl = consume "'impl'" (\ tok -> case tok of { Located _ Lex.Impl -> Just (); _ -> Nothing })
 
 parse :: [Located Lex.Token] -> (Maybe AST.DCU, [ParseError])
 parse toks =
