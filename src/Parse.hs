@@ -1,11 +1,11 @@
-{-# LANGUAGE GADTs #-}
-
 module Parse(parse) where
 
 import Location
 import qualified Lex
 import qualified Message
 import qualified AST
+
+import Data.Data(toConstr, Data)
 
 data ErrorCondition
     = Expected String Span Lex.Token
@@ -31,8 +31,6 @@ data Parser = Parser [Located Lex.Token] (Maybe (Located Lex.Token)) [ErrorCondi
 -- TODO: this replicates the functionality of Control.State.Monad; i am making this for practice, but in the future i might make is just use Control.State.Monad
 newtype ParseFun a = ParseFun (Parser -> (a, Parser))
 
-type ParseFunM a = ParseFun (Maybe a)
-
 instance Functor ParseFun where
     fmap f pf =
         ParseFun $
@@ -53,6 +51,20 @@ instance Monad ParseFun where
         \ parser ->
         let (ares, aftera) = runParseFun a parser
         in runParseFun (b ares) aftera
+
+type ParseFunM a = ParseFun (Maybe a)
+
+constrEq :: (Data a, Data b) => a -> b -> Bool
+constrEq a b = toConstr a == toConstr b
+
+isTT :: Data a => a -> Located Lex.Token -> Bool
+isTT a (Located _ b) = constrEq a b
+
+-- isTTP :: Data a => a -> Located Lex.Token -> Maybe (Located Lex.Token)
+-- isTTP a b = if isTT a b then Just b else Nothing
+
+isTTU :: Data a => a -> Located Lex.Token -> Maybe ()
+isTTU a b = if isTT a b then Just () else Nothing
 
 advance :: Int -> Parser -> Parser
 advance 0 p = p
@@ -210,10 +222,10 @@ decl :: ParseFunM ()
 decl = choice [functionDecl, implDecl]
 
 functionDecl :: ParseFunM ()
-functionDecl = consume "'fun'" (\ tok -> case tok of { Located _ Lex.Fun -> Just (); _ -> Nothing })
+functionDecl = consume "'fun'" (isTTU Lex.Fun)
 
 implDecl :: ParseFunM ()
-implDecl = consume "'impl'" (\ tok -> case tok of { Located _ Lex.Impl -> Just (); _ -> Nothing })
+implDecl = consume "'impl'" (isTTU Lex.Impl)
 
 parse :: [Located Lex.Token] -> (Maybe AST.DCU, ParseError)
 parse toks =

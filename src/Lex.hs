@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+
 module Lex
     ( Token(..)
     , Lex.lex
@@ -12,11 +14,14 @@ import Data.List(foldl', findIndex)
 
 import qualified Message
 
+import Data.Data(Data)
+
 data IntLitBase
     = Dec
     | Oct
     | Hex
     | Bin
+    deriving Data
 
 data Token
     = OParen
@@ -94,6 +99,7 @@ data Token
     | Dedent
     | Newline
     | EOF
+    deriving Data
 
 fmtToken :: Token -> String
 fmtToken OParen = "'('"
