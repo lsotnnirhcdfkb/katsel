@@ -35,7 +35,7 @@ lexStage contents =
 parseStage :: Stage [Located Lex.Token] (Maybe AST.DCU)
 parseStage toks =
     case Parse.parse toks of
-        Left e -> (Nothing, [Message.toDiagnostic e])
+        Left errs -> (Nothing, map Message.toDiagnostic errs)
         Right ast -> (Just ast, [])
 
 run :: String -> IO ()

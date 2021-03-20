@@ -8,53 +8,23 @@ import qualified Message
 import qualified AST
 
 data ParseError
-    = PredicateError String Span Lex.Token
-    | MustBeFollowedByFor String String String Span ParseError
-    | InvalidChoice String [(String, ParseError)] Span
-    | NeedOneOrMore String String Span ParseError
-    | MustAppear String Span ParseError
+    = ExpectedError String Span Lex.Token
     | NotAllowed String Span
 
-parseErrorMsg :: ParseError -> (Span, Message.Section)
-
-parseErrorMsg (PredicateError thing msp gotInstead) = (msp,
-    Message.makeUnderlinesSection [Message.UnderlineMessage msp Message.ErrorUnderline Message.Primary msg])
-    where
-        msg = thing ++ " is missing; " ++ Lex.fmtToken gotInstead ++ " was found instead"
-
-parseErrorMsg (MustBeFollowedByFor construct a b sp berr) =
-    (sp, Message.TreeSection (Just $ a ++ " of " ++ construct ++ " must be followed by " ++ b) [(Just $ b ++ " not recognized because of error:", snd (parseErrorMsg berr))])
-
-parseErrorMsg (InvalidChoice construct choices sp) =
-    -- TODO: format this nicer, don't include the brackets in the printing
-    (sp, Message.TreeSection (Just $ "invalid " ++ construct ++ "; must be one of " ++ show (map fst choices)) $
-    map (\ (name, err) -> (Just $ name ++ " not recognized because of error:", snd $ parseErrorMsg err)) choices)
-
-parseErrorMsg (NeedOneOrMore construct item sp err) =
-    (sp, Message.TreeSection (Just $ "need at least one " ++ item ++ " for " ++ construct ++ ", but found none") [
-        (Just $ item ++ " not recognized because of error:", snd $ parseErrorMsg err)
-    ])
-
-parseErrorMsg (MustAppear thing sp err) =
-    (sp, Message.TreeSection (Just $ thing ++ " must appear here") [
-        (Just $ thing ++ " not recognized because of error:", snd $ parseErrorMsg err)
-    ])
-
-parseErrorMsg (NotAllowed thing sp) =
-    (sp, Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary $ thing ++ " not allowed here"])
-
 instance Message.ToDiagnostic ParseError where
-    toDiagnostic e =
-        let (sp, sec) = parseErrorMsg e
-        in Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
-            [ Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary "invalid syntax"]
-            , sec
-            ]
+    toDiagnostic (ExpectedError name sp tok) =
+        Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
+            [Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary $ "expected " ++ name ++ ", found " ++ Lex.fmtToken tok]]
+
+    toDiagnostic (NotAllowed name sp) =
+        Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
+            [Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary $ name ++ " not allowed here"]]
+
 
 type TokenStream = [Located Lex.Token]
 data Parser = Parser TokenStream (Maybe (Located Lex.Token))
 type ParseResult a = (a, Parser)
-data ParseFun a = ParseFun String (Parser -> (Either ParseError (ParseResult a)))
+data ParseFun a = ParseFun String (Parser -> (Either [ParseError] (ParseResult a)))
 
 advance :: Int -> Parser -> Parser
 advance 0 p = p
@@ -77,7 +47,7 @@ selectSpanFromParser (Parser toks back) =
 nameof :: ParseFun a -> String
 nameof (ParseFun n _) = n
 
-runParseFun :: ParseFun r -> Parser -> (Either ParseError (ParseResult r))
+runParseFun :: ParseFun r -> Parser -> (Either [ParseError] (ParseResult r))
 runParseFun (ParseFun _ fun) parser = fun parser
 
 consume :: String -> (Located Lex.Token -> Maybe t) -> ParseFun t
@@ -88,7 +58,7 @@ consume name predicate = ParseFun name fun
                 (loct@(Located _ t)):_ ->
                     case predicate loct of
                         Just x -> Right (x, advance 1 parser)
-                        Nothing -> Left $ PredicateError name (selectSpanFromParser parser) t
+                        Nothing -> Left [ExpectedError name (selectSpanFromParser parser) t]
                 [] -> error "parser has an empty token stream"
 
 empty :: String -> ParseFun ()
@@ -98,26 +68,21 @@ choice :: String -> [ParseFun a] -> ParseFun a
 choice name choices = ParseFun name fun
     where
         fun parser =
-            case success of
-                Just s -> Right s
-                Nothing -> Left $ InvalidChoice name errors $ selectSpanFromParser parser
+            case successes of
+                res:_ -> Right res
+                [] -> Left errors
             where
-                results = map (\ ch -> (nameof ch, runParseFun ch parser)) choices
-                successes = [x | (_, Right x) <- results]
-                success = case successes of
-                    x:_ -> Just x
-                    [] -> Nothing
-
-                errors = [(nm, err) | (nm, Left err) <- results]
+                results = map (\ ch -> runParseFun ch parser) choices
+                successes = [res | Right res <- results]
+                errors = concat [err | Left err <- results]
 
 sequence :: String -> ParseFun a -> ParseFun b -> ParseFun (a, b)
 sequence name a b = ParseFun name fun
     where
         fun parser =
-            runParseFun a parser >>= \ (ares, nextparser) ->
-            case runParseFun b nextparser of
-                Left e -> Left $ MustBeFollowedByFor name (nameof a) (nameof b) (selectSpanFromParser nextparser) e
-                Right (bres, lastparser) -> Right ((ares, bres), lastparser)
+            runParseFun a parser >>= \ (ares, aftera) ->
+            runParseFun b parser >>= \ (bres, afterb) ->
+            Right ((ares, bres), afterb)
 
 zeromore :: String -> ParseFun a -> ParseFun [a]
 zeromore name ex = ParseFun name (Right . fun)
@@ -137,10 +102,9 @@ onemore name ex = ParseFun name $ fun []
             case runParseFun ex parser of
                 Right (thing, nextparser) ->
                     fun (acc ++ [thing]) nextparser
-                Left err ->
+                Left errs ->
                     if length acc == 0
-                    -- there are no other ones that matched, then the error matched by this branch is the reason why the first one couldnt match
-                    then Left $ NeedOneOrMore name (nameof ex) (selectSpanFromParser parser) err
+                    then Left errs
                     else Right (acc, parser)
 
 optional :: String -> ParseFun a -> ParseFun (Maybe a)
@@ -155,16 +119,15 @@ mustMatch :: ParseFun a -> ParseFun ()
 mustMatch ex = ParseFun (nameof ex) fun
     where
         fun parser =
-            case runParseFun ex parser of
-                Right _ -> Right ((), parser)
-                Left err -> Left $ MustAppear (nameof ex) (selectSpanFromParser parser) err
+            runParseFun ex parser >>
+            Right ((), parser)
 
 mustNotMatch :: ParseFun a -> ParseFun ()
 mustNotMatch ex = ParseFun ("not a " ++ nameof ex) fun
     where
         fun parser =
             case runParseFun ex parser of
-                Right _ -> Left $ NotAllowed (nameof ex) (selectSpanFromParser parser)
+                Right _ -> Left [NotAllowed (nameof ex) (selectSpanFromParser parser)]
                 Left _ -> Right ((), parser)
 
 mainParser :: ParseFun a -> ParseFun a
@@ -187,5 +150,5 @@ grammar =
 makecu :: a -> AST.DCU
 makecu _ = AST.DCU'CU []
 
-parse :: TokenStream -> Either ParseError AST.DCU
+parse :: TokenStream -> Either [ParseError] AST.DCU
 parse toks = fst <$> (runParseFun grammar $ Parser toks Nothing)
