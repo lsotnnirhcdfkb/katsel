@@ -148,7 +148,7 @@ showSection indent (Underlines msgs linenrs) =
                 colorOfType HintUnderline = [boldSGR, vividForeColorSGR ANSI.Blue]
 
                 assignedMessages =
-                    assignMessages (sortBy (\ (UnderlineMessage (Span _ msg1l) _ _ _) (UnderlineMessage (Span _ msg2l) _ _ _) -> (colOfMinus1 msg1l) `compare` (colOfMinus1 msg2l)) lineMessages) []
+                    assignMessages (sortBy (\ (UnderlineMessage (Span _ msg1l) _ _ _) (UnderlineMessage (Span _ msg2l) _ _ _) -> (colOfMinus1 msg2l) `compare` (colOfMinus1 msg1l)) lineMessages) []
                     where
                         assignMessages [] a = a
                         assignMessages (toAssign:rest) alreadyAssigned =
