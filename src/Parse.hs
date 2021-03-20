@@ -24,7 +24,7 @@ instance Message.ToDiagnostic ParseError where
 type TokenStream = [Located Lex.Token]
 data Parser = Parser TokenStream (Maybe (Located Lex.Token))
 type ParseResult a = (a, Parser)
-data ParseFun a = ParseFun String (Parser -> (Either [ParseError] (ParseResult a)))
+newtype ParseFun a = ParseFun (Parser -> (Either [ParseError] (ParseResult a)))
 
 advance :: Int -> Parser -> Parser
 advance 0 p = p
@@ -44,14 +44,11 @@ selectSpanFromParser (Parser toks back) =
         (Nothing, Just (Located bsp _)) -> bsp
         (Nothing, Nothing) -> error "parser has empty token stream, no last"
 
-nameof :: ParseFun a -> String
-nameof (ParseFun n _) = n
-
 runParseFun :: ParseFun r -> Parser -> (Either [ParseError] (ParseResult r))
-runParseFun (ParseFun _ fun) parser = fun parser
+runParseFun (ParseFun fun) parser = fun parser
 
 consume :: String -> (Located Lex.Token -> Maybe t) -> ParseFun t
-consume name predicate = ParseFun name fun
+consume name predicate = ParseFun fun
     where
         fun parser@(Parser tokens _) =
             case tokens of
@@ -61,11 +58,11 @@ consume name predicate = ParseFun name fun
                         Nothing -> Left [ExpectedError name (selectSpanFromParser parser) t]
                 [] -> error "parser has an empty token stream"
 
-empty :: String -> ParseFun ()
-empty name = ParseFun name $ \ parser -> Right ((), parser)
+empty :: ParseFun ()
+empty = ParseFun $ \ parser -> Right ((), parser)
 
-choice :: String -> [ParseFun a] -> ParseFun a
-choice name choices = ParseFun name fun
+choice :: [ParseFun a] -> ParseFun a
+choice choices = ParseFun fun
     where
         fun parser =
             case successes of
@@ -76,16 +73,16 @@ choice name choices = ParseFun name fun
                 successes = [res | Right res <- results]
                 errors = concat [err | Left err <- results]
 
-sequence :: String -> ParseFun a -> ParseFun b -> ParseFun (a, b)
-sequence name a b = ParseFun name fun
+sequence :: ParseFun a -> ParseFun b -> ParseFun (a, b)
+sequence a b = ParseFun fun
     where
         fun parser =
             runParseFun a parser >>= \ (ares, aftera) ->
-            runParseFun b parser >>= \ (bres, afterb) ->
+            runParseFun b aftera >>= \ (bres, afterb) ->
             Right ((ares, bres), afterb)
 
-zeromore :: String -> ParseFun a -> ParseFun [a]
-zeromore name ex = ParseFun name (Right . fun)
+zeromore :: ParseFun a -> ParseFun [a]
+zeromore ex = ParseFun (Right . fun)
     where
         fun parser =
             case runParseFun ex parser of
@@ -95,8 +92,8 @@ zeromore name ex = ParseFun name (Right . fun)
 
                 Left _ -> ([], parser)
 
-onemore :: String -> ParseFun a -> ParseFun [a]
-onemore name ex = ParseFun name $ fun []
+onemore :: ParseFun a -> ParseFun [a]
+onemore ex = ParseFun $ fun []
     where
         fun acc parser =
             case runParseFun ex parser of
@@ -107,31 +104,31 @@ onemore name ex = ParseFun name $ fun []
                     then Left errs
                     else Right (acc, parser)
 
-optional :: String -> ParseFun a -> ParseFun (Maybe a)
-optional name ex = choice name [convert ex Just, convert (empty $ "omitted " ++ (nameof ex)) (const Nothing)]
+optional :: ParseFun a -> ParseFun (Maybe a)
+optional ex = choice [convert ex Just, convert empty (const Nothing)]
 
 convert :: ParseFun a -> (a -> b) -> ParseFun b
-convert ex conv = ParseFun (nameof ex) fun
+convert ex conv = ParseFun fun
     where
         fun parser = runParseFun ex parser >>= \ (res, nextparser) -> Right $ (conv res, nextparser)
 
 mustMatch :: ParseFun a -> ParseFun ()
-mustMatch ex = ParseFun (nameof ex) fun
+mustMatch ex = ParseFun fun
     where
         fun parser =
             runParseFun ex parser >>
             Right ((), parser)
 
-mustNotMatch :: ParseFun a -> ParseFun ()
-mustNotMatch ex = ParseFun ("not a " ++ nameof ex) fun
+mustNotMatch :: String -> ParseFun a -> ParseFun ()
+mustNotMatch thingName ex = ParseFun fun
     where
         fun parser =
             case runParseFun ex parser of
-                Right _ -> Left [NotAllowed (nameof ex) (selectSpanFromParser parser)]
+                Right _ -> Left [NotAllowed thingName (selectSpanFromParser parser)]
                 Left _ -> Right ((), parser)
 
 mainParser :: ParseFun a -> ParseFun a
-mainParser ex = ParseFun (nameof ex) fun
+mainParser ex = ParseFun fun
     where
         fun parser =
             runParseFun ex parser >>= \ (res, parser') ->
@@ -141,14 +138,13 @@ mainParser ex = ParseFun (nameof ex) fun
         consumeEOF = consume "end of file" $ \ tok -> case tok of { Located _ Lex.EOF -> Just (); _ -> Nothing }
 
 grammar :: ParseFun AST.DCU
-grammar =
-    (mainParser (choice "token" [
-        (consume "'var' token" (\ tok -> case tok of { Located _ Lex.Var -> Just $ makecu (); _ -> Nothing })),
-        (consume "'let' token" (\ tok -> case tok of { Located _ Lex.Let -> Just $ makecu (); _ -> Nothing }))
-    ]))
+grammar = mainParser $ convert declList AST.DCU'CU
 
-makecu :: a -> AST.DCU
-makecu _ = AST.DCU'CU []
+declList :: ParseFun [AST.DDecl]
+declList = onemore decl
+
+decl :: ParseFun AST.DDecl
+decl = error "todo"
 
 parse :: TokenStream -> Either [ParseError] AST.DCU
 parse toks = fst <$> (runParseFun grammar $ Parser toks Nothing)
