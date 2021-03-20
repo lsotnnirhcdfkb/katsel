@@ -142,11 +142,16 @@ choice choices =
             restoreLocation originalLocation >>
             return Nothing
 
-sequence :: ParseFun a -> ParseFun b -> ParseFun (a, b)
+sequence :: ParseFunM a -> ParseFunM b -> ParseFunM (a, b)
 sequence a b =
-    a >>= \ ares ->
-    b >>= \ bres ->
-    return (ares, bres)
+    a >>= \ mares ->
+    case mares of
+        Just ares ->
+            b >>= \ mbres ->
+                case mbres of
+                    Just bres -> return (Just (ares, bres))
+                    Nothing -> return Nothing
+        Nothing -> return Nothing
 
 zeromore :: ParseFunM a -> ParseFun [a]
 zeromore ex = fun
@@ -222,7 +227,7 @@ decl :: ParseFunM ()
 decl = choice [functionDecl, implDecl]
 
 functionDecl :: ParseFunM ()
-functionDecl = consume "'fun'" (isTTU Lex.Fun)
+functionDecl = convert (Parse.sequence (consume "'fun'" (isTTU Lex.Fun)) (mustNotMatch "function name" (consume "function name" (isTTU $ Lex.Identifier "")))) (const () <$>)
 
 implDecl :: ParseFunM ()
 implDecl = consume "'impl'" (isTTU Lex.Impl)
