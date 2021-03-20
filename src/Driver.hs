@@ -43,8 +43,7 @@ run filename =
     let totalStages = lexStage `joinStages` parseStage
         (finalOutput, finalErrs) = totalStages file
         putErrs = hPutStr stderr $ concat $ map Message.report finalErrs
-    in
-    (try putErrs :: IO (Either SomeException ())) >>= \ei ->
+    in (try putErrs :: IO (Either SomeException ())) >>= \ei ->
     case ei of
         Right () -> return ()
         Left err ->
