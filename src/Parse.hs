@@ -7,21 +7,26 @@ import qualified Lex
 import qualified Message
 import qualified AST
 
-data ParseError
-    = ExpectedError String Span Lex.Token
+data ErrorCondition
+    = Expected String Span Lex.Token
     | NotAllowed String Span
 
+condToStr :: ErrorCondition -> Located String
+condToStr (Expected thing sp tok) = Located sp $ "expected " ++ thing ++ ", found " ++ Lex.fmtToken tok
+condToStr (NotAllowed thing sp) = Located sp $ thing ++ " not allowed here"
+
+toParseError :: [ErrorCondition] -> ParseError
+toParseError conds = ParseError $ map condToStr conds
+
+data ParseError = ParseError [Located String]
 instance Message.ToDiagnostic ParseError where
-    toDiagnostic (ExpectedError name sp tok) =
-        Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
-            [Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary $ "expected " ++ name ++ ", found " ++ Lex.fmtToken tok]]
+    toDiagnostic (ParseError msgs) =
+        Message.SimpleDiag Message.Error Nothing Nothing Nothing
+            [Message.makeUnderlinesSection $
+                map (\ (Located sp str) -> Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary str) msgs
+            ]
 
-    toDiagnostic (NotAllowed name sp) =
-        Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
-            [Message.makeUnderlinesSection [Message.UnderlineMessage sp Message.ErrorUnderline Message.Primary $ name ++ " not allowed here"]]
-
-
-data Parser = Parser [Located Lex.Token] (Maybe (Located Lex.Token)) [ParseError]
+data Parser = Parser [Located Lex.Token] (Maybe (Located Lex.Token)) [ErrorCondition]
 
 -- TODO: this replicates the functionality of Control.State.Monad; i am making this for practice, but in the future i might make is just use Control.State.Monad
 newtype ParseFun a = ParseFun (Parser -> (a, Parser))
@@ -64,10 +69,10 @@ peek (Parser [] _ _) = error "peek on empty token stream"
 peekS :: ParseFun (Located Lex.Token)
 peekS = ParseFun $ \ parser -> (peek parser, parser)
 
-newErr :: ParseError -> Parser -> Parser
+newErr :: ErrorCondition -> Parser -> Parser
 newErr err (Parser toks l errs) = Parser toks l (errs ++ [err])
 
-newErrS :: ParseError -> ParseFun ()
+newErrS :: ErrorCondition -> ParseFun ()
 newErrS err = ParseFun $ \ parser -> ((), newErr err parser)
 
 getParser :: ParseFun Parser
@@ -104,7 +109,7 @@ consume name predicate =
             return (Just x)
         Nothing ->
             getParser >>= \ parser ->
-            newErrS (ExpectedError name (selectSpanFromParser parser) peeked) >>
+            newErrS (Expected name (selectSpanFromParser parser) peeked) >>
             return Nothing
 
 empty :: ParseFun ()
@@ -210,7 +215,7 @@ functionDecl = consume "'fun'" (\ tok -> case tok of { Located _ Lex.Fun -> Just
 implDecl :: ParseFunM ()
 implDecl = consume "'impl'" (\ tok -> case tok of { Located _ Lex.Impl -> Just (); _ -> Nothing })
 
-parse :: [Located Lex.Token] -> (Maybe AST.DCU, [ParseError])
+parse :: [Located Lex.Token] -> (Maybe AST.DCU, ParseError)
 parse toks =
     let (res, (Parser _ _ errs)) = runParseFun grammar $ Parser toks Nothing []
-    in (res, errs)
+    in (res, toParseError errs)
