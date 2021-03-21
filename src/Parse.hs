@@ -267,6 +267,21 @@ lnend what = choice [nl, semi]
     where
         nl = consume (isTTU Lex.Newline) (mkXYFConsume what "newline")
         semi = consume (isTTU Lex.Semicolon) (mkXYFConsume what "';'")
+-- blocks {{{2
+blocked, braced, indented :: String -> ParseFun a -> ParseFunM a
+blocked what ex = choice [braced what ex, indented what ex]
+
+braced what ex =
+    consume (isTTU Lex.OBrace) (mkXYFConsume what "opening '{'") `unmfp` \ _ ->
+    ex >>= \ inside ->
+    consume (isTTU Lex.CBrace) (mkXYFConsume what "closing '}'") `unmfp` \ _ ->
+    return $ Just inside
+
+indented what ex =
+    consume (isTTU Lex.Indent) (mkXYFConsume what "opening indent") `unmfp` \ _ ->
+    ex >>= \ inside ->
+    consume (isTTU Lex.Dedent) (mkXYFConsume what "closing dedent") `unmfp` \ _ ->
+    return $ Just inside
 -- decl {{{2
 parseDecl :: ParseFunM AST.DDecl
 parseDecl = choice [convert functionDecl (AST.DDecl'Fun <$>), convert implDecl (const AST.DDecl'Dummy <$>)]
@@ -292,7 +307,7 @@ functionDecl =
     let params = case mparamlist of
             Just l -> l
             Nothing -> []
-    in return $ Just $ AST.SFunDecl' retty name params body
+    in return $ Just $ AST.SFunDecl' retty name params (AST.SBlockExpr' body)
 
 implDecl :: ParseFunM ()
 -- TODO: impls
@@ -360,8 +375,14 @@ parseExpr, assignExpr :: ParseFunM AST.DExpr
 parseExpr = assignExpr
 assignExpr = error "TODO"
 
-blockExpr :: ParseFunM AST.SBlockExpr
-blockExpr = error "TODO"
+blockExpr :: ParseFunM [AST.DStmt]
+blockExpr =
+    blocked "code block" (
+        stmtList >>= \ sl ->
+        return $ case sl of
+            Just x -> x
+            Nothing -> []
+    )
 -- stmt {{{2
 parseStmt, varStmt, retStmt, exprStmt :: ParseFunM AST.DStmt
 parseStmt = choice [varStmt, retStmt, exprStmt]
@@ -382,15 +403,18 @@ varStmt =
         parseExpr `unmfp` \ initializer ->
         return $ Just (eqsp, initializer)
     ) >>= \ minit ->
+    lnend "variable statement" `unmfp` \ _ ->
     return $ Just $ AST.DStmt'Var ty (maybeToMutability mmut) name minit
 
 retStmt =
     (consume (isTTU Lex.Return) (mkXYFConsume "return statement" "'return'")) `unmfp` \ _ ->
     parseExpr `unmfp` \ expr ->
+    lnend "return statement" `unmfp` \ _ ->
     return $ Just $ AST.DStmt'Ret expr
 
 exprStmt =
     parseExpr `unmfp` \ expr ->
+    lnend "expression statement" `unmfp` \ _ ->
     return $ Just $ AST.DStmt'Expr expr
 
 -- parse {{{1
