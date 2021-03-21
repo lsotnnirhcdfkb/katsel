@@ -307,7 +307,7 @@ functionDecl =
     let params = case mparamlist of
             Just l -> l
             Nothing -> []
-    in return $ Just $ AST.SFunDecl' retty name params (AST.SBlockExpr' body)
+    in return $ Just $ AST.SFunDecl' retty name params body
 
 implDecl :: ParseFunM ()
 -- TODO: impls
@@ -371,18 +371,39 @@ thisParam =
             Nothing -> AST.Value
     in return $ Just $ AST.DParam'This kind
 -- expr {{{2
-parseExpr, assignExpr :: ParseFunM AST.DExpr
-parseExpr = assignExpr
-assignExpr = error "TODO"
+parseExpr, assignExpr, ifExpr, whileExpr :: ParseFunM AST.DExpr
+parseExpr = choice [assignExpr, ifExpr, whileExpr, convert blockExpr (AST.DExpr'Block <$>)]
 
-blockExpr :: ParseFunM [AST.DStmt]
-blockExpr =
+blockStmtList :: ParseFunM [AST.DStmt]
+blockStmtList =
     blocked "code block" (
         stmtList >>= \ sl ->
         return $ case sl of
             Just x -> x
             Nothing -> []
     )
+
+blockExpr :: ParseFunM AST.SBlockExpr
+blockExpr = convert blockStmtList (AST.SBlockExpr' <$>)
+
+ifExpr =
+    (consume (isTTP Lex.If) (mkXYFConsume "'if' expression" "'if'")) `unmfp` \ (Located ifsp _) ->
+    parseExpr `unmfp` \ cond ->
+    blockExpr `unmfp` \ trueb ->
+    (
+        (consume (isTTP Lex.Else) (mkXYFConsume "'else' branch of 'if' expression" "'else'")) `unmfp` \ (Located elsesp _) ->
+        choice [convert blockExpr (AST.DExpr'Block <$>), ifExpr] `unmfp` \ falseb ->
+        return $ Just (elsesp, falseb)
+    ) >>= \ melseb ->
+    return $ Just $ AST.DExpr'If ifsp cond (AST.DExpr'Block trueb) melseb
+
+whileExpr =
+    (consume (isTTU Lex.While) (mkXYFConsume "'while' expression" "'while'")) `unmfp` \ _ ->
+    parseExpr `unmfp` \ cond ->
+    blockExpr `unmfp` \ block ->
+    return $ Just $ AST.DExpr'While cond (AST.DExpr'Block block)
+
+assignExpr = error "TODO"
 -- stmt {{{2
 parseStmt, varStmt, retStmt, exprStmt :: ParseFunM AST.DStmt
 parseStmt = choice [varStmt, retStmt, exprStmt]
@@ -414,6 +435,7 @@ retStmt =
 
 exprStmt =
     parseExpr `unmfp` \ expr ->
+    -- TODO: blocked exprs do not need line endings
     lnend "expression statement" `unmfp` \ _ ->
     return $ Just $ AST.DStmt'Expr expr
 
