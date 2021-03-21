@@ -3,7 +3,7 @@ module Parse(parse) where
 import Location
 import qualified Lex
 import qualified Message
-import qualified Message.Underlines
+import qualified Message.Underlines as MsgUnds
 import qualified AST
 
 import Data.Data(toConstr, Data)
@@ -12,19 +12,20 @@ data ErrorCondition
     = Expected String Span Lex.Token
     | NotAllowed String Span
 
-condToStr :: ErrorCondition -> Located String
-condToStr (Expected thing sp tok) = Located sp $ "expected " ++ thing ++ ", found " ++ Lex.fmtToken tok
-condToStr (NotAllowed thing sp) = Located sp $ thing ++ " not allowed here"
+condToMsgs :: ErrorCondition -> [MsgUnds.Message]
+condToMsgs (Expected thing sp tok) =
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "expected " ++ thing ++ ", found " ++ Lex.fmtToken tok
+    ]
+condToMsgs (NotAllowed thing sp) =
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ thing ++ " not allowed here"
+    ]
 
-toParseError :: [ErrorCondition] -> ParseError
-toParseError conds = ParseError $ map condToStr conds
 
-data ParseError = ParseError [Located String]
+data ParseError = ParseError [ErrorCondition]
 instance Message.ToDiagnostic ParseError where
     toDiagnostic (ParseError msgs) =
         Message.SimpleDiag Message.Error Nothing Nothing Nothing
-            [Message.Underlines $ Message.Underlines.UnderlinesSection $
-                map (\ (Located sp str) -> Message.Underlines.Message sp Message.Underlines.Error Message.Underlines.Primary str) msgs
+            [ Message.Underlines $ MsgUnds.UnderlinesSection $ concatMap condToMsgs msgs
             ]
 
 data Parser = Parser [Located Lex.Token] (Maybe (Located Lex.Token)) [ErrorCondition]
@@ -236,4 +237,4 @@ implDecl = consume "'impl'" (isTTU Lex.Impl)
 parse :: [Located Lex.Token] -> (Maybe AST.DCU, ParseError)
 parse toks =
     let (res, (Parser _ _ errs)) = runParseFun grammar $ Parser toks Nothing []
-    in (res, toParseError errs)
+    in (res, ParseError errs)
