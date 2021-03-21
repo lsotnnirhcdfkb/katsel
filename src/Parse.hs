@@ -244,15 +244,23 @@ mkXYZFConsume construct thing before sp (Located _ tok) = XIsMissingYAfterZFound
 mkDummy2 :: a -> b -> ErrorCondition
 mkDummy2 _ _ = DummyError
 -- grammar {{{1
+-- grammar helpers {{{
+maybeToMutability :: Maybe () -> AST.Mutability
+maybeToMutability (Just ()) = AST.Mutable
+maybeToMutability Nothing = AST.Immutable
+-- }}}
 -- TODO: these all need to return located asts
 grammar :: ParseFunM AST.DCU
 grammar = mainParser (convert declList (AST.DCU'CU <$>))
 -- lists {{{2
 declList :: ParseFunM [AST.DDecl]
-declList = onemore decl
+declList = onemore parseDecl
 
 paramList :: ParseFunM [AST.DParam]
 paramList = onemoredelim parseParam (consume (isTTU Lex.Comma) (mkXYZFConsume "parameter list" "parameter separator ','" "parameter"))
+
+stmtList :: ParseFunM [AST.DStmt]
+stmtList = onemore parseStmt
 -- line endings {{{2
 lnend :: String -> ParseFunM ()
 lnend what = choice [nl, semi]
@@ -260,21 +268,31 @@ lnend what = choice [nl, semi]
         nl = consume (isTTU Lex.Newline) (mkXYFConsume what "newline")
         semi = consume (isTTU Lex.Semicolon) (mkXYFConsume what "';'")
 -- decl {{{2
-decl :: ParseFunM AST.DDecl
-decl = convert (choice [functionDecl, implDecl]) (const AST.DDecl'Dummy <$>)
+parseDecl :: ParseFunM AST.DDecl
+parseDecl = choice [convert functionDecl (AST.DDecl'Fun <$>), convert implDecl (const AST.DDecl'Dummy <$>)]
 
-functionDecl :: ParseFunM ()
+functionDecl :: ParseFunM AST.SFunDecl
 functionDecl =
-    (consume (isTTU Lex.Fun) (mkXYFConsume "function declaration" "introductory 'fun'")) `unmfp` \ fun ->
-    (consume (isTTP $ Lex.Identifier "") (mkXYZFConsume "function declaration" "function name" "'fun'")) `unmfp` \ name ->
-    (consume (isTTU Lex.OParen) (mkXYZFConsume "function declaration" "'('" "function name")) `unmfp` \ oparen ->
+    (consume (isTTU Lex.Fun) (mkXYFConsume "function declaration" "introductory 'fun'")) `unmfp` \ _ ->
+    (consume
+        (
+        \ tok ->
+        case tok of
+            Located sp (Lex.Identifier n) -> Just $ Located sp n
+            _ -> Nothing
+        )
+        (mkXYZFConsume "function declaration" "function name" "'fun'")) `unmfp` \ name ->
+    (consume (isTTU Lex.OParen) (mkXYZFConsume "function declaration" "'('" "function name")) `unmfp` \ _ ->
     paramList >>= \ mparamlist ->
-    (consume (isTTU Lex.CParen) (mkXYZFConsume "function declaration" "')'" "(optional) parameter list")) `unmfp` \ cparen ->
+    (consume (isTTU Lex.CParen) (mkXYZFConsume "function declaration" "')'" "(optional) parameter list")) `unmfp` \ _ ->
     -- TODO: make this type annotation optional
     typeAnnotation `unmfp` \ retty ->
-    -- TODO: function body
+    blockExpr `unmfp` \ body ->
     lnend "function declaration" >>= \ _ ->
-    return $ Just $ ()
+    let params = case mparamlist of
+            Just l -> l
+            Nothing -> []
+    in return $ Just $ AST.SFunDecl' retty name params body
 
 implDecl :: ParseFunM ()
 -- TODO: impls
@@ -292,10 +310,7 @@ pointerType =
     (consume (isTTU Lex.Star) (mkXYFConsume "pointer type" "introductory '*'")) `unmfp` \ _ ->
     (consume (isTTU Lex.Mut) (mkXYZFConsume "mutable pointer type" "'mut'" "'*'")) >>= \ mmut ->
     parseType `unmfp` \ pointeeTy ->
-    let mutability = case mmut of
-            Just () -> AST.Mutable
-            Nothing -> AST.Immutable
-    in return $ Just $ AST.DType'Pointer mutability pointeeTy
+    return $ Just $ AST.DType'Pointer (maybeToMutability mmut) pointeeTy
 
 thisType = convert (consume (isTTU Lex.This) (mkXYFConsume "'this' type" "'this'")) (const AST.DType'This <$>)
 
@@ -326,23 +341,58 @@ normalParam =
                 _ -> Nothing
         ) (mkXYFConsume "parameter" "parameter name")) `unmfp` \ name ->
     typeAnnotation `unmfp` \ ty ->
-    let mutability = case mmut of
-            Just () -> AST.Mutable
-            Nothing -> AST.Immutable
-    in return $ Just $ AST.DParam'Normal mutability ty name
+    return $ Just $ AST.DParam'Normal (maybeToMutability mmut) ty name
 
 thisParam =
     (
-        consume (isTTU Lex.Star) (mkXYFConsume "'this' reference parameter" "'*'") `unmfp` \ star ->
+        consume (isTTU Lex.Star) (mkXYFConsume "'this' reference parameter" "'*'") `unmfp` \ _ ->
         consume (isTTU Lex.Mut) (mkXYZFConsume "'this' mutable reference parameter" "'mut'" "'*'") >>= \ mmut ->
         return $ Just $ isJust mmut
     ) >>= \ mstarmut ->
-    consume (isTTU Lex.This) (mkXYFConsume "'this' parameter" "'this'") `unmfp` \ this ->
+    consume (isTTU Lex.This) (mkXYFConsume "'this' parameter" "'this'") `unmfp` \ _ ->
     let kind = case mstarmut of
             Just True -> AST.MutRef
             Just False -> AST.Ref
             Nothing -> AST.Value
     in return $ Just $ AST.DParam'This kind
+-- expr {{{2
+parseExpr, assignExpr :: ParseFunM AST.DExpr
+parseExpr = assignExpr
+assignExpr = error "TODO"
+
+blockExpr :: ParseFunM AST.SBlockExpr
+blockExpr = error "TODO"
+-- stmt {{{2
+parseStmt, varStmt, retStmt, exprStmt :: ParseFunM AST.DStmt
+parseStmt = choice [varStmt, retStmt, exprStmt]
+
+varStmt =
+    (consume (isTTU Lex.Var) (mkXYFConsume "variable statement" "'var'")) `unmfp` \ _ ->
+    (consume (isTTU Lex.Mut) (mkXYZFConsume "variable statement" "'mut'" "'var'")) >>= \ mmut ->
+    (consume (
+            \ tok ->
+            case tok of
+                Located sp (Lex.Identifier n) -> Just $ Located sp n
+                _ -> Nothing
+        )
+        (mkXYFConsume "variable statement" "variable name")) `unmfp` \ name ->
+    typeAnnotation `unmfp` \ ty ->
+    (
+        (consume (isTTP Lex.Equal) (mkXYZFConsume "variable initialization" "'='" "variable name")) `unmfp` \ (Located eqsp _) ->
+        parseExpr `unmfp` \ initializer ->
+        return $ Just (eqsp, initializer)
+    ) >>= \ minit ->
+    return $ Just $ AST.DStmt'Var ty (maybeToMutability mmut) name minit
+
+retStmt =
+    (consume (isTTU Lex.Return) (mkXYFConsume "return statement" "'return'")) `unmfp` \ _ ->
+    parseExpr `unmfp` \ expr ->
+    return $ Just $ AST.DStmt'Ret expr
+
+exprStmt =
+    parseExpr `unmfp` \ expr ->
+    return $ Just $ AST.DStmt'Expr expr
+
 -- parse {{{1
 parse :: [Located Lex.Token] -> (Maybe AST.DCU, ParseError)
 parse toks =
