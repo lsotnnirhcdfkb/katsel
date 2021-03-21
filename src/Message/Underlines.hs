@@ -53,6 +53,17 @@ data SectionLine
     | QuoteLine File Int
     | ElipsisLine
     | UnderlineLine [Message] [DrawableMessage]
+
+    -- TODO: MessageLine needs to draw a pipe over messages on rows below
+    --       to do:
+    --       > quote a
+    --       > |     `-- this
+    --       > `-- that
+    --
+    --       instead of:
+    --       > quote a
+    --       >       `-- this
+    --       > `-- that
     | MessageLine [DrawableMessage]
 
 assignMessages :: [Message] -> ([DrawableMessage], [SectionLine])
