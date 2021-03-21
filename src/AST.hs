@@ -77,7 +77,7 @@ data DExpr
     | DExpr'Int Integer
     | DExpr'Char Char
     | DExpr'String String
-    | DExpr'This Span
+    | DExpr'This
     | DExpr'Path DPath
 
 data DParam
@@ -87,6 +87,6 @@ data DParam
 data DType
     = DType'Path DPath
     | DType'Pointer Mutability DType
-    | DType'This Span
+    | DType'This
 
 data DPath = DPath' [LocStr]

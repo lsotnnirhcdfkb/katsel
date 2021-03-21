@@ -150,9 +150,7 @@ consume predicate onerr =
             newErrS (onerr (selectSpanFromParser parser) locatedPeeked) >>
             return Nothing
 
-empty :: ParseFun ()
-empty = return ()
-
+-- TODO: allow error override, if used then silence all choice's errors, and if none of them match then emit that custom error
 choice :: [ParseFunM a] -> ParseFunM a
 choice choices =
     saveLocation >>= tryChoices choices
@@ -205,9 +203,6 @@ onemoredelim ex delim =
     ) >>= \ rest ->
     return $ Just $ first:rest
 
-optional :: ParseFunM a -> ParseFunM a
-optional ex = choice [ex, convert empty (const Nothing)]
-
 convert :: ParseFun a -> (a -> b) -> ParseFun b
 convert ex conv =
     ex >>= \ res ->
@@ -252,29 +247,63 @@ mkDummy2 _ _ = DummyError
 -- TODO: these all need to return located asts
 grammar :: ParseFunM AST.DCU
 grammar = mainParser (convert declList (AST.DCU'CU <$>))
-
+-- lists {{{2
 declList :: ParseFunM [AST.DDecl]
 declList = onemore decl
-
 -- decl {{{2
 decl :: ParseFunM AST.DDecl
 decl = convert (choice [functionDecl, implDecl]) (const AST.DDecl'Dummy <$>)
 
 functionDecl :: ParseFunM ()
 functionDecl =
-    (consume (isTTU Lex.Fun) (mkXYFConsume "function declaration" "introductory token 'fun'")) `unmfp` \ fun ->
-    (consume (isTTP $ Lex.Identifier "") (mkXYZFConsume "function declaration" "function name" "introductory token 'fun'")) `unmfp` \ name ->
-    (consume (isTTU $ Lex.OParen) (mkXYZFConsume "function declaration" "'('" "function name")) `unmfp` \ oparen ->
+    (consume (isTTU Lex.Fun) (mkXYFConsume "function declaration" "introductory 'fun'")) `unmfp` \ fun ->
+    (consume (isTTP $ Lex.Identifier "") (mkXYZFConsume "function declaration" "function name" "'fun'")) `unmfp` \ name ->
+    (consume (isTTU Lex.OParen) (mkXYZFConsume "function declaration" "'('" "function name")) `unmfp` \ oparen ->
     -- TODO: paramlist
-    (consume (isTTU $ Lex.CParen) (mkXYZFConsume "function declaration" "')'" "optional parameter list")) `unmfp` \ cparen ->
-    -- TODO: return type
+    (consume (isTTU Lex.CParen) (mkXYZFConsume "function declaration" "')'" "optional parameter list")) `unmfp` \ cparen ->
+    -- TODO: make this type annotation optional
+    typeAnnotation `unmfp` \ retty ->
     -- TODO: function body
     -- TODO: line ending
     return $ Just $ ()
 
 implDecl :: ParseFunM ()
-implDecl = consume (isTTU Lex.Impl) (mkXYFConsume "implementation block" "introductory token 'impl'")
+-- TODO: impls
+implDecl = consume (isTTU Lex.Impl) (mkXYFConsume "implementation block" "introductory 'impl'")
+-- types {{{2
+typeAnnotation :: ParseFunM AST.DType
+typeAnnotation =
+    (consume (isTTU Lex.Colon) (mkXYFConsume "type annotation" "introductory ':'")) `unmfp` \ _ ->
+    parseType
 
+parseType, pointerType, thisType, pathType :: ParseFunM AST.DType
+parseType = choice [pointerType, thisType, pathType]
+
+pointerType =
+    (consume (isTTU Lex.Star) (mkXYFConsume "pointer type" "introductory '*'")) `unmfp` \ _ ->
+    (consume (isTTU Lex.Mut) (mkXYFConsume "mutable pointer type" "'mut'")) >>= \ mmut ->
+    parseType `unmfp` \ pointeeTy ->
+    let mutability = case mmut of
+            Just () -> AST.Mutable
+            Nothing -> AST.Immutable
+    in return $ Just $ AST.DType'Pointer mutability pointeeTy
+
+thisType = convert (consume (isTTU Lex.This) (mkXYFConsume "'this' type" "'this'")) (const AST.DType'This <$>)
+
+pathType = convert parsePath (AST.DType'Path <$>)
+-- paths {{{2
+parsePath :: ParseFunM AST.DPath
+parsePath =
+    convert
+        (onemoredelim
+            (consume (
+                    \ tok ->
+                    case tok of
+                        Located sp (Lex.Identifier n) -> Just $ Located sp n
+                        _ -> Nothing
+                ) (mkXYFConsume "path" "path segment (identifier)"))
+            (consume (isTTU Lex.DoubleColon) (mkXYZFConsume "path" "segment separator (':')" "segment")))
+    (AST.DPath' <$>)
 -- parse {{{1
 parse :: [Located Lex.Token] -> (Maybe AST.DCU, ParseError)
 parse toks =
