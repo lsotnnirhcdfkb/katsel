@@ -10,7 +10,6 @@ import Data.Data(toConstr, Data)
 
 data ErrorCondition
     = XIsMissingYFound String String Span Lex.Token
-    | XIsMissingY String String Span
     | NotAllowedBecause String String Span
     | NotAllowed String Span
     | ExcessTokens Span Lex.Token
@@ -20,9 +19,6 @@ condToMsgs :: ErrorCondition -> [MsgUnds.Message]
 
 condToMsgs (XIsMissingYFound x y sp tok) =
     [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y ++ "; " ++ Lex.fmtToken tok ++ " was found instead"
-    ]
-condToMsgs (XIsMissingY x y sp) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y
     ]
 condToMsgs (NotAllowedBecause thing reason sp) =
     [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ thing ++ " not allowed here " ++ reason
