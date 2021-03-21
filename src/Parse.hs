@@ -7,6 +7,7 @@ import qualified Message.Underlines as MsgUnds
 import qualified AST
 
 import Data.Data(toConstr, Data)
+import Data.Maybe(isJust)
 
 -- errors {{{1
 data ErrorCondition
@@ -249,6 +250,9 @@ grammar = mainParser (convert declList (AST.DCU'CU <$>))
 -- lists {{{2
 declList :: ParseFunM [AST.DDecl]
 declList = onemore decl
+
+paramList :: ParseFunM [AST.DParam]
+paramList = onemoredelim parseParam (consume (isTTU Lex.Comma) (mkXYZFConsume "parameter list" "parameter separator ','" "parameter"))
 -- decl {{{2
 decl :: ParseFunM AST.DDecl
 decl = convert (choice [functionDecl, implDecl]) (const AST.DDecl'Dummy <$>)
@@ -258,8 +262,8 @@ functionDecl =
     (consume (isTTU Lex.Fun) (mkXYFConsume "function declaration" "introductory 'fun'")) `unmfp` \ fun ->
     (consume (isTTP $ Lex.Identifier "") (mkXYZFConsume "function declaration" "function name" "'fun'")) `unmfp` \ name ->
     (consume (isTTU Lex.OParen) (mkXYZFConsume "function declaration" "'('" "function name")) `unmfp` \ oparen ->
-    -- TODO: paramlist
-    (consume (isTTU Lex.CParen) (mkXYZFConsume "function declaration" "')'" "optional parameter list")) `unmfp` \ cparen ->
+    paramList >>= \ mparamlist ->
+    (consume (isTTU Lex.CParen) (mkXYZFConsume "function declaration" "')'" "(optional) parameter list")) `unmfp` \ cparen ->
     -- TODO: make this type annotation optional
     typeAnnotation `unmfp` \ retty ->
     -- TODO: function body
@@ -280,7 +284,7 @@ parseType = choice [pointerType, thisType, pathType]
 
 pointerType =
     (consume (isTTU Lex.Star) (mkXYFConsume "pointer type" "introductory '*'")) `unmfp` \ _ ->
-    (consume (isTTU Lex.Mut) (mkXYFConsume "mutable pointer type" "'mut'")) >>= \ mmut ->
+    (consume (isTTU Lex.Mut) (mkXYZFConsume "mutable pointer type" "'mut'" "'*'")) >>= \ mmut ->
     parseType `unmfp` \ pointeeTy ->
     let mutability = case mmut of
             Just () -> AST.Mutable
@@ -294,15 +298,45 @@ pathType = convert parsePath (AST.DType'Path <$>)
 parsePath :: ParseFunM AST.DPath
 parsePath =
     convert
-        (onemoredelim
-            (consume (
-                    \ tok ->
-                    case tok of
-                        Located sp (Lex.Identifier n) -> Just $ Located sp n
-                        _ -> Nothing
-                ) (mkXYFConsume "path" "path segment (identifier)"))
-            (consume (isTTU Lex.DoubleColon) (mkXYZFConsume "path" "segment separator (':')" "segment")))
+    (onemoredelim
+        (consume (
+                \ tok ->
+                case tok of
+                    Located sp (Lex.Identifier n) -> Just $ Located sp n
+                    _ -> Nothing
+            ) (mkXYFConsume "path" "path segment (identifier)"))
+        (consume (isTTU Lex.DoubleColon) (mkXYZFConsume "path" "segment separator (':')" "segment")))
     (AST.DPath' <$>)
+-- params {{{2
+parseParam, normalParam, thisParam :: ParseFunM AST.DParam
+parseParam = choice [normalParam, thisParam]
+
+normalParam =
+    (consume (isTTU Lex.Mut) (mkXYFConsume "mutable parameter" "'mut'")) >>= \ mmut ->
+    (consume (
+            \ tok ->
+            case tok of
+                Located sp (Lex.Identifier n) -> Just $ Located sp n
+                _ -> Nothing
+        ) (mkXYFConsume "parameter" "parameter name")) `unmfp` \ name ->
+    typeAnnotation `unmfp` \ ty ->
+    let mutability = case mmut of
+            Just () -> AST.Mutable
+            Nothing -> AST.Immutable
+    in return $ Just $ AST.DParam'Normal mutability ty name
+
+thisParam =
+    (
+        consume (isTTU Lex.Star) (mkXYFConsume "'this' reference parameter" "'*'") `unmfp` \ star ->
+        consume (isTTU Lex.Mut) (mkXYZFConsume "'this' mutable reference parameter" "'mut'" "'*'") >>= \ mmut ->
+        return $ Just $ isJust mmut
+    ) >>= \ mstarmut ->
+    consume (isTTU Lex.This) (mkXYFConsume "'this' parameter" "'this'") `unmfp` \ this ->
+    let kind = case mstarmut of
+            Just True -> AST.MutRef
+            Just False -> AST.Ref
+            Nothing -> AST.Value
+    in return $ Just $ AST.DParam'This kind
 -- parse {{{1
 parse :: [Located Lex.Token] -> (Maybe AST.DCU, ParseError)
 parse toks =
