@@ -55,6 +55,37 @@ data SectionLine
     | UnderlineLine [Message] [DrawableMessage]
     | MessageLine [DrawableMessage]
 
+assignMessages :: [Message] -> ([DrawableMessage], [SectionLine])
+assignMessages messages = (firstrow, msglines)
+    where
+        assign [] already = already
+        assign (toAssign:rest) already =
+            let newAssignment = tryAssign toAssign (0 :: Int) already
+            in assign rest $ newAssignment:already
+
+        tryAssign curMsg currow already =
+            if overlapping
+            then tryAssign curMsg (currow + 1) already
+            else (currow, curMsg)
+            where
+                onCurRow = filter ((currow==) . fst) already
+
+                overlapping = any ((curMsgEndCol>=) . colOfAssignment) onCurRow
+
+                curMsgEndCol = endColOfMsg curMsg
+                colOfAssignment (_, (Message (Span _ eloc) _ _ _)) =  colMinus1 eloc
+                endColOfMsg (Message (Span _ end) _ _ str) = colMinus1 end + length str + 3
+
+        assigned = assign (sortBy comparator messages) []
+        comparator (Message (Span _ end1) _ _ _) (Message (Span _ end2) _ _ _) = (colMinus1 end2) `compare` (colMinus1 end1)
+
+        firstrow = findMsgsOnRow 0
+
+        msglines = map MessageLine $ takeWhile ((>0) . length) $ map findMsgsOnRow [1..]
+        findMsgsOnRow row = map (todmsg . snd) $ filter ((row==) . fst) assigned
+
+        todmsg (Message (Span _ end) ty _ str) = DMessage (sgrOfTy ty) (colMinus1 end) str
+
 sectionLines :: UnderlinesSection -> [SectionLine]
 sectionLines (UnderlinesSection msgs) =
     makeLines [] $ zip flnrs $ Nothing:(map Just flnrs)
@@ -84,18 +115,16 @@ sectionLines (UnderlinesSection msgs) =
                 underlineLine =
                     if null lineUnderlines
                     then Nothing
-                    else Just $ UnderlineLine lineUnderlines []
+                    else Just $ UnderlineLine lineUnderlines firstRowMessages
 
-                messageLines =
-                    map (\ (Message (Span _ end) ty _ msg) -> MessageLine [DMessage (sgrOfTy ty) (colMinus1 end) msg]) lineMessages
+                (firstRowMessages, messageLines) = assignMessages lineMessages
 
                 lineMessages = filter isCorrectLine msgs
                     where
                         isCorrectLine (Message (Span _ msgloc) _ _ _) = (fileOfLoc msgloc, lineMinus1 msgloc) == curflnr
                 lineUnderlines = filter isCorrectLine msgs
                     where
-                        isCorrectLine (Message (Span start end) _ _ _) =
-                            curfl == fileOfLoc start && lnnOfLoc start <= curnr && curnr <= lineMinus1 end
+                        isCorrectLine (Message (Span start end) _ _ _) = curfl == fileOfLoc start && lnnOfLoc start <= curnr && curnr <= lineMinus1 end
 
         makeLines acc [] = acc
 
@@ -134,15 +163,15 @@ drawSectionLine indent (UnderlineLine underlines messages) =
                             x: _ -> x
                             [] -> Nothing
                 in case (curUnderline, curMsg) of
-                    (Just (imp, ty), Nothing) ->
-                        draw (ind + 1) (acc ++ ANSI.setSGRCode (sgrOfTy ty) ++ [charOfImp imp] ++ ANSI.setSGRCode [])
-
-                    (Nothing, Just (DMessage sgr _ str)) ->
+                    -- messages have higher priority than underlines
+                    (_, Just (DMessage sgr _ str)) ->
                         let len = length str
                         in draw (ind + len + 3) (acc ++ ANSI.setSGRCode sgr ++ "-- " ++ str ++ ANSI.setSGRCode [])
 
+                    (Just (imp, ty), Nothing) ->
+                        draw (ind + 1) (acc ++ ANSI.setSGRCode (sgrOfTy ty) ++ [charOfImp imp] ++ ANSI.setSGRCode [])
+
                     (Nothing, Nothing) -> draw (ind + 1) (acc ++ " ")
-                    (Just _, Just _) -> error "message and underline on same column"
 
         columnMessages = helper messages 1 []
             where
@@ -165,6 +194,9 @@ drawSectionLine indent (UnderlineLine underlines messages) =
                     else acc
                     where
                         anyUnderlinesLeft = any (\ (Message (Span _ end) _ _ _) -> col <= colMinus1 end) underlines
+                        -- TODO: inCurCol is kind of broken because it doesn't handle multiline underlines properly
+                        --       it just uses the column number without regard for the line number, so a multiline underline would just highlight the columns that are inbetween the start and end columns
+                        --       kind of like a visual block selection vs a visual selection
                         inCurCol = find (\ (Message (Span start end) _ _ _) -> colnOfLoc start <= col && col <= colMinus1 end) underlines
                         current = case inCurCol of
                             Nothing -> Nothing
@@ -186,51 +218,3 @@ drawSectionLine indent (MessageLine msgs) =
                 (curs, rest) = partition (\ (DMessage _ msgcol _) -> col == msgcol) curmessages
 
         draw [] _ acc = acc
-
-{-
-        showLine flnr@(fl, nr) = quoteLine ++ firstRow ++ nextRows
-            where
-                assignedMessages =
-                    assignMessages (sortBy (\ (Message (Span _ msg1l) _ _ _) (Message (Span _ msg2l) _ _ _) -> (colOfMinus1 msg2l) `compare` (colOfMinus1 msg1l)) lineMessages) []
-                    where
-                        assignMessages [] a = a
-                        assignMessages (toAssign:rest) alreadyAssigned =
-                            let assignment = assignRowNum toAssign 0 alreadyAssigned
-                                restAssignments = assignMessages rest $ assignment:alreadyAssigned
-                            in restAssignments
-
-                        assignRowNum :: Message -> Int -> [(Int, Int, Int, String)] -> (Int, Int, Int, String)
-                        assignRowNum msg currow already =
-                            if overlapping
-                                then assignRowNum msg (currow + 1) already
-                                else makeAssignment msg currow
-
-                            where
-                                msgEndCol = endcolumn currow msg
-
-                                assignmentsOnCurRow = filter ((currow==) . rowOfAssignment) already
-                                overlapping = any ((msgEndCol>=) . startColOfAssignment) assignmentsOnCurRow
-
-                                startColOfAssignment (_, c, _, _) = c
-                                rowOfAssignment (r, _, _, _) = r
-
-                        makeAssignment msg@(Message _ ty _ _) row =
-                            (row, startcolumn row msg, endcolumn row msg, ANSI.setSGRCode (colorOfType ty) ++ augmentedMessage row msg ++ ANSI.setSGRCode [])
-
-                        startcolumn row (Message (Span _ eloc) _ _ _) = (colOfMinus1 eloc) + if row == 0 then 1 else 0
-                        endcolumn row msg = startcolumn row msg + length (augmentedMessage row msg)
-                        augmentedMessage row (Message _ _ _ msgText) = (if row == 0 then "-- " else "`-- ") ++ msgText
-
-                underlinesForChars = map getUnderlineForChar $ take (length quote + 1) [1..]
-                    where
-                        getUnderlineForChar coln = find (\ msg -> startcol msg <= coln && coln < endcol msg) lineUnderlines
-                        startcol (Message (Span start _) _ _ _) =
-                            if lnnOfLoc start == nr
-                            then colnOfLoc start
-                            else 1
-                        endcol (Message (Span _ end) _ _ _) =
-                            if lnnOfLoc end == nr
-                            then colnOfLoc end
-                            else maxBound
-
--}
