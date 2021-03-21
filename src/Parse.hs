@@ -253,6 +253,12 @@ declList = onemore decl
 
 paramList :: ParseFunM [AST.DParam]
 paramList = onemoredelim parseParam (consume (isTTU Lex.Comma) (mkXYZFConsume "parameter list" "parameter separator ','" "parameter"))
+-- line endings {{{2
+lnend :: String -> ParseFunM ()
+lnend what = choice [nl, semi]
+    where
+        nl = consume (isTTU Lex.Newline) (mkXYFConsume what "newline")
+        semi = consume (isTTU Lex.Semicolon) (mkXYFConsume what "';'")
 -- decl {{{2
 decl :: ParseFunM AST.DDecl
 decl = convert (choice [functionDecl, implDecl]) (const AST.DDecl'Dummy <$>)
@@ -267,7 +273,7 @@ functionDecl =
     -- TODO: make this type annotation optional
     typeAnnotation `unmfp` \ retty ->
     -- TODO: function body
-    -- TODO: line ending
+    lnend "function declaration" >>= \ _ ->
     return $ Just $ ()
 
 implDecl :: ParseFunM ()
