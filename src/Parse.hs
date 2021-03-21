@@ -11,6 +11,7 @@ import Data.Data(toConstr, Data)
 data ErrorCondition
     = XIsMissingYFound String String Span Lex.Token
     | XIsMissingY String String Span
+    | NotAllowedBecause String String Span
     | NotAllowed String Span
     | ExcessTokens Span Lex.Token
     | DummyError
@@ -23,8 +24,11 @@ condToMsgs (XIsMissingYFound x y sp tok) =
 condToMsgs (XIsMissingY x y sp) =
     [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y
     ]
+condToMsgs (NotAllowedBecause thing reason sp) =
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ thing ++ " not allowed here " ++ reason
+    ]
 condToMsgs (NotAllowed thing sp) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ thing ++ " not allowed here"
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ thing ++ " not allowed"
     ]
 condToMsgs (ExcessTokens sp tok) =
     [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "extraneous tokens found in input (" ++ Lex.fmtToken tok ++ ")"
