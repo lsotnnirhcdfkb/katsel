@@ -8,6 +8,7 @@ import qualified AST
 
 import Data.Data(toConstr, Data)
 
+-- errors {{{1
 data ErrorCondition
     = XIsMissingYFound String String Span Lex.Token
     | XIsMissingYAfterZFound String String String Span Lex.Token
@@ -42,6 +43,7 @@ instance Message.ToDiagnostic ParseError where
             [ Message.Underlines $ MsgUnds.UnderlinesSection $ concatMap condToMsgs msgs
             ]
 
+-- parser {{{1
 data Parser = Parser [Located Lex.Token] (Maybe (Located Lex.Token)) [ErrorCondition]
 
 -- TODO: this replicates the functionality of Control.State.Monad; i am making this for practice, but in the future i might make is just use Control.State.Monad
@@ -70,6 +72,7 @@ instance Monad ParseFun where
 
 type ParseFunM a = ParseFun (Maybe a)
 
+-- utility functions {{{1
 constrEq :: (Data a, Data b) => a -> b -> Bool
 constrEq a b = toConstr a == toConstr b
 
@@ -82,6 +85,13 @@ isTTP a b = if isTT a b then Just b else Nothing
 isTTU :: Data a => a -> Located Lex.Token -> Maybe ()
 isTTU a b = if isTT a b then Just () else Nothing
 
+unmfp :: ParseFunM a -> (a -> ParseFunM b) -> ParseFunM b
+unmfp exa cont =
+    exa >>= \ mres ->
+    case mres of
+        Just res -> cont res
+        Nothing -> return Nothing
+-- parser helpers {{{1
 advance :: Int -> Parser -> Parser
 advance 0 p = p
 advance 1 (Parser (t:ts) _ errs) = Parser ts (Just t) errs
@@ -124,17 +134,10 @@ selectSpanFromParser (Parser toks back _) =
         (Just (Located fsp _), _) -> fsp
         (Nothing, Just (Located bsp _)) -> bsp
         (Nothing, Nothing) -> error "parser has empty token stream, no last"
-
+-- runParseFun {{{1
 runParseFun :: ParseFun r -> Parser -> (r, Parser)
 runParseFun (ParseFun fun) parser = fun parser
-
-unmfp :: ParseFunM a -> (a -> ParseFunM b) -> ParseFunM b
-unmfp exa cont =
-    exa >>= \ mres ->
-    case mres of
-        Just res -> cont res
-        Nothing -> return Nothing
-
+-- combinators {{{1
 consume :: (Located Lex.Token -> Maybe t) -> (Span -> Located Lex.Token -> ErrorCondition) -> ParseFunM t
 consume predicate onerr =
     peekS >>= \ locatedPeeked ->
@@ -236,7 +239,7 @@ mainParser ex =
     ex >>= \ res ->
     consume (\ tok -> case tok of { Located _ Lex.EOF -> Just (); _ -> Nothing }) (\ sp (Located _ tok) -> ExcessTokens sp tok) >>
     return res
-
+-- error helpers {{{1
 mkXYFConsume :: String -> String -> Span -> Located Lex.Token -> ErrorCondition
 mkXYFConsume construct thing sp (Located _ tok) = XIsMissingYFound construct thing sp tok
 
@@ -245,15 +248,15 @@ mkXYZFConsume construct thing before sp (Located _ tok) = XIsMissingYAfterZFound
 
 mkDummy2 :: a -> b -> ErrorCondition
 mkDummy2 _ _ = DummyError
-
+-- grammar {{{1
 -- TODO: these all need to return located asts
-
 grammar :: ParseFunM AST.DCU
 grammar = mainParser (convert declList (AST.DCU'CU <$>))
 
 declList :: ParseFunM [AST.DDecl]
 declList = onemore decl
 
+-- decl {{{2
 decl :: ParseFunM AST.DDecl
 decl = convert (choice [functionDecl, implDecl]) (const AST.DDecl'Dummy <$>)
 
@@ -272,6 +275,7 @@ functionDecl =
 implDecl :: ParseFunM ()
 implDecl = consume (isTTU Lex.Impl) (mkXYFConsume "implementation block" "introductory token 'impl'")
 
+-- parse {{{1
 parse :: [Located Lex.Token] -> (Maybe AST.DCU, ParseError)
 parse toks =
     let (res, (Parser _ _ errs)) = runParseFun grammar $ Parser toks Nothing []
