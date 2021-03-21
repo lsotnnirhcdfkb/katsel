@@ -40,8 +40,7 @@ data ParseError = ParseError [ErrorCondition]
 instance Message.ToDiagnostic ParseError where
     toDiagnostic (ParseError msgs) =
         Message.SimpleDiag Message.Error Nothing Nothing Nothing
-            [ Message.Underlines $ MsgUnds.UnderlinesSection $ concatMap condToMsgs msgs
-            ]
+            $ map ((\ ecmsgs -> Message.Underlines $ MsgUnds.UnderlinesSection ecmsgs) . condToMsgs) msgs
 
 -- parser {{{1
 data Parser = Parser [Located Lex.Token] (Maybe (Located Lex.Token)) [ErrorCondition]
