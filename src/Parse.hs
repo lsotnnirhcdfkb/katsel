@@ -9,17 +9,27 @@ import qualified AST
 import Data.Data(toConstr, Data)
 
 data ErrorCondition
-    = Expected String Span Lex.Token
+    = XIsMissingYFound String String Span Lex.Token
+    | XIsMissingY String String Span
     | NotAllowed String Span
+    | ExcessTokens Span Lex.Token
+    | DummyError
 
 condToMsgs :: ErrorCondition -> [MsgUnds.Message]
-condToMsgs (Expected thing sp tok) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "expected " ++ thing ++ ", found " ++ Lex.fmtToken tok
+
+condToMsgs (XIsMissingYFound x y sp tok) =
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y ++ "; " ++ Lex.fmtToken tok ++ " was found instead"
+    ]
+condToMsgs (XIsMissingY x y sp) =
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y
     ]
 condToMsgs (NotAllowed thing sp) =
     [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ thing ++ " not allowed here"
     ]
-
+condToMsgs (ExcessTokens sp tok) =
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "extraneous tokens found in input (" ++ Lex.fmtToken tok ++ ")"
+    ]
+condToMsgs DummyError = []
 
 data ParseError = ParseError [ErrorCondition]
 instance Message.ToDiagnostic ParseError where
@@ -114,16 +124,16 @@ selectSpanFromParser (Parser toks back _) =
 runParseFun :: ParseFun r -> Parser -> (r, Parser)
 runParseFun (ParseFun fun) parser = fun parser
 
-consume :: String -> (Located Lex.Token -> Maybe t) -> ParseFunM t
-consume name predicate =
-    peekS >>= \ locatedPeeked@(Located _ peeked) ->
+consume :: (Located Lex.Token -> Maybe t) -> (Span -> Located Lex.Token -> ErrorCondition) -> ParseFunM t
+consume predicate onerr =
+    peekS >>= \ locatedPeeked ->
     case predicate locatedPeeked of
         Just x ->
             advanceS 1 >>
             return (Just x)
         Nothing ->
             getParser >>= \ parser ->
-            newErrS (Expected name (selectSpanFromParser parser) peeked) >>
+            newErrS (onerr (selectSpanFromParser parser) locatedPeeked) >>
             return Nothing
 
 empty :: ParseFun ()
@@ -199,15 +209,15 @@ mustMatch ex =
     restoreLocation saved >>
     return (const () <$> res)
 
-mustNotMatch :: String -> ParseFunM a -> ParseFunM ()
-mustNotMatch thingName ex =
+mustNotMatch :: ParseFunM a -> (Span -> ErrorCondition) -> ParseFunM ()
+mustNotMatch ex onerr =
     saveLocation >>= \ saved ->
     ex >>= \ res ->
     restoreLocation saved >>
     case res of
         Just _ ->
             getParser >>= \ parser ->
-            newErrS (NotAllowed thingName (selectSpanFromParser parser)) >>
+            newErrS (onerr $ selectSpanFromParser parser) >>
             return Nothing
 
         Nothing ->
@@ -216,8 +226,15 @@ mustNotMatch thingName ex =
 mainParser :: ParseFun a -> ParseFun a
 mainParser ex =
     ex >>= \ res ->
-    consume "end of file" (\ tok -> case tok of { Located _ Lex.EOF -> Just (); _ -> Nothing }) >>
+    consume (\ tok -> case tok of { Located _ Lex.EOF -> Just (); _ -> Nothing }) (\ sp (Located _ tok) -> ExcessTokens sp tok) >>
     return res
+
+
+mkXYFConsume :: String -> String -> Span -> Located Lex.Token -> ErrorCondition
+mkXYFConsume construct thing sp (Located _ tok) = XIsMissingYFound construct thing sp tok
+
+mkDummy2 :: a -> b -> ErrorCondition
+mkDummy2 _ _ = DummyError
 
 grammar :: ParseFunM AST.DCU
 grammar = mainParser $ convert declList (const $ Just $ AST.DCU'CU [])
@@ -229,10 +246,15 @@ decl :: ParseFunM ()
 decl = choice [functionDecl, implDecl]
 
 functionDecl :: ParseFunM ()
-functionDecl = convert (Parse.sequence (consume "'fun'" (isTTU Lex.Fun)) (mustNotMatch "function name" (consume "function name" (isTTU $ Lex.Identifier "")))) (const () <$>)
+functionDecl =
+    convert
+        (Parse.sequence
+            (consume (isTTU Lex.Fun) (mkXYFConsume "function declaration" "introductory token 'fun'"))
+            (mustNotMatch (consume (isTTU $ Lex.Identifier "") mkDummy2) (NotAllowed "function name")))
+    (const () <$>)
 
 implDecl :: ParseFunM ()
-implDecl = consume "'impl'" (isTTU Lex.Impl)
+implDecl = consume (isTTU Lex.Impl) (mkXYFConsume "'impl' declaration" "introductory token 'impl'")
 
 parse :: [Located Lex.Token] -> (Maybe AST.DCU, ParseError)
 parse toks =
