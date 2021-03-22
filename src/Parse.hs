@@ -342,6 +342,7 @@ pathType = convert parsePath (AST.DType'Path <$>)
 parsePath :: ParseFunM AST.DPath
 parsePath =
     convert
+    -- TODO: improve delimiter error
     (onemoredelim
         (consumeIden (XIsMissingYFound "path" "path segment (identifier)"))
         (consumeTokU Lex.DoubleColon (XIsMissingYAfterZFound "path" "segment separator (':')" "segment")))
@@ -400,9 +401,6 @@ whileExpr =
     parseExpr `unmfp` \ cond ->
     blockExpr `unmfp` \ block ->
     return $ Just $ AST.DExpr'While cond (AST.DExpr'Block block)
-
-mkOp :: Lex.Token -> b -> String -> String -> ParseFunM b
-mkOp constr result exprName opName = consume (\ tok -> if isTT constr tok then Just result else Nothing) (XIsMissingYFound exprName opName)
 
 mkBinExpr :: ParseFunM AST.DExpr -> [ParseFunM a] -> (AST.DExpr -> a -> AST.DExpr -> AST.DExpr) -> ParseFunM AST.DExpr
 mkBinExpr next operators constructor =
@@ -576,9 +574,9 @@ primaryExpr = choice [tokExpr, parenExpr, pathExpr]
             ) (XIsMissingYFound "primary expression" "token")
             -- TODO: change this into a 'invalid token for primary expression'
         parenExpr =
-            consumeTokU Lex.OParen (XIsMissingYFound "parenthesized expression" "introductory '('") `unmfp` \ _ ->
+            consumeTokS Lex.OParen (XIsMissingYFound "parenthesized expression" "introductory '('") `unmfp` \ oparensp ->
             parseExpr `unmfp` \ inside ->
-            consumeTokU Lex.CParen (XIsMissingYFound "parenthesized expression" "closing ')'") `unmfp` \ _ ->
+            consumeTokU Lex.CParen (Unclosed "parenthesized expression" "')'" oparensp) `unmfp` \ _ ->
             return $ Just inside
 
 pathExpr = convert parsePath (AST.DExpr'Path <$>)
@@ -587,7 +585,7 @@ parseStmt, varStmt, retStmt, exprStmt :: ParseFunM AST.DStmt
 parseStmt = choice [varStmt, retStmt, exprStmt]
 
 varStmt =
-    (consumeTokU Lex.Var (XIsMissingYFound "variable statement" "'var'")) `unmfp` \ _ ->
+    (consumeTokU Lex.Var (XIsMissingYFound "variable statement" "introductory 'var'")) `unmfp` \ _ ->
     (consumeTokU Lex.Mut (XIsMissingYAfterZFound "variable statement" "'mut'" "'var'")) >>= \ mmut ->
     (consumeIden (XIsMissingYFound "variable statement" "variable name")) `unmfp` \ name ->
     typeAnnotation `unmfp` \ ty ->
@@ -600,7 +598,7 @@ varStmt =
     return $ Just $ AST.DStmt'Var ty (maybeToMutability mmut) name minit
 
 retStmt =
-    (consumeTokU Lex.Return (XIsMissingYFound "return statement" "'return'")) `unmfp` \ _ ->
+    (consumeTokU Lex.Return (XIsMissingYFound "return statement" "introductory 'return'")) `unmfp` \ _ ->
     parseExpr `unmfp` \ expr ->
     lnend "return statement" `unmfp` \ _ ->
     return $ Just $ AST.DStmt'Ret expr
