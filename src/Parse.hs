@@ -77,14 +77,17 @@ type ParseFunM a = ParseFun (Maybe a)
 constrEq :: (Data a, Data b) => a -> b -> Bool
 constrEq a b = toConstr a == toConstr b
 
-isTT :: Data a => a -> Located Lex.Token -> Bool
+isTT :: Lex.Token -> Located Lex.Token -> Bool
 isTT a (Located _ b) = constrEq a b
 
-isTTP :: Data a => a -> Located Lex.Token -> Maybe (Located Lex.Token)
+isTTP :: Lex.Token -> Located Lex.Token -> Maybe (Located Lex.Token)
 isTTP a b = if isTT a b then Just b else Nothing
 
-isTTU :: Data a => a -> Located Lex.Token -> Maybe ()
+isTTU :: Lex.Token -> Located Lex.Token -> Maybe ()
 isTTU a b = if isTT a b then Just () else Nothing
+
+isTTS :: Lex.Token -> Located Lex.Token -> Maybe Span
+isTTS a b@(Located sp _) = if isTT a b then Just sp else Nothing
 
 unmfp :: ParseFunM a -> (a -> ParseFunM b) -> ParseFunM b
 unmfp exa cont =
@@ -150,6 +153,24 @@ consume predicate onerr =
             getParser >>= \ parser ->
             newErrS (onerr (selectSpanFromParser parser) locatedPeeked) >>
             return Nothing
+-- consume combinators {{{
+consumeTokU :: Lex.Token -> (Span -> Located Lex.Token -> ErrorCondition) -> ParseFunM ()
+consumeTokU tok = consume (isTTU tok)
+
+consumeTokS :: Lex.Token -> (Span -> Located Lex.Token -> ErrorCondition) -> ParseFunM Span
+consumeTokS tok = consume $
+    \ t@(Located sp _) ->
+    if isTT tok t
+    then Just sp
+    else Nothing
+
+consumeIden :: (Span -> Located Lex.Token -> ErrorCondition) -> ParseFunM (Located String)
+consumeIden = consume $
+    \ tok ->
+    case tok of
+        Located sp (Lex.Identifier n) -> Just $ Located sp n
+        _ -> Nothing
+-- }}}
 
 -- TODO: allow error override, if used then silence all choice's errors, and if none of them match then emit that custom error
 choice :: [ParseFunM a] -> ParseFunM a
@@ -233,7 +254,7 @@ mustNotMatch ex onerr =
 mainParser :: ParseFun a -> ParseFun a
 mainParser ex =
     ex >>= \ res ->
-    consume (\ tok -> case tok of { Located _ Lex.EOF -> Just (); _ -> Nothing }) (\ sp (Located _ tok) -> ExcessTokens sp tok) >>
+    consumeTokU Lex.EOF (\ sp (Located _ tok) -> ExcessTokens sp tok) >>
     return res
 -- error helpers {{{1
 mkXYFConsume :: String -> String -> Span -> Located Lex.Token -> ErrorCondition
@@ -258,33 +279,33 @@ declList :: ParseFunM [AST.DDecl]
 declList = onemore parseDecl
 
 paramList :: ParseFunM [AST.DParam]
-paramList = onemoredelim parseParam (consume (isTTU Lex.Comma) (mkXYZFConsume "parameter list" "parameter separator ','" "parameter"))
+paramList = onemoredelim parseParam (consumeTokU Lex.Comma (mkXYZFConsume "parameter list" "parameter separator ','" "parameter"))
 
 stmtList :: ParseFunM [AST.DStmt]
 stmtList = onemore parseStmt
 
 argList :: ParseFunM [AST.DExpr]
-argList = onemoredelim parseExpr (consume (isTTU Lex.Comma) (mkXYZFConsume "argument list" "argument separator ','" "argument"))
+argList = onemoredelim parseExpr (consumeTokU Lex.Comma (mkXYZFConsume "argument list" "argument separator ','" "argument"))
 -- line endings {{{2
 lnend :: String -> ParseFunM ()
 lnend what = choice [nl, semi]
     where
-        nl = consume (isTTU Lex.Newline) (mkXYFConsume what "newline")
-        semi = consume (isTTU Lex.Semicolon) (mkXYFConsume what "';'")
+        nl = consumeTokU Lex.Newline (mkXYFConsume what "newline")
+        semi = consumeTokU Lex.Semicolon (mkXYFConsume what "';'")
 -- blocks {{{2
 blocked, braced, indented :: String -> ParseFun a -> ParseFunM a
 blocked what ex = choice [braced what ex, indented what ex]
 
 braced what ex =
-    consume (isTTU Lex.OBrace) (mkXYFConsume what "opening '{'") `unmfp` \ _ ->
+    consumeTokU Lex.OBrace (mkXYFConsume what "opening '{'") `unmfp` \ _ ->
     ex >>= \ inside ->
-    consume (isTTU Lex.CBrace) (mkXYFConsume what "closing '}'") `unmfp` \ _ ->
+    consumeTokU Lex.CBrace (mkXYFConsume what "closing '}'") `unmfp` \ _ ->
     return $ Just inside
 
 indented what ex =
-    consume (isTTU Lex.Indent) (mkXYFConsume what "opening indent") `unmfp` \ _ ->
+    consumeTokU Lex.Indent (mkXYFConsume what "opening indent") `unmfp` \ _ ->
     ex >>= \ inside ->
-    consume (isTTU Lex.Dedent) (mkXYFConsume what "closing dedent") `unmfp` \ _ ->
+    consumeTokU Lex.Dedent (mkXYFConsume what "closing dedent") `unmfp` \ _ ->
     return $ Just inside
 -- decl {{{2
 parseDecl :: ParseFunM AST.DDecl
@@ -292,18 +313,11 @@ parseDecl = choice [convert functionDecl (AST.DDecl'Fun <$>), convert implDecl (
 
 functionDecl :: ParseFunM AST.SFunDecl
 functionDecl =
-    (consume (isTTU Lex.Fun) (mkXYFConsume "function declaration" "introductory 'fun'")) `unmfp` \ _ ->
-    (consume
-        (
-        \ tok ->
-        case tok of
-            Located sp (Lex.Identifier n) -> Just $ Located sp n
-            _ -> Nothing
-        )
-        (mkXYZFConsume "function declaration" "function name" "'fun'")) `unmfp` \ name ->
-    (consume (isTTU Lex.OParen) (mkXYZFConsume "function declaration" "'('" "function name")) `unmfp` \ _ ->
+    (consumeTokU Lex.Fun (mkXYFConsume "function declaration" "introductory 'fun'")) `unmfp` \ _ ->
+    (consumeIden (mkXYZFConsume "function declaration" "function name" "'fun'")) `unmfp` \ name ->
+    (consumeTokU Lex.OParen (mkXYZFConsume "function declaration" "'('" "function name")) `unmfp` \ _ ->
     paramList >>= \ mparamlist ->
-    (consume (isTTU Lex.CParen) (mkXYZFConsume "function declaration" "')'" "(optional) parameter list")) `unmfp` \ _ ->
+    (consumeTokU Lex.CParen (mkXYZFConsume "function declaration" "')'" "(optional) parameter list")) `unmfp` \ _ ->
     -- TODO: make this type annotation optional
     typeAnnotation `unmfp` \ retty ->
     blockExpr `unmfp` \ body ->
@@ -315,23 +329,23 @@ functionDecl =
 
 implDecl :: ParseFunM ()
 -- TODO: impls
-implDecl = consume (isTTU Lex.Impl) (mkXYFConsume "implementation block" "introductory 'impl'")
+implDecl = consumeTokU Lex.Impl (mkXYFConsume "implementation block" "introductory 'impl'")
 -- types {{{2
 typeAnnotation :: ParseFunM AST.DType
 typeAnnotation =
-    (consume (isTTU Lex.Colon) (mkXYFConsume "type annotation" "introductory ':'")) `unmfp` \ _ ->
+    (consumeTokU Lex.Colon (mkXYFConsume "type annotation" "introductory ':'")) `unmfp` \ _ ->
     parseType
 
 parseType, pointerType, thisType, pathType :: ParseFunM AST.DType
 parseType = choice [pointerType, thisType, pathType]
 
 pointerType =
-    (consume (isTTU Lex.Star) (mkXYFConsume "pointer type" "introductory '*'")) `unmfp` \ _ ->
-    (consume (isTTU Lex.Mut) (mkXYZFConsume "mutable pointer type" "'mut'" "'*'")) >>= \ mmut ->
+    (consumeTokU Lex.Star (mkXYFConsume "pointer type" "introductory '*'")) `unmfp` \ _ ->
+    (consumeTokU Lex.Mut (mkXYZFConsume "mutable pointer type" "'mut'" "'*'")) >>= \ mmut ->
     parseType `unmfp` \ pointeeTy ->
     return $ Just $ AST.DType'Pointer (maybeToMutability mmut) pointeeTy
 
-thisType = convert (consume (isTTU Lex.This) (mkXYFConsume "'this' type" "'this'")) (const AST.DType'This <$>)
+thisType = convert (consumeTokU Lex.This (mkXYFConsume "'this' type" "'this'")) (const AST.DType'This <$>)
 
 pathType = convert parsePath (AST.DType'Path <$>)
 -- paths {{{2
@@ -339,36 +353,26 @@ parsePath :: ParseFunM AST.DPath
 parsePath =
     convert
     (onemoredelim
-        (consume (
-                \ tok ->
-                case tok of
-                    Located sp (Lex.Identifier n) -> Just $ Located sp n
-                    _ -> Nothing
-            ) (mkXYFConsume "path" "path segment (identifier)"))
-        (consume (isTTU Lex.DoubleColon) (mkXYZFConsume "path" "segment separator (':')" "segment")))
+        (consumeIden (mkXYFConsume "path" "path segment (identifier)"))
+        (consumeTokU Lex.DoubleColon (mkXYZFConsume "path" "segment separator (':')" "segment")))
     (AST.DPath' <$>)
 -- params {{{2
 parseParam, normalParam, thisParam :: ParseFunM AST.DParam
 parseParam = choice [normalParam, thisParam]
 
 normalParam =
-    (consume (isTTU Lex.Mut) (mkXYFConsume "mutable parameter" "'mut'")) >>= \ mmut ->
-    (consume (
-            \ tok ->
-            case tok of
-                Located sp (Lex.Identifier n) -> Just $ Located sp n
-                _ -> Nothing
-        ) (mkXYFConsume "parameter" "parameter name")) `unmfp` \ name ->
+    (consumeTokU Lex.Mut (mkXYFConsume "mutable parameter" "'mut'")) >>= \ mmut ->
+    (consumeIden (mkXYFConsume "parameter" "parameter name")) `unmfp` \ name ->
     typeAnnotation `unmfp` \ ty ->
     return $ Just $ AST.DParam'Normal (maybeToMutability mmut) ty name
 
 thisParam =
     (
-        consume (isTTU Lex.Star) (mkXYFConsume "'this' reference parameter" "'*'") `unmfp` \ _ ->
-        consume (isTTU Lex.Mut) (mkXYZFConsume "'this' mutable reference parameter" "'mut'" "'*'") >>= \ mmut ->
+        consumeTokU Lex.Star (mkXYFConsume "'this' reference parameter" "'*'") `unmfp` \ _ ->
+        consumeTokU Lex.Mut (mkXYZFConsume "'this' mutable reference parameter" "'mut'" "'*'") >>= \ mmut ->
         return $ Just $ isJust mmut
     ) >>= \ mstarmut ->
-    consume (isTTU Lex.This) (mkXYFConsume "'this' parameter" "'this'") `unmfp` \ _ ->
+    consumeTokU Lex.This (mkXYFConsume "'this' parameter" "'this'") `unmfp` \ _ ->
     let kind = case mstarmut of
             Just True -> AST.MutRef
             Just False -> AST.Ref
@@ -391,23 +395,23 @@ blockExpr :: ParseFunM AST.SBlockExpr
 blockExpr = convert blockStmtList (AST.SBlockExpr' <$>)
 
 ifExpr =
-    (consume (isTTP Lex.If) (mkXYFConsume "'if' expression" "'if'")) `unmfp` \ (Located ifsp _) ->
+    (consumeTokS Lex.If (mkXYFConsume "'if' expression" "'if'")) `unmfp` \ ifsp ->
     parseExpr `unmfp` \ cond ->
     blockExpr `unmfp` \ trueb ->
     (
-        (consume (isTTP Lex.Else) (mkXYFConsume "'else' branch of 'if' expression" "'else'")) `unmfp` \ (Located elsesp _) ->
+        (consumeTokS Lex.Else (mkXYFConsume "'else' branch of 'if' expression" "'else'")) `unmfp` \ elsesp ->
         choice [convert blockExpr (AST.DExpr'Block <$>), ifExpr] `unmfp` \ falseb ->
         return $ Just (elsesp, falseb)
     ) >>= \ melseb ->
     return $ Just $ AST.DExpr'If ifsp cond (AST.DExpr'Block trueb) melseb
 
 whileExpr =
-    (consume (isTTU Lex.While) (mkXYFConsume "'while' expression" "'while'")) `unmfp` \ _ ->
+    (consumeTokU Lex.While (mkXYFConsume "'while' expression" "'while'")) `unmfp` \ _ ->
     parseExpr `unmfp` \ cond ->
     blockExpr `unmfp` \ block ->
     return $ Just $ AST.DExpr'While cond (AST.DExpr'Block block)
 
-mkOp :: Data a => a -> b -> String -> String -> ParseFunM b
+mkOp :: Lex.Token -> b -> String -> String -> ParseFunM b
 mkOp constr result exprName opName = consume (\ tok -> if isTT constr tok then Just result else Nothing) (mkXYFConsume exprName opName)
 
 mkBinExpr :: ParseFunM AST.DExpr -> [ParseFunM a] -> (AST.DExpr -> a -> AST.DExpr -> AST.DExpr) -> ParseFunM AST.DExpr
@@ -520,13 +524,8 @@ unaryExpr =
     choice [punop, amperExpr, callExpr]
     where
         amperExpr =
-            consume (
-                \ tok ->
-                case tok of
-                    Located sp Lex.Amper -> Just sp
-                    _ -> Nothing
-            ) (mkXYFConsume "reference expression" "operator '&'") `unmfp` \ ampersp ->
-            consume (isTTU Lex.Mut) (mkXYFConsume "mutable reference expression" "'mut'") >>= \ mmut ->
+            consumeTokS Lex.Amper (mkXYFConsume "reference expression" "operator '&'") `unmfp` \ ampersp ->
+            consumeTokU Lex.Mut (mkXYFConsume "mutable reference expression" "'mut'") >>= \ mmut ->
             unaryExpr `unmfp` \ operand ->
             return $ Just $ AST.DExpr'Ref ampersp (maybeToMutability mmut) operand
 
@@ -551,40 +550,25 @@ callExpr =
                 Nothing -> return $ Just lhs
 
         consumeDot exprName operandName =
-            consume (
-            \ tok ->
-            case tok of
-                Located sp Lex.Period -> Just sp
-                _ -> Nothing
-            ) (mkXYZFConsume exprName "'.'" operandName)
+            consumeTokS Lex.Period (mkXYZFConsume exprName "'.'" operandName)
 
         field lhs =
             consumeDot "field access expression" "expression with fields" `unmfp` \ dot ->
-            consume (
-                \ tok ->
-                case tok of
-                    Located sp (Lex.Identifier n) -> Just $ Located sp n
-                    _ -> Nothing
-                ) (mkXYZFConsume "field access expression" "field name" "'.'") `unmfp` \ fieldname ->
+            consumeIden (mkXYZFConsume "field access expression" "field name" "'.'") `unmfp` \ fieldname ->
             return $ Just $ AST.DExpr'Field lhs dot fieldname
 
         method lhs =
             consumeDot "method call expression" "expression with methods" `unmfp` \ dot ->
-            consume (
-                \ tok ->
-                case tok of
-                    Located sp (Lex.Identifier n) -> Just $ Located sp n
-                    _ -> Nothing
-                ) (mkXYZFConsume "method call expression" "method name" "'.'") `unmfp` \ methodname ->
-            consume (isTTP Lex.OParen) (mkXYZFConsume "method call expression" "'('" "method name") `unmfp` \ (Located oparensp _) ->
+            consumeIden (mkXYZFConsume "method call expression" "method name" "'.'") `unmfp` \ methodname ->
+            consumeTokS Lex.OParen (mkXYZFConsume "method call expression" "'('" "method name") `unmfp` \ oparensp ->
             argList `unmfp` \ arglist ->
-            consume (isTTU Lex.CParen) (mkXYZFConsume "method call expression" "')'" "(optional) argument list") `unmfp` \ _ ->
+            consumeTokU Lex.CParen (mkXYZFConsume "method call expression" "')'" "(optional) argument list") `unmfp` \ _ ->
             return $ Just $ AST.DExpr'Method lhs dot methodname oparensp arglist
 
         call lhs =
-            consume (isTTP Lex.OParen) (mkXYZFConsume "call expression" "'('" "callee") `unmfp` \ (Located oparensp _) ->
+            consumeTokS Lex.OParen (mkXYZFConsume "call expression" "'('" "callee") `unmfp` \ oparensp ->
             argList `unmfp` \ arglist ->
-            consume (isTTU Lex.CParen) (mkXYZFConsume "call expression" "')'" "(optional) argument list") `unmfp` \ _ ->
+            consumeTokU Lex.CParen (mkXYZFConsume "call expression" "')'" "(optional) argument list") `unmfp` \ _ ->
             return $ Just $ AST.DExpr'Call lhs oparensp arglist
 
 primaryExpr = choice [tokExpr, parenExpr, pathExpr]
@@ -602,9 +586,9 @@ primaryExpr = choice [tokExpr, parenExpr, pathExpr]
             ) (mkXYFConsume "primary expression" "token")
             -- TODO: change this into a 'invalid token for primary expression'
         parenExpr =
-            consume (isTTU Lex.OParen) (mkXYFConsume "parenthesized expression" "introductory '('") `unmfp` \ _ ->
+            consumeTokU Lex.OParen (mkXYFConsume "parenthesized expression" "introductory '('") `unmfp` \ _ ->
             parseExpr `unmfp` \ inside ->
-            consume (isTTU Lex.CParen) (mkXYFConsume "parenthesized expression" "closing ')'") `unmfp` \ _ ->
+            consumeTokU Lex.CParen (mkXYFConsume "parenthesized expression" "closing ')'") `unmfp` \ _ ->
             return $ Just inside
 
 pathExpr = convert parsePath (AST.DExpr'Path <$>)
@@ -613,18 +597,12 @@ parseStmt, varStmt, retStmt, exprStmt :: ParseFunM AST.DStmt
 parseStmt = choice [varStmt, retStmt, exprStmt]
 
 varStmt =
-    (consume (isTTU Lex.Var) (mkXYFConsume "variable statement" "'var'")) `unmfp` \ _ ->
-    (consume (isTTU Lex.Mut) (mkXYZFConsume "variable statement" "'mut'" "'var'")) >>= \ mmut ->
-    (consume (
-            \ tok ->
-            case tok of
-                Located sp (Lex.Identifier n) -> Just $ Located sp n
-                _ -> Nothing
-        )
-        (mkXYFConsume "variable statement" "variable name")) `unmfp` \ name ->
+    (consumeTokU Lex.Var (mkXYFConsume "variable statement" "'var'")) `unmfp` \ _ ->
+    (consumeTokU Lex.Mut (mkXYZFConsume "variable statement" "'mut'" "'var'")) >>= \ mmut ->
+    (consumeIden (mkXYFConsume "variable statement" "variable name")) `unmfp` \ name ->
     typeAnnotation `unmfp` \ ty ->
     (
-        (consume (isTTP Lex.Equal) (mkXYZFConsume "variable initialization" "'='" "variable name")) `unmfp` \ (Located eqsp _) ->
+        (consumeTokS Lex.Equal (mkXYZFConsume "variable initialization" "'='" "variable name")) `unmfp` \ eqsp ->
         parseExpr `unmfp` \ initializer ->
         return $ Just (eqsp, initializer)
     ) >>= \ minit ->
@@ -632,7 +610,7 @@ varStmt =
     return $ Just $ AST.DStmt'Var ty (maybeToMutability mmut) name minit
 
 retStmt =
-    (consume (isTTU Lex.Return) (mkXYFConsume "return statement" "'return'")) `unmfp` \ _ ->
+    (consumeTokU Lex.Return (mkXYFConsume "return statement" "'return'")) `unmfp` \ _ ->
     parseExpr `unmfp` \ expr ->
     lnend "return statement" `unmfp` \ _ ->
     return $ Just $ AST.DStmt'Ret expr
