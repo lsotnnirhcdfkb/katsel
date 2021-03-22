@@ -41,7 +41,7 @@ condToMsgs (InvalidToken construct thing possibilities sp (Located _ found)) =
         fmtList (x:xs) = x ++ ", " ++ fmtList xs
 condToMsgs (Unclosed construct delimiterName openSp sp (Located _ found)) =
     [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ construct ++ " has unclosed " ++ delimiterName ++ " (found " ++ Lex.fmtToken found ++ ")"
-    , MsgUnds.Message openSp MsgUnds.Note MsgUnds.Secondary $ "opening " ++ delimiterName ++ " here"
+    , MsgUnds.Message openSp MsgUnds.Note MsgUnds.Secondary $ "opening " ++ delimiterName ++ " is here"
     ]
 
 
