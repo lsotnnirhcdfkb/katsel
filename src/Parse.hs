@@ -236,8 +236,12 @@ maybeToMutability (Just ()) = AST.Mutable
 maybeToMutability Nothing = AST.Immutable
 -- }}}
 -- TODO: these all need to return located asts
-grammar :: ParseFunM AST.DCU
-grammar = mainParser (convert declList (AST.DCU'CU <$>))
+grammar :: ParseFun AST.DCU
+grammar = mainParser $
+    declList >>= \ mdl ->
+    case mdl of
+        Just x -> return $ AST.DCU'CU x
+        Nothing -> return $ AST.DCU'CU []
 -- lists {{{2
 declList :: ParseFunM [AST.DDecl]
 declList = onemore parseDecl
@@ -296,9 +300,15 @@ functionDecl =
             Nothing -> []
     in return $ Just $ AST.SFunDecl' retty name params body
 
-implDecl :: ParseFunM ()
--- TODO: impls
-implDecl = consumeTokU Lex.Impl (XIsMissingYFound "implementation block" "introductory 'impl'")
+implDecl :: ParseFunM AST.DDecl
+implDecl =
+    consumeTokU Lex.Impl (XIsMissingYFound "implementation block" "introductory 'impl'") `unmfp` \ _ ->
+    parseType `unmfp` \ implFor ->
+    implBody `unmfp` \ body ->
+    return $ Just $ AST.DDecl'Impl implFor body
+    where
+        implBody = blocked "implementation body" implList
+        implList = zeromore $ choice [convert functionDecl (AST.DImplMember'Fun <$>)]
 -- types {{{2
 typeAnnotation :: ParseFunM AST.DType
 typeAnnotation =
@@ -613,4 +623,5 @@ exprStmt =
 parse :: [Located Lex.Token] -> (Maybe AST.DCU, ParseError)
 parse toks =
     let (res, (Parser _ _ errs)) = runState grammar $ Parser toks Nothing []
-    in (res, ParseError errs)
+    -- TODO: do not return res if errors
+    in (Just res, ParseError errs)
