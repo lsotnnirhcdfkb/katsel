@@ -450,6 +450,13 @@ lex' prevtoks indentStack lexer =
                 makeTokAtCur = makeToken 0 1
                 makeTokAtNLBefore = makeToken offToNL 1
                     where
+                    -- TODO: this is not always correct, if the last newline is on a different line to the last token, then it is wrong, for example
+                    --       > thing
+                    --              ^-- the newline should be placed here
+                    --       > // comment
+                    --                   ^-- but it would actually be placed here, because this is the last newline to the current character
+                    --       > thing
+                    --         ^-- first character of the current line
                         offToNL =
                             case findIndex (=='\n') $ reverse $ take (sourceLocation lexer + 1) (source $ sourcefile lexer) of
                                 Just x -> -x - 1
