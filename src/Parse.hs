@@ -29,11 +29,16 @@ condToMsgs (ExcessTokens sp (Located _ tok)) =
     [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "extraneous tokens found in input (" ++ Lex.fmtToken tok ++ ")"
     ]
 condToMsgs (InvalidToken construct thing possibilities sp (Located _ found)) =
-    -- TODO: format this nicer, do not print braces of list, also add 'or' before the last one
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "invalid " ++ thing ++ " for " ++ construct ++ "; must be one of " ++ show possibilities ++ " (found " ++ Lex.fmtToken found ++ ")"
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "invalid " ++ thing ++ " for " ++ construct ++ "; must be " ++ fmtList possibilities ++ " (found " ++ Lex.fmtToken found ++ ")"
     ]
+    where
+        fmtList [] = ""
+        fmtList (x:[]) = x
+        fmtList (x:y:[]) = x ++ " or " ++ y
+        fmtList (x:y:z:[]) = x ++ ", " ++ y ++ ", or " ++ z
+        fmtList (x:xs) = x ++ ", " ++ fmtList xs
 condToMsgs (Unclosed construct delimiterName openSp sp (Located _ found)) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "unclosed " ++ delimiterName ++ " for " ++ construct ++ " (found " ++ Lex.fmtToken found ++ ")"
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ construct ++ " has unclosed " ++ delimiterName ++ " (found " ++ Lex.fmtToken found ++ ")"
     , MsgUnds.Message openSp MsgUnds.Note MsgUnds.Secondary $ "opening " ++ delimiterName ++ " here"
     ]
 
@@ -402,14 +407,14 @@ whileExpr =
     blockExpr `unmfp` \ block ->
     return $ Just $ AST.DExpr'While cond (AST.DExpr'Block block)
 
-mkBinExpr :: ParseFunM AST.DExpr -> [ParseFunM a] -> (AST.DExpr -> a -> AST.DExpr -> AST.DExpr) -> ParseFunM AST.DExpr
+mkBinExpr :: ParseFunM AST.DExpr -> ParseFunM a -> (AST.DExpr -> a -> AST.DExpr -> AST.DExpr) -> ParseFunM AST.DExpr
 mkBinExpr next operators constructor =
     next `unmfp` \ lhs ->
     maybeNextRep lhs
     where
         maybeNextRep lhs =
             (
-                choice operators `unmfp` \ op ->
+                operators `unmfp` \ op ->
                 next `unmfp` \ rhs ->
                 return $ Just (op, rhs)
             ) >>= \ mrhs ->
@@ -422,9 +427,11 @@ assignExpr, binOrExpr, binAndExpr, compEQExpr, compLGTExpr, bitXorExpr, bitOrExp
 assignExpr =
     binOrExpr `unmfp` \ lhs ->
     (
-        choice
-        [ mkOp Lex.Equal AST.Equal "assignment expression" "operator '='"
-        ] `unmfp` \ op ->
+        consume (\ (Located _ tok) ->
+        case tok of
+            Lex.Equal -> Just AST.Equal
+            _ -> Nothing
+        ) (InvalidToken "assignment expression" "operator" ["'='"]) `unmfp` \ op ->
         assignExpr `unmfp` \ rhs ->
         return $ Just (op, rhs)
     ) >>= \ mrhs ->
@@ -434,64 +441,82 @@ assignExpr =
     )
 
 binOrExpr = mkBinExpr binAndExpr
-        [ mkOp Lex.DoublePipe AST.DoublePipe "binary or expression" "operator '||'"
-        ]
+        (consume (\ (Located _ tok) ->
+        case tok of
+            Lex.DoublePipe -> Just AST.DoublePipe
+            _ -> Nothing
+        ) (InvalidToken "binary or expression" "operator" ["'||'"]))
         AST.DExpr'ShortCircuit
 binAndExpr = mkBinExpr compEQExpr
-        [ mkOp Lex.DoubleAmper AST.DoubleAmper "binary and expression" "operator '&&'"
-        ]
+        (consume (\ (Located _ tok) ->
+        case tok of
+            Lex.DoubleAmper -> Just AST.DoubleAmper
+            _ -> Nothing
+        ) (InvalidToken "binary and expression" "operator" ["'&&'"]))
         AST.DExpr'ShortCircuit
 compEQExpr = mkBinExpr compLGTExpr
-        [ mkOp Lex.BangEqual AST.BangEqual     exprName "operator '!='"
-        , mkOp Lex.DoubleEqual AST.DoubleEqual exprName "operator '=='"
-        ]
+        (consume (\ (Located _ tok) ->
+        case tok of
+            Lex.BangEqual -> Just AST.BangEqual
+            Lex.DoubleEqual -> Just AST.DoubleEqual
+            _ -> Nothing
+        ) (InvalidToken "equality test expression" "operator" ["'!='", "'=='"]))
         AST.DExpr'Binary
-    where
-        exprName = "equality test expression"
 compLGTExpr = mkBinExpr bitXorExpr
-        [ mkOp Lex.Greater AST.Greater           exprName "operator '>'"
-        , mkOp Lex.Less AST.Less                 exprName "operator '<'"
-        , mkOp Lex.GreaterEqual AST.GreaterEqual exprName "operator '>='"
-        , mkOp Lex.LessEqual AST.LessEqual       exprName "operator '<='"
-        ]
+        (consume (\ (Located _ tok) ->
+        case tok of
+            Lex.Greater -> Just AST.Greater
+            Lex.Less -> Just AST.Less
+            Lex.GreaterEqual -> Just AST.GreaterEqual
+            Lex.LessEqual -> Just AST.LessEqual
+            _ -> Nothing
+        ) (InvalidToken "comparison expression" "operator" ["'>'", "'<'", "'>='", "'<='"]))
         AST.DExpr'Binary
-    where
-        exprName = "comparison expression"
 bitXorExpr = mkBinExpr bitOrExpr
-        [ mkOp Lex.Caret AST.Caret exprName "operator '^'"
-        ]
+        (consume (\ (Located _ tok) ->
+        case tok of
+            Lex.Caret -> Just AST.Caret
+            _ -> Nothing
+        ) (InvalidToken "bitwise xor expression" "operator" ["'^'"]))
         AST.DExpr'Binary
-    where
-        exprName = "bitwise xor expression"
 bitOrExpr = mkBinExpr bitAndExpr
-        [ mkOp Lex.Pipe AST.Pipe exprName "operator '|'"
-        ]
+        (consume (\ (Located _ tok) ->
+        case tok of
+            Lex.Pipe -> Just AST.Pipe
+            _ -> Nothing
+        ) (InvalidToken "bitwise or expression" "operator" ["'|'"]))
         AST.DExpr'Binary
-    where
-        exprName = "bitwise or expression"
 bitAndExpr = mkBinExpr bitShiftExpr
-        [ mkOp Lex.Amper AST.Amper exprName "operator '&'"
-        ]
+        (consume (\ (Located _ tok) ->
+        case tok of
+            Lex.Amper -> Just AST.Amper
+            _ -> Nothing
+        ) (InvalidToken "bitwise and expression" "operator" ["'&'"]))
         AST.DExpr'Binary
-    where
-        exprName = "bitwise and expression"
 bitShiftExpr = mkBinExpr additionExpr
-        [ mkOp Lex.DoubleLess AST.DoubleLess exprName "operator '<<'"
-        , mkOp Lex.DoubleGreater AST.DoubleGreater exprName "operator '>>'"
-        ]
+        (consume (\ (Located _ tok) ->
+        case tok of
+            Lex.DoubleLess -> Just AST.DoubleLess
+            Lex.DoubleGreater -> Just AST.DoubleGreater
+            _ -> Nothing
+        ) (InvalidToken "bitshift expression" "operator" ["'<<'", "'>>'"]))
         AST.DExpr'Binary
-    where
-        exprName = "bitshift expression"
 additionExpr = mkBinExpr multExpr
-        [ mkOp Lex.Plus AST.Plus "addition expression" "operator '+'"
-        , mkOp Lex.Minus AST.Minus "subtraction expression" "operator '-'"
-        ]
+        (consume (\ (Located _ tok) ->
+        case tok of
+            Lex.Plus -> Just AST.Plus
+            Lex.Minus -> Just AST.Minus
+            _ -> Nothing
+        ) (InvalidToken "addition or subtraction expression" "operator" ["'+'", "'-'"]))
         AST.DExpr'Binary
 multExpr = mkBinExpr castExpr
-        [ mkOp Lex.Star AST.Star "multiplication expression" "operator '*'"
-        , mkOp Lex.Slash AST.Slash "division expression" "operator '/'"
-        , mkOp Lex.Percent AST.Percent "modulo expression" "operator '%'"
-        ]
+        (consume (\ (Located _ tok) ->
+        case tok of
+            Lex.Star -> Just AST.Star
+            Lex.Slash -> Just AST.Slash
+            Lex.Percent -> Just AST.Percent
+            _ -> Nothing
+        ) (InvalidToken "multiplication, division, or modulo expression" "operator" ["'*'", "'/'", "'%'"]))
         AST.DExpr'Binary
 
 castExpr =
@@ -500,7 +525,7 @@ castExpr =
     where
         parseMore lhs =
             (
-                mkOp Lex.RightArrow () "cast expression" "operator '->'" `unmfp` \ _ ->
+                consumeTokU Lex.RightArrow (InvalidToken "cast expression" "operator" ["'->'"]) `unmfp` \ _ ->
                 parseType `unmfp` \ ty ->
                 return $ Just ty
             ) >>= \ mty ->
@@ -518,12 +543,14 @@ unaryExpr =
             return $ Just $ AST.DExpr'Ref ampersp (maybeToMutability mmut) operand
 
         punop =
-            choice
-            [ mkOp Lex.Tilde AST.UnTilde "bitwise negation expression" "operator '~'"
-            , mkOp Lex.Minus AST.UnMinus "negation expression" "operator '-'"
-            , mkOp Lex.Bang AST.UnBang "logical negation expression" "operator '!'"
-            , mkOp Lex.Star AST.UnStar "dereference expression" "operator '*'"
-            ] `unmfp` \ op ->
+            consume (\ (Located _ tok) ->
+            case tok of
+                Lex.Tilde -> Just AST.UnTilde
+                Lex.Minus -> Just AST.UnMinus
+                Lex.Bang -> Just AST.UnBang
+                Lex.Star -> Just AST.UnStar
+                _ -> Nothing
+            ) (InvalidToken "unary expression" "operator" ["'~'", "'-'", "'!'", "'*'"]) `unmfp` \ op ->
             unaryExpr `unmfp` \ operand ->
             return $ Just $ AST.DExpr'Unary op operand
 
