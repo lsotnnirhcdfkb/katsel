@@ -9,6 +9,8 @@ import qualified AST
 import Data.Data(toConstr, Data)
 import Data.Maybe(isJust)
 
+import Control.Monad.State.Lazy
+
 -- errors {{{1
 data ErrorCondition
     = XIsMissingYFound String String Span (Located Lex.Token)
@@ -52,33 +54,8 @@ instance Message.ToDiagnostic ParseError where
 
 -- parser {{{1
 data Parser = Parser [Located Lex.Token] (Maybe (Located Lex.Token)) [ErrorCondition]
-
--- TODO: this replicates the functionality of Control.State.Monad; i am making this for practice, but in the future i might make is just use Control.State.Monad
-newtype ParseFun a = ParseFun (Parser -> (a, Parser))
-
-instance Functor ParseFun where
-    fmap f pf =
-        ParseFun $
-        \ parser ->
-        let (res, after) = runParseFun pf parser
-        in (f res, after)
-
-instance Applicative ParseFun where
-    pure thing = ParseFun $ \ parser -> (thing, parser)
-    x <*> y =
-        x >>= \ xres ->
-        y >>= \ yres ->
-        return (xres yres)
-
-instance Monad ParseFun where
-    return = pure
-    a >>= b = ParseFun $
-        \ parser ->
-        let (ares, aftera) = runParseFun a parser
-        in runParseFun (b ares) aftera
-
+type ParseFun a = State Parser a
 type ParseFunM a = ParseFun (Maybe a)
-
 -- utility functions {{{1
 constrEq :: (Data a, Data b) => a -> b -> Bool
 constrEq a b = toConstr a == toConstr b
@@ -105,29 +82,29 @@ advance 1 (Parser (t:ts) _ errs) = Parser ts (Just t) errs
 advance n p = advance 1 $ advance (n - 1) p
 
 advanceS :: Int -> ParseFun ()
-advanceS x = ParseFun $ \ parser -> ((), advance x parser)
+advanceS x = state $ \ parser -> ((), advance x parser)
 
 peek :: Parser -> Located Lex.Token
 peek (Parser (x:_) _ _) = x
 peek (Parser [] _ _) = error "peek on empty token stream"
 
 peekS :: ParseFun (Located Lex.Token)
-peekS = ParseFun $ \ parser -> (peek parser, parser)
+peekS = state $ \ parser -> (peek parser, parser)
 
 newErr :: ErrorCondition -> Parser -> Parser
 newErr err (Parser toks l errs) = Parser toks l (errs ++ [err])
 
 newErrS :: ErrorCondition -> ParseFun ()
-newErrS err = ParseFun $ \ parser -> ((), newErr err parser)
+newErrS err = state $ \ parser -> ((), newErr err parser)
 
 getParser :: ParseFun Parser
-getParser = ParseFun $ \ parser -> (parser, parser)
+getParser = state $ \ parser -> (parser, parser)
 
 saveLocation :: ParseFun ([Located Lex.Token], Maybe (Located Lex.Token))
-saveLocation = ParseFun $ \ parser@(Parser toks l _) -> ((toks, l), parser)
+saveLocation = state $ \ parser@(Parser toks l _) -> ((toks, l), parser)
 
 restoreLocation :: ([Located Lex.Token], Maybe (Located Lex.Token)) -> ParseFun ()
-restoreLocation (toks, l) = ParseFun $ \ (Parser _ _ errs) -> ((), Parser toks l errs)
+restoreLocation (toks, l) = state $ \ (Parser _ _ errs) -> ((), Parser toks l errs)
 
 selectSpanFromParser :: Parser -> Span
 selectSpanFromParser (Parser toks back _) =
@@ -141,9 +118,6 @@ selectSpanFromParser (Parser toks back _) =
         (Just (Located fsp _), _) -> fsp
         (Nothing, Just (Located bsp _)) -> bsp
         (Nothing, Nothing) -> error "parser has empty token stream, no last"
--- runParseFun {{{1
-runParseFun :: ParseFun r -> Parser -> (r, Parser)
-runParseFun (ParseFun fun) parser = fun parser
 -- combinators {{{1
 consume :: (Located Lex.Token -> Maybe t) -> (Span -> Located Lex.Token -> ErrorCondition) -> ParseFunM t
 consume predicate onerr =
@@ -313,7 +287,7 @@ functionDecl =
     (consumeTokU Lex.OParen (XIsMissingYAfterZFound "function declaration" "'('" "function name")) `unmfp` \ _ ->
     paramList >>= \ mparamlist ->
     (consumeTokU Lex.CParen (XIsMissingYAfterZFound "function declaration" "')'" "(optional) parameter list")) `unmfp` \ _ ->
-    -- TODO: make this type annotation optional
+    -- TODO: make this type annotation optional, default to void
     typeAnnotation `unmfp` \ retty ->
     blockExpr `unmfp` \ body ->
     lnend "function declaration" >>= \ _ ->
@@ -638,5 +612,5 @@ exprStmt =
 -- parse {{{1
 parse :: [Located Lex.Token] -> (Maybe AST.DCU, ParseError)
 parse toks =
-    let (res, (Parser _ _ errs)) = runParseFun grammar $ Parser toks Nothing []
+    let (res, (Parser _ _ errs)) = runState grammar $ Parser toks Nothing []
     in (res, ParseError errs)
