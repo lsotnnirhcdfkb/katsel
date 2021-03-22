@@ -261,6 +261,9 @@ paramList = onemoredelim parseParam (consume (isTTU Lex.Comma) (mkXYZFConsume "p
 
 stmtList :: ParseFunM [AST.DStmt]
 stmtList = onemore parseStmt
+
+argList :: ParseFunM [AST.DExpr]
+argList = onemoredelim parseExpr (consume (isTTU Lex.Comma) (mkXYZFConsume "argument list" "argument separator ','" "argument"))
 -- line endings {{{2
 lnend :: String -> ParseFunM ()
 lnend what = choice [nl, semi]
@@ -573,15 +576,15 @@ callExpr =
                     _ -> Nothing
                 ) (mkXYZFConsume "method call expression" "method name" "'.'") `unmfp` \ methodname ->
             consume (isTTP Lex.OParen) (mkXYZFConsume "method call expression" "'('" "method name") `unmfp` \ (Located oparensp _) ->
-            -- TODO: argument list
+            argList `unmfp` \ arglist ->
             consume (isTTU Lex.CParen) (mkXYZFConsume "method call expression" "')'" "(optional) argument list") `unmfp` \ _ ->
-            return $ Just $ AST.DExpr'Method lhs dot methodname oparensp []
+            return $ Just $ AST.DExpr'Method lhs dot methodname oparensp arglist
 
         call lhs =
             consume (isTTP Lex.OParen) (mkXYZFConsume "call expression" "'('" "callee") `unmfp` \ (Located oparensp _) ->
-            -- TODO: argument list
+            argList `unmfp` \ arglist ->
             consume (isTTU Lex.CParen) (mkXYZFConsume "call expression" "')'" "(optional) argument list") `unmfp` \ _ ->
-            return $ Just $ AST.DExpr'Call lhs oparensp []
+            return $ Just $ AST.DExpr'Call lhs oparensp arglist
 
 primaryExpr = choice [tokExpr, parenExpr, pathExpr]
     where
