@@ -50,7 +50,6 @@ data DCU = DCU'CU [DDecl]
 data DDecl
     = DDecl'Fun SFunDecl
     | DDecl'Impl DType [DImplMember]
-    | DDecl'Dummy
 
 data DImplMember
     = DImplMember'Fun SFunDecl
