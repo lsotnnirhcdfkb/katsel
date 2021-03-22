@@ -598,8 +598,7 @@ primaryExpr = choice [tokExpr, parenExpr, pathExpr]
                     Located _ (Lex.StringLit s) -> Just $ AST.DExpr'String s
                     Located _ Lex.This -> Just AST.DExpr'This
                     _ -> Nothing
-            ) (XIsMissingYFound "primary expression" "token")
-            -- TODO: change this into a 'invalid token for primary expression'
+            ) (InvalidToken "primary expression" "token" ["bool literal", "float literal", "integer literal", "character literal", "string literal", "'this'"])
         parenExpr =
             consumeTokS Lex.OParen (XIsMissingYFound "parenthesized expression" "introductory '('") `unmfp` \ oparensp ->
             parseExpr `unmfp` \ inside ->
