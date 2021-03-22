@@ -282,7 +282,7 @@ indented what ex =
     return $ Just inside
 -- decl {{{2
 parseDecl :: ParseFunM AST.DDecl
-parseDecl = choice [convert functionDecl (AST.DDecl'Fun <$>), convert implDecl (const AST.DDecl'Dummy <$>)]
+parseDecl = choice [convert functionDecl (AST.DDecl'Fun <$>), implDecl]
 
 functionDecl :: ParseFunM AST.SFunDecl
 functionDecl =
