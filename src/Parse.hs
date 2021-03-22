@@ -371,7 +371,7 @@ thisParam =
             Nothing -> AST.Value
     in return $ Just $ AST.DParam'This kind
 -- expr {{{2
-parseExpr, assignExpr, ifExpr, whileExpr :: ParseFunM AST.DExpr
+parseExpr, ifExpr, whileExpr :: ParseFunM AST.DExpr
 parseExpr = choice [assignExpr, ifExpr, whileExpr, convert blockExpr (AST.DExpr'Block <$>)]
 
 blockStmtList :: ParseFunM [AST.DStmt]
@@ -403,7 +403,207 @@ whileExpr =
     blockExpr `unmfp` \ block ->
     return $ Just $ AST.DExpr'While cond (AST.DExpr'Block block)
 
-assignExpr = error "TODO"
+mkOp :: Data a => a -> b -> String -> String -> ParseFunM b
+mkOp constr result exprName opName = consume (\ tok -> if isTT constr tok then Just result else Nothing) (mkXYFConsume exprName opName)
+
+mkBinExpr :: ParseFunM AST.DExpr -> [ParseFunM a] -> (AST.DExpr -> a -> AST.DExpr -> AST.DExpr) -> ParseFunM AST.DExpr
+mkBinExpr next operators constructor =
+    next `unmfp` \ lhs ->
+    maybeNextRep lhs
+    where
+        maybeNextRep lhs =
+            (
+                choice operators `unmfp` \ op ->
+                next `unmfp` \ rhs ->
+                return $ Just (op, rhs)
+            ) >>= \ mrhs ->
+            case mrhs of
+                Just (op, rhs) -> maybeNextRep $ constructor lhs op rhs
+                Nothing -> return $ Just lhs
+
+assignExpr, binOrExpr, binAndExpr, compEQExpr, compLGTExpr, bitXorExpr, bitOrExpr, bitAndExpr, bitShiftExpr, additionExpr, multExpr, castExpr, unaryExpr, callExpr, primaryExpr, pathExpr :: ParseFunM AST.DExpr
+
+assignExpr =
+    binOrExpr `unmfp` \ lhs ->
+    (
+        choice
+        [ mkOp Lex.Equal AST.Equal "assignment expression" "operator '='"
+        ] `unmfp` \ op ->
+        assignExpr `unmfp` \ rhs ->
+        return $ Just (op, rhs)
+    ) >>= \ mrhs ->
+    return $ Just (case mrhs of
+        Just (op, rhs) -> AST.DExpr'Assign lhs op rhs
+        Nothing -> lhs
+    )
+
+binOrExpr = mkBinExpr binAndExpr
+        [ mkOp Lex.DoublePipe AST.DoublePipe "binary or expression" "operator '||'"
+        ]
+        AST.DExpr'ShortCircuit
+binAndExpr = mkBinExpr compEQExpr
+        [ mkOp Lex.DoubleAmper AST.DoubleAmper "binary and expression" "operator '&&'"
+        ]
+        AST.DExpr'ShortCircuit
+compEQExpr = mkBinExpr compLGTExpr
+        [ mkOp Lex.BangEqual AST.BangEqual     exprName "operator '!='"
+        , mkOp Lex.DoubleEqual AST.DoubleEqual exprName "operator '=='"
+        ]
+        AST.DExpr'Binary
+    where
+        exprName = "equality test expression"
+compLGTExpr = mkBinExpr bitXorExpr
+        [ mkOp Lex.Greater AST.Greater           exprName "operator '>'"
+        , mkOp Lex.Less AST.Less                 exprName "operator '<'"
+        , mkOp Lex.GreaterEqual AST.GreaterEqual exprName "operator '>='"
+        , mkOp Lex.LessEqual AST.LessEqual       exprName "operator '<='"
+        ]
+        AST.DExpr'Binary
+    where
+        exprName = "comparison expression"
+bitXorExpr = mkBinExpr bitOrExpr
+        [ mkOp Lex.Caret AST.Caret exprName "operator '^'"
+        ]
+        AST.DExpr'Binary
+    where
+        exprName = "bitwise xor expression"
+bitOrExpr = mkBinExpr bitAndExpr
+        [ mkOp Lex.Pipe AST.Pipe exprName "operator '|'"
+        ]
+        AST.DExpr'Binary
+    where
+        exprName = "bitwise or expression"
+bitAndExpr = mkBinExpr bitShiftExpr
+        [ mkOp Lex.Amper AST.Amper exprName "operator '&'"
+        ]
+        AST.DExpr'Binary
+    where
+        exprName = "bitwise and expression"
+bitShiftExpr = mkBinExpr additionExpr
+        [ mkOp Lex.DoubleLess AST.DoubleLess exprName "operator '<<'"
+        , mkOp Lex.DoubleGreater AST.DoubleGreater exprName "operator '>>'"
+        ]
+        AST.DExpr'Binary
+    where
+        exprName = "bitshift expression"
+additionExpr = mkBinExpr multExpr
+        [ mkOp Lex.Plus AST.Plus "addition expression" "operator '+'"
+        , mkOp Lex.Minus AST.Minus "subtraction expression" "operator '-'"
+        ]
+        AST.DExpr'Binary
+multExpr = mkBinExpr castExpr
+        [ mkOp Lex.Star AST.Star "multiplication expression" "operator '*'"
+        , mkOp Lex.Slash AST.Slash "division expression" "operator '/'"
+        , mkOp Lex.Percent AST.Percent "modulo expression" "operator '%'"
+        ]
+        AST.DExpr'Binary
+
+castExpr =
+    unaryExpr `unmfp` \ lhs ->
+    parseMore lhs
+    where
+        parseMore lhs =
+            (
+                mkOp Lex.RightArrow () "cast expression" "operator '->'" `unmfp` \ _ ->
+                parseType `unmfp` \ ty ->
+                return $ Just ty
+            ) >>= \ mty ->
+            case mty of
+                Just ty -> parseMore $ AST.DExpr'Cast ty lhs
+                Nothing -> return $ Just lhs
+
+unaryExpr =
+    choice [punop, amperExpr, callExpr]
+    where
+        amperExpr =
+            consume (
+                \ tok ->
+                case tok of
+                    Located sp Lex.Amper -> Just sp
+                    _ -> Nothing
+            ) (mkXYFConsume "reference expression" "operator '&'") `unmfp` \ ampersp ->
+            consume (isTTU Lex.Mut) (mkXYFConsume "mutable reference expression" "'mut'") >>= \ mmut ->
+            unaryExpr `unmfp` \ operand ->
+            return $ Just $ AST.DExpr'Ref ampersp (maybeToMutability mmut) operand
+
+        punop =
+            choice
+            [ mkOp Lex.Tilde AST.UnTilde "bitwise negation expression" "operator '~'"
+            , mkOp Lex.Minus AST.UnMinus "negation expression" "operator '-'"
+            , mkOp Lex.Bang AST.UnBang "logical negation expression" "operator '!'"
+            , mkOp Lex.Star AST.UnStar "dereference expression" "operator '*'"
+            ] `unmfp` \ op ->
+            unaryExpr `unmfp` \ operand ->
+            return $ Just $ AST.DExpr'Unary op operand
+
+callExpr =
+    primaryExpr `unmfp` \ lhs ->
+    parseMore lhs
+    where
+        parseMore lhs =
+            choice [method lhs, field lhs, call lhs] >>= \ mres ->
+            case mres of
+                Just newlhs -> parseMore newlhs
+                Nothing -> return $ Just lhs
+
+        consumeDot exprName operandName =
+            consume (
+            \ tok ->
+            case tok of
+                Located sp Lex.Period -> Just sp
+                _ -> Nothing
+            ) (mkXYZFConsume exprName "'.'" operandName)
+
+        field lhs =
+            consumeDot "field access expression" "expression with fields" `unmfp` \ dot ->
+            consume (
+                \ tok ->
+                case tok of
+                    Located sp (Lex.Identifier n) -> Just $ Located sp n
+                    _ -> Nothing
+                ) (mkXYZFConsume "field access expression" "field name" "'.'") `unmfp` \ fieldname ->
+            return $ Just $ AST.DExpr'Field lhs dot fieldname
+
+        method lhs =
+            consumeDot "method call expression" "expression with methods" `unmfp` \ dot ->
+            consume (
+                \ tok ->
+                case tok of
+                    Located sp (Lex.Identifier n) -> Just $ Located sp n
+                    _ -> Nothing
+                ) (mkXYZFConsume "method call expression" "method name" "'.'") `unmfp` \ methodname ->
+            consume (isTTP Lex.OParen) (mkXYZFConsume "method call expression" "'('" "method name") `unmfp` \ (Located oparensp _) ->
+            -- TODO: argument list
+            consume (isTTU Lex.CParen) (mkXYZFConsume "method call expression" "')'" "(optional) argument list") `unmfp` \ _ ->
+            return $ Just $ AST.DExpr'Method lhs dot methodname oparensp []
+
+        call lhs =
+            consume (isTTP Lex.OParen) (mkXYZFConsume "call expression" "'('" "callee") `unmfp` \ (Located oparensp _) ->
+            -- TODO: argument list
+            consume (isTTU Lex.CParen) (mkXYZFConsume "call expression" "')'" "(optional) argument list") `unmfp` \ _ ->
+            return $ Just $ AST.DExpr'Call lhs oparensp []
+
+primaryExpr = choice [tokExpr, parenExpr, pathExpr]
+    where
+        tokExpr = consume (
+                \ tok ->
+                case tok of
+                    Located _ (Lex.BoolLit b) -> Just $ AST.DExpr'Bool b
+                    Located _ (Lex.FloatLit f) -> Just $ AST.DExpr'Float f
+                    Located _ (Lex.IntLit _ i) -> Just $ AST.DExpr'Int i
+                    Located _ (Lex.CharLit c) -> Just $ AST.DExpr'Char c
+                    Located _ (Lex.StringLit s) -> Just $ AST.DExpr'String s
+                    Located _ Lex.This -> Just AST.DExpr'This
+                    _ -> Nothing
+            ) (mkXYFConsume "primary expression" "token")
+            -- TODO: change this into a 'invalid token for primary expression'
+        parenExpr =
+            consume (isTTU Lex.OParen) (mkXYFConsume "parenthesized expression" "introductory '('") `unmfp` \ _ ->
+            parseExpr `unmfp` \ inside ->
+            consume (isTTU Lex.CParen) (mkXYFConsume "parenthesized expression" "closing ')'") `unmfp` \ _ ->
+            return $ Just inside
+
+pathExpr = convert parsePath (AST.DExpr'Path <$>)
 -- stmt {{{2
 parseStmt, varStmt, retStmt, exprStmt :: ParseFunM AST.DStmt
 parseStmt = choice [varStmt, retStmt, exprStmt]

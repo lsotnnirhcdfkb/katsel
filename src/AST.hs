@@ -38,7 +38,7 @@ data BinOp
     | DoubleEqual | BangEqual
 
 data ShortOp = DoubleAmper | DoublePipe
-data UnaryOp = UnBang | UnTilde | UnMinus | UnAmper | UnStar
+data UnaryOp = UnBang | UnTilde | UnMinus | UnStar
 data AssignOp = Equal
 
 data SFunDecl = SFunDecl' DType LocStr [DParam] SBlockExpr
@@ -69,6 +69,7 @@ data DExpr
     | DExpr'Binary DExpr BinOp DExpr
     | DExpr'Cast DType DExpr
     | DExpr'Unary UnaryOp DExpr
+    | DExpr'Ref Span Mutability DExpr
     | DExpr'Call DExpr Span [DExpr]
     | DExpr'Field DExpr Span LocStr
     | DExpr'Method DExpr Span LocStr Span [DExpr]
