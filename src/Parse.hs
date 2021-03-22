@@ -324,7 +324,7 @@ parsePath =
     -- TODO: improve delimiter error
     (onemoredelim
         (consumeIden (XIsMissingYFound "path" "path segment (identifier)"))
-        (consumeTokU Lex.DoubleColon (XIsMissingYAfterZFound "path" "segment separator (':')" "segment")))
+        (consumeTokU Lex.DoubleColon (XIsMissingYAfterZFound "path" "segment separator ('::')" "segment")))
     (AST.DPath' <$>)
 -- params {{{2
 parseParam, normalParam, thisParam :: ParseFunM AST.DParam
