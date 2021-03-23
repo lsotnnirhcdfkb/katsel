@@ -445,6 +445,7 @@ lex' prevtoks indentStack lexer =
                     in (newFrame:indentStack, [Right $ makeTokAtCur Indent])
                 doNewline _ =
                     -- TODO: do not insert if last token is ';'
+                    -- TODO: do not insert if last token is '}'
                     (indentStack, [Right $ makeTokAtNLBefore Newline])
 
                 makeTokAtCur = makeToken 0 1

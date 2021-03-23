@@ -11,6 +11,8 @@ import Data.Maybe(isJust)
 
 import Control.Monad.State.Lazy
 
+-- TODO: boom tokens
+
 -- errors {{{1
 data ErrorCondition
     = XIsMissingYFound String String Span (Located Lex.Token)
