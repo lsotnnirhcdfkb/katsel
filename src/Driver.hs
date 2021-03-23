@@ -19,29 +19,45 @@ data Backend = CBackend
 
 data OutputFormat = Lexed | Parsed | KatselIR | BackendCode Backend
 
-type Stage a b = (a -> (b, [Message.SimpleDiag]))
+newtype ErrorAccumulated r = ErrorAcc (r, [Message.SimpleDiag])
 
-joinStages :: Stage a b -> Stage b c -> Stage a c
-joinStages stage1fn stage2fn = \ input ->
-    let (stage1res, stage1errs) = stage1fn input
-        (stage2res, stage2errs) = stage2fn stage1res
-    in (stage2res, stage1errs ++ stage2errs)
+instance Functor ErrorAccumulated where
+    fmap f (ErrorAcc (v, errs)) = ErrorAcc (f v, errs)
 
-lexStage :: Stage File [Located Lex.Token]
+instance Applicative ErrorAccumulated where
+    pure x = ErrorAcc (x, [])
+
+    eaf <*> eav =
+        eaf >>= \ f ->
+        eav >>= \ v ->
+        pure $ f v
+
+instance Monad ErrorAccumulated where
+    (ErrorAcc (aval, aerrs)) >>= f =
+        let (ErrorAcc (bval, berrs)) = f aval
+        in ErrorAcc (bval, aerrs ++ berrs)
+
+addErrors :: [Message.SimpleDiag] -> ErrorAccumulated ()
+addErrors errs = ErrorAcc ((), errs)
+
+lexStage :: File -> ErrorAccumulated [Located Lex.Token]
 lexStage contents =
     let lexed = Lex.lex contents
-    in ([x | Right x <- lexed], [Message.toDiagnostic x | Left x <- lexed])
+        errs = [Message.toDiagnostic x | Left x <- lexed]
+        toks = [x | Right x <- lexed]
+    in addErrors errs >> return toks
 
-parseStage :: Stage [Located Lex.Token] (Maybe AST.DCU)
+parseStage :: [Located Lex.Token] -> ErrorAccumulated (Maybe AST.DCU)
 parseStage toks =
     let (res, err) = Parse.parse toks
-    in (res, [Message.toDiagnostic err])
+    in addErrors [Message.toDiagnostic err] >> return res
 
 run :: String -> IO ()
 run filename =
     openFile filename >>= \ file ->
-    let totalStages = lexStage `joinStages` parseStage
-        (finalOutput, finalErrs) = totalStages file
+    let final = lexStage file >>= parseStage
+        (ErrorAcc (finalOutput, finalErrs)) = final
+
         putErrs = hPutStr stderr $ concat $ map Message.report finalErrs
     in (try putErrs :: IO (Either SomeException ())) >>= \ei ->
     case ei of
