@@ -1,7 +1,8 @@
 module Driver
-    ( Backend(..)
-    , OutputFormat(..)
-    , run
+    -- TODO: this
+    -- ( Backend(..)
+    -- , OutputFormat(..)
+    ( run
     ) where
 
 import File
@@ -15,9 +16,9 @@ import qualified AST
 import System.IO(hPutStr, stderr)
 import Control.Exception(try, SomeException, evaluate)
 
-data Backend = CBackend
+-- data Backend = CBackend
 
-data OutputFormat = Lexed | Parsed | KatselIR | BackendCode Backend
+-- data OutputFormat = Lexed | Parsed | KatselIR | BackendCode Backend
 
 data ErrorAccumulated r = ErrorAcc r [Message.SimpleDiag]
 
