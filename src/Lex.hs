@@ -218,21 +218,20 @@ instance Message.ToDiagnostic LexError where
             UntermChar sp -> simple sp "E0004" "unterm-chrlit" "character literal missing closing quote (''')"
             MulticharChar sp -> simple sp "E0005" "multichr-chrlit" "character literal must contain exactly one character"
 
-            InvalidBase basechr basechrsp litsp ->
-                Message.SimpleDiag Message.Error (Just basechrsp) (Message.makeCode "E0006") (Just "invalid-intlit-base") [
-                    Message.Underlines $ Message.Underlines.UnderlinesSection [
-                        Message.Underlines.Message basechrsp Message.Underlines.Error Message.Underlines.Primary $ "invalid integer literal base '" ++ [basechr] ++ "' (must be one of 'x', 'o', or 'b' or omitted)",
-                        Message.Underlines.Message litsp Message.Underlines.Note Message.Underlines.Secondary "in this integer literal"
+            InvalidBase basechr basechrsp _ ->
+                Message.SimpleDiag Message.Error (Just basechrsp) (Message.makeCode "E0006") (Just "invalid-intlit-base")
+                    [ Message.Underlines $ Message.Underlines.UnderlinesSection
+                        [ Message.Underlines.Message basechrsp Message.Underlines.Error Message.Underlines.Primary $ "invalid integer literal base '" ++ [basechr] ++ "' (must be one of 'x', 'o', or 'b' or omitted)"
+                        ]
                     ]
-                ]
 
             InvalidDigit digitchr digitsp litsp ->
-                Message.SimpleDiag Message.Error (Just digitsp) (Message.makeCode "E0007") (Just "invalid-digit") [
-                    Message.Underlines $ Message.Underlines.UnderlinesSection [
-                        Message.Underlines.Message digitsp Message.Underlines.Error Message.Underlines.Primary $ "invalid digit '" ++ [digitchr] ++ "'",
-                        Message.Underlines.Message litsp Message.Underlines.Note Message.Underlines.Secondary "in this integer literal"
+                Message.SimpleDiag Message.Error (Just digitsp) (Message.makeCode "E0007") (Just "invalid-digit")
+                    [ Message.Underlines $ Message.Underlines.UnderlinesSection
+                        [ Message.Underlines.Message digitsp Message.Underlines.Error Message.Underlines.Primary $ "invalid digit '" ++ [digitchr] ++ "'"
+                        , Message.Underlines.Message litsp Message.Underlines.Note Message.Underlines.Secondary "in this integer literal"
+                        ]
                     ]
-                ]
 
             NonDecimalFloat sp -> simple sp "E0008" "nondecimal-floatlit" "non-decimal floating point literals are not supported"
             MissingDigits sp -> simple sp "E0009" "no-digits" "integer literal must have digits"
@@ -241,9 +240,9 @@ instance Message.ToDiagnostic LexError where
             BadBrace sp -> simple sp "E0011" "bad-cbrace" "indentation block cannot be closed by explicit '}'"
 
         where
-            simple sp code nm msg = Message.SimpleDiag Message.Error (Just sp) (Message.makeCode code) (Just nm) [
-                    Message.Underlines $ Message.Underlines.UnderlinesSection [Message.Underlines.Message sp Message.Underlines.Error Message.Underlines.Primary msg]
-                ]
+            simple sp code nm msg = Message.SimpleDiag Message.Error (Just sp) (Message.makeCode code) (Just nm)
+                    [ Message.Underlines $ Message.Underlines.UnderlinesSection [Message.Underlines.Message sp Message.Underlines.Error Message.Underlines.Primary msg]
+                    ]
 
 lex :: File -> [Either LexError (Located Token)]
 lex f = lex' [] [IndentationSensitive 0] $ Lexer
