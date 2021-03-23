@@ -174,6 +174,8 @@ drawSectionLine indent (FileLine fl) = makeIndentWithDivider '>' "" indent ++ AN
 drawSectionLine indent (DimQuote fl ln) =
     case drop (ln - 1) $ lines (source fl) of
         -- it is called a dim line, but it is not drawn dimly
+        -- TODO: this could just be replaced with normal lines, because they are drawn the same
+        --       and then the normal lines wouldn't have any messages drawn on them so it would look the same
         quote:_ -> makeIndentWithDivider '|' (show ln) indent ++ quote ++ "\n"
         [] -> ""
 drawSectionLine indent (QuoteLine fl ln) = makeIndentWithDivider '|' (show ln) indent ++ quote ++ "\n"
