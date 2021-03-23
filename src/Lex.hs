@@ -237,7 +237,7 @@ instance Message.ToDiagnostic LexError where
             MissingDigits sp -> simple sp "E0009" "no-digits" "integer literal must have digits"
 
             BadDedent sp -> simple sp "E0010" "bad-dedent" "dedent to level that does not match any other indentation level"
-            BadBrace sp -> simple sp "E0011" "bad-cbrace" "indentation block cannot be closed by explicit '}'"
+            BadBrace sp -> simple sp "E0011" "bad-cbrace" "indentation block cannot be closed by '}'"
 
         where
             simple sp code nm msg = Message.SimpleDiag Message.Error (Just sp) (Message.makeCode code) (Just nm)
