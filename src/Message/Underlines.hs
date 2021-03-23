@@ -12,7 +12,7 @@ import File
 
 import Message.Utils
 
-import Data.List(nub, sortBy, partition, find)
+import Data.List(nubBy, sortBy, partition, find)
 
 import Data.Maybe(maybeToList)
 
@@ -30,18 +30,31 @@ lineMinus1 loc = lnnOfLoc $ locMinus1 loc
 colMinus1 :: Location -> Int
 colMinus1 loc = colnOfLoc $ locMinus1 loc
 
-linenrsOfMessages :: [Message] -> [(File, Int)]
-linenrsOfMessages msgs = sortBy comparator $ nub $ concatMap linenrsof msgs
-    where
-        linenrsof (Message (Span start end) _ _ _) = [(fileOfLoc start, lnnOfLoc start), (fileOfLoc start, lineMinus1 end)]
+data ShowLine = ShowLine File Int Dimness
+data Dimness = Dim | Normal
 
-        comparator (fl1, nr1) (fl2, nr2) =
+linenrsOfMessages :: [Message] -> [ShowLine]
+linenrsOfMessages msgs = sortBy sortComparator $ nubBy nubComparator linesWithDim
+    where
+        -- nub keeps the first occurance, so it will keep all the normal lines if there are duplicate dim lines
+        -- since the dim lines are all appended to the end of the list
+        linesWithDim = linesWithoutDim ++ concatMap getDimLines linesWithoutDim
+        getDimLines (ShowLine fl nr _) = (ShowLine fl (nr+1) Dim):(if nr > 1 then [ShowLine fl (nr-1) Dim] else [])
+
+        linesWithoutDim = concatMap linenrsof msgs
+        linenrsof (Message (Span start end) _ _ _) = [ShowLine (fileOfLoc start) (lnnOfLoc start) Normal, ShowLine (fileOfLoc start) (lineMinus1 end) Normal]
+
+        sortComparator (ShowLine fl1 nr1 _) (ShowLine fl2 nr2 _) =
             if fl1 == fl2
             then nr1 `compare` nr2
             else name fl1 `compare` name fl2
 
+        nubComparator (ShowLine fl1 nr1 _) (ShowLine fl2 nr2 _) = (fl1, nr1) == (fl2, nr2)
+
 indentOfUnderlinesSection :: UnderlinesSection -> Int
-indentOfUnderlinesSection (UnderlinesSection msgs) = 1 + (maximum $ map (length . show . snd) $ linenrsOfMessages msgs)
+indentOfUnderlinesSection (UnderlinesSection msgs) = 1 + (maximum $ map getWidth $ linenrsOfMessages msgs)
+    where
+        getWidth (ShowLine _ ln _) = length . show $ ln
 
 showUnderlinesSection :: Int -> UnderlinesSection -> String
 showUnderlinesSection indent sec =
@@ -51,6 +64,7 @@ data DrawableMessage = DMessage [ANSI.SGR] Int String
 data SectionLine
     = FileLine File
     | QuoteLine File Int
+    | DimQuote File Int
     | ElipsisLine
     | UnderlineLine [Message] [DrawableMessage]
 
@@ -103,20 +117,25 @@ sectionLines (UnderlinesSection msgs) =
     where
         flnrs = linenrsOfMessages msgs
 
-        makeLines acc ((curflnr@(curfl, curnr), lastflnr):more) =
+        makeLines acc (((ShowLine curfl curnr curdimn), lastshln):more) =
             makeLines nextAcc more
             where
-                nextAcc = acc ++ maybeToList fileLine ++ maybeToList elipsisLine ++ [quoteLine] ++ maybeToList underlineLine ++ messageLines
+                nextAcc = acc ++ maybeToList fileLine ++ maybeToList elipsisLine ++ contentLines
+                    where
+                        contentLines =
+                            case curdimn of
+                                Dim -> [DimQuote curfl curnr]
+                                Normal -> [quoteLine] ++ maybeToList underlineLine ++ messageLines
 
                 fileLine =
-                    case lastflnr of
-                        Just (lastfl, _)
+                    case lastshln of
+                        Just (ShowLine lastfl _ _)
                             | lastfl == curfl -> Nothing
                         _ -> Just $ FileLine curfl
 
                 elipsisLine =
-                    case lastflnr of
-                        Just (lastfl, lastnr)
+                    case lastshln of
+                        Just (ShowLine lastfl lastnr _)
                             | lastfl == curfl && lastnr + 1 /= curnr ->
                                 Just ElipsisLine
                         _ -> Nothing
@@ -132,7 +151,7 @@ sectionLines (UnderlinesSection msgs) =
 
                 lineMessages = filter isCorrectLine msgs
                     where
-                        isCorrectLine (Message (Span _ msgloc) _ _ _) = (fileOfLoc msgloc, lineMinus1 msgloc) == curflnr
+                        isCorrectLine (Message (Span _ msgloc) _ _ _) = (fileOfLoc msgloc, lineMinus1 msgloc) == (curfl, curnr)
                 lineUnderlines = filter isCorrectLine msgs
                     where
                         isCorrectLine (Message (Span start end) _ _ _) = curfl == fileOfLoc start && lnnOfLoc start <= curnr && curnr <= lineMinus1 end
@@ -152,6 +171,11 @@ sgrOfTy Hint = [boldSGR, vividForeColorSGR ANSI.Blue]
 
 drawSectionLine :: Int -> SectionLine -> String
 drawSectionLine indent (FileLine fl) = makeIndentWithDivider '>' "" indent ++ ANSI.setSGRCode filePathSGR ++ name fl ++ ANSI.setSGRCode [] ++ "\n"
+drawSectionLine indent (DimQuote fl ln) =
+    case drop (ln - 1) $ lines (source fl) of
+        -- it is called a dim line, but it is not drawn dimly
+        quote:_ -> makeIndentWithDivider '|' (show ln) indent ++ quote ++ "\n"
+        [] -> ""
 drawSectionLine indent (QuoteLine fl ln) = makeIndentWithDivider '|' (show ln) indent ++ quote ++ "\n"
     where
         quote = case drop (ln - 1) $ lines (source fl) of
