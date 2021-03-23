@@ -560,15 +560,21 @@ callExpr =
             consumeDot "method call expression" "expression with methods" `unmfp` \ dot ->
             consumeIden (XIsMissingYAfterZFound "method call expression" "method name" "'.'") `unmfp` \ methodname ->
             consumeTokS Lex.OParen (XIsMissingYAfterZFound "method call expression" "'('" "method name") `unmfp` \ oparensp ->
-            argList `unmfp` \ arglist ->
+            argList >>= \ marglist ->
             consumeTokU Lex.CParen (XIsMissingYAfterZFound "method call expression" "')'" "(optional) argument list") `unmfp` \ _ ->
-            return $ Just $ AST.DExpr'Method lhs dot methodname oparensp arglist
+            let arglist = case marglist of
+                    Just x -> x
+                    Nothing -> []
+            in return $ Just $ AST.DExpr'Method lhs dot methodname oparensp arglist
 
         call lhs =
             consumeTokS Lex.OParen (XIsMissingYAfterZFound "call expression" "'('" "callee") `unmfp` \ oparensp ->
-            argList `unmfp` \ arglist ->
+            argList >>= \ marglist ->
             consumeTokU Lex.CParen (XIsMissingYAfterZFound "call expression" "')'" "(optional) argument list") `unmfp` \ _ ->
-            return $ Just $ AST.DExpr'Call lhs oparensp arglist
+            let arglist = case marglist of
+                    Just x -> x
+                    Nothing -> []
+            in return $ Just $ AST.DExpr'Call lhs oparensp arglist
 
 primaryExpr = choice [tokExpr, parenExpr, pathExpr]
     where
