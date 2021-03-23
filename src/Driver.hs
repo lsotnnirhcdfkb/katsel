@@ -19,13 +19,13 @@ data Backend = CBackend
 
 data OutputFormat = Lexed | Parsed | KatselIR | BackendCode Backend
 
-newtype ErrorAccumulated r = ErrorAcc (r, [Message.SimpleDiag])
+data ErrorAccumulated r = ErrorAcc r [Message.SimpleDiag]
 
 instance Functor ErrorAccumulated where
-    fmap f (ErrorAcc (v, errs)) = ErrorAcc (f v, errs)
+    fmap f (ErrorAcc v errs) = ErrorAcc (f v) errs
 
 instance Applicative ErrorAccumulated where
-    pure x = ErrorAcc (x, [])
+    pure x = ErrorAcc x []
 
     eaf <*> eav =
         eaf >>= \ f ->
@@ -33,12 +33,12 @@ instance Applicative ErrorAccumulated where
         pure $ f v
 
 instance Monad ErrorAccumulated where
-    (ErrorAcc (aval, aerrs)) >>= f =
-        let (ErrorAcc (bval, berrs)) = f aval
-        in ErrorAcc (bval, aerrs ++ berrs)
+    (ErrorAcc aval aerrs) >>= f =
+        let (ErrorAcc bval berrs) = f aval
+        in ErrorAcc bval $ aerrs ++ berrs
 
 addErrors :: [Message.SimpleDiag] -> ErrorAccumulated ()
-addErrors errs = ErrorAcc ((), errs)
+addErrors errs = ErrorAcc () errs
 
 lexStage :: File -> ErrorAccumulated [Located Lex.Token]
 lexStage contents =
@@ -56,7 +56,7 @@ run :: String -> IO ()
 run filename =
     openFile filename >>= \ file ->
     let final = lexStage file >>= parseStage
-        (ErrorAcc (finalOutput, finalErrs)) = final
+        (ErrorAcc finalOutput finalErrs) = final
 
         putErrs = hPutStr stderr $ concat $ map Message.report finalErrs
     in (try putErrs :: IO (Either SomeException ())) >>= \ei ->
