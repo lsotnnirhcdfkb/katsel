@@ -622,8 +622,17 @@ retStmt =
 
 exprStmt =
     parseExpr `unmfp` \ expr ->
-    -- TODO: blocked exprs do not need line endings
-    lnend "expression statement" `unmfp` \ _ ->
+    let needendl = case expr of
+            AST.DExpr'Block _ -> False
+            AST.DExpr'If _ _ _ _ -> False
+            AST.DExpr'While _ _ -> False
+            _ -> True
+    in
+    (
+        if needendl
+        then lnend "expression statement without block" `unmfp` \ _ -> return $ Just ()
+        else lnend "expression statement with block" >>= \ _ -> return $ Just ()
+    ) `unmfp` \ _ ->
     return $ Just $ AST.DStmt'Expr expr
 
 -- parse {{{1
