@@ -293,8 +293,7 @@ functionDecl =
     (consumeTokU Lex.OParen (XIsMissingYAfterZFound "function declaration" "'('" "function name")) `unmfp` \ _ ->
     paramList >>= \ mparamlist ->
     (consumeTokU Lex.CParen (XIsMissingYAfterZFound "function declaration" "')'" "(optional) parameter list")) `unmfp` \ _ ->
-    -- TODO: make this type annotation optional, default to void
-    typeAnnotation `unmfp` \ retty ->
+    typeAnnotation >>= \ retty ->
     blockExpr `unmfp` \ body ->
     lnend "function declaration" >>= \ _ ->
     let params = case mparamlist of

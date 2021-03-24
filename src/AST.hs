@@ -41,7 +41,7 @@ data ShortOp = DoubleAmper | DoublePipe
 data UnaryOp = UnBang | UnTilde | UnMinus | UnStar
 data AssignOp = Equal
 
-data SFunDecl = SFunDecl' DType LocStr [DParam] SBlockExpr
+data SFunDecl = SFunDecl' (Maybe DType) LocStr [DParam] SBlockExpr
 
 data SBlockExpr = SBlockExpr' [DStmt]
 
