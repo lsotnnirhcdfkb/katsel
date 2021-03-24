@@ -33,14 +33,14 @@ condToMsgs (ExcessTokens sp (Located _ tok)) =
     [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "extraneous tokens found in input (" ++ Lex.fmtToken tok ++ ")"
     ]
 condToMsgs (InvalidToken construct thing possibilities sp (Located _ found)) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "invalid " ++ thing ++ " for " ++ construct ++ "; must be " ++ fmtList possibilities ++ " (found " ++ Lex.fmtToken found ++ ")"
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "invalid " ++ thing ++ " for " ++ construct ++ "; must be " ++ fmtPossibilities possibilities ++ " (found " ++ Lex.fmtToken found ++ ")"
     ]
     where
-        fmtList [] = ""
-        fmtList (x:[]) = x
-        fmtList (x:y:[]) = x ++ " or " ++ y
-        fmtList (x:y:z:[]) = x ++ ", " ++ y ++ ", or " ++ z
-        fmtList (x:xs) = x ++ ", " ++ fmtList xs
+        fmtPossibilities [] = error "no possibilities"
+        fmtPossibilities (x:[]) = x
+        fmtPossibilities (x:y:[]) = x ++ " or " ++ y
+        fmtPossibilities (x:y:z:[]) = x ++ ", " ++ y ++ ", or " ++ z
+        fmtPossibilities (x:xs) = x ++ ", " ++ fmtPossibilities xs
 condToMsgs (Unclosed construct delimiterName openSp sp (Located _ found)) =
     [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ construct ++ " has unclosed " ++ delimiterName ++ " (found " ++ Lex.fmtToken found ++ ")"
     , MsgUnds.Message openSp MsgUnds.Note MsgUnds.Secondary $ "opening " ++ delimiterName ++ " is here"
