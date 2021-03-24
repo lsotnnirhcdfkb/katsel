@@ -37,9 +37,7 @@ makeLocation :: File -> Int -> Location
 makeLocation file srci = if srci < 0 then error "boo" else Location file srci (getlnn file srci) (getcoln file srci)
 
 getlnn :: File -> Int -> Int
-getlnn file ind =
-    case drop ind $ source file of
-        _ -> 1 + (length $ filter ('\n'==) (take ind $ source file))
+getlnn file ind = 1 + (length $ filter ('\n'==) (take ind $ source file))
 
 getcoln :: File -> Int -> Int
 getcoln file ind = 1 + (length $ takeWhile (/='\n') $ reverse $ take ind $ source file)
