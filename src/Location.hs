@@ -42,10 +42,4 @@ getlnn file ind =
         _ -> 1 + (length $ filter ('\n'==) (take ind $ source file))
 
 getcoln :: File -> Int -> Int
-getcoln = helper (1 :: Int)
-    where
-        helper acc file ind =
-            case reverse $ take ind $ source file of
-                [] -> acc
-                '\n':_ -> acc
-                _ -> helper (acc + 1) file (ind - 1)
+getcoln file ind = 1 + (length $ takeWhile (/='\n') $ reverse $ take ind $ source file)
