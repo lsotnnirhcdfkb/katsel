@@ -344,7 +344,15 @@ lex' prevtoks indentStack lexer =
         '"':strlit -> lexStrLit strlit
         '\'':chrlit -> lexCharLit chrlit
 
-        [] -> prevtoks ++ [Right $ makeToken 0 1 EOF]
+        [] -> prevtoks ++ alldedents ++ [Right $ makeToken 0 1 EOF]
+            where
+                -- TODO: use the same span as other dedent tokens
+                alldedents =
+                    (Right $ makeToken 0 1 Newline) :
+                    (concatMap makeDedent $ init indentStack)
+
+                makeDedent (IndentationSensitive _) = [Right $ makeToken 0 1 Dedent]
+                makeDedent IndentationInsensitive = [] -- the parser will handle these when it finds a dedent token instead of a matching '}'
 
         entire@(other:_)
             | isAlpha other -> lexIden entire
