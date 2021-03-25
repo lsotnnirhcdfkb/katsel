@@ -327,9 +327,9 @@ functionDecl :: ParseFunM AST.LSFunDecl
 functionDecl =
     (consumeTokS Lex.Fun (XIsMissingYFound "function declaration" "introductory 'fun'")) `unmfp` \ funsp ->
     (consumeIden (XIsMissingYAfterZFound "function declaration" "function name" "'fun'")) `unmfp` \ name ->
-    (consumeTokU Lex.OParen (XIsMissingYAfterZFound "function declaration" "'('" "function name")) `unmfp` \ _ ->
+    (consumeTokS Lex.OParen (XIsMissingYAfterZFound "function declaration" "'('" "function name")) `unmfp` \ oparensp ->
     paramList >>= \ mparamlist ->
-    (consumeTokS Lex.CParen (XIsMissingYAfterZFound "function declaration" "')'" "(optional) parameter list")) `unmfp` \ cparensp ->
+    (consumeTokS Lex.CParen (Unclosed "function declaration parameter list" "'('" oparensp)) `unmfp` \ cparensp ->
     typeAnnotation >>= \ retty ->
     blockExpr `unmfp` \ body ->
     lnend "function declaration" >>= \ _ ->
@@ -647,8 +647,7 @@ callExpr =
             consumeIden (XIsMissingYAfterZFound "method call expression" "method name" "'.'") `unmfp` \ methodname ->
             consumeTokS Lex.OParen (XIsMissingYAfterZFound "method call expression" "'('" "method name") `unmfp` \ oparensp ->
             argList >>= \ marglist ->
-            -- TODO: replace this with unclosed delimiter error
-            consumeTokS Lex.CParen (XIsMissingYAfterZFound "method call expression" "')'" "(optional) argument list") `unmfp` \ cparensp ->
+            consumeTokS Lex.CParen (Unclosed "method call expression" "'('" oparensp) `unmfp` \ cparensp ->
             let arglist = case marglist of
                     Just x -> x
                     Nothing -> []
@@ -657,8 +656,7 @@ callExpr =
         call lhs@(Located lhssp _) =
             consumeTokS Lex.OParen (XIsMissingYAfterZFound "call expression" "'('" "callee") `unmfp` \ oparensp ->
             argList >>= \ marglist ->
-            -- TODO: replace this with unclosed delimiter error
-            consumeTokS Lex.CParen (XIsMissingYAfterZFound "call expression" "')'" "(optional) argument list") `unmfp` \ cparensp ->
+            consumeTokS Lex.CParen (Unclosed "call expression" "'('" oparensp) `unmfp` \ cparensp ->
             let arglist = case marglist of
                     Just x -> x
                     Nothing -> []
@@ -681,7 +679,7 @@ primaryExpr = choice [tokExpr, parenExpr, pathExpr]
         parenExpr =
             consumeTokS Lex.OParen (XIsMissingYFound "parenthesized expression" "introductory '('") `unmfp` \ oparensp ->
             parseExpr `unmfp` \ inside ->
-            consumeTokU Lex.CParen (Unclosed "parenthesized expression" "')'" oparensp) `unmfp` \ _ ->
+            consumeTokU Lex.CParen (Unclosed "parenthesized expression" "'('" oparensp) `unmfp` \ _ ->
             return $ Just inside
 
 pathExpr =
