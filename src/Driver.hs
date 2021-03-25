@@ -2,7 +2,7 @@ module Driver
     -- TODO: this
     -- ( Backend(..)
     -- , OutputFormat(..)
-    ( run
+    ( compile
     ) where
 
 import File
@@ -48,13 +48,13 @@ lexStage contents =
         toks = [x | Right x <- lexed]
     in addErrors errs >> return toks
 
-parseStage :: [Located Lex.Token] -> ErrorAccumulated (Maybe AST.DCU)
+parseStage :: [Located Lex.Token] -> ErrorAccumulated (Maybe AST.LDCU)
 parseStage toks =
     let (res, err) = Parse.parse toks
     in addErrors [Message.toDiagnostic err] >> return res
 
-run :: String -> IO ()
-run filename =
+compile :: String -> IO ()
+compile filename =
     openFile filename >>= \ file ->
     let final = lexStage file >>= parseStage
         (ErrorAcc finalOutput finalErrs) = final

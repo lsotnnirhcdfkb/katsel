@@ -23,6 +23,19 @@ import Location
 
         data SFunDecl
             = SFunDecl' DType ...
+
+    all the datatypes (except for a few, like 'Mutability' and 'ThisParamKind') when used also should be located, so there are type aliases that are used for located types
+    the type alias names are prefixed with 'L', so 'DDecl' would have the type alias:
+
+        type LDDecl = Located Decl
+
+    'BinOp' would have the type alias:
+
+        type LBinOp = Located BinOp
+
+    and 'SFunDecl' would have the type alias:
+
+        type DSFunDecl = Located SFunDecl
 -}
 
 type LocStr = Located String
@@ -30,6 +43,7 @@ type LocStr = Located String
 data Mutability = Mutable | Immutable
 data ThisParamKind = Value | Ref | MutRef
 
+type LBinOp = Located BinOp
 data BinOp
     = Plus | Minus | Star | Slash | Percent
     | Greater | Less | GreaterEqual | LessEqual
@@ -37,56 +51,69 @@ data BinOp
     | DoubleGreater | DoubleLess
     | DoubleEqual | BangEqual
 
+type LShortOp = Located ShortOp
 data ShortOp = DoubleAmper | DoublePipe
+type LUnaryOp = Located UnaryOp
 data UnaryOp = UnBang | UnTilde | UnMinus | UnStar
+type LAssignOp = Located AssignOp
 data AssignOp = Equal
 
-data SFunDecl = SFunDecl' (Maybe DType) LocStr [DParam] SBlockExpr
+type LSFunDecl = Located SFunDecl
+data SFunDecl = SFunDecl' (Maybe LDType) LocStr [LDParam] LSBlockExpr
 
-data SBlockExpr = SBlockExpr' [DStmt]
+type LSBlockExpr = Located SBlockExpr
+data SBlockExpr = SBlockExpr' [LDStmt]
 
-data DCU = DCU'CU [DDecl]
+type LDCU = Located DCU
+data DCU = DCU'CU [LDDecl]
 
+type LDDecl = Located DDecl
 data DDecl
-    = DDecl'Fun SFunDecl
-    | DDecl'Impl DType [DImplMember]
+    = DDecl'Fun LSFunDecl
+    | DDecl'Impl LDType [LDImplMember]
 
+type LDImplMember = Located DImplMember
 data DImplMember
-    = DImplMember'Fun SFunDecl
+    = DImplMember'Fun LSFunDecl
 
+type LDStmt = Located DStmt
 data DStmt
-    = DStmt'Var DType Mutability LocStr (Maybe (Span, DExpr))
-    | DStmt'Expr DExpr
-    | DStmt'Ret DExpr
+    = DStmt'Var LDType Mutability LocStr (Maybe (Span, LDExpr))
+    | DStmt'Expr LDExpr
+    | DStmt'Ret LDExpr
 
+type LDExpr = Located DExpr
 data DExpr
-    = DExpr'Block SBlockExpr
-    | DExpr'If Span DExpr DExpr (Maybe (Span, DExpr))
-    | DExpr'While DExpr DExpr
-    | DExpr'Assign DExpr AssignOp DExpr
-    | DExpr'ShortCircuit DExpr ShortOp DExpr
-    | DExpr'Binary DExpr BinOp DExpr
-    | DExpr'Cast DType DExpr
-    | DExpr'Unary UnaryOp DExpr
-    | DExpr'Ref Span Mutability DExpr
-    | DExpr'Call DExpr Span [DExpr]
-    | DExpr'Field DExpr Span LocStr
-    | DExpr'Method DExpr Span LocStr Span [DExpr]
+    = DExpr'Block LSBlockExpr
+    | DExpr'If Span LDExpr LDExpr (Maybe (Span, LDExpr))
+    | DExpr'While LDExpr LDExpr
+    | DExpr'Assign LDExpr LAssignOp LDExpr
+    | DExpr'ShortCircuit LDExpr LShortOp LDExpr
+    | DExpr'Binary LDExpr LBinOp LDExpr
+    | DExpr'Cast LDType LDExpr
+    | DExpr'Unary LUnaryOp LDExpr
+    | DExpr'Ref Span Mutability LDExpr
+    | DExpr'Call LDExpr Span [LDExpr]
+    | DExpr'Field LDExpr Span LocStr
+    | DExpr'Method LDExpr Span LocStr Span [LDExpr]
     | DExpr'Bool Bool
     | DExpr'Float Double
     | DExpr'Int Integer
     | DExpr'Char Char
     | DExpr'String String
     | DExpr'This
-    | DExpr'Path DPath
+    | DExpr'Path LDPath
 
+type LDParam = Located DParam
 data DParam
-    = DParam'Normal Mutability DType LocStr
+    = DParam'Normal Mutability LDType LocStr
     | DParam'This ThisParamKind
 
+type LDType = Located DType
 data DType
-    = DType'Path DPath
-    | DType'Pointer Mutability DType
+    = DType'Path LDPath
+    | DType'Pointer Mutability LDType
     | DType'This
 
+type LDPath = Located DPath
 data DPath = DPath' [LocStr]
