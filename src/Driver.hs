@@ -50,8 +50,13 @@ lexStage contents =
 
 parseStage :: [Located Lex.Token] -> ErrorAccumulated (Maybe AST.LDCU)
 parseStage toks =
-    let (res, err) = Parse.parse toks
-    in addErrors [Message.toDiagnostic err] >> return res
+    case Parse.parse toks of
+        Right result ->
+            return $ Just result
+
+        Left err ->
+            addErrors [Message.toDiagnostic err] >>
+            return Nothing
 
 compile :: String -> IO ()
 compile filename =

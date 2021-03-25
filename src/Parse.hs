@@ -14,14 +14,15 @@ import Control.Monad.State.Lazy
 -- TODO: boom tokens
 
 -- errors {{{1
-data ErrorCondition
+data ErrorCondition = ErrorCondition Int ErrorConditionVariant
+data ErrorConditionVariant
     = XIsMissingYFound String String Span (Located Lex.Token)
     | XIsMissingYAfterZFound String String String Span (Located Lex.Token)
     | ExcessTokens Span (Located Lex.Token)
     | InvalidToken String String [String] Span (Located Lex.Token)
     | Unclosed String String Span Span (Located Lex.Token)
 
-condToMsgs :: ErrorCondition -> [MsgUnds.Message]
+condToMsgs :: ErrorConditionVariant -> [MsgUnds.Message]
 
 condToMsgs (XIsMissingYFound x y sp (Located _ tok)) =
     [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y ++ " (found " ++ Lex.fmtToken tok ++ ")"
@@ -51,11 +52,16 @@ data ParseError = ParseError [ErrorCondition]
 instance Message.ToDiagnostic ParseError where
     toDiagnostic (ParseError msgs) =
         Message.SimpleDiag Message.Error Nothing Nothing Nothing
-            $ map ((\ ecmsgs -> Message.Underlines $ MsgUnds.UnderlinesSection ecmsgs) . condToMsgs) msgs
-            -- [Message.Underlines $ MsgUnds.UnderlinesSection $ concatMap condToMsgs msgs]
+            [Message.Underlines $ MsgUnds.UnderlinesSection $ concatMap condToMsgs toShow]
+        where
+            toShow = map condv $ filter ((maxind==) . condloc) msgs
+            maxind = maximum $ map condloc msgs
+
+            condloc (ErrorCondition i _) = i
+            condv (ErrorCondition _ v) = v
 
 -- parser {{{1
-data Parser = Parser [Located Lex.Token] (Maybe (Located Lex.Token)) [ErrorCondition]
+data Parser = Parser [Located Lex.Token] (Maybe (Located Lex.Token)) [ErrorCondition] Int
 type ParseFun a = State Parser a
 type ParseFunM a = ParseFun (Maybe a)
 -- utility functions {{{1
@@ -80,36 +86,36 @@ unmfp exa cont =
 -- parser helpers {{{1
 advance :: Int -> Parser -> Parser
 advance 0 p = p
-advance 1 (Parser (t:ts) _ errs) = Parser ts (Just t) errs
+advance 1 (Parser (t:ts) _ errs ind) = Parser ts (Just t) errs (ind + 1)
 advance n p = advance 1 $ advance (n - 1) p
 
 advanceS :: Int -> ParseFun ()
 advanceS x = state $ \ parser -> ((), advance x parser)
 
 peek :: Parser -> Located Lex.Token
-peek (Parser (x:_) _ _) = x
-peek (Parser [] _ _) = error "peek on empty token stream"
+peek (Parser (x:_) _ _ _) = x
+peek (Parser [] _ _ _) = error "peek on empty token stream"
 
 peekS :: ParseFun (Located Lex.Token)
 peekS = state $ \ parser -> (peek parser, parser)
 
-newErr :: ErrorCondition -> Parser -> Parser
-newErr err (Parser toks l errs) = Parser toks l (errs ++ [err])
+newErr :: ErrorConditionVariant -> Parser -> Parser
+newErr err (Parser toks l errs ind) = Parser toks l (errs ++ [ErrorCondition ind err]) ind
 
-newErrS :: ErrorCondition -> ParseFun ()
+newErrS :: ErrorConditionVariant -> ParseFun ()
 newErrS err = state $ \ parser -> ((), newErr err parser)
 
 getParser :: ParseFun Parser
 getParser = state $ \ parser -> (parser, parser)
 
-saveLocation :: ParseFun ([Located Lex.Token], Maybe (Located Lex.Token))
-saveLocation = state $ \ parser@(Parser toks l _) -> ((toks, l), parser)
+saveLocation :: ParseFun ([Located Lex.Token], Maybe (Located Lex.Token), Int)
+saveLocation = state $ \ parser@(Parser toks l _ ind) -> ((toks, l, ind), parser)
 
-restoreLocation :: ([Located Lex.Token], Maybe (Located Lex.Token)) -> ParseFun ()
-restoreLocation (toks, l) = state $ \ (Parser _ _ errs) -> ((), Parser toks l errs)
+restoreLocation :: ([Located Lex.Token], Maybe (Located Lex.Token), Int) -> ParseFun ()
+restoreLocation (toks, l, ind) = state $ \ (Parser _ _ errs _) -> ((), Parser toks l errs ind)
 
 selectSpanFromParser :: Parser -> Span
-selectSpanFromParser (Parser toks back _) =
+selectSpanFromParser (Parser toks back _ _) =
     let front =
             case toks of
                 x:_ -> Just x
@@ -121,7 +127,7 @@ selectSpanFromParser (Parser toks back _) =
         (Nothing, Just (Located bsp _)) -> bsp
         (Nothing, Nothing) -> error "parser has empty token stream, no last"
 -- combinators {{{1
-consume :: (Located Lex.Token -> Maybe t) -> (Span -> Located Lex.Token -> ErrorCondition) -> ParseFunM t
+consume :: (Located Lex.Token -> Maybe t) -> (Span -> Located Lex.Token -> ErrorConditionVariant) -> ParseFunM t
 consume predicate onerr =
     peekS >>= \ locatedPeeked ->
     case predicate locatedPeeked of
@@ -133,13 +139,13 @@ consume predicate onerr =
             newErrS (onerr (selectSpanFromParser parser) locatedPeeked) >>
             return Nothing
 -- consume combinators {{{
-consumeTokU :: Lex.Token -> (Span -> Located Lex.Token -> ErrorCondition) -> ParseFunM ()
+consumeTokU :: Lex.Token -> (Span -> Located Lex.Token -> ErrorConditionVariant) -> ParseFunM ()
 consumeTokU tok = consume (isTTU tok)
 
-consumeTokS :: Lex.Token -> (Span -> Located Lex.Token -> ErrorCondition) -> ParseFunM Span
+consumeTokS :: Lex.Token -> (Span -> Located Lex.Token -> ErrorConditionVariant) -> ParseFunM Span
 consumeTokS tok = consume (isTTS tok)
 
-consumeIden :: (Span -> Located Lex.Token -> ErrorCondition) -> ParseFunM (Located String)
+consumeIden :: (Span -> Located Lex.Token -> ErrorConditionVariant) -> ParseFunM (Located String)
 consumeIden = consume $
     \ tok ->
     case tok of
@@ -212,7 +218,7 @@ mustMatch ex =
     restoreLocation saved >>
     return (const () <$> res)
 
-mustNotMatch :: ParseFunM a -> (Span -> ErrorCondition) -> ParseFunM ()
+mustNotMatch :: ParseFunM a -> (Span -> ErrorConditionVariant) -> ParseFunM ()
 mustNotMatch ex onerr =
     saveLocation >>= \ saved ->
     ex >>= \ res ->
@@ -701,8 +707,9 @@ exprStmt =
     in return $ Just $ Located totalsp $ AST.DStmt'Expr expr
 
 -- parse {{{1
-parse :: [Located Lex.Token] -> (Maybe AST.LDCU, ParseError)
+parse :: [Located Lex.Token] -> Either ParseError AST.LDCU
 parse toks =
-    let (res, (Parser _ _ errs)) = runState grammar $ Parser toks Nothing []
-    -- TODO: do not return res if errors
-    in (res, ParseError errs)
+    let (res, (Parser _ _ errs _)) = runState grammar $ Parser toks Nothing [] 0
+    in case res of
+        Just x -> Right x
+        Nothing -> Left $ ParseError errs
