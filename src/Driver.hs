@@ -56,14 +56,18 @@ parseStage toks =
 compile :: String -> IO ()
 compile filename =
     openFile filename >>= \ file ->
-    let final = lexStage file >>= parseStage
-        (ErrorAcc finalOutput finalErrs) = final
+    let (ErrorAcc finalOutput finalErrs) = lexStage file >>= parseStage
 
         putErrs = hPutStr stderr $ concat $ map Message.report finalErrs
-    in (try putErrs :: IO (Either SomeException ())) >>= \ei ->
-    case ei of
-        Right () -> return ()
-        Left err ->
-            -- TODO: make this a diagnostic, print correctly and with color
-            hPutStr stderr ("\n!!! the compiler is broken! caught internal error: \n" ++ (unlines $ map ("  > " ++) $ lines $ show err)) >>
-            (evaluate $ error "stop after catching internal error")
+
+        doTry x = (try x :: IO (Either SomeException ())) >>= \ ei ->
+            case ei of
+                Right () -> return ()
+                Left err ->
+                    -- TODO: make this a diagnostic, print correctly and with color
+                    hPutStr stderr ("\n!!! the compiler is broken! caught internal error: \n" ++ (unlines $ map ("  > " ++) $ lines $ show err)) >>
+                    (evaluate $ error "stop after catching internal error")
+
+    in doTry (
+        putErrs
+    )
