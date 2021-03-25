@@ -22,7 +22,7 @@ data IntLitBase
     | Oct
     | Hex
     | Bin
-    deriving Data
+    deriving (Data, Eq)
 
 data Token
     = OParen
@@ -100,7 +100,7 @@ data Token
     | Dedent
     | Newline
     | EOF
-    deriving Data
+    deriving (Data, Eq)
 
 fmtToken :: Token -> String
 fmtToken OParen = "'('"

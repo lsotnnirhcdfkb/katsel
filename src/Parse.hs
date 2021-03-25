@@ -6,6 +6,7 @@ import qualified Message
 import qualified Message.Underlines as MsgUnds
 import qualified AST
 
+import Data.List(foldl', findIndex, nub)
 import Data.Data(toConstr, Data)
 import Data.Maybe(isJust, fromMaybe)
 
@@ -15,12 +16,14 @@ import Control.Monad.State.Lazy
 
 -- errors {{{1
 data ErrorCondition = ErrorCondition Int ErrorConditionVariant
+    deriving Eq
 data ErrorConditionVariant
     = XIsMissingYFound String String Span (Located Lex.Token)
     | XIsMissingYAfterZFound String String String Span (Located Lex.Token)
     | ExcessTokens Span (Located Lex.Token)
     | InvalidToken String String [String] Span (Located Lex.Token)
     | Unclosed String String Span Span (Located Lex.Token)
+    deriving Eq
 
 condToMsgs :: ErrorConditionVariant -> [MsgUnds.Message]
 
@@ -47,19 +50,38 @@ condToMsgs (Unclosed construct delimiterName openSp sp (Located _ found)) =
     , MsgUnds.Message openSp MsgUnds.Note MsgUnds.Secondary $ "opening " ++ delimiterName ++ " is here"
     ]
 
+combine :: ErrorCondition -> ErrorCondition -> Maybe ErrorCondition
+combine
+    (ErrorCondition ind1 (InvalidToken construct1 thing1 pos1 sp1 found1))
+    (ErrorCondition ind2 (InvalidToken construct2 thing2 pos2 sp2 _))
+    | construct1 == construct2 && thing1 == thing2 && ind1 == ind2 =
+        Just $ ErrorCondition ind1 $ InvalidToken construct1 thing1 (nub $ pos1 ++ pos2) sp1 found1
+combine _ _ = Nothing
 
 data ParseError = ParseError [ErrorCondition]
 instance Message.ToDiagnostic ParseError where
     toDiagnostic (ParseError msgs) =
         Message.SimpleDiag Message.Error Nothing Nothing Nothing
-            [Message.Underlines $ MsgUnds.UnderlinesSection $ concatMap condToMsgs toShow]
+            [ Message.Underlines $ MsgUnds.UnderlinesSection $ concatMap condToMsgs toShow
+            ]
         where
-            toShow = map condv $ filter ((maxind==) . condloc) msgs
             maxind = maximum $ map condloc msgs
+            toShow = map condv $ combineAll $ nub $ filter ((maxind==) . condloc) msgs
 
             condloc (ErrorCondition i _) = i
             condv (ErrorCondition _ v) = v
 
+            combineAll = foldl' combineOnce []
+                where
+                    combineOnce acc current =
+                        let combinations = [(i, j) | (i, Just j) <- zip [0..] (map (combine current) acc)]
+                        in case combinations of
+                            (ind, combined):_ ->
+                                let (before, after) = splitAt ind acc
+                                in before ++ [combined] ++ (drop 1 after)
+
+                            [] -> acc ++ [current]
+                                -- if current coult not combine with any other things
 -- parser {{{1
 data Parser = Parser [Located Lex.Token] (Maybe (Located Lex.Token)) [ErrorCondition] Int
 type ParseFun a = State Parser a
@@ -468,7 +490,7 @@ assignExpr =
         case tok of
             Lex.Equal -> Just $ Located sp AST.Equal
             _ -> Nothing
-        ) (InvalidToken "assignment expression" "operator" ["'='"]) `unmfp` \ op ->
+        ) (InvalidToken "expression" "operator" ["'='"]) `unmfp` \ op ->
         assignExpr `unmfp` \ rhs ->
         return $ Just (op, rhs)
     ) >>= \ mrhs ->
@@ -483,7 +505,7 @@ binOrExpr = mkBinExpr binAndExpr
                     Lex.DoublePipe -> Just AST.DoublePipe
                     _ -> Nothing
             in Located sp <$> op
-        ) (InvalidToken "binary or expression" "operator" ["'||'"]))
+        ) (InvalidToken "expression" "operator" ["'||'"]))
         AST.DExpr'ShortCircuit
 binAndExpr = mkBinExpr compEQExpr
         (consume (\ (Located sp tok) ->
@@ -491,7 +513,7 @@ binAndExpr = mkBinExpr compEQExpr
                     Lex.DoubleAmper -> Just AST.DoubleAmper
                     _ -> Nothing
             in Located sp <$> op
-        ) (InvalidToken "binary and expression" "operator" ["'&&'"]))
+        ) (InvalidToken "expression" "operator" ["'&&'"]))
         AST.DExpr'ShortCircuit
 compEQExpr = mkBinExpr compLGTExpr
         (consume (\ (Located sp tok) ->
@@ -500,7 +522,7 @@ compEQExpr = mkBinExpr compLGTExpr
                     Lex.DoubleEqual -> Just AST.DoubleEqual
                     _ -> Nothing
             in Located sp <$> op
-        ) (InvalidToken "equality test expression" "operator" ["'!='", "'=='"]))
+        ) (InvalidToken "expression" "operator" ["'!='", "'=='"]))
         AST.DExpr'Binary
 compLGTExpr = mkBinExpr bitXorExpr
         (consume (\ (Located sp tok) ->
@@ -511,7 +533,7 @@ compLGTExpr = mkBinExpr bitXorExpr
                     Lex.LessEqual -> Just AST.LessEqual
                     _ -> Nothing
             in Located sp <$> op
-        ) (InvalidToken "comparison expression" "operator" ["'>'", "'<'", "'>='", "'<='"]))
+        ) (InvalidToken "expression" "operator" ["'>'", "'<'", "'>='", "'<='"]))
         AST.DExpr'Binary
 bitXorExpr = mkBinExpr bitOrExpr
         (consume (\ (Located sp tok) ->
@@ -519,7 +541,7 @@ bitXorExpr = mkBinExpr bitOrExpr
                     Lex.Caret -> Just AST.Caret
                     _ -> Nothing
             in Located sp <$> op
-        ) (InvalidToken "bitwise xor expression" "operator" ["'^'"]))
+        ) (InvalidToken "expression" "operator" ["'^'"]))
         AST.DExpr'Binary
 bitOrExpr = mkBinExpr bitAndExpr
         (consume (\ (Located sp tok) ->
@@ -527,7 +549,7 @@ bitOrExpr = mkBinExpr bitAndExpr
                     Lex.Pipe -> Just AST.Pipe
                     _ -> Nothing
             in Located sp <$> op
-        ) (InvalidToken "bitwise or expression" "operator" ["'|'"]))
+        ) (InvalidToken "expression" "operator" ["'|'"]))
         AST.DExpr'Binary
 bitAndExpr = mkBinExpr bitShiftExpr
         (consume (\ (Located sp tok) ->
@@ -535,7 +557,7 @@ bitAndExpr = mkBinExpr bitShiftExpr
                     Lex.Amper -> Just AST.Amper
                     _ -> Nothing
             in Located sp <$> op
-        ) (InvalidToken "bitwise and expression" "operator" ["'&'"]))
+        ) (InvalidToken "expression" "operator" ["'&'"]))
         AST.DExpr'Binary
 bitShiftExpr = mkBinExpr additionExpr
         (consume (\ (Located sp tok) ->
@@ -544,7 +566,7 @@ bitShiftExpr = mkBinExpr additionExpr
                     Lex.DoubleGreater -> Just AST.DoubleGreater
                     _ -> Nothing
             in Located sp <$> op
-        ) (InvalidToken "bitshift expression" "operator" ["'<<'", "'>>'"]))
+        ) (InvalidToken "expression" "operator" ["'<<'", "'>>'"]))
         AST.DExpr'Binary
 additionExpr = mkBinExpr multExpr
         (consume (\ (Located sp tok) ->
@@ -553,7 +575,7 @@ additionExpr = mkBinExpr multExpr
                     Lex.Minus -> Just AST.Minus
                     _ -> Nothing
             in Located sp <$> op
-        ) (InvalidToken "addition or subtraction expression" "operator" ["'+'", "'-'"]))
+        ) (InvalidToken "expression" "operator" ["'+'", "'-'"]))
         AST.DExpr'Binary
 multExpr = mkBinExpr castExpr
         (consume (\ (Located sp tok) ->
@@ -563,7 +585,7 @@ multExpr = mkBinExpr castExpr
                     Lex.Percent -> Just AST.Percent
                     _ -> Nothing
             in Located sp <$> op
-        ) (InvalidToken "multiplication, division, or modulo expression" "operator" ["'*'", "'/'", "'%'"]))
+        ) (InvalidToken "expression" "operator" ["'*'", "'/'", "'%'"]))
         AST.DExpr'Binary
 
 castExpr =
@@ -572,7 +594,7 @@ castExpr =
     where
         parseMore lhs@(Located lhssp _) =
             (
-                consumeTokU Lex.RightArrow (InvalidToken "cast expression" "operator" ["'->'"]) `unmfp` \ _ ->
+                consumeTokU Lex.RightArrow (XIsMissingYAfterZFound "cast expression" "'->'" "expression to cast") `unmfp` \ _ ->
                 parseType `unmfp` \ ty ->
                 return $ Just ty
             ) >>= \ mty ->

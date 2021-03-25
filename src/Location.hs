@@ -21,11 +21,13 @@ data Location
       , lnnOfLoc :: Int
       , colnOfLoc :: Int
       }
+    deriving Eq
 
 fmtLocation :: Location -> String
 fmtLocation (Location file _ lnnr coln) = name file ++ ":" ++ show lnnr ++ ":" ++ show coln
 
 data Span = Span Location Location
+    deriving Eq
 fmtSpan :: Span -> String
 fmtSpan (Span (Location sfile _ slnnr scoln) (Location efile _ elnnr ecoln)) =
     if sfile /= efile
@@ -36,6 +38,7 @@ joinSpan :: Span -> Span -> Span
 joinSpan (Span s _) (Span _ e) = Span s e
 
 data Located a = Located Span a
+    deriving Eq
 
 makeLocation :: File -> Int -> Location
 makeLocation file srci =
