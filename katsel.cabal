@@ -18,11 +18,25 @@ build-type:          Simple
 executable katsel
   hs-source-dirs:      src
   other-modules:       Driver
-                     , File
-                     , Lex
-                     , Parse
+
+                       -- data structures
                      , AST
+                     , IR
+
+                       -- lex
+                     , Lex
+
+                       -- parse
+                     , Parse
+
+                       -- lower ast to ir
+                     , LowerAST
+
+                       -- utility things
                      , Location
+                     , File
+
+                       -- message things (diagnostics)
                      , Message
                      , Message.Underlines
                      , Message.Utils

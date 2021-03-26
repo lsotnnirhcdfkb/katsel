@@ -9,7 +9,9 @@ import File
 import Location
 
 import qualified Message
+
 import qualified Lex
+
 import qualified Parse
 import qualified AST
 
@@ -58,10 +60,18 @@ parseStage toks =
             addErrors [Message.toDiagnostic err] >>
             return Nothing
 
+lowerASTStage :: Located AST.DCU -> ErrorAccumulated (Maybe Int)
+lowerASTStage _ = error "TODO"
+
 compile :: String -> IO ()
 compile filename =
     openFile filename >>= \ file ->
-    let (ErrorAcc finalOutput finalErrs) = lexStage file >>= parseStage
+    let (ErrorAcc finalOutput finalErrs) =
+            lexStage file >>=
+            parseStage >>= \ mast ->
+            case mast of
+                Just ast -> lowerASTStage ast
+                Nothing -> return Nothing
 
         putErrs = hPutStr stderr $ concat $ map Message.report finalErrs
 
