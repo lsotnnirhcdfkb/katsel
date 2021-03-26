@@ -11,7 +11,6 @@ import Location
 
 import Data.Char(isDigit, isAlpha, isHexDigit, isOctDigit, digitToInt, isSpace)
 import Data.List(foldl', findIndex)
-import Data.Maybe(maybeToList, fromMaybe)
 
 import qualified Message
 import qualified Message.Underlines
@@ -381,13 +380,13 @@ lex' prevtoks indentStack lexer =
             if null prevtoks
                 then ([IndentationSensitive 0], [])
                 else
-                    let rem = remaining lexer
+                    let remain = remaining lexer
                     in (
-                        (processCBrace rem) .
+                        (processCBrace remain) .
                         (processDedent curIndent lastIndent) .
-                        (processSemi   rem) .
+                        (processSemi   remain) .
                         (processNL     curIndent lastIndent) .
-                        (processOBrace rem) .
+                        (processOBrace remain) .
                         (processIndent curIndent lastIndent)
                     ) (indentStack, [])
 
@@ -433,7 +432,7 @@ lex' prevtoks indentStack lexer =
                                 | otherwise = False
                             canpop IndentationInsensitive = False
 
-                            (popped, afterPop) = break (not . canpop) indentStack
+                            (popped, afterPop) = break (not . canpop) stack
 
                             isValidLevel = case head afterPop of
                                 IndentationSensitive lvl

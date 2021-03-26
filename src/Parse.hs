@@ -6,7 +6,7 @@ import qualified Message
 import qualified Message.Underlines as MsgUnds
 import qualified AST
 
-import Data.List(foldl', findIndex, nub)
+import Data.List(foldl', nub)
 import Data.Data(toConstr, Data)
 import Data.Maybe(isJust, fromMaybe)
 
@@ -53,7 +53,7 @@ condToMsgs (Unclosed construct delimiterName openSp sp (Located _ found)) =
 combine :: ErrorCondition -> ErrorCondition -> Maybe ErrorCondition
 combine
     (ErrorCondition ind1 (InvalidToken construct1 thing1 pos1 sp1 found1))
-    (ErrorCondition ind2 (InvalidToken construct2 thing2 pos2 sp2 _))
+    (ErrorCondition ind2 (InvalidToken construct2 thing2 pos2 _ _))
     | construct1 == construct2 && thing1 == thing2 && ind1 == ind2 =
         Just $ ErrorCondition ind1 $ InvalidToken construct1 thing1 (nub $ pos1 ++ pos2) sp1 found1
 combine _ _ = Nothing
@@ -228,6 +228,9 @@ onemoredelim ex delim =
     ) >>= \ rest ->
     return $ Just $ first:rest
 
+{- UNUSED
+   but keep if necessary in the future
+
 convert :: ParseFun a -> (a -> b) -> ParseFun b
 convert ex conv =
     ex >>= \ res ->
@@ -253,6 +256,7 @@ mustNotMatch ex onerr =
 
         Nothing ->
             return (Just ())
+-}
 -- grammar {{{1
 -- grammar helpers {{{
 maybeToMutability :: Maybe a -> AST.Mutability
@@ -407,8 +411,8 @@ thisParam =
     ) >>= \ mstarmut ->
     consumeTokS Lex.This (XIsMissingYFound "'this' parameter" "'this'") `unmfp` \ thissp ->
     let (mstartsp, kind) = case mstarmut of
-            Just (Located startsp True) -> (Just startsp, AST.MutRef)
-            Just (Located startsp False) -> (Just startsp, AST.Ref)
+            Just (Located s True) -> (Just s, AST.MutRef)
+            Just (Located s False) -> (Just s, AST.Ref)
             Nothing -> (Nothing, AST.Value)
 
         startsp = fromMaybe thissp mstartsp
@@ -628,7 +632,7 @@ callExpr =
     primaryExpr `unmfp` \ lhs ->
     parseMore lhs
     where
-        parseMore lhs@(Located lhssp _) =
+        parseMore lhs =
             choice [method lhs, field lhs, call lhs] >>= \ mres ->
             case mres of
                 Just newlhs -> parseMore newlhs
