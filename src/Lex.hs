@@ -10,7 +10,8 @@ import File
 import Location
 
 import Data.Char(isDigit, isAlpha, isHexDigit, isOctDigit, digitToInt, isSpace)
-import Data.List(foldl', findIndex)
+import Data.List(foldl', findIndex, find)
+import Data.Either(isRight)
 
 import qualified Message
 import qualified Message.Underlines
@@ -457,19 +458,28 @@ lex' prevtoks indentStack lexer =
                 processCBrace _ st = st
 
                 makeTokAtCur = makeToken 0 1
-                makeTokAtNLBefore = makeToken offToNL 1
+
+                makeTokRelNLBefore off = makeToken $ offToNL + off
                     where
-                    -- TODO: this is not always correct, if the last newline is on a different line to the last token, then it is wrong, for example
-                    --       > thing
-                    --              ^-- the newline should be placed here
-                    --       > // comment
-                    --                   ^-- but it would actually be placed here, because this is the last newline to the current character
-                    --       > thing
-                    --         ^-- first character of the current line
                         offToNL =
-                            case findIndex (=='\n') $ reverse $ take (sourceLocation lexer + 1) (source $ sourcefile lexer) of
-                                Just x -> -x - 1
-                                Nothing -> error "make token at last nl where there is no nl before"
+                            case fromLastTok of
+                                Just x -> x :: Int
+                                Nothing ->
+                                    case fromCurPos of
+                                        Just x -> x :: Int
+                                        Nothing -> error "no newlines to make token at"
+                            where
+                                fromLastTok =
+                                    (find isRight $ reverse prevtoks) >>= \ (Right (Located (Span _ endloc) _)) ->
+                                    let endind = indOfLoc endloc
+                                    in (findIndex (=='\n') $ drop endind $ source $ sourcefile lexer) >>= \ fromTokInd ->
+                                    Just $ fromTokInd + endind - sourceLocation lexer
+
+                                fromCurPos =
+                                    (findIndex (=='\n') $ reverse $ take (sourceLocation lexer) (source $ sourcefile lexer)) >>= \ x ->
+                                    Just $ -x - 1
+
+                makeTokAtNLBefore = makeTokRelNLBefore 0 1
         -- }}}
         -- {{{ str and char literals
         lexStrOrCharLit isCharLit startingDelim rest =
