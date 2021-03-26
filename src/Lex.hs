@@ -14,7 +14,7 @@ import Data.List(foldl', findIndex, find)
 import Data.Either(isRight)
 
 import qualified Message
-import qualified Message.Underlines
+import qualified Message.Underlines as MsgUnds
 
 import Data.Data(Data)
 
@@ -218,16 +218,16 @@ instance Message.ToDiagnostic LexError where
 
             InvalidBase basechr basechrsp _ ->
                 Message.SimpleDiag Message.Error (Just basechrsp) (Message.makeCode "E0006") (Just "invalid-intlit-base")
-                    [ Message.Underlines $ Message.Underlines.UnderlinesSection
-                        [ Message.Underlines.Message basechrsp Message.Underlines.Error Message.Underlines.Primary $ "invalid integer literal base '" ++ [basechr] ++ "' (must be one of 'x', 'o', or 'b' or omitted)"
+                    [ Message.Underlines $ MsgUnds.UnderlinesSection
+                        [ MsgUnds.Message basechrsp MsgUnds.Error MsgUnds.Primary $ "invalid integer literal base '" ++ [basechr] ++ "' (must be one of 'x', 'o', or 'b' or omitted)"
                         ]
                     ]
 
             InvalidDigit digitchr digitsp litsp ->
                 Message.SimpleDiag Message.Error (Just digitsp) (Message.makeCode "E0007") (Just "invalid-digit")
-                    [ Message.Underlines $ Message.Underlines.UnderlinesSection
-                        [ Message.Underlines.Message digitsp Message.Underlines.Error Message.Underlines.Primary $ "invalid digit '" ++ [digitchr] ++ "'"
-                        , Message.Underlines.Message litsp Message.Underlines.Note Message.Underlines.Secondary "in this integer literal"
+                    [ Message.Underlines $ MsgUnds.UnderlinesSection
+                        [ MsgUnds.Message digitsp MsgUnds.Error MsgUnds.Primary $ "invalid digit '" ++ [digitchr] ++ "'"
+                        , MsgUnds.Message litsp MsgUnds.Note MsgUnds.Secondary "in this integer literal"
                         ]
                     ]
 
@@ -238,7 +238,7 @@ instance Message.ToDiagnostic LexError where
 
         where
             simple sp code nm msg = Message.SimpleDiag Message.Error (Just sp) (Message.makeCode code) (Just nm)
-                    [ Message.Underlines $ Message.Underlines.UnderlinesSection [Message.Underlines.Message sp Message.Underlines.Error Message.Underlines.Primary msg]
+                    [ Message.Underlines $ MsgUnds.UnderlinesSection [MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary msg]
                     ]
 
 lex :: File -> [Either LexError (Located Token)]
@@ -401,6 +401,11 @@ lex' prevtoks indentStack lexer =
                     IndentationInsensitive -> Nothing
                     IndentationSensitive x -> Just x
 
+                lastIsSemi =
+                    case find isRight $ reverse prevtoks of
+                        Just (Right (Located _ Semicolon)) -> True
+                        _ -> False
+
                 -- TODO: support \ at the end of a line to prevent indent tokens
                 -- TODO: support ~ at the end of a line to start a indentation sensitive frame
                 processIndent (Just curlvl) (Just lastlvl) (stack, toks)
@@ -415,9 +420,11 @@ lex' prevtoks indentStack lexer =
 
                 processNL (Just curlvl) (Just lastlvl) (stack, toks)
                     -- TODO: do not emit newline if first character is '{'
-                    -- TODO: check the last token emitted instead to see if there was already a semicolon, and if there is then don't emit a newline
                     | curlvl == lastlvl =
-                        (stack, toks ++ [Right $ makeTokAtNLBefore Newline])
+                        if lastIsSemi
+                            then (stack, toks)
+                            else (stack, toks ++ [Right $ makeTokAtNLBefore Newline])
+
                 processNL _ _ st = st
 
                 processSemi (';':_) (stack, toks) = (stack, toks ++ [Right $ makeTokAtCur Semicolon])
@@ -442,10 +449,14 @@ lex' prevtoks indentStack lexer =
                         in
                             (
                                 afterPop,
-                                toks ++ [Right $ makeTokAtNLBefore Newline] ++ (replicate numPop $ Right $ makeTokAtCur Dedent) ++
-                                if isValidLevel
+                                toks ++
+                                (if lastIsSemi
                                     then []
-                                    else [Left $ makeError 0 1 BadDedent]
+                                    else [Right $ makeTokAtNLBefore Newline]) ++
+                                (replicate numPop $ Right $ makeTokAtCur Dedent) ++
+                                (if isValidLevel
+                                    then []
+                                    else [Left $ makeError 0 1 BadDedent])
                             )
                 processDedent _ _ st = st
 
