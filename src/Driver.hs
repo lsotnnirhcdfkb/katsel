@@ -13,8 +13,6 @@ import qualified Lex
 import qualified Parse
 import qualified AST
 
-import Debug.Trace(trace)
-
 import System.IO(hPutStr, stderr)
 import Control.Exception(try, SomeException, evaluate)
 
@@ -48,7 +46,7 @@ lexStage contents =
     let lexed = Lex.lex contents
         errs = [Message.toDiagnostic x | Left x <- lexed]
         toks = [x | Right x <- lexed]
-    in addErrors errs >> (trace (show $ map (\ (Located _ l) -> Lex.fmtToken l) toks) $ return toks)
+    in addErrors errs >> return toks
 
 parseStage :: [Located Lex.Token] -> ErrorAccumulated (Maybe AST.LDCU)
 parseStage toks =
