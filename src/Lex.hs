@@ -379,14 +379,13 @@ lex' prevtoks indentStack lexer =
                 then ([IndentationSensitive 0], [])
                 else
                     let remain = remaining lexer
-                    in (
+                    in
                         (processCBrace remain) .
-                        (processDedent curIndent lastIndent) .
                         (processSemi   remain) .
-                        (processNL     curIndent lastIndent) .
                         (processOBrace remain) .
-                        (processIndent curIndent lastIndent)
-                    ) (indentStack, [])
+                        (processDedent curIndent lastIndent) .
+                        (processNL     curIndent lastIndent) .
+                        (processIndent curIndent lastIndent) $ (indentStack, [])
 
             where
                 curIndent = foldl' countIndent (Just 0) strBeforeLexer
