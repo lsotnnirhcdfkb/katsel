@@ -11,6 +11,7 @@ import Location
 
 import Data.Char(isDigit, isAlpha, isHexDigit, isOctDigit, digitToInt, isSpace)
 import Data.List(foldl', findIndex)
+import Data.Maybe(maybeToList, fromMaybe)
 
 import qualified Message
 import qualified Message.Underlines
@@ -245,7 +246,7 @@ instance Message.ToDiagnostic LexError where
                     ]
 
 lex :: File -> [Either LexError (Located Token)]
-lex f = lex' [] [IndentationSensitive 0] $ Lexer
+lex f = lex' [] [] $ Lexer
            { sourcefile = f
            , sourceLocation = 0
            , remaining = source f
@@ -315,7 +316,6 @@ lex' prevtoks indentStack lexer =
         ')':_ -> continueLexWithSingleTok 1 CParen
         '[':_ -> continueLexWithSingleTok 1 OBrack
         ']':_ -> continueLexWithSingleTok 1 CBrack
-        ';':_ -> continueLexWithSingleTok 1 Semicolon
         ',':_ -> continueLexWithSingleTok 1 Comma
         '.':_ -> continueLexWithSingleTok 1 Period
         '?':_ -> continueLexWithSingleTok 1 Question
@@ -336,10 +336,11 @@ lex' prevtoks indentStack lexer =
         '&':_ -> continueLexWithSingleTok 1 Amper
         '|':_ -> continueLexWithSingleTok 1 Pipe
 
-        -- braces are handled by indentation tokens
+        -- braces and semicolons are handled by indentation tokens
         -- cannot use continueLexWithNothing because that function does not include indent tokens
         '{':_ -> continueLexWith [] 1
         '}':_ -> continueLexWith [] 1
+        ';':_ -> continueLexWith [] 1
 
         '"':strlit -> lexStrLit strlit
         '\'':chrlit -> lexCharLit chrlit
@@ -362,7 +363,7 @@ lex' prevtoks indentStack lexer =
 
     where
         -- helpers {{{
-        continueLexWith things advanceamt = lex' (prevtoks ++ indentTokens ++ things) newIndentStack $ lexer `advance` advanceamt
+        continueLexWith things advanceamt = lex' (prevtoks ++ indentationTokens ++ things) newIndentStack $ lexer `advance` advanceamt
         continueLexWithNothing advanceamt = lex' prevtoks indentStack $ lexer `advance` advanceamt
 
         continueLexWithSingleTok len tok = continueLexWith [Right $ makeToken 0 len tok] len
@@ -378,82 +379,97 @@ lex' prevtoks indentStack lexer =
                 file = sourcefile lexer
                 ind = sourceLocation lexer
 
-        (newIndentStack, indentTokens) =
-            case prevtoks of
-                [] -> ([IndentationSensitive 0], [])
-                _ ->
-                    processBraces processCurIndent
+        (newIndentStack, indentationTokens) =
+            if null prevtoks
+                then ([IndentationSensitive 0], [])
+                else
+                    let rem = remaining lexer
+                    in (
+                        (processCBrace rem) .
+                        (processDedent curIndent lastIndent) .
+                        (processNLSemi curIndent lastIndent rem) .
+                        (processOBrace rem) .
+                        (processIndent curIndent lastIndent)
+                    ) (indentStack, [])
+
             where
-                processBraces (stack, toks) =
-                    case remaining lexer of
-                        '{':_ -> (IndentationInsensitive : stack, toks ++ [Right $ makeTokAtCur OBrace])
-
-                        '}':_ ->
-                            case head stack of
-                                IndentationInsensitive -> (tail stack, toks ++ [Right $ makeTokAtCur CBrace])
-                                IndentationSensitive _ -> (stack, toks ++ [Left $ makeError 0 1 $ BadBrace])
-
-                        _ -> (stack, toks)
-
-                curIndent = countIndent (Just 0) indentStr
+                curIndent = foldl' countIndent (Just 0) strBeforeLexer
                     where
-                        strBeforeLexer = reverse $ take (sourceLocation lexer) $ source $ sourcefile lexer
-                        indentStr = takeWhile (/='\n') strBeforeLexer
+                        strBeforeLexer = takeWhile (/='\n') $ reverse $ take (sourceLocation lexer) $ source $ sourcefile lexer
 
-                        countIndent res [] = res
-                        countIndent (Just acc) (' ':more) = countIndent (Just $ acc + 1) more
-                        countIndent (Just acc) ('\t':more) = countIndent (Just $ (acc `div` 8 + 1) * 8) more
-                        countIndent Nothing _ = Nothing
+                        countIndent (Just acc) ' ' = Just $ acc + 1
+                        countIndent (Just acc) '\t' = Just $ (acc `div` 8 + 1) * 8
                         countIndent _ _ = Nothing
 
-                processCurIndent =
-                    case head indentStack of
-                        IndentationInsensitive -> (indentStack, [])
+                lastIndent = case head indentStack of
+                    IndentationInsensitive -> Nothing
+                    IndentationSensitive x -> Just x
 
-                        IndentationSensitive lastlvl ->
-                            -- TODO: to not insert any tokens if the current character is '{'
-                            -- TODO: support \ at the end of a line to prevent indent tokens
-                            -- TODO: support ~ at the end of a line to start a indentation sensitive frame
-                            case curIndent of
-                                Just curlvl
-                                    | curlvl < lastlvl -> doDedent curlvl
-                                    | curlvl > lastlvl -> doIndent curlvl
-                                    | curlvl == lastlvl -> doNewline curlvl
+                -- TODO: to not insert any tokens if the current character is '{'
+                -- TODO: support \ at the end of a line to prevent indent tokens
+                -- TODO: support ~ at the end of a line to start a indentation sensitive frame
+                processIndent (Just curlvl) (Just lastlvl) (stack, toks)
+                    | curlvl > lastlvl =
+                        (newFrame:stack, toks ++ [Right $ makeTokAtCur Indent])
+                        where
+                            newFrame = IndentationSensitive curlvl
+                processIndent _ _ st = st
 
-                                _ -> (indentStack, [])
-                doDedent curlvl =
-                    let getAmountToPop acc (cur:rest)
-                            | canPop cur = getAmountToPop (acc + 1) rest
-                            | otherwise = acc
-                        getAmountToPop _ [] = error "indent stack should never be empty"
-                        canPop (IndentationSensitive ind)
-                            | curlvl < ind = True
-                            | otherwise = False
-                        canPop IndentationInsensitive = False
+                processOBrace rem (stack, toks) =
+                    case rem of
+                        '{':_ -> (IndentationInsensitive : stack, toks ++ [Right $ makeTokAtCur OBrace])
+                        _ -> (stack, toks)
 
-                        popAmt = getAmountToPop 0 indentStack
-                        poppedStack = drop popAmt indentStack
+                processNLSemi mcurlvl mlastlvl rem (stack, toks) =
+                    ( stack
+                    , case semiTok of
+                          Just s -> toks ++ [s]
+                          Nothing -> toks ++ maybeToList nlTok
+                    )
+                    where
+                        semiTok =
+                            case rem of
+                                ';':_ -> Just $ Right $ makeTokAtCur Semicolon
+                                _ -> Nothing
+                        nlTok =
+                            case (mcurlvl, mlastlvl) of
+                                (Just curlvl, Just lastlvl)
+                                    | curlvl == lastlvl -> Just $ Right $ makeTokAtNLBefore Newline
+                                _ -> Nothing
 
-                        isValidLevel =
-                            case head poppedStack of
+                processDedent (Just curlvl) (Just lastlvl) (stack, toks)
+                    | curlvl < lastlvl =
+                        let canpop (IndentationSensitive ind)
+                                | curlvl < ind = True
+                                | otherwise = False
+                            canpop IndentationInsensitive = False
+
+                            (popped, afterPop) = break (not . canpop) indentStack
+
+                            isValidLevel = case head afterPop of
                                 IndentationSensitive lvl
                                     | curlvl > lvl -> False
 
                                 _ -> True
-                    in (
-                        poppedStack,
-                        (Right $ makeTokAtNLBefore Newline) : (replicate popAmt $ Right $ makeTokAtCur Dedent) ++
-                        if isValidLevel
-                        then []
-                        else [Left $ makeError 0 1 BadDedent]
-                    )
-                doIndent curlvl =
-                    let newFrame = IndentationSensitive curlvl
-                    in (newFrame:indentStack, [Right $ makeTokAtCur Indent])
-                doNewline _ =
-                    -- TODO: do not insert if last token is ';'
-                    -- TODO: do not insert if last token is '}'
-                    (indentStack, [Right $ makeTokAtNLBefore Newline])
+
+                            numPop = length popped
+                        in
+                            (
+                                afterPop,
+                                toks ++ [Right $ makeTokAtNLBefore Newline] ++ (replicate numPop $ Right $ makeTokAtCur Dedent) ++
+                                if isValidLevel
+                                    then []
+                                    else [Left $ makeError 0 1 BadDedent]
+                            )
+                processDedent _ _ st = st
+
+                processCBrace rem (stack, toks) =
+                    case remaining lexer of
+                        '}':_ ->
+                            case head stack of
+                                IndentationInsensitive -> (tail stack, toks ++ [Right $ makeTokAtCur CBrace])
+                                IndentationSensitive _ -> (stack, toks ++ [Left $ makeError 0 1 $ BadBrace])
+                        _ -> (stack, toks)
 
                 makeTokAtCur = makeToken 0 1
                 makeTokAtNLBefore = makeToken offToNL 1
