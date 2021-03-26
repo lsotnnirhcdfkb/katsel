@@ -385,7 +385,8 @@ lex' prevtoks indentStack lexer =
                     in (
                         (processCBrace rem) .
                         (processDedent curIndent lastIndent) .
-                        (processNLSemi curIndent lastIndent rem) .
+                        (processSemi   rem) .
+                        (processNL     curIndent lastIndent) .
                         (processOBrace rem) .
                         (processIndent curIndent lastIndent)
                     ) (indentStack, [])
@@ -415,21 +416,15 @@ lex' prevtoks indentStack lexer =
                 processOBrace ('{':_) (stack, toks) = (IndentationInsensitive : stack, toks ++ [Right $ makeTokAtCur OBrace])
                 processOBrace _ st = st
 
-                processNLSemi mcurlvl mlastlvl rem (stack, toks) =
-                    -- TODO: this does not work because usually the semicolon is not on the first character of the next line!
-                    -- TODO: this should not be combined then, if there is a semicolon on the first character then both tokens should appear
-                    -- TODO: check the last token emitted instead to see if there was already a semicolon
+                processNL (Just curlvl) (Just lastlvl) (stack, toks)
                     -- TODO: do not emit newline if first character is '{'
-                    (stack, toks ++ maybeToList seminltok)
-                    where
-                        seminltok =
-                            case rem of
-                                ';':_ -> Just $ Right $ makeTokAtCur Semicolon
-                                _ ->
-                                    case (mcurlvl, mlastlvl) of
-                                        (Just curlvl, Just lastlvl)
-                                            | curlvl == lastlvl -> Just $ Right $ makeTokAtNLBefore Newline
-                                        _ -> Nothing
+                    -- TODO: check the last token emitted instead to see if there was already a semicolon, and if there is then don't emit a newline
+                    | curlvl == lastlvl =
+                        (stack, toks ++ [Right $ makeTokAtNLBefore Newline])
+                processNL _ _ st = st
+
+                processSemi (';':_) (stack, toks) = (stack, toks ++ [Right $ makeTokAtCur Semicolon])
+                processSemi _ st = st
 
                 processDedent (Just curlvl) (Just lastlvl) (stack, toks)
                     | curlvl < lastlvl =
