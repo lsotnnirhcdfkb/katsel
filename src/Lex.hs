@@ -208,7 +208,6 @@ data LexError
     | BadDedent Span
     -- TODO: make indentation frames more helpful, show where indent frame started by storing that span in the frame
     --       and then use that span to show what frame the mismatched brace is closing
-    | BadBrace Span
 
 instance Message.ToDiagnostic LexError where
     toDiagnostic err =
@@ -238,7 +237,6 @@ instance Message.ToDiagnostic LexError where
             MissingDigits sp -> simple sp "E0009" "no-digits" "integer literal must have digits"
 
             BadDedent sp -> simple sp "E0010" "bad-dedent" "dedent to level that does not match any other indentation level"
-            BadBrace sp -> simple sp "E0011" "bad-cbrace" "indentation block cannot be closed by '}'"
 
         where
             simple sp code nm msg = Message.SimpleDiag Message.Error (Just sp) (Message.makeCode code) (Just nm)
@@ -405,7 +403,6 @@ lex' prevtoks indentStack lexer =
                     IndentationInsensitive -> Nothing
                     IndentationSensitive x -> Just x
 
-                -- TODO: to not insert any tokens if the current character is '{'
                 -- TODO: support \ at the end of a line to prevent indent tokens
                 -- TODO: support ~ at the end of a line to start a indentation sensitive frame
                 processIndent (Just curlvl) (Just lastlvl) (stack, toks)
@@ -421,21 +418,20 @@ lex' prevtoks indentStack lexer =
                         _ -> (stack, toks)
 
                 processNLSemi mcurlvl mlastlvl rem (stack, toks) =
-                    ( stack
-                    , case semiTok of
-                          Just s -> toks ++ [s]
-                          Nothing -> toks ++ maybeToList nlTok
-                    )
+                    -- TODO: this does not work because usually the semicolon is not on the first character of the next line!
+                    -- TODO: this should not be combined then, if there is a semicolon on the first character then both tokens should appear
+                    -- TODO: check the last token emitted instead to see if there was already a semicolon
+                    -- TODO: do not emit newline if first character is '{'
+                    (stack, toks ++ maybeToList seminltok)
                     where
-                        semiTok =
+                        seminltok =
                             case rem of
                                 ';':_ -> Just $ Right $ makeTokAtCur Semicolon
-                                _ -> Nothing
-                        nlTok =
-                            case (mcurlvl, mlastlvl) of
-                                (Just curlvl, Just lastlvl)
-                                    | curlvl == lastlvl -> Just $ Right $ makeTokAtNLBefore Newline
-                                _ -> Nothing
+                                _ ->
+                                    case (mcurlvl, mlastlvl) of
+                                        (Just curlvl, Just lastlvl)
+                                            | curlvl == lastlvl -> Just $ Right $ makeTokAtNLBefore Newline
+                                        _ -> Nothing
 
                 processDedent (Just curlvl) (Just lastlvl) (stack, toks)
                     | curlvl < lastlvl =
@@ -466,9 +462,11 @@ lex' prevtoks indentStack lexer =
                 processCBrace rem (stack, toks) =
                     case remaining lexer of
                         '}':_ ->
-                            case head stack of
-                                IndentationInsensitive -> (tail stack, toks ++ [Right $ makeTokAtCur CBrace])
-                                IndentationSensitive _ -> (stack, toks ++ [Left $ makeError 0 1 $ BadBrace])
+                            let newtoks = toks ++ [Right $ makeTokAtCur CBrace]
+                            in case head stack of
+                                IndentationInsensitive -> (tail stack, newtoks)
+                                IndentationSensitive _ -> (stack, newtoks) -- do not pop on the stack, but the parser will handle the error message when there is a random '}' that appears
+
                         _ -> (stack, toks)
 
                 makeTokAtCur = makeToken 0 1
