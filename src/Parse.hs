@@ -28,16 +28,16 @@ data ErrorConditionVariant
 condToMsgs :: ErrorConditionVariant -> [MsgUnds.Message]
 
 condToMsgs (XIsMissingYFound x y sp (Located _ tok)) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y ++ " (found " ++ Lex.fmtToken tok ++ ")"
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y ++ " (found " ++ Lex.fmtToken tok ++ " instead)"
     ]
 condToMsgs (XIsMissingYAfterZFound x y z sp (Located _ tok)) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y ++ " after " ++ z ++ " (found " ++ Lex.fmtToken tok ++ ")"
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y ++ " after " ++ z ++ " (found " ++ Lex.fmtToken tok ++ " instead)"
     ]
 condToMsgs (ExcessTokens sp (Located _ tok)) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "extraneous tokens found in input (" ++ Lex.fmtToken tok ++ ")"
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "extraneous tokens found in input (found " ++ Lex.fmtToken tok ++ ")"
     ]
 condToMsgs (InvalidToken construct thing possibilities sp (Located _ found)) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "invalid " ++ thing ++ " for " ++ construct ++ "; must be " ++ fmtPossibilities possibilities ++ " (found " ++ Lex.fmtToken found ++ ")"
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "invalid " ++ thing ++ " for " ++ construct ++ "; must be " ++ fmtPossibilities possibilities ++ " (found " ++ Lex.fmtToken found ++ " instead)"
     ]
     where
         fmtPossibilities [] = error "no possibilities"
@@ -46,7 +46,7 @@ condToMsgs (InvalidToken construct thing possibilities sp (Located _ found)) =
         fmtPossibilities (x:y:z:[]) = x ++ ", " ++ y ++ ", or " ++ z
         fmtPossibilities (x:xs) = x ++ ", " ++ fmtPossibilities xs
 condToMsgs (Unclosed construct delimiterName openSp sp (Located _ found)) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ construct ++ " has unclosed " ++ delimiterName ++ " (found " ++ Lex.fmtToken found ++ ")"
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ construct ++ " has unclosed " ++ delimiterName ++ " (found " ++ Lex.fmtToken found ++ " instead)"
     , MsgUnds.Message openSp MsgUnds.Note MsgUnds.Secondary $ "opening " ++ delimiterName ++ " is here"
     ]
 
