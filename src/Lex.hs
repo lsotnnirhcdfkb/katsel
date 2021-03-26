@@ -412,10 +412,8 @@ lex' prevtoks indentStack lexer =
                             newFrame = IndentationSensitive curlvl
                 processIndent _ _ st = st
 
-                processOBrace rem (stack, toks) =
-                    case rem of
-                        '{':_ -> (IndentationInsensitive : stack, toks ++ [Right $ makeTokAtCur OBrace])
-                        _ -> (stack, toks)
+                processOBrace ('{':_) (stack, toks) = (IndentationInsensitive : stack, toks ++ [Right $ makeTokAtCur OBrace])
+                processOBrace _ st = st
 
                 processNLSemi mcurlvl mlastlvl rem (stack, toks) =
                     -- TODO: this does not work because usually the semicolon is not on the first character of the next line!
@@ -459,15 +457,13 @@ lex' prevtoks indentStack lexer =
                             )
                 processDedent _ _ st = st
 
-                processCBrace rem (stack, toks) =
-                    case remaining lexer of
-                        '}':_ ->
-                            let newtoks = toks ++ [Right $ makeTokAtCur CBrace]
-                            in case head stack of
-                                IndentationInsensitive -> (tail stack, newtoks)
-                                IndentationSensitive _ -> (stack, newtoks) -- do not pop on the stack, but the parser will handle the error message when there is a random '}' that appears
-
-                        _ -> (stack, toks)
+                processCBrace ('}':_) (stack, toks) =
+                    case head stack of
+                        IndentationInsensitive -> (tail stack, newtoks)
+                        IndentationSensitive _ -> (stack, newtoks) -- do not pop on the stack, but the parser will handle the error message when there is a random '}' that appears
+                    where
+                        newtoks = toks ++ [Right $ makeTokAtCur CBrace]
+                processCBrace _ st = st
 
                 makeTokAtCur = makeToken 0 1
                 makeTokAtNLBefore = makeToken offToNL 1
