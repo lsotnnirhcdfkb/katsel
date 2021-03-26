@@ -205,8 +205,6 @@ data LexError
     | MissingDigits Span
     -- TODO: add 4 fields: new indent level, before indent level, two closest indentation levels
     | BadDedent Span
-    -- TODO: make indentation frames more helpful, show where indent frame started by storing that span in the frame
-    --       and then use that span to show what frame the mismatched brace is closing
 
 instance Message.ToDiagnostic LexError where
     toDiagnostic err =
