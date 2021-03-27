@@ -27,8 +27,6 @@ data Type
     | FunctionType (StrMap DeclSymbol) Type [(Mutability, Type)]
     | VoidType (StrMap DeclSymbol)
     | PointerType (StrMap DeclSymbol) Bool Type
-    | GenericIntType (StrMap DeclSymbol)
-    | GenericFloatType (StrMap DeclSymbol)
 
 data DeclSymbol
     = DSModule Module
@@ -46,14 +44,26 @@ data Value
 
 data Function
     = Function
-      -- { functionBlocks :: [BasicBlock]
-      { functionRegisters :: [Register]
+      { functionBlocks :: [BasicBlock]
+      , functionRegisters :: [Register]
       , functionRetReg :: Int
       , functionParamRegs :: [Int]
       , functionType :: Type
       }
+data BasicBlock = BasicBlock [Instruction] (Maybe Br)
+
 data Register = Register Type Bool
-data Instruction = Instruction
+
+data Instruction
+    = Copy Register Value
+    | Call Function [Value]
+    | Addrof Register Bool
+    | DerefPtr Value
+
+data Br
+    = BrRet
+    | BrGoto BasicBlock
+    | BrCond Value BasicBlock BasicBlock
 
 -- DeclSymbol stuff {{{1
 getValues :: DeclSymbol -> StrMap Value
@@ -64,8 +74,6 @@ getValues (DSType (BoolType _)) = Map.empty
 getValues (DSType (FunctionType _ _ _)) = Map.empty
 getValues (DSType (VoidType _)) = Map.empty
 getValues (DSType (PointerType _ _ _)) = Map.empty
-getValues (DSType (GenericIntType _)) = Map.empty
-getValues (DSType (GenericFloatType _)) = Map.empty
 getValues (DSModule (Module _ vmap)) = vmap
 
 getDeclSymbols :: DeclSymbol -> StrMap DeclSymbol
@@ -77,8 +85,6 @@ getDeclSymbols (DSType (BoolType dsmap)) = dsmap
 getDeclSymbols (DSType (FunctionType dsmap _ _)) = dsmap
 getDeclSymbols (DSType (VoidType dsmap)) = dsmap
 getDeclSymbols (DSType (PointerType dsmap _ _)) = dsmap
-getDeclSymbols (DSType (GenericIntType dsmap)) = dsmap
-getDeclSymbols (DSType (GenericFloatType dsmap)) = dsmap
 
 getValue :: DeclSymbol -> String -> Maybe Value
 getValue ds n = Map.lookup n $ getValues ds
