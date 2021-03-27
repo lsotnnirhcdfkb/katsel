@@ -18,7 +18,7 @@ import qualified AST
 import qualified IR
 
 import System.IO(hPutStr, stderr)
-import Control.Exception(try, SomeException, evaluate)
+import Control.Exception(SomeException, try, evaluate, displayException)
 
 -- data Backend = CBackend
 
@@ -84,7 +84,7 @@ compile filename =
                     hPutStr stderr ("\n" ++ (
                         Message.report $ Message.SimpleDiag Message.InternalError Nothing Nothing Nothing
                             [ Message.SimpleText "the compiler is broken! caught internal error:"
-                            , Message.SimpleMultilineText $ unlines $ map ("> " ++) $ lines $ show err
+                            , Message.SimpleMultilineText $ unlines $ map ("> " ++) $ lines $ displayException err
                             ]
                     )) >>
                     (evaluate $ error "stop after catching internal error")
