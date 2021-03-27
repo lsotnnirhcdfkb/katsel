@@ -18,20 +18,24 @@ import Message.Utils
 
 data Section
     = SimpleText String
+    | SimpleMultilineText String
     | Underlines UnderlinesSection
 
 data SimpleDiagType
     = Error
     | Warning
     | DebugMessage
+    | InternalError
 
 textOfDiagType :: SimpleDiagType -> String
 textOfDiagType Error = "error"
+textOfDiagType InternalError = "internal error!"
 textOfDiagType Warning = "warning"
 textOfDiagType DebugMessage = "debug message"
 
 sgrOfDiagType :: SimpleDiagType -> [ANSI.SGR]
 sgrOfDiagType Error = [boldSGR, vividForeColorSGR ANSI.Red]
+sgrOfDiagType InternalError = [boldSGR, vividForeColorSGR ANSI.Red]
 sgrOfDiagType Warning = [boldSGR, vividForeColorSGR ANSI.Magenta]
 sgrOfDiagType DebugMessage = [boldSGR, vividForeColorSGR ANSI.Green]
 
@@ -81,8 +85,12 @@ report' (SimpleDiag ty maybeSpan maybeDiagCode maybeName sections) =
 
 indentOf :: Section -> Int
 indentOf (SimpleText _) = 4
+indentOf (SimpleMultilineText _) = 4
 indentOf (Underlines sec) = indentOfUnderlinesSection sec
 
 showSection :: Int -> Section -> String
 showSection indent (SimpleText text) = makeIndentStr indent ++ " " ++ text ++ "\n"
+showSection indent (SimpleMultilineText text) = unlines $ map ((indentStr ++ " ")++) $ lines text
+    where
+        indentStr = makeIndentStr indent
 showSection indent (Underlines sec) = showUnderlinesSection indent sec
