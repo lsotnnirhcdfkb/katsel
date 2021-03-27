@@ -81,7 +81,6 @@ compile filename =
             case ei of
                 Right () -> return ()
                 Left err ->
-                    -- TODO: make this a diagnostic, print correctly and with color
                     hPutStr stderr ("\n" ++ (
                         Message.report $ Message.SimpleDiag Message.InternalError Nothing Nothing Nothing
                             [ Message.SimpleText "the compiler is broken! caught internal error:"
