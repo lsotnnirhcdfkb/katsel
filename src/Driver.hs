@@ -15,6 +15,7 @@ import qualified Lex
 import qualified Parse
 import qualified AST
 
+import qualified LowerAST
 import qualified IR
 
 import System.IO(hPutStr, stderr)
@@ -62,8 +63,8 @@ parseStage toks =
             addErrors [Message.toDiagnostic err] >>
             return Nothing
 
-lowerASTStage :: Located AST.DCU -> ErrorAccumulated (Maybe IR.Unit)
-lowerASTStage _ = error "TODO"
+lowerASTStage :: AST.LDCU -> ErrorAccumulated (Maybe IR.Unit)
+lowerASTStage = return . LowerAST.lowerCU
 
 compile :: String -> IO ()
 compile filename =
@@ -90,5 +91,5 @@ compile filename =
                     (evaluate $ error "stop after catching internal error")
 
     in doTry (
-        putErrs
+        seq finalOutput putErrs
     )
