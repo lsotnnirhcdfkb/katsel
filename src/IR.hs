@@ -11,9 +11,8 @@ import qualified Data.Map as Map
 
 type StrMap = Map String
 
-data Mutability
-    = Mutable
-    | Immutable
+data Mutability = Mutable | Immutable
+data Signedness = Signed | Unsigned
 
 data Unit = Unit File Module
 
@@ -21,12 +20,12 @@ data Module = Module (StrMap DeclSymbol) (StrMap Value)
 
 data Type
     = FloatType (StrMap DeclSymbol) Int
-    | IntType (StrMap DeclSymbol) Int Bool
+    | IntType (StrMap DeclSymbol) Int Signedness
     | CharType (StrMap DeclSymbol)
     | BoolType (StrMap DeclSymbol)
     | FunctionType (StrMap DeclSymbol) Type [(Mutability, Type)]
     | VoidType (StrMap DeclSymbol)
-    | PointerType (StrMap DeclSymbol) Bool Type
+    | PointerType (StrMap DeclSymbol) Mutability Type
 
 data DeclSymbol
     = DSModule Module
@@ -52,12 +51,12 @@ data Function
       }
 data BasicBlock = BasicBlock [Instruction] (Maybe Br)
 
-data Register = Register Type Bool
+data Register = Register Type Mutability
 
 data Instruction
     = Copy Register Value
     | Call Function [Value]
-    | Addrof Register Bool
+    | Addrof Register Mutability
     | DerefPtr Value
 
 data Br
