@@ -4,30 +4,51 @@ module IR
 
 import File
 
+import qualified AST(BinOp, UnaryOp)
+
 import Data.Map(Map)
 import qualified Data.Map as Map
 
 type StrMap = Map String
 
+data Mutability
+    = Mutable
+    | Immutable
+
 data Unit = Unit File Module
 
 data Module = Module (StrMap DeclSymbol)
 
-data Type = Type (StrMap DeclSymbol)
+data Type
+    = FloatType (StrMap DeclSymbol) Int
+    | IntType (StrMap DeclSymbol) Int Bool
+    | CharType (StrMap DeclSymbol)
+    | BoolType (StrMap DeclSymbol)
+    | FunctionType (StrMap DeclSymbol) Type [(Mutability, Type)]
+    | VoidType (StrMap DeclSymbol)
+    | PointerType (StrMap DeclSymbol) Bool Type
+    | GenericIntType (StrMap DeclSymbol)
+    | GenericFloatType (StrMap DeclSymbol)
 
 data DeclSymbol
     = DSModule Module
     | DSType Type
 
-data Value
-
+-- DeclSymbol stuff {{{1
 getValues :: DeclSymbol -> StrMap ()
-getValues (DSModule (Module map)) = error "values not implemented yet"
-getValues (DSType (Type map)) = error "values not implemented yet"
+getValues _ = error "values not implemented yet"
 
 getDeclSymbols :: DeclSymbol -> StrMap DeclSymbol
 getDeclSymbols (DSModule (Module dsmap)) = dsmap
-getDeclSymbols (DSType (Type dsmap)) = dsmap
+getDeclSymbols (DSType (FloatType dsmap _)) = dsmap
+getDeclSymbols (DSType (IntType dsmap _ _)) = dsmap
+getDeclSymbols (DSType (CharType dsmap)) = dsmap
+getDeclSymbols (DSType (BoolType dsmap)) = dsmap
+getDeclSymbols (DSType (FunctionType dsmap _ _)) = dsmap
+getDeclSymbols (DSType (VoidType dsmap)) = dsmap
+getDeclSymbols (DSType (PointerType dsmap _ _)) = dsmap
+getDeclSymbols (DSType (GenericIntType dsmap)) = dsmap
+getDeclSymbols (DSType (GenericFloatType dsmap)) = dsmap
 
 getValue :: DeclSymbol -> String -> Maybe ()
 getValue ds n = Map.lookup n $ getValues ds
