@@ -17,7 +17,7 @@ data Mutability
 
 data Unit = Unit File Module
 
-data Module = Module (StrMap DeclSymbol)
+data Module = Module (StrMap DeclSymbol) (StrMap Value)
 
 data Type
     = FloatType (StrMap DeclSymbol) Int
@@ -34,12 +34,42 @@ data DeclSymbol
     = DSModule Module
     | DSType Type
 
+data Value
+    = VFunction Function
+    | VRegister Register
+    | VConstInt Integer
+    | VConstFloat Double
+    | VConstBool Bool
+    | VConstChar Char
+    | VVoid
+    | VInstruction Instruction
+
+data Function
+    = Function
+      -- { functionBlocks :: [BasicBlock]
+      { functionRegisters :: [Register]
+      , functionRetReg :: Int
+      , functionParamRegs :: [Int]
+      , functionType :: Type
+      }
+data Register = Register Type Bool
+data Instruction = Instruction
+
 -- DeclSymbol stuff {{{1
-getValues :: DeclSymbol -> StrMap ()
-getValues _ = error "values not implemented yet"
+getValues :: DeclSymbol -> StrMap Value
+getValues (DSType (FloatType _ _)) = Map.empty
+getValues (DSType (IntType _ _ _)) = Map.empty
+getValues (DSType (CharType _)) = Map.empty
+getValues (DSType (BoolType _)) = Map.empty
+getValues (DSType (FunctionType _ _ _)) = Map.empty
+getValues (DSType (VoidType _)) = Map.empty
+getValues (DSType (PointerType _ _ _)) = Map.empty
+getValues (DSType (GenericIntType _)) = Map.empty
+getValues (DSType (GenericFloatType _)) = Map.empty
+getValues (DSModule (Module _ vmap)) = vmap
 
 getDeclSymbols :: DeclSymbol -> StrMap DeclSymbol
-getDeclSymbols (DSModule (Module dsmap)) = dsmap
+getDeclSymbols (DSModule (Module dsmap _)) = dsmap
 getDeclSymbols (DSType (FloatType dsmap _)) = dsmap
 getDeclSymbols (DSType (IntType dsmap _ _)) = dsmap
 getDeclSymbols (DSType (CharType dsmap)) = dsmap
@@ -50,7 +80,7 @@ getDeclSymbols (DSType (PointerType dsmap _ _)) = dsmap
 getDeclSymbols (DSType (GenericIntType dsmap)) = dsmap
 getDeclSymbols (DSType (GenericFloatType dsmap)) = dsmap
 
-getValue :: DeclSymbol -> String -> Maybe ()
+getValue :: DeclSymbol -> String -> Maybe Value
 getValue ds n = Map.lookup n $ getValues ds
 
 getDeclSymbol :: DeclSymbol -> String -> Maybe DeclSymbol
