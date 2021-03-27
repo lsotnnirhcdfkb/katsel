@@ -5,13 +5,13 @@ import qualified AST
 
 import Location
 
-data CGT0
-    = FunctionCGT0 AST.LSFunDecl
-    | ImplCGT0 AST.LDType [CGT0]
+data CGD0
+    = FunctionCGD0 AST.LSFunDecl
+    | ImplCGD0 AST.LDType [CGT0]
 
-data CGT1
-    = FunctionCGT1
-    | ImplCGT1
+data CGD1
+    = FunctionCGD1
+    | ImplCGD1
 
 data CGV0
     = FunctionCGV0
