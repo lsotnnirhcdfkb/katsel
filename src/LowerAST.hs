@@ -6,7 +6,7 @@ import qualified AST
 import Location
 
 data CGT0
-    = FunctionCGT0
+    = FunctionCGT0 AST.LSFunDecl
     | ImplCGT0 AST.LDType [CGT0]
 
 data CGT1
@@ -27,11 +27,8 @@ lowerCU (Located _ (AST.DCU'CU decls)) = error "TODO"
         declcgs = map declCG decls
 
 declCG :: AST.LDDecl -> CGT0
-declCG (Located _ (AST.DDecl'Fun sf)) = funCG sf
+declCG (Located _ (AST.DDecl'Fun sf)) = FunctionCGT0 sf
 declCG (Located _ (AST.DDecl'Impl implFor members)) = ImplCGT0 implFor $ map implMemberCG members
 
-funCG :: AST.LSFunDecl -> CGT0
-funCG (Located _ (AST.SFunDecl' _ _ _ _)) = FunctionCGT0
-
 implMemberCG :: AST.LDImplMember -> CGT0
-implMemberCG (Located _ (AST.DImplMember'Fun sf)) = funCG sf
+implMemberCG (Located _ (AST.DImplMember'Fun sf)) = FunctionCGT0 sf
