@@ -15,6 +15,8 @@ import qualified Lex
 import qualified Parse
 import qualified AST
 
+import qualified IR
+
 import System.IO(hPutStr, stderr)
 import Control.Exception(try, SomeException, evaluate)
 
@@ -60,7 +62,7 @@ parseStage toks =
             addErrors [Message.toDiagnostic err] >>
             return Nothing
 
-lowerASTStage :: Located AST.DCU -> ErrorAccumulated (Maybe Int)
+lowerASTStage :: Located AST.DCU -> ErrorAccumulated (Maybe IR.Unit)
 lowerASTStage _ = error "TODO"
 
 compile :: String -> IO ()
