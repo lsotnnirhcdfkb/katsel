@@ -352,7 +352,7 @@ lex' prevtoks indentStack lexer =
                 makeDedent IndentationInsensitive = [] -- the parser will handle these when it finds a dedent token instead of a matching '}'
 
         entire@(other:_)
-            | isAlpha other -> lexIden entire
+            | isAlpha other || other == '_' -> lexIden entire
             | isDigit other -> lexNr entire
             | isSpace other -> continueLexWithNothing 1
             | otherwise -> continueLexWithSingleErr 1 $ BadChar other
@@ -546,7 +546,7 @@ lex' prevtoks indentStack lexer =
             where
                 idenContents = alphanum ++ apostrophes
                     where
-                        idenPred ch = isAlpha ch || isDigit ch
+                        idenPred ch = isAlpha ch || isDigit ch || ch == '_'
                         (alphanum, rest) = break (not . idenPred) entire
                         apostrophes = takeWhile (=='\'') rest
                 idenLen = length idenContents
