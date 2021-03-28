@@ -6,7 +6,7 @@ import qualified AST
 import Location
 
 data CGD0
-    = FunctionCGD0 AST.LSFunDecl
+    = FunctionCGD0 (Maybe CGD0) AST.LSFunDecl
     | ImplCGD0 AST.LDType [CGD0]
 
 data CGD1
@@ -24,11 +24,13 @@ data CGV1
 lowerCU :: AST.LDCU -> Maybe IR.Unit
 lowerCU (Located _ (AST.DCU'CU decls)) = error "TODO"
     where
-        declcgs = map declCG decls
+        declcgs = map (declCG Nothing) decls
 
-declCG :: AST.LDDecl -> CGD0
-declCG (Located _ (AST.DDecl'Fun sf)) = FunctionCGD0 sf
-declCG (Located _ (AST.DDecl'Impl implFor members)) = ImplCGD0 implFor $ map implMemberCG members
+declCG :: (Maybe CGD0) -> AST.LDDecl -> CGD0
+declCG parent (Located _ (AST.DDecl'Fun sf)) = FunctionCGD0 parent sf
+declCG _ (Located _ (AST.DDecl'Impl implFor members)) = parentCG
+    where
+        parentCG = ImplCGD0 implFor $ map (implMemberCG $ Just parentCG) members
 
-implMemberCG :: AST.LDImplMember -> CGD0
-implMemberCG (Located _ (AST.DImplMember'Fun sf)) = FunctionCGD0 sf
+implMemberCG :: (Maybe CGD0) -> AST.LDImplMember -> CGD0
+implMemberCG parent (Located _ (AST.DImplMember'Fun sf)) = FunctionCGD0 parent sf

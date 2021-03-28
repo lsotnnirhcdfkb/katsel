@@ -10,22 +10,24 @@ import Data.Map(Map)
 import qualified Data.Map as Map
 
 type StrMap = Map String
+type DSMap = StrMap DeclSymbol
+type VMap = StrMap Value
 
 data Mutability = Mutable | Immutable
 data Signedness = Signed | Unsigned
 
 data Unit = Unit File Module
 
-data Module = Module (StrMap DeclSymbol) (StrMap Value)
+data Module = Module DSMap VMap
 
 data Type
-    = FloatType (StrMap DeclSymbol) Int
-    | IntType (StrMap DeclSymbol) Int Signedness
-    | CharType (StrMap DeclSymbol)
-    | BoolType (StrMap DeclSymbol)
-    | FunctionType (StrMap DeclSymbol) Type [(Mutability, Type)]
-    | VoidType (StrMap DeclSymbol)
-    | PointerType (StrMap DeclSymbol) Mutability Type
+    = FloatType DSMap Int
+    | IntType DSMap Int Signedness
+    | CharType DSMap
+    | BoolType DSMap
+    | FunctionType DSMap Type [(Mutability, Type)]
+    | VoidType DSMap
+    | PointerType DSMap Mutability Type
 
 data DeclSymbol
     = DSModule Module
@@ -65,6 +67,7 @@ data Br
     | BrCond Value BasicBlock BasicBlock
 
 -- DeclSymbol stuff {{{1
+-- TODO: eventually types will have values (eg uint32::max)
 getValues :: DeclSymbol -> StrMap Value
 getValues (DSType (FloatType _ _)) = Map.empty
 getValues (DSType (IntType _ _ _)) = Map.empty
