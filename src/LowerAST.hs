@@ -8,9 +8,6 @@ import Location
 lowerMod :: AST.LDModule -> Maybe IR.Unit
 lowerMod (Located _ (AST.DModule' decls)) = error "TODO"
 
-ddeclare, ddefine, vdeclare, vdefine :: IR.Unit -> AST.DDecl -> IR.Unit
+class Lowerable a where
+    ddeclare, ddefine, vdeclare, vdefine :: IR.Unit -> a -> IR.Unit
 
-ddeclare = undefined
-ddefine = undefined
-vdeclare = undefined
-vdefine = undefined
