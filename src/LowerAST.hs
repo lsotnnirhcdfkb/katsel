@@ -38,3 +38,15 @@ declCG _ (Located _ (AST.DDecl'Impl implFor members)) = parentCG
 
 implMemberCG :: CGD0 -> AST.LDImplMember -> CGD0
 implMemberCG parent (Located _ (AST.DImplMember'Fun sf)) = FunctionCGD0 parent sf
+
+ddecl :: CGD0 -> CGD1
+ddecl = undefined
+
+ddef :: CGD1 -> CGV0
+ddef = undefined
+
+vdecl :: CGV0 -> CGV1
+vdecl = undefined
+
+vdef :: CGV1 -> ()
+vdef = undefined
