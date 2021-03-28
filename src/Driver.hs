@@ -53,7 +53,7 @@ lexStage contents =
         toks = [x | Right x <- lexed]
     in addErrors errs >> return toks
 
-parseStage :: [Located Lex.Token] -> ErrorAccumulated (Maybe AST.LDCU)
+parseStage :: [Located Lex.Token] -> ErrorAccumulated (Maybe AST.LDModule)
 parseStage toks =
     case Parse.parse toks of
         Right result ->
@@ -63,8 +63,8 @@ parseStage toks =
             addErrors [Message.toDiagnostic err] >>
             return Nothing
 
-lowerASTStage :: AST.LDCU -> ErrorAccumulated (Maybe IR.Unit)
-lowerASTStage = return . LowerAST.lowerCU
+lowerASTStage :: AST.LDModule -> ErrorAccumulated (Maybe IR.Unit)
+lowerASTStage = return . LowerAST.lowerMod
 
 compile :: String -> IO ()
 compile filename =

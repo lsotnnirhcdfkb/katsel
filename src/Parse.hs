@@ -273,13 +273,13 @@ spanFromList _ list =
         Located b _ = last list
 
 -- }}}
-grammar :: ParseFunM AST.LDCU
+grammar :: ParseFunM AST.LDModule
 grammar =
     declList >>= \ mdl ->
     consumeTokS Lex.EOF ExcessTokens `unmfp` \ eofsp ->
     case mdl of
-        Just dl -> return $ Just $ Located (spanFromList eofsp dl) (AST.DCU'CU dl)
-        Nothing -> return $ Just $ Located eofsp $ AST.DCU'CU []
+        Just dl -> return $ Just $ Located (spanFromList eofsp dl) (AST.DModule' dl)
+        Nothing -> return $ Just $ Located eofsp $ AST.DModule' []
 -- lists {{{2
 declList :: ParseFunM [AST.LDDecl]
 declList = onemore parseDecl
@@ -731,7 +731,7 @@ exprStmt =
     in return $ Just $ Located totalsp $ AST.DStmt'Expr expr
 
 -- parse {{{1
-parse :: [Located Lex.Token] -> Either ParseError AST.LDCU
+parse :: [Located Lex.Token] -> Either ParseError AST.LDModule
 parse toks =
     let (res, (Parser _ _ errs _)) = runState grammar $ Parser toks Nothing [] 0
     in case res of

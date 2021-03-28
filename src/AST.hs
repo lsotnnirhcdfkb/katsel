@@ -64,8 +64,8 @@ data SFunDecl = SFunDecl' (Maybe LDType) LocStr [LDParam] LSBlockExpr
 type LSBlockExpr = Located SBlockExpr
 data SBlockExpr = SBlockExpr' [LDStmt]
 
-type LDCU = Located DCU
-data DCU = DCU'CU [LDDecl]
+type LDModule = Located DModule
+data DModule = DModule' [LDDecl]
 
 type LDDecl = Located DDecl
 data DDecl
