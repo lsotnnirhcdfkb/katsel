@@ -1,5 +1,10 @@
 module IR
     ( Unit(..)
+    , Module(..)
+    , Function(..)
+    , Value(..)
+    , Type(..)
+    , Impl(..)
     ) where
 
 import File
@@ -29,9 +34,13 @@ data Type
     | VoidType DSMap
     | PointerType DSMap Mutability Type
 
+data Impl
+    = Impl
+
 data DeclSymbol
     = DSModule Module
     | DSType Type
+    | DSImpl Impl
 
 data Value
     = VFunction Function

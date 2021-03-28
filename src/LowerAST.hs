@@ -5,48 +5,52 @@ import qualified AST
 
 import Location
 
-data CGD0
-    = ModuleCGD0 [CGD0]
-    | FunctionCGD0 CGD0 AST.LSFunDecl
-    | ImplCGD0 AST.LDType [CGD0]
+-- each cg represents the data needed in order to do the phase
+-- so DDeclCG represents the data needed to do the declaration declaration phase
+-- and VDefCG represents the data needed to do the value definition phase
 
-data CGD1
-    = ModuleCGD1
-    | FunctionCGD1
-    | ImplCGD1
+data DDeclCG
+    = ModuleDDeclCG [DDeclCG]
+    | FunctionDDeclCG DDeclCG AST.LSFunDecl
+    | ImplDDeclCG AST.LDType [DDeclCG]
 
-data CGV0
-    = ModuleCGV0
-    | FunctionCGV0
-    | ImplCGV0
+data DDefCG
+    = ModuleDDefCG
+    | FunctionDDefCG
+    | ImplDDefCG
 
-data CGV1
-    = ModuleCGV1
-    | FunctionCGV1
-    | ImplCGV1
+data VDeclCG
+    = ModuleVDeclCG
+    | FunctionVDeclCG
+    | ImplVDeclCG
+
+data VDefCG
+    = ModuleVDefCG
+    | FunctionVDefCG
+    | ImplVDefCG
 
 lowerMod :: AST.LDModule -> Maybe IR.Unit
 lowerMod (Located _ (AST.DModule' decls)) = error "TODO"
     where
-        modcg = ModuleCGD0 $ map (declCG modcg) decls
+        modcg = ModuleDDeclCG $ map (declCG modcg) decls
 
-declCG :: CGD0 -> AST.LDDecl -> CGD0
-declCG parent (Located _ (AST.DDecl'Fun sf)) = FunctionCGD0 parent sf
+declCG :: DDeclCG -> AST.LDDecl -> DDeclCG
+declCG parent (Located _ (AST.DDecl'Fun sf)) = FunctionDDeclCG parent sf
 declCG _ (Located _ (AST.DDecl'Impl implFor members)) = parentCG
     where
-        parentCG = ImplCGD0 implFor $ map (implMemberCG parentCG) members
+        parentCG = ImplDDeclCG implFor $ map (implMemberCG parentCG) members
 
-implMemberCG :: CGD0 -> AST.LDImplMember -> CGD0
-implMemberCG parent (Located _ (AST.DImplMember'Fun sf)) = FunctionCGD0 parent sf
+implMemberCG :: DDeclCG -> AST.LDImplMember -> DDeclCG
+implMemberCG parent (Located _ (AST.DImplMember'Fun sf)) = FunctionDDeclCG parent sf
 
-ddecl :: CGD0 -> CGD1
+ddecl :: DDeclCG -> DDefCG
 ddecl = undefined
 
-ddef :: CGD1 -> CGV0
+ddef :: DDefCG -> VDeclCG
 ddef = undefined
 
-vdecl :: CGV0 -> CGV1
+vdecl :: VDeclCG -> VDefCG
 vdecl = undefined
 
-vdef :: CGV1 -> ()
+vdef :: VDefCG -> ()
 vdef = undefined
