@@ -63,7 +63,7 @@ parseStage toks =
             addErrors [Message.toDiagnostic err] >>
             return Nothing
 
-lowerASTStage :: AST.LDModule -> ErrorAccumulated (Maybe IR.Unit)
+lowerASTStage :: AST.LDModule -> ErrorAccumulated (Maybe IR.Module)
 lowerASTStage = return . LowerAST.lowerMod
 
 compile :: String -> IO ()

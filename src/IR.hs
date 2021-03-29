@@ -1,10 +1,8 @@
 module IR
-    ( Unit(..)
-    , Module(..)
+    ( Module(..)
     , Function(..)
     , Value(..)
     , Type(..)
-    , Impl(..)
     ) where
 
 import File
@@ -21,8 +19,6 @@ type VMap = StrMap Value
 data Mutability = Mutable | Immutable
 data Signedness = Signed | Unsigned
 
-data Unit = Unit File Module
-
 data Module = Module DSMap VMap
 
 data Type
@@ -34,13 +30,9 @@ data Type
     | VoidType DSMap
     | PointerType DSMap Mutability Type
 
-data Impl
-    = Impl
-
 data DeclSymbol
     = DSModule Module
     | DSType Type
-    | DSImpl Impl
 
 data Value
     = VFunction Function
