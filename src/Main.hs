@@ -11,7 +11,7 @@ main =
     getProgName >>= \ progName ->
     case args of
         [] -> usageMessage progName
-        filename:[] -> Driver.compile filename
+        [filename] -> Driver.compile filename
         _ -> usageMessage progName
     where
         usageMessage progName = hPutStrLn stderr $ "usage: " ++ progName ++ " <filename>"

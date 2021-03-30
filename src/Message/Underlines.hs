@@ -18,7 +18,7 @@ import Data.Maybe(maybeToList)
 
 import qualified System.Console.ANSI as ANSI
 
-data UnderlinesSection = UnderlinesSection [Message]
+newtype UnderlinesSection = UnderlinesSection [Message]
 data Message = Message Span Type Importance String
 data Importance = Primary | Secondary | Tertiary
 data Type = Error | Warning | Note | Hint
@@ -39,7 +39,7 @@ linenrsOfMessages msgs = sortBy sortComparator $ nubBy nubComparator linesWithDi
         -- nub keeps the first occurance, so it will keep all the normal lines if there are duplicate dim lines
         -- since the dim lines are all appended to the end of the list
         linesWithDim = linesWithoutDim ++ concatMap getDimLines linesWithoutDim
-        getDimLines (ShowLine fl nr _) = (ShowLine fl (nr+1) Dim):(if nr > 1 then [ShowLine fl (nr-1) Dim] else [])
+        getDimLines (ShowLine fl nr _) = ShowLine fl (nr+1) Dim : (if nr > 1 then [ShowLine fl (nr-1) Dim] else [])
 
         linesWithoutDim = concatMap linenrsof msgs
         linenrsof (Message (Span start end) _ _ _) = [ShowLine (fileOfLoc start) (lnnOfLoc start) Normal, ShowLine (fileOfLoc start) (lineMinus1 end) Normal]
@@ -52,7 +52,7 @@ linenrsOfMessages msgs = sortBy sortComparator $ nubBy nubComparator linesWithDi
         nubComparator (ShowLine fl1 nr1 _) (ShowLine fl2 nr2 _) = (fl1, nr1) == (fl2, nr2)
 
 indentOfUnderlinesSection :: UnderlinesSection -> Int
-indentOfUnderlinesSection (UnderlinesSection msgs) = 1 + (maximum $ map getWidth $ linenrsOfMessages msgs)
+indentOfUnderlinesSection (UnderlinesSection msgs) = 1 + maximum (map getWidth $ linenrsOfMessages msgs)
     where
         getWidth (ShowLine _ ln _) = length . show $ ln
 
@@ -98,26 +98,26 @@ assignMessages messages = (firstrow, msglines)
                 overlapping = any ((curMsgEndCol>=) . colOfAssignment) onCurRow
 
                 curMsgEndCol = endColOfMsg curMsg
-                colOfAssignment (_, (Message (Span _ eloc) _ _ _)) =  colMinus1 eloc
+                colOfAssignment (_, Message (Span _ eloc) _ _ _) =  colMinus1 eloc
                 endColOfMsg (Message (Span _ end) _ _ str) = colMinus1 end + length str + 3
 
         assigned = assign (sortBy comparator messages) []
-        comparator (Message (Span _ end1) _ _ _) (Message (Span _ end2) _ _ _) = (colMinus1 end2) `compare` (colMinus1 end1)
+        comparator (Message (Span _ end1) _ _ _) (Message (Span _ end2) _ _ _) = colMinus1 end2 `compare` colMinus1 end1
 
         firstrow = findMsgsOnRow 0
 
-        msglines = map MessageLine $ takeWhile ((>0) . length) $ map findMsgsOnRow [1..]
+        msglines = map MessageLine $ takeWhile (not . null) $ map findMsgsOnRow [1..]
         findMsgsOnRow row = map (todmsg . snd) $ filter ((row==) . fst) assigned
 
         todmsg (Message (Span _ end) ty _ str) = DMessage (sgrOfTy ty) (colMinus1 end) str
 
 sectionLines :: UnderlinesSection -> [SectionLine]
 sectionLines (UnderlinesSection msgs) =
-    makeLines [] $ zip flnrs $ Nothing:(map Just flnrs)
+    makeLines [] $ zip flnrs $ Nothing : map Just flnrs
     where
         flnrs = linenrsOfMessages msgs
 
-        makeLines acc (((ShowLine curfl curnr curdimn), lastshln):more) =
+        makeLines acc ((ShowLine curfl curnr curdimn, lastshln):more) =
             makeLines nextAcc more
             where
                 nextAcc = acc ++ maybeToList fileLine ++ maybeToList elipsisLine ++ contentLines
@@ -245,7 +245,7 @@ drawSectionLine indent (MessageLine msgs) =
         draw curmessages@(_:_) col acc =
             case curs of
                 [] -> draw rest (col + 1) (acc ++ " ")
-                [(DMessage sgr _ str)] ->
+                [DMessage sgr _ str] ->
                     let len = length str
                     in draw rest (col + len + 4) (acc ++ ANSI.setSGRCode sgr ++ "`-- " ++ str ++ ANSI.setSGRCode [])
 

@@ -156,7 +156,7 @@ fmtToken (StringLit s) = "string literal \"" ++ shortened ++ "\""
     where
         shortened = if length s < 10
             then s
-            else (take 6 s) ++ "..."
+            else take 6 s ++ "..."
 fmtToken (IntLit _ i) = "integer literal " ++ show i
 fmtToken (FloatLit d) = "floating point literal " ++ show d
 fmtToken (BoolLit b) = "bool literal " ++ if b then "true" else "false"
@@ -345,8 +345,8 @@ lex' prevtoks indentStack lexer =
             where
                 -- TODO: use the same span as other dedent tokens
                 alldedents =
-                    (Right $ makeToken 0 1 Newline) :
-                    (concatMap makeDedent $ init indentStack)
+                    Right (makeToken 0 1 Newline) :
+                    concatMap makeDedent (init indentStack)
 
                 makeDedent (IndentationSensitive _) = [Right $ makeToken 0 1 Dedent]
                 makeDedent IndentationInsensitive = [] -- the parser will handle these when it finds a dedent token instead of a matching '}'
@@ -381,12 +381,12 @@ lex' prevtoks indentStack lexer =
                 else
                     let remain = remaining lexer
                     in
-                        (processCBrace remain) .
-                        (processSemi   remain) .
-                        (processOBrace remain) .
-                        (processDedent curIndent lastIndent) .
-                        (processNL     curIndent lastIndent) .
-                        (processIndent curIndent lastIndent) $ (indentStack, [])
+                        processCBrace remain .
+                        processSemi   remain .
+                        processOBrace remain .
+                        processDedent curIndent lastIndent .
+                        processNL     curIndent lastIndent .
+                        processIndent curIndent lastIndent $ (indentStack, [])
 
             where
                 curIndent = foldl' countIndent (Just 0) strBeforeLexer
@@ -437,7 +437,7 @@ lex' prevtoks indentStack lexer =
                                 | otherwise = False
                             canpop IndentationInsensitive = False
 
-                            (popped, afterPop) = break (not . canpop) stack
+                            (popped, afterPop) = span canpop stack
 
                             isValidLevel = case head afterPop of
                                 IndentationSensitive lvl
@@ -453,7 +453,7 @@ lex' prevtoks indentStack lexer =
                                 (if lastIsSemi
                                     then []
                                     else [Right $ makeTokAtNLBefore Newline]) ++
-                                (replicate numPop $ Right $ makeTokAtCur Dedent) ++
+                                replicate numPop (Right $ makeTokAtCur Dedent) ++
                                 (if isValidLevel
                                     then []
                                     else [Left $ makeError 0 1 BadDedent])
@@ -481,13 +481,13 @@ lex' prevtoks indentStack lexer =
                                         Nothing -> error "no newlines to make token at"
                             where
                                 fromLastTok =
-                                    (find isRight $ reverse prevtoks) >>= \ (Right (Located (Span _ endloc) _)) ->
+                                    find isRight (reverse prevtoks) >>= \ (Right (Located (Span _ endloc) _)) ->
                                     let endind = indOfLoc endloc
-                                    in (findIndex (=='\n') $ drop endind $ source $ sourcefile lexer) >>= \ fromTokInd ->
+                                    in elemIndex '\n' (drop endind $ source $ sourcefile lexer) >>= \ fromTokInd ->
                                     Just $ fromTokInd + endind - sourceLocation lexer
 
                                 fromCurPos =
-                                    (findIndex (=='\n') $ reverse $ take (sourceLocation lexer) (source $ sourcefile lexer)) >>= \ x ->
+                                    elemIndex '\n' (reverse $ take (sourceLocation lexer) (source $ sourcefile lexer)) >>= \ x ->
                                     Just $ -x - 1
 
                 makeTokAtNLBefore = makeTokRelNLBefore 0 1
@@ -547,7 +547,7 @@ lex' prevtoks indentStack lexer =
                 idenContents = alphanum ++ apostrophes
                     where
                         idenPred ch = isAlpha ch || isDigit ch || ch == '_'
-                        (alphanum, rest) = break (not . idenPred) entire
+                        (alphanum, rest) = span idenPred entire
                         apostrophes = takeWhile (=='\'') rest
                 idenLen = length idenContents
         -- }}}
@@ -619,14 +619,14 @@ lex' prevtoks indentStack lexer =
 
                 (digits, digitsLen, afterDigits) =
                     (d, length d, after)
-                    where (d, after) = break (not . isHexDigit) afterBase
+                    where (d, after) = span isHexDigit afterBase
 
                 (decimalDigits, decimalLen, _) =
                     case afterDigits of
-                        '.':(rest@(firstDigit:_))
+                        '.':rest@(firstDigit:_)
                             | isHexDigit firstDigit ->
                                 (Just f, length f + 1, drop 1 more)
-                                where (f, more) = break (not . isHexDigit) rest
+                                where (f, more) = span isHexDigit rest
 
                         after -> (Nothing, 0, after)
 
@@ -637,16 +637,16 @@ lex' prevtoks indentStack lexer =
                     where
                         accFn acc (place, char) = acc + ((readBase `powerFn` place) * fromIntegral (digitToInt char))
 
-                readLitDigits readBase powerFn = readDigits (reverse ([0..toInteger digitsLen - 1])) readBase digits powerFn
+                readLitDigits readBase powerFn = readDigits (reverse [0..toInteger digitsLen - 1]) readBase digits powerFn
 
                 getInvalidDigits chk = filter (not . chk . fst) $ zip digits [baseLen..]
                 makeErrorsFromInvalidDigits = map (\ (dig, ind) -> Left $ InvalidDigit dig (makeSpanFromLexer ind 1) (makeSpanFromLexer 0 totalLen))
 
                 checkIntNoFloat digitChk tok =
-                    if length digits > 0
+                    if not $ null digits
                     then
                         let invalidDigits = getInvalidDigits digitChk
-                        in if length invalidDigits == 0
+                        in if null invalidDigits
                             then
                                 case decimalDigits of
                                     Nothing -> continueLexWithSingleTok totalLen tok
@@ -662,14 +662,14 @@ lex' prevtoks indentStack lexer =
                 Just 'o' ->
                     checkIntNoFloat isOctDigit $ IntLit Oct $ readLitDigits 8 (^)
                 Nothing ->
-                    if length digits > 0
+                    if not $ null digits
                     then
                         let invalidDigits = getInvalidDigits isDigit
-                        in if length invalidDigits == 0
+                        in if null invalidDigits
                             then
                                 case decimalDigits of
                                     Nothing -> continueLexWithSingleTok totalLen $ IntLit Dec $ readLitDigits 10 (^)
-                                    Just dd -> continueLexWithSingleTok totalLen $ FloatLit $ (fromIntegral $ readLitDigits 10 (^)) + (readDigits (map (fromIntegral . negate) [1..decimalLen]) 10 dd (**))
+                                    Just dd -> continueLexWithSingleTok totalLen $ FloatLit $ fromIntegral (readLitDigits 10 (^)) + readDigits (map (fromIntegral . negate) [1..decimalLen]) 10 dd (**)
                             else continueLexWith (makeErrorsFromInvalidDigits invalidDigits) totalLen
                     else continueLexWithSingleErr totalLen MissingDigits
 

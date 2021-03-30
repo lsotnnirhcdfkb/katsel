@@ -47,7 +47,7 @@ makeLocation file srci =
     else Location file srci (getlnn file srci) (getcoln file srci)
 
 getlnn :: File -> Int -> Int
-getlnn file ind = 1 + (length $ filter ('\n'==) (take ind $ source file))
+getlnn file ind = 1 + length (filter ('\n'==) (take ind $ source file))
 
 getcoln :: File -> Int -> Int
-getcoln file ind = 1 + (length $ takeWhile (/='\n') $ reverse $ take ind $ source file)
+getcoln file ind = 1 + length (takeWhile (/='\n') $ reverse $ take ind $ source file)

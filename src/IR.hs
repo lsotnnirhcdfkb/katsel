@@ -1,7 +1,8 @@
 module IR
     ( Module(..)
-    , Function(..)
     , Value(..)
+    , Function(..)
+    , DeclSymbol(..)
     , Type(..)
     ) where
 
@@ -68,13 +69,13 @@ data Br
 -- DeclSymbol stuff {{{1
 -- TODO: eventually types will have values (eg uint32::max)
 getValues :: DeclSymbol -> StrMap Value
-getValues (DSType (FloatType _ _)) = Map.empty
-getValues (DSType (IntType _ _ _)) = Map.empty
-getValues (DSType (CharType _)) = Map.empty
-getValues (DSType (BoolType _)) = Map.empty
-getValues (DSType (FunctionType _ _ _)) = Map.empty
-getValues (DSType (VoidType _)) = Map.empty
-getValues (DSType (PointerType _ _ _)) = Map.empty
+getValues (DSType FloatType {}) = Map.empty
+getValues (DSType IntType {}) = Map.empty
+getValues (DSType CharType {}) = Map.empty
+getValues (DSType BoolType {}) = Map.empty
+getValues (DSType FunctionType {}) = Map.empty
+getValues (DSType VoidType {}) = Map.empty
+getValues (DSType PointerType {}) = Map.empty
 getValues (DSModule (Module _ vmap)) = vmap
 
 getDeclSymbols :: DeclSymbol -> StrMap DeclSymbol

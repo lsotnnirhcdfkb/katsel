@@ -41,9 +41,9 @@ condToMsgs (InvalidToken construct thing possibilities sp (Located _ found)) =
     ]
     where
         fmtPossibilities [] = error "no possibilities"
-        fmtPossibilities (x:[]) = x
-        fmtPossibilities (x:y:[]) = x ++ " or " ++ y
-        fmtPossibilities (x:y:z:[]) = x ++ ", " ++ y ++ ", or " ++ z
+        fmtPossibilities [x] = x
+        fmtPossibilities [x, y] = x ++ " or " ++ y
+        fmtPossibilities [x, y, z] = x ++ ", " ++ y ++ ", or " ++ z
         fmtPossibilities (x:xs) = x ++ ", " ++ fmtPossibilities xs
 condToMsgs (Unclosed construct delimiterName openSp sp (Located _ found)) =
     [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ construct ++ " has unclosed " ++ delimiterName ++ " (found " ++ Lex.fmtToken found ++ " instead)"
@@ -58,7 +58,7 @@ combine
         Just $ ErrorCondition ind1 $ InvalidToken construct1 thing1 (nub $ pos1 ++ pos2) sp1 found1
 combine _ _ = Nothing
 
-data ParseError = ParseError [ErrorCondition]
+newtype ParseError = ParseError [ErrorCondition]
 instance Message.ToDiagnostic ParseError where
     toDiagnostic (ParseError msgs) =
         Message.SimpleDiag Message.Error Nothing Nothing Nothing
@@ -78,7 +78,7 @@ instance Message.ToDiagnostic ParseError where
                         in case combinations of
                             (ind, combined):_ ->
                                 let (before, after) = splitAt ind acc
-                                in before ++ [combined] ++ (drop 1 after)
+                                in before ++ [combined] ++ drop 1 after
 
                             [] -> acc ++ [current]
                                 -- if current coult not combine with any other things
@@ -200,7 +200,7 @@ zeromore ex = fun
             case mres of
                 Just res ->
                     fun >>= \ rest ->
-                    return ([res] ++ rest)
+                    return res:rest
 
                 Nothing ->
                     restoreLocation saved >>
@@ -216,7 +216,7 @@ onemore ex = fun []
                     fun (acc ++ [thing])
 
                 Nothing ->
-                    if length acc == 0
+                    if null acc
                     then return Nothing
                     else return (Just acc)
 
@@ -224,7 +224,7 @@ onemoredelim :: ParseFunM a -> ParseFunM b -> ParseFunM [a]
 onemoredelim ex delim =
     ex `unmfp` \ first ->
     zeromore (
-        delim `unmfp` \ _ -> ex
+        delim `unmfp` const ex
     ) >>= \ rest ->
     return $ Just $ first:rest
 
@@ -329,23 +329,21 @@ parseDecl =
 
 functionDecl :: ParseFunM AST.LSFunDecl
 functionDecl =
-    (consumeTokS Lex.Fun (XIsMissingYFound "function declaration" "introductory 'fun'")) `unmfp` \ funsp ->
-    (consumeIden (XIsMissingYAfterZFound "function declaration" "function name" "'fun'")) `unmfp` \ name ->
-    (consumeTokS Lex.OParen (XIsMissingYAfterZFound "function declaration" "'('" "function name")) `unmfp` \ oparensp ->
+    consumeTokS Lex.Fun (XIsMissingYFound "function declaration" "introductory 'fun'") `unmfp` \ funsp ->
+    consumeIden (XIsMissingYAfterZFound "function declaration" "function name" "'fun'") `unmfp` \ name ->
+    consumeTokS Lex.OParen (XIsMissingYAfterZFound "function declaration" "'('" "function name") `unmfp` \ oparensp ->
     paramList >>= \ mparamlist ->
-    (consumeTokS Lex.CParen (Unclosed "function declaration parameter list" "'('" oparensp)) `unmfp` \ cparensp ->
+    consumeTokS Lex.CParen (Unclosed "function declaration parameter list" "'('" oparensp) `unmfp` \ cparensp ->
     typeAnnotation >>= \ retty ->
     blockExpr `unmfp` \ body ->
-    lnend "function declaration" >>= \ _ ->
-    let params = case mparamlist of
-            Just l -> l
-            Nothing -> []
-        fdsp = joinSpan funsp $
+    lnend "function declaration" >>
+    (let params = fromMaybe [] mparamlist
+         fdsp = joinSpan funsp $
             case retty of
                 Just (Located rettysp _) -> rettysp
                 Nothing -> cparensp
 
-    in return $ Just $ Located fdsp $ AST.SFunDecl' retty name params body
+    in return $ Just $ Located fdsp $ AST.SFunDecl' retty name params body)
 
 implDecl :: ParseFunM AST.LDDecl
 implDecl =
@@ -363,21 +361,21 @@ implDecl =
 -- types {{{2
 typeAnnotation :: ParseFunM AST.LDType
 typeAnnotation =
-    (consumeTokU Lex.Colon (XIsMissingYFound "type annotation" "introductory ':'")) `unmfp` \ _ ->
+    consumeTokU Lex.Colon (XIsMissingYFound "type annotation" "introductory ':'") `unmfp` \ _ ->
     parseType
 
 parseType, pointerType, thisType, pathType :: ParseFunM AST.LDType
 parseType = choice [pointerType, thisType, pathType]
 
 pointerType =
-    (consumeTokS Lex.Star (XIsMissingYFound "pointer type" "introductory '*'")) `unmfp` \ starsp ->
-    (consumeTokU Lex.Mut (XIsMissingYAfterZFound "mutable pointer type" "'mut'" "'*'")) >>= \ mmut ->
+    consumeTokS Lex.Star (XIsMissingYFound "pointer type" "introductory '*'") `unmfp` \ starsp ->
+    consumeTokU Lex.Mut (XIsMissingYAfterZFound "mutable pointer type" "'mut'" "'*'") >>= \ mmut ->
     parseType `unmfp` \ pointeeTy@(Located pointeesp _) ->
     return $ Just $ Located (joinSpan starsp pointeesp) $ AST.DType'Pointer (maybeToMutability mmut) pointeeTy
 
 thisType =
     consumeTokS Lex.This (XIsMissingYFound "'this' type" "'this'") `unmfp` \ thsp ->
-    return $ Just $ Located thsp $ AST.DType'This
+    return $ Just $ Located thsp AST.DType'This
 
 pathType =
     parsePath `unmfp` \ path@(Located pathsp _) ->
@@ -386,9 +384,9 @@ pathType =
 parsePath :: ParseFunM AST.LDPath
 parsePath =
     -- TODO: improve delimiter error
-    (onemoredelim
+    onemoredelim
         (consumeIden (XIsMissingYFound "path" "path segment (identifier)"))
-        (consumeTokU Lex.DoubleColon (XIsMissingYAfterZFound "path" "segment separator ('::')" "segment"))) `unmfp` \ list ->
+        (consumeTokU Lex.DoubleColon (XIsMissingYAfterZFound "path" "segment separator ('::')" "segment")) `unmfp` \ list ->
     let totalsp = spanFromList (error "path should always have at least one element") list
     in return $ Just $ Located totalsp $ AST.DPath' list
 -- params {{{2
@@ -396,8 +394,8 @@ parseParam, normalParam, thisParam :: ParseFunM AST.LDParam
 parseParam = choice [normalParam, thisParam]
 
 normalParam =
-    (consumeTokS Lex.Mut (XIsMissingYFound "mutable parameter" "'mut'")) >>= \ mmut ->
-    (consumeIden (XIsMissingYFound "parameter" "parameter name")) `unmfp` \ name@(Located namesp _) ->
+    consumeTokS Lex.Mut (XIsMissingYFound "mutable parameter" "'mut'") >>= \ mmut ->
+    consumeIden (XIsMissingYFound "parameter" "parameter name") `unmfp` \ name@(Located namesp _) ->
     typeAnnotation `unmfp` \ ty@(Located tysp _) ->
     let startsp = fromMaybe namesp mmut
         endsp = tysp
@@ -434,9 +432,7 @@ blockStmtList :: ParseFunM (Span, [AST.LDStmt])
 blockStmtList =
     blocked "code block" (
         stmtList >>= \ sl ->
-        return $ case sl of
-            Just x -> x
-            Nothing -> []
+        return $ fromMaybe [] sl
     )
 
 blockExpr :: ParseFunM AST.LSBlockExpr
@@ -445,11 +441,11 @@ blockExpr =
     return $ Just $ Located slsp $ AST.SBlockExpr' sl
 
 ifExpr =
-    (consumeTokS Lex.If (XIsMissingYFound "'if' expression" "'if'")) `unmfp` \ ifsp ->
+    consumeTokS Lex.If (XIsMissingYFound "'if' expression" "'if'") `unmfp` \ ifsp ->
     parseExpr `unmfp` \ cond ->
     blockExpr `unmfp` \ trueb@(Located truebsp _) ->
     (
-        (consumeTokS Lex.Else (XIsMissingYFound "'else' branch of 'if' expression" "'else'")) `unmfp` \ elsesp ->
+        consumeTokS Lex.Else (XIsMissingYFound "'else' branch of 'if' expression" "'else'") `unmfp` \ elsesp ->
         choice
             [ blockExpr `unmfp` \ block@(Located blocksp _) ->
               return $ Just $ Located blocksp $ AST.DExpr'Block block
@@ -458,14 +454,14 @@ ifExpr =
         return $ Just (falsebsp, (elsesp, falseb))
     ) >>= \ melsebandspan ->
     let startsp = ifsp
-        endsp = fromMaybe truebsp $ fst <$> melsebandspan
+        endsp = maybe truebsp fst melsebandspan
         melseb = snd <$> melsebandspan
 
         loctrueb = Located truebsp $ AST.DExpr'Block trueb
     in return $ Just $ Located (startsp `joinSpan` endsp) $ AST.DExpr'If ifsp cond loctrueb melseb
 
 whileExpr =
-    (consumeTokS Lex.While (XIsMissingYFound "'while' expression" "'while'")) `unmfp` \ whilesp ->
+    consumeTokS Lex.While (XIsMissingYFound "'while' expression" "'while'") `unmfp` \ whilesp ->
     parseExpr `unmfp` \ cond ->
     blockExpr `unmfp` \ block@(Located blocksp _) ->
     return $ Just $ Located (whilesp `joinSpan` blocksp) $ AST.DExpr'While cond (Located blocksp $ AST.DExpr'Block block)
@@ -652,18 +648,14 @@ callExpr =
             consumeTokS Lex.OParen (XIsMissingYAfterZFound "method call expression" "'('" "method name") `unmfp` \ oparensp ->
             argList >>= \ marglist ->
             consumeTokS Lex.CParen (Unclosed "method call expression" "'('" oparensp) `unmfp` \ cparensp ->
-            let arglist = case marglist of
-                    Just x -> x
-                    Nothing -> []
+            let arglist = fromMaybe [] marglist
             in return $ Just $ Located (lhssp `joinSpan` cparensp) $ AST.DExpr'Method lhs dot methodname oparensp arglist
 
         call lhs@(Located lhssp _) =
             consumeTokS Lex.OParen (XIsMissingYAfterZFound "call expression" "'('" "callee") `unmfp` \ oparensp ->
             argList >>= \ marglist ->
             consumeTokS Lex.CParen (Unclosed "call expression" "'('" oparensp) `unmfp` \ cparensp ->
-            let arglist = case marglist of
-                    Just x -> x
-                    Nothing -> []
+            let arglist = fromMaybe [] marglist
             in return $ Just $ Located (lhssp `joinSpan` cparensp) $ AST.DExpr'Call lhs oparensp arglist
 
 primaryExpr = choice [tokExpr, parenExpr, pathExpr]
@@ -694,12 +686,12 @@ parseStmt, varStmt, retStmt, exprStmt :: ParseFunM AST.LDStmt
 parseStmt = choice [varStmt, retStmt, exprStmt]
 
 varStmt =
-    (consumeTokS Lex.Var (XIsMissingYFound "variable statement" "introductory 'var'")) `unmfp` \ varsp ->
-    (consumeTokU Lex.Mut (XIsMissingYAfterZFound "variable statement" "'mut'" "'var'")) >>= \ mmut ->
-    (consumeIden (XIsMissingYFound "variable statement" "variable name")) `unmfp` \ name ->
+    consumeTokS Lex.Var (XIsMissingYFound "variable statement" "introductory 'var'") `unmfp` \ varsp ->
+    consumeTokU Lex.Mut (XIsMissingYAfterZFound "variable statement" "'mut'" "'var'") >>= \ mmut ->
+    consumeIden (XIsMissingYFound "variable statement" "variable name") `unmfp` \ name ->
     typeAnnotation `unmfp` \ ty ->
     (
-        (consumeTokS Lex.Equal (XIsMissingYAfterZFound "variable initialization" "'='" "variable name")) `unmfp` \ eqsp ->
+        consumeTokS Lex.Equal (XIsMissingYAfterZFound "variable initialization" "'='" "variable name") `unmfp` \ eqsp ->
         parseExpr `unmfp` \ initializer ->
         return $ Just (eqsp, initializer)
     ) >>= \ minit ->
@@ -707,7 +699,7 @@ varStmt =
     return $ Just $ Located (varsp `joinSpan` endlsp) $ AST.DStmt'Var ty (maybeToMutability mmut) name minit
 
 retStmt =
-    (consumeTokS Lex.Return (XIsMissingYFound "return statement" "introductory 'return'")) `unmfp` \ retsp ->
+    consumeTokS Lex.Return (XIsMissingYFound "return statement" "introductory 'return'") `unmfp` \ retsp ->
     parseExpr `unmfp` \ expr ->
     lnend "return statement" `unmfp` \ endlsp ->
     return $ Just $ Located (retsp `joinSpan` endlsp) $ AST.DStmt'Ret expr
@@ -716,8 +708,8 @@ exprStmt =
     parseExpr `unmfp` \ expr@(Located exprsp notLocatedExpr) ->
     let needendl = case notLocatedExpr of
             AST.DExpr'Block _ -> False
-            AST.DExpr'If _ _ _ _ -> False
-            AST.DExpr'While _ _ -> False
+            AST.DExpr'If {} -> False
+            AST.DExpr'While {} -> False
             _ -> True
     in
     (
@@ -733,7 +725,7 @@ exprStmt =
 -- parse {{{1
 parse :: [Located Lex.Token] -> Either ParseError AST.LDModule
 parse toks =
-    let (res, (Parser _ _ errs _)) = runState grammar $ Parser toks Nothing [] 0
+    let (res, Parser _ _ errs _) = runState grammar $ Parser toks Nothing [] 0
     in case res of
         Just x -> Right x
         Nothing -> Left $ ParseError errs

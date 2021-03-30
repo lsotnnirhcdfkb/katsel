@@ -62,10 +62,10 @@ type LSFunDecl = Located SFunDecl
 data SFunDecl = SFunDecl' (Maybe LDType) LocStr [LDParam] LSBlockExpr
 
 type LSBlockExpr = Located SBlockExpr
-data SBlockExpr = SBlockExpr' [LDStmt]
+newtype SBlockExpr = SBlockExpr' [LDStmt]
 
 type LDModule = Located DModule
-data DModule = DModule' [LDDecl]
+newtype DModule = DModule' [LDDecl]
 
 type LDDecl = Located DDecl
 data DDecl
@@ -73,7 +73,7 @@ data DDecl
     | DDecl'Impl LDType [LDImplMember]
 
 type LDImplMember = Located DImplMember
-data DImplMember
+newtype DImplMember
     = DImplMember'Fun LSFunDecl
 
 type LDStmt = Located DStmt
@@ -116,4 +116,4 @@ data DType
     | DType'This
 
 type LDPath = Located DPath
-data DPath = DPath' [LocStr]
+newtype DPath = DPath' [LocStr]

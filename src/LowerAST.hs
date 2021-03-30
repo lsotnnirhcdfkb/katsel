@@ -1,5 +1,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module LowerAST(lowerMod) where
 
@@ -29,9 +30,9 @@ instance Parent ModParent IR.Module where
     add _ m = Just m
 
 instance Parent IR.DeclSymbol IR.Value where
-    add parent child = IR.
+    add parent child = undefined
 
-instance Lowerable AST.LDModule ModParent where
+instance (Parent p IR.Module) => Lowerable AST.LDModule p where
     ddeclare parent (Located _ (AST.DModule' decls)) =
         add parent finalModule
         where
@@ -42,4 +43,4 @@ instance Lowerable AST.LDModule ModParent where
     vdefine = undefined
 
 instance Lowerable AST.LDDecl IR.DeclSymbol where
-    ddeclare parentMod (Located _ AST.DModule'
+    -- ddeclare parentMod (Located _ AST.DModule'

@@ -44,7 +44,7 @@ instance Monad ErrorAccumulated where
         in ErrorAcc bval $ aerrs ++ berrs
 
 addErrors :: [Message.SimpleDiag] -> ErrorAccumulated ()
-addErrors errs = ErrorAcc () errs
+addErrors = ErrorAcc ()
 
 lexStage :: File -> ErrorAccumulated [Located Lex.Token]
 lexStage contents =
@@ -76,19 +76,19 @@ compile filename =
                 Just ast -> lowerASTStage ast
                 Nothing -> return Nothing
 
-        putErrs = hPutStr stderr $ concat $ map Message.report finalErrs
+        putErrs = hPutStr stderr $ concatMap Message.report finalErrs
 
         doTry x = (try x :: IO (Either SomeException ())) >>= \ ei ->
             case ei of
                 Right () -> return ()
                 Left err ->
-                    hPutStr stderr ("\n" ++ (
-                        Message.report $ Message.SimpleDiag Message.InternalError Nothing Nothing Nothing
+                    hPutStr stderr ("\n" ++ 
+                        Message.report (Message.SimpleDiag Message.InternalError Nothing Nothing Nothing
                             [ Message.SimpleText "the compiler is broken! caught internal error:"
                             , Message.SimpleMultilineText $ unlines $ map ("> " ++) $ lines $ displayException err
                             ]
                     )) >>
-                    (evaluate $ error "stop after catching internal error")
+                    evaluate (error "stop after catching internal error")
 
     in doTry (
         seq finalOutput putErrs

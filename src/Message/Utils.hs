@@ -3,7 +3,7 @@ module Message.Utils where
 import qualified System.Console.ANSI as ANSI
 
 makeIndentWithDivider :: Char -> String -> Int -> String
-makeIndentWithDivider divider left indent = (replicate (indent - length left - 1) ' ') ++ left ++ " " ++ [divider] ++ " "
+makeIndentWithDivider divider left indent = replicate (indent - length left - 1) ' ' ++ left ++ " " ++ [divider] ++ " "
 
 makeIndentStr :: Int -> String
 makeIndentStr x = replicate x ' '

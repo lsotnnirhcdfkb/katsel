@@ -78,7 +78,7 @@ report' (SimpleDiag ty maybeSpan maybeDiagCode maybeName sections) =
                 diagCodeFmt code = "[" ++ ANSI.setSGRCode [boldSGR] ++ code ++ ANSI.setSGRCode [] ++ "]"
                 prefix = indentStr ++ "==> "
 
-        shownSections = concat $ map (showSection indentAmt) sections
+        shownSections = concatMap (showSection indentAmt) sections
 
         indentAmt = maximum $ map indentOf sections
         indentStr = makeIndentStr indentAmt
