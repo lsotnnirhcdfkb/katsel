@@ -200,7 +200,7 @@ zeromore ex = fun
             case mres of
                 Just res ->
                     fun >>= \ rest ->
-                    return res:rest
+                    return $ res:rest
 
                 Nothing ->
                     restoreLocation saved >>

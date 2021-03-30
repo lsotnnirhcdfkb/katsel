@@ -10,7 +10,7 @@ import File
 import Location
 
 import Data.Char(isDigit, isAlpha, isHexDigit, isOctDigit, digitToInt, isSpace)
-import Data.List(foldl', findIndex, find)
+import Data.List(foldl', find, elemIndex)
 import Data.Either(isRight)
 
 import qualified Message
