@@ -63,7 +63,7 @@ parseStage toks =
             addErrors [Message.toDiagnostic err] >>
             return Nothing
 
-lowerASTStage :: AST.LDModule -> ErrorAccumulated (Maybe IR.Module)
+lowerASTStage :: AST.LDModule -> ErrorAccumulated IR.Module
 lowerASTStage = return . LowerAST.lowerMod
 
 compile :: String -> IO ()
@@ -73,7 +73,7 @@ compile filename =
             lexStage file >>=
             parseStage >>= \ mast ->
             case mast of
-                Just ast -> lowerASTStage ast
+                Just ast -> Just <$> lowerASTStage ast
                 Nothing -> return Nothing
 
         putErrs = hPutStr stderr $ concatMap Message.report finalErrs

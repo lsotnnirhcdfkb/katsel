@@ -4,6 +4,10 @@ module IR
     , Function(..)
     , DeclSymbol(..)
     , Type(..)
+    , getValue
+    , getDeclSymbol
+    , addValue
+    , addDeclSymbol
     ) where
 
 import qualified AST(BinOp, UnaryOp)
@@ -94,6 +98,8 @@ getValue ds n = Map.lookup n $ getValues ds
 getDeclSymbol :: DeclSymbol -> String -> Maybe DeclSymbol
 getDeclSymbol ds n = Map.lookup n $ getDeclSymbols ds
 
--- TODO:
--- addValue =
--- addDeclSymbol =
+addValue :: DeclSymbol -> Value -> DeclSymbol
+addValue ds v = undefined
+
+addDeclSymbol :: DeclSymbol -> Value -> DeclSymbol
+addDeclSymbol = undefined

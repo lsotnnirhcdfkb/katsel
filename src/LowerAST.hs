@@ -12,13 +12,17 @@ import Location
 import qualified Data.Map as Map
 import Data.List(foldl')
 
-lowerMod :: AST.LDModule -> Maybe IR.Module
+lowerMod :: AST.LDModule -> IR.Module
 lowerMod lmod =
     case loweredMod of
-        Just ir -> Just ir
+        Just ir -> ir
         Nothing -> error "lowering ast to ir returned Nothing"
     where
-        loweredMod = flip vdefine lmod . flip vdeclare lmod . flip ddefine lmod $ ddeclare Nothing lmod
+        ddeclared = ddeclare Nothing lmod
+        ddefined = ddefine ddeclared lmod
+        vdeclared = vdeclare ddefined lmod
+        vdefined = vdefine vdeclared lmod
+        loweredMod = vdefined
 
 class Lowerable l p where
     ddeclare, ddefine, vdeclare, vdefine :: p -> l -> p
@@ -29,18 +33,29 @@ type ModParent = Maybe IR.Module
 instance Parent ModParent IR.Module where
     add _ m = Just m
 
+instance Parent IR.DeclSymbol IR.DeclSymbol where
+    add = undefined
 instance Parent IR.DeclSymbol IR.Value where
-    add parent child = undefined
+    add = undefined
+instance Parent IR.Module IR.Value where
+    add = undefined
+instance Parent IR.Module IR.DeclSymbol where
+    add = undefined
 
-instance (Parent p IR.Module) => Lowerable AST.LDModule p where
-    ddeclare parent (Located _ (AST.DModule' decls)) =
-        add parent finalModule
+instance Parent p IR.Module => Lowerable AST.LDModule p where
+    ddeclare parent (Located _ (AST.DModule' decls)) = add parent finalModule
         where
-            startModule = IR.DSModule $ IR.Module Map.empty Map.empty
+            startModule = IR.Module Map.empty Map.empty
             finalModule = foldl' ddeclare startModule decls
+
     ddefine = undefined
     vdeclare = undefined
     vdefine = undefined
 
-instance Lowerable AST.LDDecl IR.DeclSymbol where
-    -- ddeclare parentMod (Located _ AST.DModule'
+instance Parent p IR.Value => Lowerable AST.LDDecl p where
+    ddeclare _ (Located _ (AST.DDecl'Fun _)) = undefined
+    ddeclare _ (Located _ (AST.DDecl'Impl _ _)) = undefined
+
+    ddefine = undefined
+    vdeclare = undefined
+    vdefine = undefined
