@@ -5,8 +5,6 @@ module IR
     , Type(..)
     ) where
 
-import File
-
 import qualified AST(BinOp, UnaryOp)
 
 import Data.Map(Map)
