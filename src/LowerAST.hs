@@ -35,7 +35,7 @@ class Parent p c i | p c -> i where
 type ModParent = Maybe IR.Module
 instance Parent ModParent IR.Module () where
     add _ _ m = Just m
-    get = undefined
+    get m _ = m
 
 instance Parent IR.DeclSymbol IR.DeclSymbol String where
     add = undefined
