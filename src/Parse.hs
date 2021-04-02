@@ -685,7 +685,7 @@ pathExpr =
     return $ Just $ Located pathsp $ AST.DExpr'Path path
 -- stmt {{{2
 parseStmt, varStmt, retStmt, exprStmt :: ParseFunM AST.LDStmt
-parseStmt = choice [varStmt, retStmt, exprStmt]
+parseStmt = choice [exprStmt, varStmt, retStmt]
 
 varStmt =
     consumeTokS Lex.Var (XIsMissingYFound "variable statement" "introductory 'var'") `unmfp` \ varsp ->
