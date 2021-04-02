@@ -23,6 +23,7 @@ data ErrorConditionVariant
     | ExcessTokens Span (Located Lex.Token)
     | InvalidToken String String [String] Span (Located Lex.Token)
     | Unclosed String String Span Span (Located Lex.Token)
+    | IfContinuedNeeds String String String Span (Located Lex.Token)
     deriving Eq
 
 condToMsgs :: ErrorConditionVariant -> [MsgUnds.Message]
@@ -48,6 +49,9 @@ condToMsgs (InvalidToken construct thing possibilities sp (Located _ found)) =
 condToMsgs (Unclosed construct delimiterName openSp sp (Located _ found)) =
     [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ construct ++ " has unclosed " ++ delimiterName ++ " (found " ++ Lex.fmtToken found ++ " instead)"
     , MsgUnds.Message openSp MsgUnds.Note MsgUnds.Secondary $ "opening " ++ delimiterName ++ " is here"
+    ]
+condToMsgs (IfContinuedNeeds listname delimiter item sp (Located _ found)) =
+    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ listname ++ ", if continued, needs " ++ delimiter ++ " after " ++ item ++ " (found " ++ Lex.fmtToken found ++ " instead)"
     ]
 
 combine :: ErrorCondition -> ErrorCondition -> Maybe ErrorCondition
@@ -84,7 +88,7 @@ instance Message.ToDiagnostic ParseError where
                                 -- if current coult not combine with any other things
 -- parser {{{1
 data Parser = Parser [Located Lex.Token] (Maybe (Located Lex.Token)) [ErrorCondition] Int
-type ParseFun a = State Parser a
+type ParseFun = State Parser
 type ParseFunM a = ParseFun (Maybe a)
 -- utility functions {{{1
 constrEq :: (Data a, Data b) => a -> b -> Bool
@@ -285,15 +289,13 @@ declList :: ParseFunM [AST.LDDecl]
 declList = onemore parseDecl
 
 paramList :: ParseFunM [AST.LDParam]
--- TODO: improve separator errors
-paramList = onemoredelim parseParam (consumeTokU Lex.Comma (XIsMissingYAfterZFound "parameter list" "parameter separator ','" "parameter"))
+paramList = onemoredelim parseParam (consumeTokU Lex.Comma (IfContinuedNeeds "parameter list" "separator ','" "parameter"))
 
 stmtList :: ParseFunM [AST.LDStmt]
 stmtList = onemore parseStmt
 
 argList :: ParseFunM [AST.LDExpr]
--- TODO: also improve separator errors
-argList = onemoredelim parseExpr (consumeTokU Lex.Comma (XIsMissingYAfterZFound "argument list" "argument separator ','" "argument"))
+argList = onemoredelim parseExpr (consumeTokU Lex.Comma (IfContinuedNeeds "argument list" "separator ','" "argument"))
 -- line endings {{{2
 lnend :: String -> ParseFunM Span
 lnend what = consume
@@ -383,10 +385,10 @@ pathType =
 -- paths {{{2
 parsePath :: ParseFunM AST.LDPath
 parsePath =
-    -- TODO: improve delimiter error
     onemoredelim
         (consumeIden (XIsMissingYFound "path" "path segment (identifier)"))
-        (consumeTokU Lex.DoubleColon (XIsMissingYAfterZFound "path" "segment separator ('::')" "segment")) `unmfp` \ list ->
+        (consumeTokU Lex.DoubleColon (IfContinuedNeeds "path" "segment separator ('::')" "segment (identifier)"))
+        `unmfp` \ list ->
     let totalsp = spanFromList (error "path should always have at least one element") list
     in return $ Just $ Located totalsp $ AST.DPath' list
 -- params {{{2
