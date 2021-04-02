@@ -39,7 +39,9 @@ linenrsOfMessages msgs = sortBy sortComparator $ nubBy nubComparator linesWithDi
         -- nub keeps the first occurance, so it will keep all the normal lines if there are duplicate dim lines
         -- since the dim lines are all appended to the end of the list
         linesWithDim = linesWithoutDim ++ concatMap getDimLines linesWithoutDim
-        getDimLines (ShowLine fl nr _) = ShowLine fl (nr+1) Dim : (if nr > 1 then [ShowLine fl (nr-1) Dim] else [])
+        getDimLines (ShowLine fl nr _) = map makeDim [-2..2] -- will have a duplicate line at offset 0 that is filtered out by nub
+            where
+                makeDim n = ShowLine fl (nr+n) Dim
 
         linesWithoutDim = concatMap linenrsof msgs
         linenrsof (Message (Span start end) _ _ _) = [ShowLine (fileOfLoc start) (lnnOfLoc start) Normal, ShowLine (fileOfLoc start) (lineMinus1 end) Normal]
@@ -174,8 +176,7 @@ drawSectionLine indent (FileLine fl) = makeIndentWithDivider '>' "" indent ++ AN
 drawSectionLine indent (DimQuote fl ln) =
     case drop (ln - 1) $ lines (source fl) of
         -- it is called a dim line, but it is not drawn dimly
-        -- this cannot be replaced with normal lines that have no messages because i dont want to implement the special handling of empty lines
-        "":_ -> ""
+        -- cannot handle empty lines here because if some dim lines are hidden here then elipsis lines are not inserted when necessary
         quote:_ -> makeIndentWithDivider '|' (show ln) indent ++ quote ++ "\n"
         [] -> ""
 drawSectionLine indent (QuoteLine fl ln) = makeIndentWithDivider '|' (show ln) indent ++ quote ++ "\n"
