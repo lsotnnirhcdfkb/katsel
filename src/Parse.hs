@@ -64,6 +64,8 @@ combine _ _ = Nothing
 
 newtype ParseError = ParseError [ErrorCondition]
 instance Message.ToDiagnostic ParseError where
+    -- TODO: put span in error line (pass into Message.SimpleDiag constructor)
+    -- TODO: allow each condition to make its own section
     toDiagnostic (ParseError msgs) =
         Message.SimpleDiag Message.Error Nothing Nothing Nothing
             [ Message.Underlines $ MsgUnds.UnderlinesSection $ concatMap condToMsgs toShow
