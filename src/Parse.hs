@@ -102,13 +102,6 @@ isTTU a b = if isTT a b then Just () else Nothing
 
 isTTS :: Lex.Token -> Located Lex.Token -> Maybe Span
 isTTS a b@(Located sp _) = if isTT a b then Just sp else Nothing
-
-unmfp :: ParseFunM a -> (a -> ParseFunM b) -> ParseFunM b
-unmfp exa cont =
-    exa >>= \ mres ->
-    case mres of
-        Just res -> cont res
-        Nothing -> return Nothing
 -- parser helpers {{{1
 advance :: Int -> Parser -> Parser
 advance 0 p = p
@@ -179,6 +172,23 @@ consumeIden = consume $
         _ -> Nothing
 -- }}}
 
+
+seqparser :: ParseFunM a -> (a -> ParseFunM b) -> ParseFunM b
+seqparser exa cont =
+    saveLocation >>= \ saved ->
+    exa >>= \ mres ->
+    case mres of
+        Just res ->
+            cont res >>= \ contres ->
+            case contres of
+                jx@(Just _) -> return jx
+                Nothing ->
+                    restoreLocation saved >>
+                    return Nothing
+        Nothing ->
+            restoreLocation saved >>
+            return Nothing
+
 -- TODO: allow error override, if used then silence all choice's errors, and if none of them match then emit that custom error
 choice :: [ParseFunM a] -> ParseFunM a
 choice choices =
@@ -214,21 +224,23 @@ onemore :: ParseFunM a -> ParseFunM [a]
 onemore ex = fun []
     where
         fun acc =
+            saveLocation >>= \ saved ->
             ex >>= \ res ->
             case res of
                 Just thing ->
                     fun (acc ++ [thing])
 
                 Nothing ->
+                    restoreLocation saved >>
                     if null acc
                     then return Nothing
                     else return (Just acc)
 
 onemoredelim :: ParseFunM a -> ParseFunM b -> ParseFunM [a]
 onemoredelim ex delim =
-    ex `unmfp` \ first ->
+    ex `seqparser` \ first ->
     zeromore (
-        delim `unmfp` const ex
+        delim `seqparser` const ex
     ) >>= \ rest ->
     return $ Just $ first:rest
 
@@ -280,7 +292,7 @@ spanFromList _ list =
 grammar :: ParseFunM AST.LDModule
 grammar =
     declList >>= \ mdl ->
-    consumeTokS Lex.EOF ExcessTokens `unmfp` \ eofsp ->
+    consumeTokS Lex.EOF ExcessTokens `seqparser` \ eofsp ->
     case mdl of
         Just dl -> return $ Just $ Located (spanFromList eofsp dl) (AST.DModule' dl)
         Nothing -> return $ Just $ Located eofsp $ AST.DModule' []
@@ -310,34 +322,34 @@ blocked, braced, indented :: String -> ParseFun a -> ParseFunM (Span, a)
 blocked what ex = choice [braced what ex, indented what ex]
 
 braced what ex =
-    consumeTokS Lex.OBrace (XIsMissingYFound what "opening '{'") `unmfp` \ obracesp ->
+    consumeTokS Lex.OBrace (XIsMissingYFound what "opening '{'") `seqparser` \ obracesp ->
     ex >>= \ inside ->
-    consumeTokS Lex.CBrace (Unclosed what "'{'" obracesp) `unmfp` \ cbracesp ->
+    consumeTokS Lex.CBrace (Unclosed what "'{'" obracesp) `seqparser` \ cbracesp ->
     return $ Just (obracesp `joinSpan` cbracesp, inside)
 
 indented what ex =
-    consumeTokS Lex.Indent (XIsMissingYFound what "opening indent") `unmfp` \ indentsp ->
+    consumeTokS Lex.Indent (XIsMissingYFound what "opening indent") `seqparser` \ indentsp ->
     ex >>= \ inside ->
-    consumeTokS Lex.Dedent (Unclosed what "indent" indentsp) `unmfp` \ dedentsp ->
+    consumeTokS Lex.Dedent (Unclosed what "indent" indentsp) `seqparser` \ dedentsp ->
     return $ Just (indentsp `joinSpan` dedentsp, inside)
 -- decl {{{2
 parseDecl :: ParseFunM AST.LDDecl
 parseDecl =
     choice
         [ implDecl
-        , functionDecl `unmfp` \ lsfd@(Located sp _) ->
+        , functionDecl `seqparser` \ lsfd@(Located sp _) ->
           return $ Just $ Located sp $ AST.DDecl'Fun lsfd
         ]
 
 functionDecl :: ParseFunM AST.LSFunDecl
 functionDecl =
-    consumeTokS Lex.Fun (XIsMissingYFound "function declaration" "introductory 'fun'") `unmfp` \ funsp ->
-    consumeIden (XIsMissingYAfterZFound "function declaration" "function name" "'fun'") `unmfp` \ name ->
-    consumeTokS Lex.OParen (XIsMissingYAfterZFound "function declaration" "'('" "function name") `unmfp` \ oparensp ->
+    consumeTokS Lex.Fun (XIsMissingYFound "function declaration" "introductory 'fun'") `seqparser` \ funsp ->
+    consumeIden (XIsMissingYAfterZFound "function declaration" "function name" "'fun'") `seqparser` \ name ->
+    consumeTokS Lex.OParen (XIsMissingYAfterZFound "function declaration" "'('" "function name") `seqparser` \ oparensp ->
     paramList >>= \ mparamlist ->
-    consumeTokS Lex.CParen (Unclosed "function declaration parameter list" "'('" oparensp) `unmfp` \ cparensp ->
+    consumeTokS Lex.CParen (Unclosed "function declaration parameter list" "'('" oparensp) `seqparser` \ cparensp ->
     typeAnnotation >>= \ retty ->
-    blockExpr `unmfp` \ body ->
+    blockExpr `seqparser` \ body ->
     lnend "function declaration" >>
     (let params = fromMaybe [] mparamlist
          fdsp = joinSpan funsp $
@@ -349,38 +361,38 @@ functionDecl =
 
 implDecl :: ParseFunM AST.LDDecl
 implDecl =
-    consumeTokS Lex.Impl (XIsMissingYFound "implementation block" "introductory 'impl'") `unmfp` \ implsp ->
-    parseType `unmfp` \ implFor@(Located tysp _)->
-    implBody `unmfp` \ body ->
+    consumeTokS Lex.Impl (XIsMissingYFound "implementation block" "introductory 'impl'") `seqparser` \ implsp ->
+    parseType `seqparser` \ implFor@(Located tysp _)->
+    implBody `seqparser` \ body ->
     return $ Just $ Located (joinSpan implsp tysp) $ AST.DDecl'Impl implFor $ snd body
     where
         implBody = blocked "implementation body" implList
         implList = zeromore $
             choice
-                [ functionDecl `unmfp` \ lsfd@(Located sp _) ->
+                [ functionDecl `seqparser` \ lsfd@(Located sp _) ->
                   return $ Just $ Located sp $ AST.DImplMember'Fun lsfd
                 ]
 -- types {{{2
 typeAnnotation :: ParseFunM AST.LDType
 typeAnnotation =
-    consumeTokU Lex.Colon (XIsMissingYFound "type annotation" "introductory ':'") `unmfp` \ _ ->
+    consumeTokU Lex.Colon (XIsMissingYFound "type annotation" "introductory ':'") `seqparser` \ _ ->
     parseType
 
 parseType, pointerType, thisType, pathType :: ParseFunM AST.LDType
 parseType = choice [pointerType, thisType, pathType]
 
 pointerType =
-    consumeTokS Lex.Star (XIsMissingYFound "pointer type" "introductory '*'") `unmfp` \ starsp ->
+    consumeTokS Lex.Star (XIsMissingYFound "pointer type" "introductory '*'") `seqparser` \ starsp ->
     consumeTokU Lex.Mut (XIsMissingYAfterZFound "mutable pointer type" "'mut'" "'*'") >>= \ mmut ->
-    parseType `unmfp` \ pointeeTy@(Located pointeesp _) ->
+    parseType `seqparser` \ pointeeTy@(Located pointeesp _) ->
     return $ Just $ Located (joinSpan starsp pointeesp) $ AST.DType'Pointer (maybeToMutability mmut) pointeeTy
 
 thisType =
-    consumeTokS Lex.This (XIsMissingYFound "'this' type" "'this'") `unmfp` \ thsp ->
+    consumeTokS Lex.This (XIsMissingYFound "'this' type" "'this'") `seqparser` \ thsp ->
     return $ Just $ Located thsp AST.DType'This
 
 pathType =
-    parsePath `unmfp` \ path@(Located pathsp _) ->
+    parsePath `seqparser` \ path@(Located pathsp _) ->
     return $ Just $ Located pathsp $ AST.DType'Path path
 -- paths {{{2
 parsePath :: ParseFunM AST.LDPath
@@ -388,7 +400,7 @@ parsePath =
     onemoredelim
         (consumeIden (XIsMissingYFound "path" "path segment (identifier)"))
         (consumeTokU Lex.DoubleColon (IfContinuedNeeds "path" "segment separator ('::')" "segment (identifier)"))
-        `unmfp` \ list ->
+        `seqparser` \ list ->
     let totalsp = spanFromList (error "path should always have at least one element") list
     in return $ Just $ Located totalsp $ AST.DPath' list
 -- params {{{2
@@ -397,19 +409,19 @@ parseParam = choice [normalParam, thisParam]
 
 normalParam =
     consumeTokS Lex.Mut (XIsMissingYFound "mutable parameter" "'mut'") >>= \ mmut ->
-    consumeIden (XIsMissingYFound "parameter" "parameter name") `unmfp` \ name@(Located namesp _) ->
-    typeAnnotation `unmfp` \ ty@(Located tysp _) ->
+    consumeIden (XIsMissingYFound "parameter" "parameter name") `seqparser` \ name@(Located namesp _) ->
+    typeAnnotation `seqparser` \ ty@(Located tysp _) ->
     let startsp = fromMaybe namesp mmut
         endsp = tysp
     in return $ Just $ Located (joinSpan startsp endsp) $ AST.DParam'Normal (maybeToMutability mmut) ty name
 
 thisParam =
     (
-        consumeTokS Lex.Star (XIsMissingYFound "'this' reference parameter" "'*'") `unmfp` \ starsp ->
+        consumeTokS Lex.Star (XIsMissingYFound "'this' reference parameter" "'*'") `seqparser` \ starsp ->
         consumeTokU Lex.Mut (XIsMissingYAfterZFound "'this' mutable reference parameter" "'mut'" "'*'") >>= \ mmut ->
         return $ Just $ Located starsp $ isJust mmut
     ) >>= \ mstarmut ->
-    consumeTokS Lex.This (XIsMissingYFound "'this' parameter" "'this'") `unmfp` \ thissp ->
+    consumeTokS Lex.This (XIsMissingYFound "'this' parameter" "'this'") `seqparser` \ thissp ->
     let (mstartsp, kind) = case mstarmut of
             Just (Located s True) -> (Just s, AST.MutRef)
             Just (Located s False) -> (Just s, AST.Ref)
@@ -426,7 +438,7 @@ parseExpr =
         [ assignExpr
         , ifExpr
         , whileExpr
-        , blockExpr `unmfp` \ bl@(Located blsp _) ->
+        , blockExpr `seqparser` \ bl@(Located blsp _) ->
           return $ Just $ Located blsp $ AST.DExpr'Block bl
         ]
 
@@ -439,20 +451,20 @@ blockStmtList =
 
 blockExpr :: ParseFunM AST.LSBlockExpr
 blockExpr =
-    blockStmtList `unmfp` \ (slsp, sl) ->
+    blockStmtList `seqparser` \ (slsp, sl) ->
     return $ Just $ Located slsp $ AST.SBlockExpr' sl
 
 ifExpr =
-    consumeTokS Lex.If (XIsMissingYFound "'if' expression" "'if'") `unmfp` \ ifsp ->
-    parseExpr `unmfp` \ cond ->
-    blockExpr `unmfp` \ trueb@(Located truebsp _) ->
+    consumeTokS Lex.If (XIsMissingYFound "'if' expression" "'if'") `seqparser` \ ifsp ->
+    parseExpr `seqparser` \ cond ->
+    blockExpr `seqparser` \ trueb@(Located truebsp _) ->
     (
-        consumeTokS Lex.Else (XIsMissingYFound "'else' branch of 'if' expression" "'else'") `unmfp` \ elsesp ->
+        consumeTokS Lex.Else (XIsMissingYFound "'else' branch of 'if' expression" "'else'") `seqparser` \ elsesp ->
         choice
-            [ blockExpr `unmfp` \ block@(Located blocksp _) ->
+            [ blockExpr `seqparser` \ block@(Located blocksp _) ->
               return $ Just $ Located blocksp $ AST.DExpr'Block block
             , ifExpr
-            ] `unmfp` \ falseb@(Located falsebsp _) ->
+            ] `seqparser` \ falseb@(Located falsebsp _) ->
         return $ Just (falsebsp, (elsesp, falseb))
     ) >>= \ melsebandspan ->
     let startsp = ifsp
@@ -463,20 +475,20 @@ ifExpr =
     in return $ Just $ Located (startsp `joinSpan` endsp) $ AST.DExpr'If ifsp cond loctrueb melseb
 
 whileExpr =
-    consumeTokS Lex.While (XIsMissingYFound "'while' expression" "'while'") `unmfp` \ whilesp ->
-    parseExpr `unmfp` \ cond ->
-    blockExpr `unmfp` \ block@(Located blocksp _) ->
+    consumeTokS Lex.While (XIsMissingYFound "'while' expression" "'while'") `seqparser` \ whilesp ->
+    parseExpr `seqparser` \ cond ->
+    blockExpr `seqparser` \ block@(Located blocksp _) ->
     return $ Just $ Located (whilesp `joinSpan` blocksp) $ AST.DExpr'While cond (Located blocksp $ AST.DExpr'Block block)
 
 mkBinExpr :: ParseFunM AST.LDExpr -> ParseFunM a -> (AST.LDExpr -> a -> AST.LDExpr -> AST.DExpr) -> ParseFunM AST.LDExpr
 mkBinExpr next operators constructor =
-    next `unmfp` \ lhs ->
+    next `seqparser` \ lhs ->
     maybeNextRep lhs
     where
         maybeNextRep lhs@(Located lhssp _) =
             (
-                operators `unmfp` \ op ->
-                next `unmfp` \ rhs ->
+                operators `seqparser` \ op ->
+                next `seqparser` \ rhs ->
                 return $ Just (op, rhs)
             ) >>= \ mrhs ->
             case mrhs of
@@ -486,14 +498,14 @@ mkBinExpr next operators constructor =
 assignExpr, binOrExpr, binAndExpr, compEQExpr, compLGTExpr, bitXorExpr, bitOrExpr, bitAndExpr, bitShiftExpr, additionExpr, multExpr, castExpr, unaryExpr, callExpr, primaryExpr, pathExpr :: ParseFunM AST.LDExpr
 
 assignExpr =
-    binOrExpr `unmfp` \ lhs@(Located lhssp _) ->
+    binOrExpr `seqparser` \ lhs@(Located lhssp _) ->
     (
         consume (\ (Located sp tok) ->
         case tok of
             Lex.Equal -> Just $ Located sp AST.Equal
             _ -> Nothing
-        ) (InvalidToken "expression" "operator" ["'='"]) `unmfp` \ op ->
-        assignExpr `unmfp` \ rhs ->
+        ) (InvalidToken "expression" "operator" ["'='"]) `seqparser` \ op ->
+        assignExpr `seqparser` \ rhs ->
         return $ Just (op, rhs)
     ) >>= \ mrhs ->
     return $ Just (case mrhs of
@@ -591,13 +603,13 @@ multExpr = mkBinExpr castExpr
         AST.DExpr'Binary
 
 castExpr =
-    unaryExpr `unmfp` \ lhs ->
+    unaryExpr `seqparser` \ lhs ->
     parseMore lhs
     where
         parseMore lhs@(Located lhssp _) =
             (
-                consumeTokU Lex.RightArrow (XIsMissingYAfterZFound "cast expression" "'->'" "expression to cast") `unmfp` \ _ ->
-                parseType `unmfp` \ ty ->
+                consumeTokU Lex.RightArrow (XIsMissingYAfterZFound "cast expression" "'->'" "expression to cast") `seqparser` \ _ ->
+                parseType `seqparser` \ ty ->
                 return $ Just ty
             ) >>= \ mty ->
             case mty of
@@ -608,9 +620,9 @@ unaryExpr =
     choice [punop, amperExpr, callExpr]
     where
         amperExpr =
-            consumeTokS Lex.Amper (XIsMissingYFound "reference expression" "operator '&'") `unmfp` \ ampersp ->
+            consumeTokS Lex.Amper (XIsMissingYFound "reference expression" "operator '&'") `seqparser` \ ampersp ->
             consumeTokU Lex.Mut (XIsMissingYFound "mutable reference expression" "'mut'") >>= \ mmut ->
-            unaryExpr `unmfp` \ operand@(Located operandsp _) ->
+            unaryExpr `seqparser` \ operand@(Located operandsp _) ->
             return $ Just $ Located (ampersp `joinSpan` operandsp) $ AST.DExpr'Ref ampersp (maybeToMutability mmut) operand
 
         punop =
@@ -622,12 +634,12 @@ unaryExpr =
                         Lex.Star -> Just AST.UnStar
                         _ -> Nothing
                 in Located sp <$> op
-            ) (InvalidToken "unary expression" "operator" ["'~'", "'-'", "'!'", "'*'"]) `unmfp` \ op@(Located opsp _) ->
-            unaryExpr `unmfp` \ operand@(Located operandsp _) ->
+            ) (InvalidToken "unary expression" "operator" ["'~'", "'-'", "'!'", "'*'"]) `seqparser` \ op@(Located opsp _) ->
+            unaryExpr `seqparser` \ operand@(Located operandsp _) ->
             return $ Just $ Located (opsp `joinSpan` operandsp) $ AST.DExpr'Unary op operand
 
 callExpr =
-    primaryExpr `unmfp` \ lhs ->
+    primaryExpr `seqparser` \ lhs ->
     parseMore lhs
     where
         parseMore lhs =
@@ -640,23 +652,23 @@ callExpr =
             consumeTokS Lex.Period (XIsMissingYAfterZFound exprName "'.'" operandName)
 
         field lhs@(Located lhssp _) =
-            consumeDot "field access expression" "expression with fields" `unmfp` \ dot ->
-            consumeIden (XIsMissingYAfterZFound "field access expression" "field name" "'.'") `unmfp` \ fieldname@(Located fieldsp _) ->
+            consumeDot "field access expression" "expression with fields" `seqparser` \ dot ->
+            consumeIden (XIsMissingYAfterZFound "field access expression" "field name" "'.'") `seqparser` \ fieldname@(Located fieldsp _) ->
             return $ Just $ Located (lhssp `joinSpan` fieldsp) $ AST.DExpr'Field lhs dot fieldname
 
         method lhs@(Located lhssp _) =
-            consumeDot "method call expression" "expression with methods" `unmfp` \ dot ->
-            consumeIden (XIsMissingYAfterZFound "method call expression" "method name" "'.'") `unmfp` \ methodname ->
-            consumeTokS Lex.OParen (XIsMissingYAfterZFound "method call expression" "'('" "method name") `unmfp` \ oparensp ->
+            consumeDot "method call expression" "expression with methods" `seqparser` \ dot ->
+            consumeIden (XIsMissingYAfterZFound "method call expression" "method name" "'.'") `seqparser` \ methodname ->
+            consumeTokS Lex.OParen (XIsMissingYAfterZFound "method call expression" "'('" "method name") `seqparser` \ oparensp ->
             argList >>= \ marglist ->
-            consumeTokS Lex.CParen (Unclosed "method call expression" "'('" oparensp) `unmfp` \ cparensp ->
+            consumeTokS Lex.CParen (Unclosed "method call expression" "'('" oparensp) `seqparser` \ cparensp ->
             let arglist = fromMaybe [] marglist
             in return $ Just $ Located (lhssp `joinSpan` cparensp) $ AST.DExpr'Method lhs dot methodname oparensp arglist
 
         call lhs@(Located lhssp _) =
-            consumeTokS Lex.OParen (XIsMissingYAfterZFound "call expression" "'('" "callee") `unmfp` \ oparensp ->
+            consumeTokS Lex.OParen (XIsMissingYAfterZFound "call expression" "'('" "callee") `seqparser` \ oparensp ->
             argList >>= \ marglist ->
-            consumeTokS Lex.CParen (Unclosed "call expression" "'('" oparensp) `unmfp` \ cparensp ->
+            consumeTokS Lex.CParen (Unclosed "call expression" "'('" oparensp) `seqparser` \ cparensp ->
             let arglist = fromMaybe [] marglist
             in return $ Just $ Located (lhssp `joinSpan` cparensp) $ AST.DExpr'Call lhs oparensp arglist
 
@@ -675,39 +687,39 @@ primaryExpr = choice [tokExpr, parenExpr, pathExpr]
                     in Located sp <$> e
             ) (InvalidToken "primary expression" "token" ["a literal", "'this'"])
         parenExpr =
-            consumeTokS Lex.OParen (XIsMissingYFound "parenthesized expression" "introductory '('") `unmfp` \ oparensp ->
-            parseExpr `unmfp` \ inside ->
-            consumeTokU Lex.CParen (Unclosed "parenthesized expression" "'('" oparensp) `unmfp` \ _ ->
+            consumeTokS Lex.OParen (XIsMissingYFound "parenthesized expression" "introductory '('") `seqparser` \ oparensp ->
+            parseExpr `seqparser` \ inside ->
+            consumeTokU Lex.CParen (Unclosed "parenthesized expression" "'('" oparensp) `seqparser` \ _ ->
             return $ Just inside
 
 pathExpr =
-    parsePath `unmfp` \ path@(Located pathsp _) ->
+    parsePath `seqparser` \ path@(Located pathsp _) ->
     return $ Just $ Located pathsp $ AST.DExpr'Path path
 -- stmt {{{2
 parseStmt, varStmt, retStmt, exprStmt :: ParseFunM AST.LDStmt
 parseStmt = choice [exprStmt, varStmt, retStmt]
 
 varStmt =
-    consumeTokS Lex.Var (XIsMissingYFound "variable statement" "introductory 'var'") `unmfp` \ varsp ->
+    consumeTokS Lex.Var (XIsMissingYFound "variable statement" "introductory 'var'") `seqparser` \ varsp ->
     consumeTokU Lex.Mut (XIsMissingYAfterZFound "variable statement" "'mut'" "'var'") >>= \ mmut ->
-    consumeIden (XIsMissingYFound "variable statement" "variable name") `unmfp` \ name ->
-    typeAnnotation `unmfp` \ ty ->
+    consumeIden (XIsMissingYFound "variable statement" "variable name") `seqparser` \ name ->
+    typeAnnotation `seqparser` \ ty ->
     (
-        consumeTokS Lex.Equal (XIsMissingYAfterZFound "variable initialization" "'='" "variable name") `unmfp` \ eqsp ->
-        parseExpr `unmfp` \ initializer ->
+        consumeTokS Lex.Equal (XIsMissingYAfterZFound "variable initialization" "'='" "variable name") `seqparser` \ eqsp ->
+        parseExpr `seqparser` \ initializer ->
         return $ Just (eqsp, initializer)
     ) >>= \ minit ->
-    lnend "variable statement" `unmfp` \ endlsp ->
+    lnend "variable statement" `seqparser` \ endlsp ->
     return $ Just $ Located (varsp `joinSpan` endlsp) $ AST.DStmt'Var ty (maybeToMutability mmut) name minit
 
 retStmt =
-    consumeTokS Lex.Return (XIsMissingYFound "return statement" "introductory 'return'") `unmfp` \ retsp ->
-    parseExpr `unmfp` \ expr ->
-    lnend "return statement" `unmfp` \ endlsp ->
+    consumeTokS Lex.Return (XIsMissingYFound "return statement" "introductory 'return'") `seqparser` \ retsp ->
+    parseExpr `seqparser` \ expr ->
+    lnend "return statement" `seqparser` \ endlsp ->
     return $ Just $ Located (retsp `joinSpan` endlsp) $ AST.DStmt'Ret expr
 
 exprStmt =
-    parseExpr `unmfp` \ expr@(Located exprsp notLocatedExpr) ->
+    parseExpr `seqparser` \ expr@(Located exprsp notLocatedExpr) ->
     let needendl = case notLocatedExpr of
             AST.DExpr'Block _ -> False
             AST.DExpr'If {} -> False
@@ -716,9 +728,9 @@ exprStmt =
     in
     (
         if needendl
-        then lnend "expression statement without block" `unmfp` \ ln -> return $ Just $ Just ln
+        then lnend "expression statement without block" `seqparser` \ ln -> return $ Just $ Just ln
         else lnend "expression statement with block" >>= \ ln -> return $ Just ln
-    ) `unmfp` \ msp ->
+    ) `seqparser` \ msp ->
     let totalsp = case msp of
             Just sp -> exprsp `joinSpan` sp
             Nothing -> exprsp
