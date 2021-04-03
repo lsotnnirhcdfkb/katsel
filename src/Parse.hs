@@ -10,7 +10,7 @@ import Data.List(foldl', nub)
 import Data.Data(toConstr, Data)
 import Data.Maybe(isJust, fromMaybe)
 
-import Control.Monad.State.Lazy
+import Control.Monad.State.Lazy(State, state, runState)
 
 -- TODO: boom tokens
 
@@ -26,33 +26,45 @@ data ErrorConditionVariant
     | IfContinuedNeeds String String String Span (Located Lex.Token)
     deriving Eq
 
-condToMsgs :: ErrorConditionVariant -> [MsgUnds.Message]
+condSections :: ErrorConditionVariant -> ([MsgUnds.Message], [Message.Section])
 
-condToMsgs (XIsMissingYFound x y sp (Located _ tok)) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y ++ " (found " ++ Lex.fmtToken tok ++ " instead)"
-    ]
-condToMsgs (XIsMissingYAfterZFound x y z sp (Located _ tok)) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y ++ " after " ++ z ++ " (found " ++ Lex.fmtToken tok ++ " instead)"
-    ]
-condToMsgs (ExcessTokens sp (Located _ tok)) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "extraneous tokens found in input (found " ++ Lex.fmtToken tok ++ ")"
-    ]
-condToMsgs (InvalidToken construct thing possibilities sp (Located _ found)) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "invalid " ++ thing ++ " for " ++ construct ++ "; must be " ++ fmtPossibilities possibilities ++ " (found " ++ Lex.fmtToken found ++ " instead)"
-    ]
+condSections (XIsMissingYFound x y sp (Located _ tok)) =
+    (
+        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y ++ " (found " ++ Lex.fmtToken tok ++ " instead)"
+        ],
+    [])
+condSections (XIsMissingYAfterZFound x y z sp (Located _ tok)) =
+    (
+        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y ++ " after " ++ z ++ " (found " ++ Lex.fmtToken tok ++ " instead)"
+        ],
+    [])
+condSections (ExcessTokens sp (Located _ tok)) =
+    (
+        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "extraneous tokens found in input (found " ++ Lex.fmtToken tok ++ ")"
+        ],
+    [])
+condSections (InvalidToken construct thing possibilities sp (Located _ found)) =
+    (
+        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "invalid " ++ thing ++ " for " ++ construct ++ "; must be " ++ fmtPossibilities possibilities ++ " (found " ++ Lex.fmtToken found ++ " instead)"
+        ],
+    [])
     where
         fmtPossibilities [] = error "no possibilities"
         fmtPossibilities [x] = x
         fmtPossibilities [x, y] = x ++ " or " ++ y
         fmtPossibilities [x, y, z] = x ++ ", " ++ y ++ ", or " ++ z
         fmtPossibilities (x:xs) = x ++ ", " ++ fmtPossibilities xs
-condToMsgs (Unclosed construct delimiterName openSp sp (Located _ found)) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ construct ++ " has unclosed " ++ delimiterName ++ " (found " ++ Lex.fmtToken found ++ " instead)"
-    , MsgUnds.Message openSp MsgUnds.Note MsgUnds.Secondary $ "opening " ++ delimiterName ++ " is here"
-    ]
-condToMsgs (IfContinuedNeeds listname delimiter item sp (Located _ found)) =
-    [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ listname ++ ", if continued, needs " ++ delimiter ++ " after " ++ item ++ " (found " ++ Lex.fmtToken found ++ " instead)"
-    ]
+condSections (Unclosed construct delimiterName openSp sp (Located _ found)) =
+    (
+        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ construct ++ " has unclosed " ++ delimiterName ++ " (found " ++ Lex.fmtToken found ++ " instead)"
+        , MsgUnds.Message openSp MsgUnds.Note MsgUnds.Secondary $ "opening " ++ delimiterName ++ " is here"
+        ],
+    [])
+condSections (IfContinuedNeeds listname delimiter item sp (Located _ found)) =
+    (
+        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ listname ++ ", if continued, needs " ++ delimiter ++ " after " ++ item ++ " (found " ++ Lex.fmtToken found ++ " instead)"
+        ],
+    [])
 
 combine :: ErrorCondition -> ErrorCondition -> Maybe ErrorCondition
 combine
@@ -67,12 +79,16 @@ instance Message.ToDiagnostic ParseError where
     -- TODO: put span in error line (pass into Message.SimpleDiag constructor)
     -- TODO: allow each condition to make its own section
     toDiagnostic (ParseError msgs) =
-        Message.SimpleDiag Message.Error Nothing Nothing Nothing
-            [ Message.Underlines $ MsgUnds.UnderlinesSection $ concatMap condToMsgs toShow
-            ]
+        Message.SimpleDiag Message.Error Nothing Nothing Nothing $
+            Message.Underlines (MsgUnds.UnderlinesSection messages) : extraSections
         where
             maxind = maximum $ map condloc msgs
             toShow = map condv $ combineAll $ nub $ filter ((maxind==) . condloc) msgs
+
+            (messages, extraSections) =
+                (concatMap fst msgsecs, concatMap snd msgsecs)
+                where
+                    msgsecs = map condSections toShow
 
             condloc (ErrorCondition i _) = i
             condv (ErrorCondition _ v) = v
