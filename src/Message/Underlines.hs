@@ -318,10 +318,7 @@ drawSectionLine indent (MultilineMessageLines (Message (Span spstart spend) ty i
                 (lower1, upper1) = lowerupper a1 b1
                 (lower2, upper2) = lowerupper a2 b2
 
-                makesingle lower upper =
-                    if lower == upper
-                    then [impchar]
-                    else replicate (upper - lower + 1) impchar
+                makesingle lower upper = replicate (upper - lower + 1) impchar
 
         beforeFirstQuoteLine = prefix '|' ++ topbottom firstcol maxcol ++ "\n"
         firstQuoteLine = makeIndentWithDivider '|' (show startlnn) indent ++ surround (getlnn startlnn) firstcol maxcol ++ "\n"
