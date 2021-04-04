@@ -294,7 +294,11 @@ drawSectionLine indent (MultilineMessageLines (Message (Span spstart spend) ty i
         mincol = 1 + minimum (map whInLine [startlnn+1..endlnn])
             where
                 whInLine lnnr =
-                    length $ takeWhile isSpace $ getlnn lnnr
+                    if all isSpace ln
+                    then maxBound
+                    else length $ takeWhile isSpace ln
+                    where
+                        ln = getlnn lnnr
         maxcol = 1 + maximum (map (length . getlnn) [startlnn..endlnn-1])
         lastcol = colMinus1 spend
 
