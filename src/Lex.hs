@@ -259,7 +259,7 @@ lex' prevtoks indentStack lexer =
         '/':'*':next ->
             case commentLength next of
                 Right cl -> continueLexWithNothing cl
-                Left charsToEnd -> continueLexWith [Left $ makeError 0 2 UntermMultilineComment] charsToEnd
+                Left charsToEnd -> continueLexWith [Left $ makeError 0 charsToEnd UntermMultilineComment] charsToEnd
             where
                 commentLength afterSlashStar =
                     case charsUntilCommentEnd 0 afterSlashStar of

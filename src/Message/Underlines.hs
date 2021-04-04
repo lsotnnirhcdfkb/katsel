@@ -14,7 +14,9 @@ import Message.Utils
 
 import Data.List(nubBy, sortBy, partition, find)
 
-import Data.Maybe(maybeToList)
+import Data.Maybe(maybeToList, fromMaybe)
+
+import Data.Char(isSpace)
 
 import qualified System.Console.ANSI as ANSI
 
@@ -81,6 +83,7 @@ data SectionLine
     --       >       `-- this
     --       > `-- that
     | MessageLine [DrawableMessage]
+    | MultilineMessageLines Message
 
 assignMessages :: [Message] -> ([DrawableMessage], [SectionLine])
 assignMessages messages = (firstrow, msglines)
@@ -115,9 +118,13 @@ assignMessages messages = (firstrow, msglines)
 
 sectionLines :: UnderlinesSection -> [SectionLine]
 sectionLines (UnderlinesSection msgs) =
-    makeLines [] $ zip flnrs $ Nothing : map Just flnrs
+    (makeLines [] $ zip flnrs $ Nothing : map Just flnrs) ++ map MultilineMessageLines multilineMsgs
     where
         flnrs = linenrsOfMessages msgs
+
+        multilineMsgs = filter isMultiline msgs
+            where
+                isMultiline (Message (Span start end) _ _ _) = lnnOfLoc start /= lineMinus1 end
 
         makeLines acc ((ShowLine curfl curnr curdimn, lastshln):more) =
             makeLines nextAcc more
@@ -156,7 +163,7 @@ sectionLines (UnderlinesSection msgs) =
                         isCorrectLine (Message (Span _ msgloc) _ _ _) = (fileOfLoc msgloc, lineMinus1 msgloc) == (curfl, curnr)
                 lineUnderlines = filter isCorrectLine msgs
                     where
-                        isCorrectLine (Message (Span start end) _ _ _) = curfl == fileOfLoc start && lnnOfLoc start <= curnr && curnr <= lineMinus1 end
+                        isCorrectLine (Message (Span start end) _ _ _) = curfl == fileOfLoc start && lnnOfLoc start == curnr && lnnOfLoc start == lineMinus1 end
 
         makeLines acc [] = acc
 
@@ -256,3 +263,74 @@ drawSectionLine indent (MessageLine msgs) =
                 (curs, rest) = partition (\ (DMessage _ msgcol _) -> col == msgcol) curmessages
 
         draw [] _ acc = acc
+
+-- TODO: this is really messy and has a lot of magic numbers, refactor this maybe
+drawSectionLine indent (MultilineMessageLines (Message (Span spstart spend) ty imp msg)) =
+    fileline ++
+    beforeFirstQuoteLine ++
+    firstQuoteLine ++
+    fromMaybe "" afterFirstQuoteLine ++
+    concat middleQuoteLines ++
+    fromMaybe "" beforeLastQuoteLine ++
+    lastQuoteLine ++
+    afterLastQuoteLine
+    where
+        prefix ch = makeIndentWithDivider ch "" indent
+
+        tycolor = ANSI.setSGRCode $ sgrOfTy ty
+        colorify x = tycolor ++ x ++ ANSI.setSGRCode []
+
+        impchar = charOfImp imp
+
+        fileline = drawSectionLine indent $ FileLine $ fileOfLoc spstart
+
+        startlnn = lnnOfLoc spstart
+        endlnn = lineMinus1 spend
+        msglnns = [startlnn+1..endlnn-1]
+
+        firstcol = colnOfLoc spstart
+        mincol = 1 + minimum (map whInLine [startlnn+1..endlnn])
+            where
+                whInLine lnnr =
+                    length $ takeWhile isSpace $ getlnn lnnr
+        maxcol = 1 + maximum (map (length . getlnn) [startlnn..endlnn-1])
+        lastcol = colMinus1 spend
+
+        getlnn n = case drop (n - 1) $ lines $ source $ fileOfLoc spstart of
+            x:_ -> x
+            [] -> "after"
+
+        surroundDelim = [' ', impchar, ' ']
+        surround str startcol endcol =
+            notSurroundedLeft ++ colorify surroundDelim ++ surrounded ++ colorify surroundDelim ++ notSurroundedRight
+            where
+                strExtended = str ++ repeat ' '
+                (notSurroundedLeft, rest) = splitAt (startcol - 1) strExtended
+                (surrounded, rest') = splitAt (endcol - startcol) rest
+                notSurroundedRight = take (length str - endcol) rest'
+        topbottom startcol endcol = colorify $ replicate (startcol) ' ' ++ replicate (endcol-startcol+4) impchar
+        transitionLine a1 b1 a2 b2 =
+            if a1 == b1 && a2 == b2
+            then Nothing
+            else Just $ makeIndentWithDivider '|' "" indent ++ colorify (replicate lower1 ' ' ++ makesingle lower1 upper1 ++ replicate (lower2-upper1+2) ' ' ++ makesingle lower2 upper2) ++ "\n"
+            where
+                lowerupper a b = (min a b, max a b)
+                (lower1, upper1) = lowerupper a1 b1
+                (lower2, upper2) = lowerupper a2 b2
+
+                makesingle lower upper =
+                    if lower == upper
+                    then [impchar]
+                    else replicate (upper - lower + 1) impchar
+
+        beforeFirstQuoteLine = prefix '|' ++ topbottom firstcol maxcol ++ "\n"
+        firstQuoteLine = makeIndentWithDivider '|' (show startlnn) indent ++ surround (getlnn startlnn) firstcol maxcol ++ "\n"
+        afterFirstQuoteLine = transitionLine firstcol mincol maxcol maxcol
+
+        middleQuoteLines = map makeLine msglnns
+            where
+                makeLine lnnr = makeIndentWithDivider '|' (show lnnr) indent ++ surround (getlnn lnnr) mincol maxcol ++ "\n"
+
+        beforeLastQuoteLine = transitionLine mincol mincol maxcol lastcol
+        lastQuoteLine = makeIndentWithDivider '|' (show endlnn) indent ++ surround (getlnn endlnn) mincol lastcol ++ "\n"
+        afterLastQuoteLine = prefix '|' ++ topbottom mincol lastcol ++ " " ++ colorify msg ++ "\n"
