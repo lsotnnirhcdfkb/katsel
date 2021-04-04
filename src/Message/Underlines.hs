@@ -158,12 +158,14 @@ sectionLines (UnderlinesSection msgs) =
 
                 (firstRowMessages, messageLines) = assignMessages lineMessages
 
+                isSingleLine start end = lnnOfLoc start == lineMinus1 end
+
                 lineMessages = filter isCorrectLine msgs
                     where
-                        isCorrectLine (Message (Span _ msgloc) _ _ _) = (fileOfLoc msgloc, lineMinus1 msgloc) == (curfl, curnr)
+                        isCorrectLine (Message (Span undstart msgloc) _ _ _) = (fileOfLoc msgloc, lineMinus1 msgloc) == (curfl, curnr) && isSingleLine undstart msgloc
                 lineUnderlines = filter isCorrectLine msgs
                     where
-                        isCorrectLine (Message (Span start end) _ _ _) = curfl == fileOfLoc start && lnnOfLoc start == curnr && lnnOfLoc start == lineMinus1 end
+                        isCorrectLine (Message (Span start end) _ _ _) = curfl == fileOfLoc start && lnnOfLoc start == curnr && isSingleLine start end
 
         makeLines acc [] = acc
 
