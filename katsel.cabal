@@ -21,7 +21,6 @@ executable katsel
 
                        -- data structures
                      , AST
-                     , IR
 
                        -- lex
                      , Lex
@@ -29,8 +28,8 @@ executable katsel
                        -- parse
                      , Parse
 
-                       -- lower ast to ir
-                     , LowerAST
+                       -- ir
+                     , IR
 
                        -- utility things
                      , Location
