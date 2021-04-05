@@ -3,7 +3,6 @@ module IR
     , getDeclSymbol
     , addValue
     , addDeclSymbol
-    , build
     ) where
 
 import qualified AST(BinOp, UnaryOp)
