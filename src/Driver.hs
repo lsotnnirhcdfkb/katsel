@@ -78,6 +78,7 @@ compile filename =
 
         putErrs = hPutStr stderr $ concatMap Message.report finalErrs
 
+        -- TODO: do not catch user interrupt
         doTry x = (try x :: IO (Either SomeException ())) >>= \ ei ->
             case ei of
                 Right () -> return ()
