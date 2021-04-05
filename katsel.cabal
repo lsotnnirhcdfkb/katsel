@@ -19,16 +19,14 @@ executable katsel
   hs-source-dirs:      src
   other-modules:       Driver
 
-                       -- data structures
+
+                       -- lexing the source into tokens
+                     , Tokens
+
+                       -- parsing the token stream into an ast
                      , AST
 
-                       -- lex
-                     , Lex
-
-                       -- parse
-                     , Parse
-
-                       -- ir
+                       -- lowering the ast into ir
                      , IR
 
                        -- utility things

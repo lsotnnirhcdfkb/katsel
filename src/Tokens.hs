@@ -1,8 +1,8 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Lex
+module Tokens
     ( Token(..)
-    , Lex.lex
+    , Tokens.lex
     , fmtToken
     ) where
 
