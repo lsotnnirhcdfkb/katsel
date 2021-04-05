@@ -104,7 +104,7 @@ instance Message.ToDiagnostic ParseError where
                             [] -> acc ++ [current]
                                 -- if current coult not combine with any other things
 -- parser {{{1
-data Parser = Parser [Located Lex.Token] (Maybe (Located Lex.Token)) [ErrorCondition] Int
+data Parser = Parser Int [Located Lex.Token] [ErrorCondition]
 type ParseFun = State Parser
 type ParseFunM a = ParseFun (Maybe a)
 -- utility functions {{{1
@@ -122,21 +122,23 @@ isTTS a b@(Located sp _) = if isTT a b then Just sp else Nothing
 -- parser helpers {{{1
 advance :: Int -> Parser -> Parser
 advance 0 p = p
-advance 1 (Parser (t:ts) _ errs ind) = Parser ts (Just t) errs (ind + 1)
+advance 1 (Parser ind toks errs) = Parser (ind + 1) toks errs
 advance n p = advance 1 $ advance (n - 1) p
 
 advanceS :: Int -> ParseFun ()
 advanceS x = state $ \ parser -> ((), advance x parser)
 
 peek :: Parser -> Located Lex.Token
-peek (Parser (x:_) _ _ _) = x
-peek (Parser [] _ _ _) = error "peek on empty token stream"
+peek (Parser ind toks _) =
+    case drop ind toks of
+        x:_ -> x
+        [] -> error "peek on empty token stream"
 
 peekS :: ParseFun (Located Lex.Token)
 peekS = state $ \ parser -> (peek parser, parser)
 
 newErr :: ErrorConditionVariant -> Parser -> Parser
-newErr err (Parser toks l errs ind) = Parser toks l (errs ++ [ErrorCondition ind err]) ind
+newErr err (Parser ind toks errs) = Parser ind toks (errs ++ [ErrorCondition ind err])
 
 newErrS :: ErrorConditionVariant -> ParseFun ()
 newErrS err = state $ \ parser -> ((), newErr err parser)
@@ -144,24 +146,26 @@ newErrS err = state $ \ parser -> ((), newErr err parser)
 getParser :: ParseFun Parser
 getParser = state $ \ parser -> (parser, parser)
 
-saveLocation :: ParseFun ([Located Lex.Token], Maybe (Located Lex.Token), Int)
-saveLocation = state $ \ parser@(Parser toks l _ ind) -> ((toks, l, ind), parser)
+saveLocation :: ParseFun (Int, [Located Lex.Token])
+saveLocation = state $ \ parser@(Parser ind toks _) -> ((ind, toks), parser)
 
-restoreLocation :: ([Located Lex.Token], Maybe (Located Lex.Token), Int) -> ParseFun ()
-restoreLocation (toks, l, ind) = state $ \ (Parser _ _ errs _) -> ((), Parser toks l errs ind)
+restoreLocation :: (Int, [Located Lex.Token]) -> ParseFun ()
+restoreLocation (ind, toks) = state $ \ (Parser _ _ errs) -> ((), Parser ind toks errs)
 
 selectSpanFromParser :: Parser -> Span
-selectSpanFromParser (Parser toks back _ _) =
+selectSpanFromParser (Parser ind toks _) =
     let front =
-            case toks of
+            case drop ind toks of
                 x:_ -> Just x
                 [] -> Nothing
-    in case (front, back) of
-        (Just (Located _ Lex.EOF), Just (Located notEofSp _)) -> notEofSp
-        (Just (Located eofSp Lex.EOF), Nothing) -> eofSp
-        (Just (Located fsp _), _) -> fsp
-        (Nothing, Just (Located bsp _)) -> bsp
-        (Nothing, Nothing) -> error "parser has empty token stream, no last"
+        back = head $ drop (ind - 1) toks
+        (Located backsp _) = back
+    in
+    case front of
+        Just (Located _ Lex.EOF) -> backsp
+        Nothing -> backsp
+
+        Just (Located sp _) -> sp
 -- combinators {{{1
 consume :: (Located Lex.Token -> Maybe t) -> (Span -> Located Lex.Token -> ErrorConditionVariant) -> ParseFunM t
 consume predicate onerr =
@@ -756,7 +760,7 @@ exprStmt =
 -- parse {{{1
 parse :: [Located Lex.Token] -> Either ParseError AST.LDModule
 parse toks =
-    let (res, Parser _ _ errs _) = runState grammar $ Parser toks Nothing [] 0
+    let (res, Parser _ _ errs) = runState grammar $ Parser 0 toks []
     in case res of
         Just x -> Right x
         Nothing -> Left $ ParseError errs
