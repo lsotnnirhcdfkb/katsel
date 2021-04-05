@@ -24,7 +24,7 @@ import Location
         data SFunDecl
             = SFunDecl' DType ...
 
-    all the datatypes (except for a few, like 'Mutability' and 'ThisParamKind') when used also should be located, so there are type aliases that are used for located types
+    all the datatypes (except for a few, like 'Mutability') when used also should be located, so there are type aliases that are used for located types
     the type alias names are prefixed with 'L', so 'DDecl' would have the type alias:
 
         type LDDecl = Located Decl
@@ -41,7 +41,6 @@ import Location
 type LocStr = Located String
 
 data Mutability = Mutable | Immutable
-data ThisParamKind = Value | Ref | MutRef
 
 type LBinOp = Located BinOp
 data BinOp
@@ -107,7 +106,6 @@ data DExpr
 type LDParam = Located DParam
 data DParam
     = DParam'Normal Mutability LDType LocStr
-    | DParam'This ThisParamKind
 
 type LDType = Located DType
 data DType

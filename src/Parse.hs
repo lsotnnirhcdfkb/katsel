@@ -8,7 +8,7 @@ import qualified AST
 
 import Data.List(foldl', nub)
 import Data.Data(toConstr, Data)
-import Data.Maybe(isJust, fromMaybe)
+import Data.Maybe(fromMaybe)
 
 import Control.Monad.State.Lazy(State, state, runState)
 
@@ -440,18 +440,24 @@ thisParam =
     (
         consumeTokS Lex.Star (XIsMissingYFound "'this' reference parameter" "'*'") `seqparser` \ starsp ->
         consumeTokU Lex.Mut (XIsMissingYAfterZFound "'this' mutable reference parameter" "'mut'" "'*'") >>= \ mmut ->
-        return $ Just $ Located starsp $ isJust mmut
+        return $ Just $ Located starsp mmut
     ) >>= \ mstarmut ->
     consumeTokS Lex.This (XIsMissingYFound "'this' parameter" "'this'") `seqparser` \ thissp ->
-    let (mstartsp, kind) = case mstarmut of
-            Just (Located s True) -> (Just s, AST.MutRef)
-            Just (Located s False) -> (Just s, AST.Ref)
-            Nothing -> (Nothing, AST.Value)
+    let plainThisTy = Located thissp AST.DType'This
+        (mstartsp, ty) = case mstarmut of
+            Just (Located starsp mutable) -> (
+                    Just starsp,
+                    Located (starsp `joinSpan` endsp) $ AST.DType'Pointer (maybeToMutability mutable) plainThisTy
+                )
+
+            Nothing -> (Nothing, plainThisTy)
+
+        ty :: AST.LDType
 
         startsp = fromMaybe thissp mstartsp
         endsp = thissp
 
-    in return $ Just $ Located (startsp `joinSpan` endsp) $ AST.DParam'This kind
+    in return $ Just $ Located (startsp `joinSpan` endsp) $ AST.DParam'Normal AST.Immutable ty (Located thissp "this")
 -- expr {{{2
 parseExpr, ifExpr, whileExpr :: ParseFunM AST.LDExpr
 parseExpr =
