@@ -53,13 +53,16 @@ data DeclSymbol
 
 data Value
     = VFunction Function
-    | VRegister Register
-    | VConstInt Integer
-    | VConstFloat Double
-    | VConstBool Bool
-    | VConstChar Char
-    | VVoid
-    | VInstruction Instruction
+
+data FValue
+    = FVGlobalValue Value
+    | FVRegister Register
+    | FVConstInt Integer
+    | FVConstFloat Double
+    | FVConstBool Bool
+    | FVConstChar Char
+    | FVVoid
+    | FVInstruction Instruction
 
 data Function
     = Function
@@ -74,15 +77,15 @@ data BasicBlock = BasicBlock [Instruction] (Maybe Br)
 data Register = Register (DSIRId Type) Mutability
 
 data Instruction
-    = Copy Register Value
-    | Call Function [Value]
+    = Copy Register FValue
+    | Call Function [FValue]
     | Addrof Register Mutability
-    | DerefPtr Value
+    | DerefPtr FValue
 
 data Br
     = BrRet
     | BrGoto BasicBlock
-    | BrCond Value BasicBlock BasicBlock
+    | BrCond FValue BasicBlock BasicBlock
 
 -- DeclSymbol stuff {{{1
 -- TODO: eventually types will have values (eg uint32::max)
