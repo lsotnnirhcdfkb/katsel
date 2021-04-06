@@ -20,77 +20,65 @@ import qualified Data.Map as Map
 
 import Data.List(foldl')
 
-data Empty
-data DDeclared
-data DDefined
-data VDeclared
-data Completed
-
-type MakeEmpty a = a Empty
-type MakeDDeclared a = a DDeclared
-type MakeDDefined a = a DDefined
-type MakeVDeclared a = a VDeclared
-type MakeCompleted a = a Completed
-
 type StrMap = Map String
-type DSMap status = StrMap (DeclSymbol status)
-type VMap status = StrMap (Value status)
+type DSMap = StrMap DeclSymbol
+type VMap = StrMap Value
 
 data Mutability = Mutable | Immutable
 data Signedness = Signed | Unsigned
 
-data Module status = Module (DSMap status) (VMap status)
+data Module = Module DSMap VMap
 
-data Type status
-    = FloatType (DSMap status) Int
-    | IntType (DSMap status) Int Signedness
-    | CharType (DSMap status)
-    | BoolType (DSMap status)
-    | FunctionType (DSMap status) (Type status) [(Mutability, Type status)]
-    | VoidType (DSMap status)
-    | PointerType (DSMap status) Mutability (Type status)
+data Type
+    = FloatType DSMap Int
+    | IntType DSMap Int Signedness
+    | CharType DSMap
+    | BoolType DSMap
+    | FunctionType DSMap Type [(Mutability, Type)]
+    | VoidType DSMap
+    | PointerType DSMap Mutability Type
 
-data DeclSymbol status
-    = DSModule (Module status)
-    | DSType (Type status)
+data DeclSymbol
+    = DSModule Module
+    | DSType Type
 
-data Value status
-    = VFunction (Function status)
-    | VRegister (Register status)
+data Value
+    = VFunction Function
+    | VRegister Register
     | VConstInt Integer
     | VConstFloat Double
     | VConstBool Bool
     | VConstChar Char
     | VVoid
-    | VInstruction (Instruction status)
+    | VInstruction Instruction
 
-data Function status
+data Function
     = Function
-      { functionBlocks :: [BasicBlock status]
-      , functionRegisters :: [Register status]
+      { functionBlocks :: [BasicBlock]
+      , functionRegisters :: [Register]
       , functionRetReg :: Int
       , functionParamRegs :: [Int]
-      , functionType :: Type status
+      , functionType :: Type
       }
-data BasicBlock status = BasicBlock [Instruction status] (Maybe (Br status))
+data BasicBlock = BasicBlock [Instruction] (Maybe Br)
 
-data Register status = Register (Type status) Mutability
+data Register = Register Type Mutability
 
-data Instruction status
-    = Copy (Register status) (Value status)
-    | Call (Function status) [Value status]
-    | Addrof (Register status) Mutability
-    | DerefPtr (Value status)
+data Instruction
+    = Copy Register Value
+    | Call Function [Value]
+    | Addrof Register Mutability
+    | DerefPtr Value
 
-data Br status
+data Br
     = BrRet
-    | BrGoto (BasicBlock status)
-    | BrCond (Value status) (BasicBlock status) (BasicBlock status)
+    | BrGoto BasicBlock
+    | BrCond Value BasicBlock BasicBlock
 
 -- DeclSymbol stuff {{{1
 -- TODO: eventually types will have values (eg uint32::max)
 
-getValues :: DeclSymbol dss -> VMap dss
+getValues :: DeclSymbol -> VMap
 getValues (DSType FloatType {}) = Map.empty
 getValues (DSType IntType {}) = Map.empty
 getValues (DSType CharType {}) = Map.empty
@@ -100,7 +88,7 @@ getValues (DSType VoidType {}) = Map.empty
 getValues (DSType PointerType {}) = Map.empty
 getValues (DSModule (Module _ vmap)) = vmap
 
-getDeclSymbols :: DeclSymbol dss -> DSMap dss
+getDeclSymbols :: DeclSymbol -> DSMap
 getDeclSymbols (DSModule (Module dsmap _)) = dsmap
 getDeclSymbols (DSType (FloatType dsmap _)) = dsmap
 getDeclSymbols (DSType (IntType dsmap _ _)) = dsmap
@@ -110,16 +98,16 @@ getDeclSymbols (DSType (FunctionType dsmap _ _)) = dsmap
 getDeclSymbols (DSType (VoidType dsmap)) = dsmap
 getDeclSymbols (DSType (PointerType dsmap _ _)) = dsmap
 
-getValue :: DeclSymbol dss -> String -> Maybe (Value dss)
+getValue :: DeclSymbol -> String -> Maybe Value
 getValue ds n = Map.lookup n $ getValues ds
 
-getDeclSymbol :: DeclSymbol dss -> String -> Maybe (DeclSymbol dss)
+getDeclSymbol :: DeclSymbol -> String -> Maybe DeclSymbol
 getDeclSymbol ds n = Map.lookup n $ getDeclSymbols ds
 
-addValue :: DeclSymbol dss -> Value dss -> DeclSymbol dss
+addValue :: DeclSymbol -> Value -> DeclSymbol
 addValue ds v = undefined
 
-addDeclSymbol :: DeclSymbol dss -> Value dss -> DeclSymbol dss
+addDeclSymbol :: DeclSymbol -> Value -> DeclSymbol
 addDeclSymbol = undefined
 
 buildIR :: AST.LDModule -> IR.Module
@@ -135,12 +123,17 @@ buildIR lmod =
         loweredMod = vdefined
 
 class Lowerable l p where
-    ddeclare, ddefine, vdeclare, vdefine :: p -> l -> p
+    ddeclare :: p -> l -> p
+    ddefine :: p -> l -> p
+    vdeclare :: p -> l -> p
+    vdefine :: p -> l -> p
+
 class Parent p c i | p c -> i where
     add :: p -> i -> c -> p
     get :: p -> i -> Maybe c
 
 type ModParent = Maybe IR.Module
+
 instance Parent ModParent IR.Module () where
     add _ _ m = Just m
     get m _ = m
