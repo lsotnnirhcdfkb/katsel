@@ -10,12 +10,8 @@ import Location
 
 import qualified Message
 
-import qualified Lex
-
-import qualified Parse
+import qualified Tokens
 import qualified AST
-
-import qualified LowerAST
 import qualified IR
 
 import System.IO(hPutStr, stderr)
@@ -46,16 +42,16 @@ instance Monad ErrorAccumulated where
 addErrors :: [Message.SimpleDiag] -> ErrorAccumulated ()
 addErrors = ErrorAcc ()
 
-lexStage :: File -> ErrorAccumulated [Located Lex.Token]
+lexStage :: File -> ErrorAccumulated [Located Tokens.Token]
 lexStage contents =
-    let lexed = Lex.lex contents
+    let lexed = Tokens.lex contents
         errs = [Message.toDiagnostic x | Left x <- lexed]
         toks = [x | Right x <- lexed]
     in addErrors errs >> return toks
 
-parseStage :: [Located Lex.Token] -> ErrorAccumulated (Maybe AST.LDModule)
+parseStage :: [Located Tokens.Token] -> ErrorAccumulated (Maybe AST.LDModule)
 parseStage toks =
-    case Parse.parse toks of
+    case AST.parse toks of
         Right result ->
             return $ Just result
 
@@ -64,7 +60,7 @@ parseStage toks =
             return Nothing
 
 lowerASTStage :: AST.LDModule -> ErrorAccumulated IR.Module
-lowerASTStage = return . LowerAST.lowerMod
+lowerASTStage = return . IR.buildIR
 
 compile :: String -> IO ()
 compile filename =

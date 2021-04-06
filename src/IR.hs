@@ -9,6 +9,7 @@ module IR
     , addValue
     , addDeclSymbol
     , buildIR
+    , Module
     ) where
 
 import qualified AST
