@@ -30,14 +30,16 @@ data Signedness = Signed | Unsigned
 
 data Module = Module DSMap VMap
 
+data IRId resolve
+
 data Type
     = FloatType DSMap Int
     | IntType DSMap Int Signedness
     | CharType DSMap
     | BoolType DSMap
-    | FunctionType DSMap Type [(Mutability, Type)]
+    | FunctionType DSMap (IRId Type) [(Mutability, (IRId Type))]
     | VoidType DSMap
-    | PointerType DSMap Mutability Type
+    | PointerType DSMap Mutability (IRId Type)
 
 data DeclSymbol
     = DSModule Module
@@ -59,11 +61,11 @@ data Function
       , functionRegisters :: [Register]
       , functionRetReg :: Int
       , functionParamRegs :: [Int]
-      , functionType :: Type
+      , functionType :: IRId Type
       }
 data BasicBlock = BasicBlock [Instruction] (Maybe Br)
 
-data Register = Register Type Mutability
+data Register = Register (IRId Type) Mutability
 
 data Instruction
     = Copy Register Value
