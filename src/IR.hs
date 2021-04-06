@@ -31,12 +31,12 @@ data Signedness = Signed | Unsigned
 data Module = Module DSMap VMap
 
 data DSIRId resolve = DSIRId [Located String]
-data VIRId = VIRId [Located String]
+data VIRId resolve = VIRId [Located String]
 
 newDSIRId :: [Located String] -> resolve -> DSIRId resolve
 newDSIRId segments _ = DSIRId segments
-newVIRId :: [Located String] -> VIRId
-newVIRId = VIRId
+newVIRId :: [Located String] -> resolve -> VIRId resolve
+newVIRId segments _ = VIRId segments
 
 data Type
     = FloatType DSMap Int
