@@ -154,19 +154,25 @@ instance Parent IR.Module IR.DeclSymbol String where
     add = undefined
     get = undefined
 
+lowerAllInList :: Lowerable l p => [l] -> p -> (p -> l -> p) -> p
+lowerAllInList things parent fn = foldl' fn parent things
+
 instance Parent p IR.Module () => Lowerable AST.LDModule p where
-    ddeclare parent (Located _ (AST.DModule' decls)) = add parent () finalModule
+    ddeclare parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls startModule ddeclare
         where
             startModule = IR.Module Map.empty Map.empty
-            finalModule = foldl' ddeclare startModule decls
 
-    ddefine parent (Located _ (AST.DModule' decls)) = add parent () defined
+    ddefine parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls parentmod ddefine
         where
             (Just parentmod) = get parent () :: Maybe IR.Module -- not sure why this type annotation is needed to compile
-            defined = foldl' ddefine parentmod decls
 
-    vdeclare = undefined
-    vdefine = undefined
+    vdeclare parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls parentmod vdeclare
+        where
+            (Just parentmod) = get parent () :: Maybe IR.Module
+
+    vdefine parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls parentmod vdefine
+        where
+            (Just parentmod) = get parent () :: Maybe IR.Module
 
 instance Parent p IR.Value String => Lowerable AST.LDDecl p where
     ddeclare _ (Located _ (AST.DDecl'Fun _)) = undefined
