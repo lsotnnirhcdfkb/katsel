@@ -180,6 +180,9 @@ sgrOfTy Warning = [boldSGR, vividForeColorSGR ANSI.Magenta]
 sgrOfTy Note = [boldSGR, vividForeColorSGR ANSI.Green]
 sgrOfTy Hint = [boldSGR, vividForeColorSGR ANSI.Blue]
 
+elipsisPrefix :: Int -> String
+elipsisPrefix indent = replicate (indent - 1) '.'
+
 drawSectionLine :: Int -> SectionLine -> String
 drawSectionLine indent (FileLine fl) = makeIndentWithDivider '>' "" indent ++ ANSI.setSGRCode filePathSGR ++ name fl ++ ANSI.setSGRCode [] ++ "\n"
 drawSectionLine indent (DimQuote fl ln) =
@@ -193,7 +196,7 @@ drawSectionLine indent (QuoteLine fl ln) = makeIndentWithDivider '|' (show ln) i
         quote = case drop (ln - 1) $ lines (source fl) of
             x:_ -> x
             [] -> ""
-drawSectionLine indent ElipsisLine = makeIndentWithDivider '|' (replicate (indent - 1) '.') indent ++ "...\n"
+drawSectionLine indent ElipsisLine = makeIndentWithDivider '|' (elipsisPrefix indent) indent ++ "...\n"
 
 drawSectionLine indent (UnderlineLine underlines messages) =
     makeIndentWithDivider '|' "" indent ++ draw 0 "" ++ "\n"
@@ -337,7 +340,7 @@ drawSectionLine indent (MultilineMessageLines (Message (Span spstart spend) ty i
                     then concatMap makeLine msglnns
                     else
                         concatMap makeLine (take 10 msglnns) ++
-                        makeIndentWithDivider '|' "" indent ++ "...\n" ++
+                        makeIndentWithDivider '|' (elipsisPrefix indent) indent ++ "...\n" ++
                         concatMap makeLine (drop (len - 10) msglnns)
                     where
                         len = length msglnns
