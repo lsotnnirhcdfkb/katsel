@@ -272,7 +272,7 @@ drawSectionLine indent (MultilineMessageLines (Message (Span spstart spend) ty i
     beforeFirstQuoteLine ++
     firstQuoteLine ++
     fromMaybe "" afterFirstQuoteLine ++
-    concat middleQuoteLines ++
+    middleQuoteLines ++
     fromMaybe "" beforeLastQuoteLine ++
     lastQuoteLine ++
     afterLastQuoteLine
@@ -330,8 +330,17 @@ drawSectionLine indent (MultilineMessageLines (Message (Span spstart spend) ty i
         firstQuoteLine = makeIndentWithDivider '|' (show startlnn) indent ++ surround (getlnn startlnn) firstcol maxcol ++ "\n"
         afterFirstQuoteLine = transitionLine firstcol mincol maxcol maxcol
 
-        middleQuoteLines = map makeLine msglnns
+        middleQuoteLines = linesTrimmed
             where
+                linesTrimmed =
+                    if len <= 20
+                    then concatMap makeLine msglnns
+                    else
+                        concatMap makeLine (take 10 msglnns) ++
+                        makeIndentWithDivider '|' "" indent ++ "...\n" ++
+                        concatMap makeLine (drop (len - 10) msglnns)
+                    where
+                        len = length msglnns
                 makeLine lnnr = makeIndentWithDivider '|' (show lnnr) indent ++ surround (getlnn lnnr) mincol maxcol ++ "\n"
 
         beforeLastQuoteLine = transitionLine mincol mincol maxcol lastcol
