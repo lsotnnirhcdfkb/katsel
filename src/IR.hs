@@ -31,12 +31,34 @@ data Signedness = Signed | Unsigned
 data Module = Module DSMap VMap
 
 data DSIRId resolve = DSIRId [Located String]
-data VIRId resolve = VIRId [Located String]
+data VIRId resolve = VIRId (DSIRId DeclSymbol) (Located String)
+
+class ConvertDS dsr where
+    convertds :: DeclSymbol -> Maybe dsr
+
+instance ConvertDS DeclSymbol where
+    convertds = Just
+
+class ConvertV vr where
+    convertvalue :: Value -> Maybe vr
+
+unwrapMaybe :: Maybe a -> a
+unwrapMaybe (Just x) = x
+unwrapMaybe Nothing = error "IRId does not resolve to its promised type"
+
+dsresolve :: ConvertDS r => Module -> DSIRId r -> r
+dsresolve mod (DSIRId path) = unwrapMaybe $ foldl' next (Just $ DSModule mod) path >>= convertds
+    where
+        next (Just ds) (Located _ name) = getDeclSymbol ds name
+        next Nothing _ = Nothing
+
+vresolve :: ConvertV r => Module -> VIRId r -> r
+vresolve mod (VIRId parent (Located _ childname)) = unwrapMaybe $ getValue (dsresolve mod parent) childname >>= convertvalue
 
 newDSIRId :: [Located String] -> resolve -> DSIRId resolve
 newDSIRId segments _ = DSIRId segments
 newVIRId :: [Located String] -> resolve -> VIRId resolve
-newVIRId segments _ = VIRId segments
+newVIRId segments _ = VIRId (DSIRId $ init segments) (last segments)
 
 data Type
     = FloatType DSMap Int
