@@ -348,4 +348,4 @@ drawSectionLine indent (MultilineMessageLines (Message (Span spstart spend) ty i
 
         beforeLastQuoteLine = transitionLine mincol mincol maxcol lastcol
         lastQuoteLine = makeIndentWithDivider '|' (show endlnn) indent ++ surround (getlnn endlnn) mincol lastcol ++ "\n"
-        afterLastQuoteLine = prefix '|' ++ topbottom mincol lastcol ++ " " ++ colorify msg ++ "\n"
+        afterLastQuoteLine = prefix '|' ++ topbottom mincol lastcol ++ colorify ("-- " ++ colorify msg) ++ "\n"
