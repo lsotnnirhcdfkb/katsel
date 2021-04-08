@@ -65,7 +65,7 @@ data Type
     | IntType DSMap Int Signedness
     | CharType DSMap
     | BoolType DSMap
-    | FunctionType DSMap (DSIRId Type) [(Mutability, (DSIRId Type))]
+    | FunctionType DSMap (DSIRId Type) [(Mutability, DSIRId Type)]
     | VoidType DSMap
     | PointerType DSMap Mutability (DSIRId Type)
 
