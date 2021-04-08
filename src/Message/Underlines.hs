@@ -14,7 +14,7 @@ import Message.Utils
 
 import Data.List(nubBy, sortBy, partition, find)
 
-import Data.Maybe(maybeToList, fromMaybe)
+import Data.Maybe(maybeToList, fromMaybe, catMaybes)
 
 import Data.Char(isSpace)
 
@@ -41,9 +41,11 @@ linenrsOfMessages msgs = sortBy sortComparator $ nubBy nubComparator linesWithDi
         -- nub keeps the first occurance, so it will keep all the normal lines if there are duplicate dim lines
         -- since the dim lines are all appended to the end of the list
         linesWithDim = linesWithoutDim ++ concatMap getDimLines linesWithoutDim
-        getDimLines (ShowLine fl nr _) = map makeDim [-2..2] -- will have a duplicate line at offset 0 that is filtered out by nub
+        getDimLines (ShowLine fl nr _) = catMaybes $ map makeDim [-2..2] -- will have a duplicate line at offset 0 that is filtered out by nub
             where
-                makeDim n = ShowLine fl (nr+n) Dim
+                makeDim n
+                    | n >= 1 = Just $ ShowLine fl (nr+n) Dim
+                    | otherwise = Nothing
 
         linesWithoutDim = concatMap linenrsof msgs
         linenrsof (Message (Span start end) _ _ _) = [ShowLine (fileOfLoc start) (lnnOfLoc start) Normal, ShowLine (fileOfLoc start) (lineMinus1 end) Normal]
