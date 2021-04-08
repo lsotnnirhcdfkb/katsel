@@ -30,7 +30,7 @@ data Signedness = Signed | Unsigned
 
 data Module = Module DSMap VMap
 
-data DSIRId resolve = DSIRId [Located String]
+newtype DSIRId resolve = DSIRId [Located String]
 data VIRId resolve = VIRId (DSIRId DeclSymbol) (Located String)
 
 class ConvertDS dsr where

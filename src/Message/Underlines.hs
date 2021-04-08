@@ -118,7 +118,7 @@ assignMessages messages = (firstrow, msglines)
 
 sectionLines :: UnderlinesSection -> [SectionLine]
 sectionLines (UnderlinesSection msgs) =
-    (makeLines [] $ zip flnrs $ Nothing : map Just flnrs) ++ map MultilineMessageLines multilineMsgs
+    makeLines [] (zip flnrs $ Nothing : map Just flnrs) ++ map MultilineMessageLines multilineMsgs
     where
         flnrs = linenrsOfMessages msgs
 
@@ -317,7 +317,7 @@ drawSectionLine indent (MultilineMessageLines (Message (Span spstart spend) ty i
                 (notSurroundedLeft, rest) = splitAt (startcol - 1) strExtended
                 (surrounded, rest') = splitAt (endcol - startcol) rest
                 notSurroundedRight = take (length str - endcol) rest'
-        topbottom startcol endcol = colorify $ replicate (startcol) ' ' ++ replicate (endcol-startcol+4) impchar
+        topbottom startcol endcol = colorify $ replicate startcol ' ' ++ replicate (endcol-startcol+4) impchar
         transitionLine a1 b1 a2 b2 =
             if a1 == b1 && a2 == b2
             then Nothing

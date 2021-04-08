@@ -272,7 +272,7 @@ selectSpanFromParser (Parser ind toks _) =
             case drop ind toks of
                 x:_ -> Just x
                 [] -> Nothing
-        back = head $ drop (ind - 1) toks
+        back = toks !! (ind - 1)
         (Located backsp _) = back
     in
     case front of
