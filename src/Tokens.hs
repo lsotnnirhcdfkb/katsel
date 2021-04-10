@@ -152,11 +152,11 @@ fmtToken PipeEqual = "'|='"
 fmtToken CaretEqual = "'^='"
 fmtToken (Identifier n) = "identifier '" ++ n ++ "'"
 fmtToken (CharLit ch) = "character literal '" ++ [ch] ++ "'"
-fmtToken (StringLit s) = "string literal \"" ++ shortened ++ "\""
+fmtToken (StringLit s) = "string literal " ++ show shortened
     where
-        shortened = if length s < 10
+        shortened = if length s < 20
             then s
-            else take 6 s ++ "..."
+            else take 16 s ++ "..."
 fmtToken (IntLit _ i) = "integer literal " ++ show i
 fmtToken (FloatLit d) = "floating point literal " ++ show d
 fmtToken (BoolLit b) = "bool literal " ++ if b then "true" else "false"
