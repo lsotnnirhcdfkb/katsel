@@ -493,31 +493,44 @@ lex' prevtoks indentStack lexer =
                 makeTokAtNLBefore = makeTokRelNLBefore 0 1
         -- }}}
         -- {{{ str and char literals
-        lexStrOrCharLit isCharLit startingDelim rest =
-            case litLength of
-                Right len
-                    | isCharLit && len /= 1 -> continueLexWithSingleErr (2 + len) MulticharChar
-                    | isCharLit -> continueLexWithSingleTok (2 + len) $ CharLit $ rest !! 1
-                    | otherwise -> continueLexWithSingleTok (2 + len) $ StringLit $ take len rest
+        lexStrOrCharLit isCharLit lexFrom =
+            case lexStrOrCharLit' lexFrom of
+                Right (contents, tokLenMinus1) ->
+                    let tokLen = tokLenMinus1 + 1 -- + 1 for starting quote
+                    in if isCharLit
+                    then if length contents == 1
+                        then continueLexWithSingleTok tokLen $ CharLit $ head contents
+                        else continueLexWithSingleErr tokLen $ MulticharChar
+                    else continueLexWithSingleTok tokLen $ StringLit contents
 
-                Left len
-                    | isCharLit -> continueLexWithSingleErr (1 + len) UntermChar
-                    | otherwise -> continueLexWithSingleErr (1 + len) UntermStr
-
+                Left errLen ->
+                    if isCharLit
+                        -- + 1 for starting quote
+                    then continueLexWithSingleErr (errLen + 1) UntermChar
+                    else continueLexWithSingleErr (errLen + 1) UntermStr
             where
-                litLength = charsUntilClosingDelim rest
+                lexStrOrCharLit' rest =
+                    let (curContents, afterLit) = break endPred rest
+                    in case afterLit of
+                        x:_ | x == startDelim ->
+                            Right (curContents, length curContents + 1) -- + 1 for terminating quote
+                        _ ->
+                            let (whsp, afterWh) = span isSpace afterLit
+                            in case afterWh of
+                                x:afterContinuingStartDelim | x == startDelim ->
+                                    let totalLen nextLen = length curContents + length whsp + 1 + nextLen -- + 1 for starting quote of next segment
+                                    in case lexStrOrCharLit' afterContinuingStartDelim of
+                                        Right (nextContents, nextTokLen) -> Right (curContents ++ "\n" ++ nextContents, totalLen nextTokLen)
+                                        Left errLen -> Left $ totalLen errLen
 
-                charsUntilClosingDelim [] = Left 0
-                charsUntilClosingDelim (chr:more)
-                    | chr == '\n' = Left 0
-                    | chr == startingDelim = Right 0
-                    | otherwise =
-                        case charsUntilClosingDelim more of
-                            Right l -> Right $ 1 + l
-                            Left l -> Left $ 1 + l
+                                _ ->
+                                    Left $ length curContents
 
-        lexStrLit = lexStrOrCharLit False '"'
-        lexCharLit = lexStrOrCharLit True '\''
+                startDelim = if isCharLit then '\'' else '"'
+                endPred ch = ch == '\n' || ch == startDelim
+
+        lexStrLit = lexStrOrCharLit False
+        lexCharLit = lexStrOrCharLit True
         -- }}}
         -- lexIden {{{
         lexIden entire =
