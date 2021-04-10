@@ -348,12 +348,12 @@ drawSectionLine indent (MultilineMessageLines (Message (Span spstart spend) ty i
         middleQuoteLines = linesTrimmed
             where
                 linesTrimmed =
-                    if len <= 20
+                    if len <= 10
                     then concatMap makeLine msglnns
                     else
-                        concatMap makeLine (take 10 msglnns) ++
+                        concatMap makeLine (take 5 msglnns) ++
                         makeIndentWithDivider '|' (elipsisPrefix indent) indent ++ "...\n" ++
-                        concatMap makeLine (drop (len - 10) msglnns)
+                        concatMap makeLine (drop (len - 5) msglnns)
                     where
                         len = length msglnns
                 makeLine lnnr = makeIndentWithDivider '|' (show lnnr) indent ++ surround (getlnn lnnr) mincol maxcol ++ "\n"
