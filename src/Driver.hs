@@ -79,7 +79,7 @@ compile filename =
             case ei of
                 Right () -> return ()
                 Left err ->
-                    hPutStr stderr ("\n" ++ 
+                    hPutStr stderr ("\n" ++
                         Message.report (Message.SimpleDiag Message.InternalError Nothing Nothing Nothing
                             [ Message.SimpleText "the compiler is broken! caught internal error:"
                             , Message.SimpleMultilineText $ unlines $ map ("> " ++) $ lines $ displayException err
