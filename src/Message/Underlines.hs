@@ -44,7 +44,7 @@ linenrsOfMessages msgs = sortBy sortComparator $ nubBy nubComparator linesWithDi
         getDimLines (ShowLine fl nr _) = mapMaybe makeDim [-2..2] -- will have a duplicate line at offset 0 that is filtered out by nub
             where
                 makeDim n
-                    | n >= 1 = Just $ ShowLine fl (nr+n) Dim
+                    | nr+n >= 1 = Just $ ShowLine fl (nr+n) Dim
                     | otherwise = Nothing
 
         linesWithoutDim = concatMap linenrsof msgs
