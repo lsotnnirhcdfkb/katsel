@@ -2,13 +2,10 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE GADTs #-}
 
 module IR
-    ( getValue
-    , getDeclSymbol
-    , addValue
-    , addDeclSymbol
-    , buildIR
+    ( buildIR
     , Module
     ) where
 
@@ -21,45 +18,43 @@ import qualified Data.Map as Map
 
 import Data.List(foldl')
 
+import Data.Typeable(Typeable, cast)
+
+-- utility types and aliases {{{1
 type StrMap = Map String
 type DSMap = StrMap DeclSymbol
 type VMap = StrMap Value
 
 data Mutability = Mutable | Immutable
 data Signedness = Signed | Unsigned
+-- IRId types and functions {{{1
+newtype DSIRId resolve = DSIRId [String]
+data VIRId resolve = VIRId (DSIRId DeclSymbol) String
 
-data Module = Module DSMap VMap
-
-newtype DSIRId resolve = DSIRId [Located String]
-data VIRId resolve = VIRId (DSIRId DeclSymbol) (Located String)
-
-class ConvertDS dsr where
-    convertds :: DeclSymbol -> Maybe dsr
-
-instance ConvertDS DeclSymbol where
-    convertds = Just
-
-class ConvertV vr where
-    convertvalue :: Value -> Maybe vr
-
-unwrapMaybe :: Maybe a -> a
-unwrapMaybe (Just x) = x
-unwrapMaybe Nothing = error "IRId does not resolve to its promised type"
-
-dsresolve :: ConvertDS r => Module -> DSIRId r -> r
-dsresolve mod (DSIRId path) = unwrapMaybe $ foldl' next (Just $ DSModule mod) path >>= convertds
-    where
-        next (Just ds) (Located _ name) = getDeclSymbol ds name
-        next Nothing _ = Nothing
-
-vresolve :: ConvertV r => Module -> VIRId r -> r
-vresolve mod (VIRId parent (Located _ childname)) = unwrapMaybe $ getValue (dsresolve mod parent) childname >>= convertvalue
-
-newDSIRId :: [Located String] -> resolve -> DSIRId resolve
+newDSIRId :: [String] -> resolve -> DSIRId resolve
 newDSIRId segments _ = DSIRId segments
-newVIRId :: [Located String] -> resolve -> VIRId resolve
+newVIRId :: [String] -> resolve -> VIRId resolve
 newVIRId segments _ = VIRId (DSIRId $ init segments) (last segments)
 
+dsresolve :: Typeable r => Module -> DSIRId r -> Maybe r
+dsresolve mod (DSIRId path) =
+    foldl' next (Just $ DeclSymbol mod) path >>= cast
+    where
+        next (Just ds) name = getDeclSymbol ds name
+        next Nothing _ = Nothing
+
+vresolve :: Typeable r => Module -> VIRId r -> Maybe r
+vresolve mod (VIRId parent childname) =
+    child >>= cast
+    where
+        parentResolved = dsresolve mod parent
+        child = parentResolved >>= flip getValue childname
+-- IR datatypes {{{1
+-- DeclSymbols {{{2
+data DeclSymbol where
+    DeclSymbol :: (Typeable d, DSChildren d, VChildren d) => d -> DeclSymbol
+
+data Module = Module DSMap VMap
 data Type
     = FloatType DSMap Int
     | IntType DSMap Int Signedness
@@ -68,13 +63,61 @@ data Type
     | FunctionType DSMap (DSIRId Type) [(Mutability, DSIRId Type)]
     | VoidType DSMap
     | PointerType DSMap Mutability (DSIRId Type)
+-- classes {{{3
+class DSChildren d where
+    getDSMap :: d -> DSMap
+    getDeclSymbol :: d -> String -> Maybe DeclSymbol
+    addDeclSymbol :: d -> String -> DeclSymbol -> d
 
-data DeclSymbol
-    = DSModule Module
-    | DSType Type
+    getDeclSymbol d n = Map.lookup n $ getDSMap d
 
-data Value
-    = VFunction Function
+class VChildren v where
+    getVMap :: v -> VMap
+    getValue :: v -> String -> Maybe Value
+    addValue :: v -> String -> Value -> v
+
+    getValue v n = Map.lookup n $ getVMap v
+-- instances {{{3
+-- DeclSymbol {{{3
+instance DSChildren DeclSymbol where
+    getDSMap (DeclSymbol d) = getDSMap d
+    addDeclSymbol (DeclSymbol ds) name child = DeclSymbol $ addDeclSymbol ds name child
+instance VChildren DeclSymbol where
+    getVMap (DeclSymbol d) = getVMap d
+    addValue (DeclSymbol ds) name child = DeclSymbol $ addValue ds name child
+-- Type {{{4
+instance DSChildren Type where
+    getDSMap (FloatType dsmap _) = dsmap
+    getDSMap (IntType dsmap _ _) = dsmap
+    getDSMap (CharType dsmap) = dsmap
+    getDSMap (BoolType dsmap) = dsmap
+    getDSMap (FunctionType dsmap _ _) = dsmap
+    getDSMap (VoidType dsmap) = dsmap
+    getDSMap (PointerType dsmap _ _) = dsmap
+-- Module {{{4
+instance DSChildren Module where
+    getDSMap (Module dsmap _) = dsmap
+instance VChildren Module where
+    getVMap (Module _ vmap) = vmap
+-- Values {{{2
+data Value where
+    Value :: (Typeable v) => v -> Value
+-- Function {{{
+data Function
+    = Function
+      { functionBlocks :: [BasicBlock]
+      , functionRegisters :: [Register]
+      , functionRetReg :: Int
+      , functionParamRegs :: [Int]
+      , functionType :: DSIRId Type
+      }
+data BasicBlock = BasicBlock [Instruction] (Maybe Br)
+data Register = Register (DSIRId Type) Mutability
+data Instruction
+    = Copy Register FValue
+    | Call Function [FValue]
+    | Addrof Register Mutability
+    | DerefPtr FValue
 
 data FValue
     = FVGlobalValue Value
@@ -86,65 +129,13 @@ data FValue
     | FVVoid
     | FVInstruction Instruction
 
-data Function
-    = Function
-      { functionBlocks :: [BasicBlock]
-      , functionRegisters :: [Register]
-      , functionRetReg :: Int
-      , functionParamRegs :: [Int]
-      , functionType :: DSIRId Type
-      }
-data BasicBlock = BasicBlock [Instruction] (Maybe Br)
-
-data Register = Register (DSIRId Type) Mutability
-
-data Instruction
-    = Copy Register FValue
-    | Call Function [FValue]
-    | Addrof Register Mutability
-    | DerefPtr FValue
-
 data Br
     = BrRet
     | BrGoto BasicBlock
     | BrCond FValue BasicBlock BasicBlock
-
--- DeclSymbol stuff {{{1
--- TODO: eventually types will have values (eg uint32::max)
-
-getValues :: DeclSymbol -> VMap
-getValues (DSType FloatType {}) = Map.empty
-getValues (DSType IntType {}) = Map.empty
-getValues (DSType CharType {}) = Map.empty
-getValues (DSType BoolType {}) = Map.empty
-getValues (DSType FunctionType {}) = Map.empty
-getValues (DSType VoidType {}) = Map.empty
-getValues (DSType PointerType {}) = Map.empty
-getValues (DSModule (Module _ vmap)) = vmap
-
-getDeclSymbols :: DeclSymbol -> DSMap
-getDeclSymbols (DSModule (Module dsmap _)) = dsmap
-getDeclSymbols (DSType (FloatType dsmap _)) = dsmap
-getDeclSymbols (DSType (IntType dsmap _ _)) = dsmap
-getDeclSymbols (DSType (CharType dsmap)) = dsmap
-getDeclSymbols (DSType (BoolType dsmap)) = dsmap
-getDeclSymbols (DSType (FunctionType dsmap _ _)) = dsmap
-getDeclSymbols (DSType (VoidType dsmap)) = dsmap
-getDeclSymbols (DSType (PointerType dsmap _ _)) = dsmap
-
-getValue :: DeclSymbol -> String -> Maybe Value
-getValue ds n = Map.lookup n $ getValues ds
-
-getDeclSymbol :: DeclSymbol -> String -> Maybe DeclSymbol
-getDeclSymbol ds n = Map.lookup n $ getDeclSymbols ds
-
-addValue :: DeclSymbol -> Value -> DeclSymbol
-addValue ds v = undefined
-
-addDeclSymbol :: DeclSymbol -> Value -> DeclSymbol
-addDeclSymbol = undefined
-
-buildIR :: AST.LDModule -> IR.Module
+-- }}}
+-- building the IR {{{1
+buildIR :: AST.LDModule -> Module
 buildIR lmod =
     case loweredMod of
         Just ir -> ir
@@ -166,46 +157,46 @@ class Parent p c i | p c -> i where
     add :: p -> i -> c -> p
     get :: p -> i -> Maybe c
 
-type ModParent = Maybe IR.Module
+type ModParent = Maybe Module
 
-instance Parent ModParent IR.Module () where
+instance Parent ModParent Module () where
     add _ _ m = Just m
     get m _ = m
 
-instance Parent IR.DeclSymbol IR.DeclSymbol String where
-    add = undefined
-    get = undefined
-instance Parent IR.DeclSymbol IR.Value String where
-    add = undefined
-    get = undefined
-instance Parent IR.Module IR.Value String where
-    add = undefined
-    get = undefined
-instance Parent IR.Module IR.DeclSymbol String where
-    add = undefined
-    get = undefined
+instance Parent DeclSymbol DeclSymbol String where
+    add = addDeclSymbol
+    get = getDeclSymbol
+instance Parent DeclSymbol Value String where
+    add = addValue
+    get = getValue
+instance Parent Module DeclSymbol String where
+    add = addDeclSymbol
+    get = getDeclSymbol
+instance Parent Module Value String where
+    add = addValue
+    get = getValue
 
 lowerAllInList :: Lowerable l p => [l] -> p -> (p -> l -> p) -> p
 lowerAllInList things parent fn = foldl' fn parent things
 
-instance Parent p IR.Module () => Lowerable AST.LDModule p where
+instance Parent p Module () => Lowerable AST.LDModule p where
     ddeclare parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls startModule ddeclare
         where
-            startModule = IR.Module Map.empty Map.empty
+            startModule = Module Map.empty Map.empty
 
     ddefine parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls parentmod ddefine
         where
-            (Just parentmod) = get parent () :: Maybe IR.Module -- not sure why this type annotation is needed to compile
+            (Just parentmod) = get parent () :: Maybe Module -- not sure why this type annotation is needed to compile
 
     vdeclare parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls parentmod vdeclare
         where
-            (Just parentmod) = get parent () :: Maybe IR.Module
+            (Just parentmod) = get parent () :: Maybe Module
 
     vdefine parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls parentmod vdefine
         where
-            (Just parentmod) = get parent () :: Maybe IR.Module
+            (Just parentmod) = get parent () :: Maybe Module
 
-instance Parent p IR.Value String => Lowerable AST.LDDecl p where
+instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare _ (Located _ (AST.DDecl'Fun _)) = undefined
     ddeclare _ (Located _ (AST.DDecl'Impl _ _)) = undefined
 
