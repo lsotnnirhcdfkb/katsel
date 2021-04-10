@@ -37,17 +37,17 @@ newVIRId :: [String] -> resolve -> VIRId resolve
 newVIRId segments _ = VIRId (DSIRId $ init segments) (last segments)
 
 dsresolve :: Typeable r => Module -> DSIRId r -> Maybe r
-dsresolve mod (DSIRId path) =
-    foldl' next (Just $ DeclSymbol mod) path >>= cast
+dsresolve parentmod (DSIRId path) =
+    foldl' next (Just $ DeclSymbol parentmod) path >>= cast
     where
         next (Just ds) name = getDeclSymbol ds name
         next Nothing _ = Nothing
 
 vresolve :: Typeable r => Module -> VIRId r -> Maybe r
-vresolve mod (VIRId parent childname) =
+vresolve parentmod (VIRId parent childname) =
     child >>= cast
     where
-        parentResolved = dsresolve mod parent
+        parentResolved = dsresolve parentmod parent
         child = parentResolved >>= flip getValue childname
 -- IR datatypes {{{1
 -- DeclSymbols {{{2
