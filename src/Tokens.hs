@@ -219,7 +219,7 @@ instance Message.ToDiagnostic LexError where
             InvalidBase basechr basechrsp _ ->
                 Message.SimpleDiag Message.Error (Just basechrsp) (Message.makeCode "E0006") (Just "invalid-intlit-base")
                     [ Message.Underlines $ MsgUnds.UnderlinesSection
-                        [ MsgUnds.Message basechrsp MsgUnds.Error MsgUnds.Primary $ "invalid integer literal base '" ++ [basechr] ++ "' (must be one of 'x', 'o', or 'b' or omitted)"
+                        [ MsgUnds.Message basechrsp MsgUnds.Error MsgUnds.Primary $ "invalid integer literal base '" ++ [basechr] ++ "' (must be 'x', 'o', or 'b' or omitted)"
                         ]
                     ]
 
