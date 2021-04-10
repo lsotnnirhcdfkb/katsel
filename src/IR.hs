@@ -146,23 +146,25 @@ buildIR lmod =
         vdeclared = vdeclare ddefined lmod
         vdefined = vdefine vdeclared lmod
         loweredMod = vdefined
-
+-- helper functions {{{2
+lowerAllInList :: Lowerable l p => [l] -> p -> (p -> l -> p) -> p
+lowerAllInList things parent fn = foldl' fn parent things
+-- Lowerable class {{{2
 class Lowerable l p where
     ddeclare :: p -> l -> p
     ddefine :: p -> l -> p
     vdeclare :: p -> l -> p
     vdefine :: p -> l -> p
-
+-- Parent class {{{2
 class Parent p c i | p c -> i where
     add :: p -> i -> c -> p
     get :: p -> i -> Maybe c
-
+-- lowering modules {{{2
 type ModParent = Maybe Module
-
+-- ModParent instances {{{
 instance Parent ModParent Module () where
     add _ _ m = Just m
     get m _ = m
-
 instance Parent DeclSymbol DeclSymbol String where
     add = addDeclSymbol
     get = getDeclSymbol
@@ -175,10 +177,7 @@ instance Parent Module DeclSymbol String where
 instance Parent Module Value String where
     add = addValue
     get = getValue
-
-lowerAllInList :: Lowerable l p => [l] -> p -> (p -> l -> p) -> p
-lowerAllInList things parent fn = foldl' fn parent things
-
+-- }}}
 instance Parent p Module () => Lowerable AST.LDModule p where
     ddeclare parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls startModule ddeclare
         where
@@ -195,7 +194,7 @@ instance Parent p Module () => Lowerable AST.LDModule p where
     vdefine parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls parentmod vdefine
         where
             (Just parentmod) = get parent () :: Maybe Module
-
+-- lowering declarations {{{2
 instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare _ (Located _ (AST.DDecl'Fun _)) = undefined
     ddeclare _ (Located _ (AST.DDecl'Impl _ _)) = undefined
