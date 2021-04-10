@@ -317,19 +317,29 @@ drawSectionLine indent (MultilineMessageLines (Message (Span spstart spend) ty i
             where
                 strExtended = str ++ repeat ' '
                 (notSurroundedLeft, rest) = splitAt (startcol - 1) strExtended
-                (surrounded, rest') = splitAt (endcol - startcol) rest
+                                               -- +1 because end column is included in the box
+                (surrounded, rest') = splitAt (endcol - startcol + 1) rest
                 notSurroundedRight = take (length str - endcol) rest'
-        topbottom startcol endcol = colorify $ replicate startcol ' ' ++ replicate (endcol-startcol+4) impchar
+                                                                                   -- +4 for '^ ' and ' ^'
+                                                                                   -- +1 for inclusive end
+        topbottom startcol endcol = colorify $ replicate startcol ' ' ++ replicate (endcol-startcol+4+1) impchar
         transitionLine a1 b1 a2 b2 =
             if a1 == b1 && a2 == b2
             then Nothing
-            else Just $ makeIndentWithDivider '|' "" indent ++ colorify (replicate lower1 ' ' ++ makesingle lower1 upper1 ++ replicate (lower2-upper1+2) ' ' ++ makesingle lower2 upper2) ++ "\n"
+            else Just $ makeIndentWithDivider '|' "" indent ++ colorify (replicate abs1start ' ' ++ replicate abs1len impchar ++ replicate absdistbetween ' ' ++ replicate abs2len impchar) ++ "\n"
             where
                 lowerupper a b = (min a b, max a b)
                 (lower1, upper1) = lowerupper a1 b1
                 (lower2, upper2) = lowerupper a2 b2
 
-                makesingle lower upper = replicate (upper - lower + 1) impchar
+                abs1start = lower1
+                abs1end = upper1
+                abs2start = lower2 + 3 -- +3 for first divider, +1 for space before current divider, -1 for zero based columns
+                abs2end = upper2 + 3
+
+                abs1len = abs1end - abs1start + 1 -- +1 for inclusive end, if not then it's just the number of columsn in between, not including the end
+                absdistbetween = abs2start - abs1end
+                abs2len = abs2end - abs2start + 1 -- +1 also for inclusive end
 
         beforeFirstQuoteLine = prefix '|' ++ topbottom firstcol maxcol ++ "\n"
         firstQuoteLine = makeIndentWithDivider '|' (show startlnn) indent ++ surround (getlnn startlnn) firstcol maxcol ++ "\n"
