@@ -3,8 +3,20 @@
 module Message.PrettyPrint
     ( pprintLMod
     , pprintMod
+    , pprintLDecl
+    , pprintDecl
+    , pprintLImplMember
+    , pprintImplMember
+    , pprintLStmt
+    , pprintStmt
     , pprintLExpr
     , pprintExpr
+    , pprintLParam
+    , pprintParam
+    , pprintLType
+    , pprintType
+    , pprintLPath
+    , pprintPath
     ) where
 
 import Control.Monad.State.Lazy(State, state, evalState)
@@ -23,21 +35,28 @@ useWithLocated pprintfun (Located _ a) = pprintfun a
 stateToFun :: (a -> State PPCtx String) -> a -> String
 stateToFun statefun thing = evalState (statefun thing) startCtx
 
--- pprintLExpr :: Located AST.DExpr -> String
--- pprintLExpr = stateToFun pprintLExprS
-
--- pprintExpr :: AST.DExpr -> String
--- pprintExpr = stateToFun pprintExprS
-
--- pprintLExprS :: Located AST.DExpr -> State PPCtx String
--- pprintLExprS = useWithLocated pprintExprS
-
-pprintExprS :: AST.DExpr -> State PPCtx String
-pprintExprS = error "TODO"
-
 pprintModS :: AST.DModule -> State PPCtx String
-pprintModS = error "TODO"
+pprintModS = undefined
+pprintDeclS :: AST.DDecl -> State PPCtx String
+pprintDeclS = undefined
+pprintImplMemberS :: AST.DImplMember -> State PPCtx String
+pprintImplMemberS = undefined
+pprintStmtS :: AST.DStmt -> State PPCtx String
+pprintStmtS = undefined
+pprintExprS :: AST.DExpr -> State PPCtx String
+pprintExprS = undefined
+pprintParamS :: AST.DParam -> State PPCtx String
+pprintParamS = undefined
+pprintTypeS :: AST.DType -> State PPCtx String
+pprintTypeS = undefined
+pprintPathS :: AST.DPath -> State PPCtx String
+pprintPathS = undefined
 
-$(makePrintVariants "Expr")
 $(makePrintVariants "Mod")
-
+$(makePrintVariants "Decl")
+$(makePrintVariants "ImplMember")
+$(makePrintVariants "Stmt")
+$(makePrintVariants "Expr")
+$(makePrintVariants "Param")
+$(makePrintVariants "Type")
+$(makePrintVariants "Path")
