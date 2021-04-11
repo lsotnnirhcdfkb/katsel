@@ -19,37 +19,47 @@ module Message.PrettyPrint
     , pprintPath
     ) where
 
-import Control.Monad.State.Lazy(State, state, evalState)
+import Control.Monad.State.Lazy(State, state, execState)
 
 import qualified AST
 import Location
 
 import Message.PrettyPrintTH
 
-newtype PPCtx = PPCtx Int
+data PPCtx = PPCtx Int String
 startCtx :: PPCtx
-startCtx = PPCtx 0
+startCtx = PPCtx 0 ""
 
-useWithLocated :: (a -> State PPCtx String) -> Located a -> State PPCtx String
+useWithLocated :: (a -> State PPCtx ()) -> Located a -> State PPCtx ()
 useWithLocated pprintfun (Located _ a) = pprintfun a
-stateToFun :: (a -> State PPCtx String) -> a -> String
-stateToFun statefun thing = evalState (statefun thing) startCtx
 
-pprintModS :: AST.DModule -> State PPCtx String
+stateToFun :: (a -> State PPCtx ()) -> a -> String
+stateToFun statefun thing =
+    let (PPCtx _ res) = execState (statefun thing) startCtx
+    in res
+
+pprintModS :: AST.DModule -> State PPCtx ()
 pprintModS = undefined
-pprintDeclS :: AST.DDecl -> State PPCtx String
+
+pprintDeclS :: AST.DDecl -> State PPCtx ()
 pprintDeclS = undefined
-pprintImplMemberS :: AST.DImplMember -> State PPCtx String
+
+pprintImplMemberS :: AST.DImplMember -> State PPCtx ()
 pprintImplMemberS = undefined
-pprintStmtS :: AST.DStmt -> State PPCtx String
+
+pprintStmtS :: AST.DStmt -> State PPCtx ()
 pprintStmtS = undefined
-pprintExprS :: AST.DExpr -> State PPCtx String
+
+pprintExprS :: AST.DExpr -> State PPCtx ()
 pprintExprS = undefined
-pprintParamS :: AST.DParam -> State PPCtx String
+
+pprintParamS :: AST.DParam -> State PPCtx ()
 pprintParamS = undefined
-pprintTypeS :: AST.DType -> State PPCtx String
+
+pprintTypeS :: AST.DType -> State PPCtx ()
 pprintTypeS = undefined
-pprintPathS :: AST.DPath -> State PPCtx String
+
+pprintPathS :: AST.DPath -> State PPCtx ()
 pprintPathS = undefined
 
 $(makePrintVariants "Mod")

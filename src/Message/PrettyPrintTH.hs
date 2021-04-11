@@ -21,7 +21,7 @@ makePrintVariants name =
 
             locatedAstTy :: Q Type
             locatedAstTy = AppT (ConT $ mkName "Located") <$> astTy
-            stateTy = return $ ConT (mkName "State") `AppT` ConT (mkName "PPCtx") `AppT` ConT (mkName "String")
+            stateTy = return $ ConT (mkName "State") `AppT` ConT (mkName "PPCtx") `AppT` ConT (mkName "()")
 
             sigs = sequence
                     [ SigD locState <$> [t| $(locatedAstTy) -> $(stateTy) |]
