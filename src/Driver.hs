@@ -9,6 +9,7 @@ import File
 import Location
 
 import qualified Message
+import qualified Message.PrettyPrint as PPrint
 
 import qualified Tokens
 import qualified AST
@@ -65,12 +66,12 @@ lowerASTStage = return . IR.buildIR
 compile :: String -> IO ()
 compile filename =
     openFile filename >>= \ file ->
-    let (ErrorAcc finalOutput finalErrs) =
+    let (ErrorAcc (finalast, finalOutput) finalErrs) =
             lexStage file >>=
             parseStage >>= \ mast ->
             case mast of
-                Just ast -> Just <$> lowerASTStage ast
-                Nothing -> return Nothing
+                Just ast -> lowerASTStage ast >>= \ lowered -> return (mast, Just lowered)
+                Nothing -> return (mast, Nothing)
 
         putErrs = hPutStr stderr $ concatMap Message.report finalErrs
 
@@ -88,5 +89,7 @@ compile filename =
                     evaluate (error "stop after catching internal error")
 
     in doTry (
-        seq finalOutput putErrs
+        seq finalOutput putErrs >>
+        print (PPrint.pprintLMod <$> finalast)
+
     )
