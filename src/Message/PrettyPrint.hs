@@ -24,7 +24,7 @@ import Control.Monad.State.Lazy(State, state, execState)
 import qualified AST
 import Location
 
-import Data.List(foldl1')
+import Data.List(foldl', intersperse)
 
 import Message.PrettyPrintTH
 
@@ -49,11 +49,26 @@ putnl = state $ \ (PPCtx ind acc) -> ((), PPCtx ind $ acc ++ "\n" ++ replicate (
 unlocate :: Located a -> a
 unlocate (Located _ a) = a
 
+maybeDo :: (a -> State PPCtx ()) -> Maybe a -> State PPCtx ()
+maybeDo st m =
+    case m of
+        Just x -> st x
+        Nothing -> return ()
+
+actOnMutability :: State PPCtx () -> State PPCtx () -> AST.Mutability -> State PPCtx ()
+actOnMutability ifMut ifImmut mutability =
+    case mutability of
+        AST.Mutable -> ifMut
+        AST.Immutable -> ifImmut
+
+ifMutablePut :: String -> AST.Mutability -> State PPCtx ()
+ifMutablePut str mutability = actOnMutability (put str) (return ()) mutability
+
 pprintList :: (a -> State PPCtx ()) -> [a] -> State PPCtx ()
-pprintList pprintfun things = foldl1' (>>) $ map pprintfun things
+pprintList pprintfun things = foldl' (>>) (return ()) $ map pprintfun things
 
 pprintListDelim :: (a -> State PPCtx ()) -> State PPCtx () -> [a] -> State PPCtx ()
-pprintListDelim pprintfun delim things = foldl1' (>>) $ map pprintfun things
+pprintListDelim pprintfun delim things = foldl' (>>) (return ()) $ intersperse delim $ map pprintfun things
 
 pprintModS :: AST.DModule -> State PPCtx ()
 pprintModS (AST.DModule' decls) = pprintList (pprintDeclS . unlocate) decls
@@ -72,28 +87,31 @@ pprintExprS :: AST.DExpr -> State PPCtx ()
 pprintExprS = undefined
 
 pprintParamS :: AST.DParam -> State PPCtx ()
-pprintParamS = undefined
+pprintParamS (AST.DParam'Normal mutability lty lname) =
+    ifMutablePut "mut " mutability >>
+    put (unlocate lname) >>
+    pprintTypeAnnotationS (unlocate lty)
 
 pprintTypeS :: AST.DType -> State PPCtx ()
-pprintTypeS = undefined
+pprintTypeS (AST.DType'Path path) = pprintPathS $ unlocate path
+pprintTypeS (AST.DType'Pointer mutability lty) =
+    put "*" >>
+    ifMutablePut "mut " mutability >>
+    pprintTypeS (unlocate lty)
+pprintTypeS (AST.DType'This) = put "this"
 
 pprintPathS :: AST.DPath -> State PPCtx ()
-pprintPathS = undefined
+pprintPathS (AST.DPath' segments) = pprintListDelim (put . unlocate) (put "::") segments
 
 pprintFunDeclS :: AST.SFunDecl -> State PPCtx ()
 pprintFunDeclS (AST.SFunDecl' retty (Located _ name) params expr) =
     put "fun " >> put name >>
     put "(" >> pprintListDelim (pprintParamS . unlocate) (put ", ") params >> put ")" >>
-    (pprintTypeAnnotationS . unlocate) `maybeDo` retty
+    (pprintTypeAnnotationS . unlocate) `maybeDo` retty >>
+    putnl
 
 pprintTypeAnnotationS :: AST.DType -> State PPCtx ()
 pprintTypeAnnotationS ty = put ": " >> pprintTypeS ty
-
-maybeDo :: (a -> State PPCtx ()) -> Maybe a -> State PPCtx ()
-maybeDo st m =
-    case m of
-        Just x -> st x
-        Nothing -> return ()
 
 $(makePrintVariants "Mod")
 $(makePrintVariants "Decl")
