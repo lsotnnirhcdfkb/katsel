@@ -20,6 +20,7 @@ module Message.PrettyPrint
     ) where
 
 import Control.Monad.State.Lazy(State, state, execState)
+import qualified Control.Monad.State.Lazy as State(get, put)
 
 import qualified AST
 import Location
@@ -28,11 +29,23 @@ import Data.List(foldl', intersperse)
 
 import Message.PrettyPrintTH
 
+-- NOTE: NOT an automated code formatter!! just a pretty printer to print things in error messages!
+
 -- PPCtx {{{1
 data PPCtx
-    = PPCtx Int String Bool Bool
+    = PPCtx Int String LastIndentStatus LastNLStatus
+
+data LastIndentStatus
+    = LastIndIndent
+    | LastIndDedent
+    | LastIndOther
+
+data LastNLStatus
+    = NLYes
+    | NLNo
+
 startCtx :: PPCtx
-startCtx = PPCtx 0 "" False False
+startCtx = PPCtx 0 "" LastIndOther NLNo
 -- run pprint state helper {{{1
 stateToFun :: (a -> State PPCtx ()) -> a -> String
 stateToFun statefun thing =
@@ -41,39 +54,45 @@ stateToFun statefun thing =
 -- put, putch, indent, dedent, and putnl {{{1
 putch :: Char -> State PPCtx ()
 putch ch = state $
-    \ (PPCtx ind acc _ lastnl) ->
+    \ (PPCtx ind acc lastIndStatus lastNlStatus) ->
         let accWithIndent =
-                if lastnl
-                then acc ++ replicate (ind * 4) ' '
-                else acc
+                case lastNlStatus of
+                    NLYes -> acc ++ replicate (ind * 4) ' '
+                    NLNo -> acc
             accWithCh = accWithIndent ++ [ch]
-        in ((), PPCtx ind accWithCh False (ch == '\n'))
+
+            (nlStatus, indStatus) =
+                if ch == '\n'
+                then (NLYes, lastIndStatus)
+                else (NLNo, LastIndOther)
+
+        in ((), PPCtx ind accWithCh indStatus nlStatus)
 
 put :: String -> State PPCtx ()
-put str =
-    foldl (>>) (return ()) $ map putch str
+put str = foldl (>>) (return ()) $ map putch str
+
+chgInd :: Int -> LastIndentStatus -> State PPCtx ()
+chgInd chgAmt newstatus =
+    State.get >>= \ (PPCtx ind acc _ lastnl) ->
+    State.put (PPCtx (ind + chgAmt) acc newstatus lastnl)
 
 indent :: State PPCtx ()
 indent =
-    state (
-        \ (PPCtx ind acc lastChangesIndent _) ->
-            let (curprintsnl, newacc) =
-                    if lastChangesIndent
-                    then (True, acc ++ "boom\n")
-                    else (False, acc)
-            in ((), PPCtx (ind + 1) newacc True curprintsnl)
-    )
+    State.get >>= \ (PPCtx _ _ lastIndStatus _) ->
+    (let putboom = put "boom\n"
+    in case lastIndStatus of
+        LastIndIndent -> putboom
+        LastIndDedent -> putboom
+        _ -> return ()) >>
+    chgInd 1 LastIndIndent
 
 dedent :: State PPCtx ()
 dedent =
-    state (
-        \ (PPCtx ind acc lastChangesIndent _) ->
-            let (curprintsnl, newacc) =
-                    if lastChangesIndent
-                    then (True, acc ++ "boom\n")
-                    else (False, acc)
-            in ((), PPCtx (ind - 1) newacc True curprintsnl)
-    )
+    State.get >>= \ (PPCtx _ _ lastIndStatus _) ->
+    (case lastIndStatus of
+        LastIndIndent -> put "boom\n"
+        _ -> return ()) >>
+    chgInd (-1) LastIndDedent
 
 putnl :: State PPCtx ()
 putnl = put "\n"
@@ -120,6 +139,11 @@ pprintStmtS = undefined
 -- AST.DExpr {{{1
 pprintExprS :: AST.DExpr -> State PPCtx ()
 pprintExprS = undefined
+
+pprintBlockExprS :: AST.SBlockExpr -> State PPCtx ()
+pprintBlockExprS (AST.SBlockExpr' stmts) =
+    indent >> putnl
+    >> dedent
 -- AST.DParam {{{1
 pprintParamS :: AST.DParam -> State PPCtx ()
 pprintParamS (AST.DParam'Normal mutability lty lname) =
@@ -144,7 +168,7 @@ pprintFunDeclS (AST.SFunDecl' retty (Located _ name) params expr) =
     put "fun " >> put name >>
     put "(" >> pprintListDelim (pprintParamS . unlocate) (put ", ") params >> put ")" >>
     (pprintTypeAnnotationS . unlocate) `maybeDo` retty >>
-    putnl
+    pprintBlockExprS (unlocate expr)
 -- print type as type annotation {{{1
 pprintTypeAnnotationS :: AST.DType -> State PPCtx () -- TODO: do not print if without it defaults to the type
 pprintTypeAnnotationS ty = put ": " >> pprintTypeS ty
