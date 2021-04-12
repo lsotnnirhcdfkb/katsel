@@ -159,7 +159,7 @@ exprRequiresPrec :: AST.DExpr -> AST.ExprPrec
 exprRequiresPrec (AST.DExpr'Block _) = AST.PrecBlockLevel
 exprRequiresPrec (AST.DExpr'If _ _ _ _) = AST.PrecBlockLevel
 exprRequiresPrec (AST.DExpr'While _ _) = AST.PrecBlockLevel
-exprRequiresPrec (AST.DExpr'Assign _ op _) = AST.PrecAssign
+exprRequiresPrec (AST.DExpr'Assign _ _ _) = AST.PrecAssign
 exprRequiresPrec (AST.DExpr'ShortCircuit _ op _) = AST.shortOpPrec $ unlocate op
 exprRequiresPrec (AST.DExpr'Binary _ op _) = AST.binOpPrec $ unlocate op
 exprRequiresPrec (AST.DExpr'Cast _ _) = AST.PrecCast
@@ -181,11 +181,110 @@ pprintExprWithPrecS curPrec ex =
     if exprRequiresPrec ex < curPrec
     then put "(" >> pprintExprWithPrecS AST.PrecBlockLevel ex >> put ")"
     else pprintExprS' ex
-
 -- }}}
 -- printing different kinds of expressions {{{
 pprintExprS' :: AST.DExpr -> State PPCtx ()
-pprintExprS' ex = undefined
+
+pprintExprS' (AST.DExpr'Block bl) = pprintBlockExprS $ unlocate bl
+
+pprintExprS' (AST.DExpr'If _ cond trueb mfalseb) =
+    put "if " >> pprintExprS (unlocate cond) >> pprintExprS (unlocate trueb) >>
+    case mfalseb of
+        Just (_, falseb) -> put "else " >> pprintExprS (unlocate falseb)
+        Nothing -> return ()
+
+pprintExprS' (AST.DExpr'While cond body) = put "while " >> pprintExprS (unlocate cond) >> pprintExprS (unlocate body)
+
+pprintExprS' (AST.DExpr'Assign lhs op rhs) =
+    let opstr = case unlocate op of
+            AST.Equal -> "="
+    in pprintExprWithPrecS AST.PrecBinOr (unlocate lhs) >> put " " >> put opstr >> put " " >> pprintExprWithPrecS AST.PrecAssign (unlocate rhs)
+
+pprintExprS' (AST.DExpr'ShortCircuit lhs op rhs) =
+    let opstr = case unlocate op of
+            AST.DoubleAmper -> "&&"
+            AST.DoublePipe -> "||"
+
+        opprec = AST.shortOpPrec $ unlocate op
+
+        lhsprec = opprec
+
+        rhsprec = case opprec of
+            AST.PrecBinOr -> AST.PrecBinAnd
+            AST.PrecBinAnd -> AST.PrecCompEQ
+            _ -> error "invalid precedence for precedence of short circuit operator"
+
+    in pprintExprWithPrecS lhsprec (unlocate lhs) >> put " " >> put opstr >> put " " >> pprintExprWithPrecS rhsprec (unlocate rhs)
+
+pprintExprS' (AST.DExpr'Binary lhs op rhs) =
+    let opprec = AST.binOpPrec $ unlocate op
+
+        lhsprec = opprec
+
+        rhsprec = case opprec of
+            AST.PrecCompEQ -> AST.PrecCompLGT
+            AST.PrecCompLGT -> AST.PrecBitXor
+            AST.PrecBitXor -> AST.PrecBitOr
+            AST.PrecBitOr -> AST.PrecBitAnd
+            AST.PrecBitAnd -> AST.PrecBitShift
+            AST.PrecBitShift -> AST.PrecAdd
+            AST.PrecAdd -> AST.PrecMult
+            AST.PrecMult -> AST.PrecCast
+            _ -> error "invalid precedence for precedence of binary operator"
+
+        opstr = case unlocate op of
+            AST.Plus -> "+"
+            AST.Minus -> "-"
+            AST.Star -> "*"
+            AST.Slash -> "/"
+            AST.Percent -> "%"
+            AST.Greater -> ">"
+            AST.Less -> "<"
+            AST.GreaterEqual -> ">="
+            AST.LessEqual -> "<="
+            AST.Amper -> "&"
+            AST.Pipe -> "|"
+            AST.Caret -> "^"
+            AST.DoubleGreater -> ">>"
+            AST.DoubleLess -> "<<"
+            AST.DoubleEqual -> "=="
+            AST.BangEqual -> "!="
+
+    in pprintExprWithPrecS lhsprec (unlocate lhs) >> put " " >> put opstr >> put " " >> pprintExprWithPrecS rhsprec (unlocate rhs)
+
+pprintExprS' (AST.DExpr'Cast ty expr) = pprintExprWithPrecS AST.PrecUnary (unlocate expr) >> put " -> " >> pprintTypeS (unlocate ty)
+
+pprintExprS' (AST.DExpr'Unary op expr) =
+    let opstr = case unlocate op of
+            AST.UnBang -> "!"
+            AST.UnTilde -> "~"
+            AST.UnMinus -> "-"
+            AST.UnStar -> "*"
+    in put opstr >> pprintExprWithPrecS AST.PrecCall (unlocate expr)
+pprintExprS' (AST.DExpr'Ref _ mutability expr) = put "&" >> ifMutablePut "mut " mutability >> pprintExprWithPrecS AST.PrecUnary (unlocate expr)
+
+pprintExprS' (AST.DExpr'Call expr _ args) =
+    (let calleeIsField = case unlocate expr of
+            AST.DExpr'Field _ _ _ -> True
+            _ -> False
+    in if calleeIsField
+    then put "(" >> pprintExprS (unlocate expr) >> put ")"
+    else pprintExprWithPrecS AST.PrecCall (unlocate expr)) >>
+    put "(" >> pprintListDelim (pprintExprS . unlocate) (put ", ") args >> put ")"
+
+pprintExprS' (AST.DExpr'Field expr _ field) = pprintExprWithPrecS AST.PrecCall (unlocate expr) >> put "." >> put (unlocate field)
+pprintExprS' (AST.DExpr'Method expr _ method _ args) =
+    pprintExprWithPrecS AST.PrecCall (unlocate expr) >> put "." >> put (unlocate method) >>
+    put "(" >> pprintListDelim (pprintExprS . unlocate) (put ", ") args >> put ")"
+
+pprintExprS' (AST.DExpr'Bool val) = put $ if val then "true" else "false"
+pprintExprS' (AST.DExpr'Float val) = put $ show val
+pprintExprS' (AST.DExpr'Int val) = put $ show val
+pprintExprS' (AST.DExpr'Char val) = put $ show val
+-- TODO: escape things and properly print multiline strings
+pprintExprS' (AST.DExpr'String val) = put $ show val
+pprintExprS' (AST.DExpr'This) = put "this"
+pprintExprS' (AST.DExpr'Path path) = pprintPathS $ unlocate path
 -- }}}
 pprintExprS :: AST.DExpr -> State PPCtx ()
 pprintExprS = pprintExprWithPrecS AST.PrecBlockLevel
