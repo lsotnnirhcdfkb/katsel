@@ -20,131 +20,82 @@ module Message.PrettyPrint
     ) where
 
 import Control.Monad.State.Lazy(State, state, execState)
-import qualified Control.Monad.State.Lazy as State(get, put)
 
 import qualified AST
 import Location
 
 import Data.List(foldl', intersperse)
-import Data.Char(isSpace)
 
 import Message.PrettyPrintTH
 
 -- NOTE: NOT an automated code formatter!! just a pretty printer to print things in error messages!
 
--- PPCtx {{{1
-data PPCtx
-    = PPCtx Int String LastIndentStatus LastNLStatus
-
-data LastIndentStatus
-    = LastIndIndent
-    | LastIndDedent
-    | LastIndOther
-
-data LastNLStatus
-    = NLYes
-    | NLNo
-    deriving Eq
-
-startCtx :: PPCtx
-startCtx = PPCtx 0 "" LastIndOther NLNo
+-- PPrintSegment {{{1
+data PPrintSegment
+    = Literal String
+    | Indent
+    | Dedent
+    | Newline
+-- processSegments {{{1
+processSegments :: [PPrintSegment] -> String
+processSegments = error "TODO"
 -- run pprint state helper {{{1
-stateToFun :: (a -> State PPCtx ()) -> a -> String
-stateToFun statefun thing =
-    let (PPCtx _ res _ _) = execState (statefun thing) startCtx
-    in res
+stateToFun :: (a -> State [PPrintSegment] ()) -> a -> String
+stateToFun statefun thing = processSegments $ execState (statefun thing) []
 -- put, putch, indent, dedent, and putnl {{{1
-putch :: Char -> State PPCtx ()
-putch ch = state $
-    \ (PPCtx ind acc lastIndStatus lastNlStatus) ->
-        let accWithIndent =
-                case lastNlStatus of
-                    NLYes -> acc ++ replicate (ind * 4) ' '
-                    NLNo -> acc
-            accWithCh = accWithIndent ++
-                if lastNlStatus == NLYes && ch == '\n'
-                then ";\n"
-                else [ch]
+putch :: Char -> State [PPrintSegment] ()
+putch '\n' = state $ \ segments -> ((), segments ++ [Newline])
+putch ch = state $ \ segments -> ((), segments ++ [Literal [ch]])
 
-            nlStatus =
-                if ch == '\n'
-                then NLYes
-                else NLNo
-
-            indStatus =
-                if isSpace ch
-                then lastIndStatus
-                else LastIndOther
-
-        in ((), PPCtx ind accWithCh indStatus nlStatus)
-
-put :: String -> State PPCtx ()
+put :: String -> State [PPrintSegment] ()
 put str = foldl (>>) (return ()) $ map putch str
 
-chgInd :: Int -> LastIndentStatus -> State PPCtx ()
-chgInd chgAmt newstatus =
-    State.get >>= \ (PPCtx ind acc _ lastnl) ->
-    State.put (PPCtx (ind + chgAmt) acc newstatus lastnl)
+indent :: State [PPrintSegment] ()
+indent = state $ \ segments -> ((), segments ++ [Indent])
+dedent :: State [PPrintSegment] ()
+dedent = state $ \ segments -> ((), segments ++ [Dedent])
 
-indent :: State PPCtx ()
-indent =
-    State.get >>= \ (PPCtx _ _ lastIndStatus _) ->
-    (let putboom = put "boom\n"
-    in case lastIndStatus of
-        LastIndIndent -> putboom
-        LastIndDedent -> putboom
-        _ -> return ()) >>
-    chgInd 1 LastIndIndent
-
-dedent :: State PPCtx ()
-dedent =
-    State.get >>= \ (PPCtx _ _ lastIndStatus _) ->
-    (case lastIndStatus of
-        LastIndIndent -> put "boom\n"
-        _ -> return ()) >>
-    chgInd (-1) LastIndDedent
-
-putnl :: State PPCtx ()
-putnl = put "\n"
+putnl :: State [PPrintSegment] ()
+putnl = state $ \ segments -> ((), segments ++ [Newline])
 -- helper functions {{{1
 unlocate :: Located a -> a
 unlocate (Located _ a) = a
 
-maybeDo :: (a -> State PPCtx ()) -> Maybe a -> State PPCtx ()
+maybeDo :: (a -> State [PPrintSegment] ()) -> Maybe a -> State [PPrintSegment] ()
 maybeDo st m =
     case m of
         Just x -> st x
         Nothing -> return ()
 
-actOnMutability :: State PPCtx () -> State PPCtx () -> AST.Mutability -> State PPCtx ()
+actOnMutability :: State [PPrintSegment] () -> State [PPrintSegment] () -> AST.Mutability -> State [PPrintSegment] ()
 actOnMutability ifMut ifImmut mutability =
     case mutability of
         AST.Mutable -> ifMut
         AST.Immutable -> ifImmut
 
-ifMutablePut :: String -> AST.Mutability -> State PPCtx ()
+ifMutablePut :: String -> AST.Mutability -> State [PPrintSegment] ()
 ifMutablePut str mutability = actOnMutability (put str) (return ()) mutability
 
-pprintList :: (a -> State PPCtx ()) -> [a] -> State PPCtx ()
+pprintList :: (a -> State [PPrintSegment] ()) -> [a] -> State [PPrintSegment] ()
 pprintList pprintfun things = foldl' (>>) (return ()) $ map pprintfun things
 
-pprintListDelim :: (a -> State PPCtx ()) -> State PPCtx () -> [a] -> State PPCtx ()
+pprintListDelim :: (a -> State [PPrintSegment] ()) -> State [PPrintSegment] () -> [a] -> State [PPrintSegment] ()
 pprintListDelim pprintfun delim things = foldl' (>>) (return ()) $ intersperse delim $ map pprintfun things
 -- AST.DModule {{{1
-pprintModS :: AST.DModule -> State PPCtx ()
+pprintModS :: AST.DModule -> State [PPrintSegment] ()
 pprintModS (AST.DModule' decls) = pprintList (pprintDeclS . unlocate) decls
 -- AST.DDecl {{{1
-pprintDeclS :: AST.DDecl -> State PPCtx ()
+pprintDeclS :: AST.DDecl -> State [PPrintSegment] ()
 pprintDeclS (AST.DDecl'Fun sf) = pprintFunDeclS $ unlocate sf
 pprintDeclS (AST.DDecl'Impl ty members) =
     put "impl " >> pprintTypeS (unlocate ty) >> putnl >> indent >>
     pprintList (pprintImplMemberS . unlocate) members >>
     dedent
 -- AST.DImplMember {{{1
-pprintImplMemberS :: AST.DImplMember -> State PPCtx ()
+pprintImplMemberS :: AST.DImplMember -> State [PPrintSegment] ()
 pprintImplMemberS (AST.DImplMember'Fun sf) = pprintFunDeclS $ unlocate sf
 -- AST.DStmt {{{1
-pprintStmtS :: AST.DStmt -> State PPCtx ()
+pprintStmtS :: AST.DStmt -> State [PPrintSegment] ()
 
 pprintStmtS (AST.DStmt'Var ty mutability name maybeinitializer) =
     put "var " >> ifMutablePut "mut " mutability >> put (unlocate name) >>
@@ -187,14 +138,14 @@ exprRequiresPrec (AST.DExpr'String _) = AST.PrecPrimary
 exprRequiresPrec (AST.DExpr'This) = AST.PrecPrimary
 exprRequiresPrec (AST.DExpr'Path _) = AST.PrecPrimary
 
-pprintExprWithPrecS :: AST.ExprPrec -> AST.DExpr -> State PPCtx ()
+pprintExprWithPrecS :: AST.ExprPrec -> AST.DExpr -> State [PPrintSegment] ()
 pprintExprWithPrecS curPrec ex =
     if exprRequiresPrec ex < curPrec
     then put "(" >> pprintExprWithPrecS AST.PrecBlockLevel ex >> put ")"
     else pprintExprS' ex
 -- }}}
 -- printing different kinds of expressions {{{
-pprintExprS' :: AST.DExpr -> State PPCtx ()
+pprintExprS' :: AST.DExpr -> State [PPrintSegment] ()
 
 pprintExprS' (AST.DExpr'Block bl) = pprintBlockExprS $ unlocate bl
 
@@ -297,23 +248,23 @@ pprintExprS' (AST.DExpr'String val) = put $ show val
 pprintExprS' (AST.DExpr'This) = put "this"
 pprintExprS' (AST.DExpr'Path path) = pprintPathS $ unlocate path
 -- }}}
-pprintExprS :: AST.DExpr -> State PPCtx ()
+pprintExprS :: AST.DExpr -> State [PPrintSegment] ()
 pprintExprS = pprintExprWithPrecS AST.PrecBlockLevel
 
-pprintBlockExprS :: AST.SBlockExpr -> State PPCtx ()
+pprintBlockExprS :: AST.SBlockExpr -> State [PPrintSegment] ()
 pprintBlockExprS (AST.SBlockExpr' stmts) =
     putnl >> indent >>
     pprintList (pprintStmtS . unlocate) stmts >>
     dedent
 -- AST.DParam {{{1
-pprintParamS :: AST.DParam -> State PPCtx ()
+pprintParamS :: AST.DParam -> State [PPrintSegment] ()
 pprintParamS (AST.DParam'Normal mutability lty lname) =
     -- TODO: properly handle 'this' parameters
     ifMutablePut "mut " mutability >>
     put (unlocate lname) >>
     pprintTypeAnnotationS (unlocate lty)
 -- AST.DType {{{1
-pprintTypeS :: AST.DType -> State PPCtx ()
+pprintTypeS :: AST.DType -> State [PPrintSegment] ()
 pprintTypeS (AST.DType'Path path) = pprintPathS $ unlocate path
 pprintTypeS (AST.DType'Pointer mutability lty) =
     put "*" >>
@@ -321,17 +272,17 @@ pprintTypeS (AST.DType'Pointer mutability lty) =
     pprintTypeS (unlocate lty)
 pprintTypeS (AST.DType'This) = put "this"
 -- AST.DPath {{{1
-pprintPathS :: AST.DPath -> State PPCtx ()
+pprintPathS :: AST.DPath -> State [PPrintSegment] ()
 pprintPathS (AST.DPath' segments) = pprintListDelim (put . unlocate) (put "::") segments
 -- AST.SFunDecl {{{1
-pprintFunDeclS :: AST.SFunDecl -> State PPCtx ()
+pprintFunDeclS :: AST.SFunDecl -> State [PPrintSegment] ()
 pprintFunDeclS (AST.SFunDecl' retty (Located _ name) params expr) =
     put "fun " >> put name >>
     put "(" >> pprintListDelim (pprintParamS . unlocate) (put ", ") params >> put ")" >>
     (pprintTypeAnnotationS . unlocate) `maybeDo` retty >>
     pprintBlockExprS (unlocate expr)
 -- print type as type annotation {{{1
-pprintTypeAnnotationS :: AST.DType -> State PPCtx () -- TODO: do not print if without it defaults to the type
+pprintTypeAnnotationS :: AST.DType -> State [PPrintSegment] () -- TODO: do not print if without it defaults to the type
 pprintTypeAnnotationS ty = put ": " >> pprintTypeS ty
 -- splices {{{1
 $(makePrintVariants "Mod")
