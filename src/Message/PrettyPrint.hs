@@ -141,15 +141,27 @@ pprintImplMemberS :: AST.DImplMember -> State PPCtx ()
 pprintImplMemberS (AST.DImplMember'Fun sf) = pprintFunDeclS $ unlocate sf
 -- AST.DStmt {{{1
 pprintStmtS :: AST.DStmt -> State PPCtx ()
-pprintStmtS = undefined
+
+pprintStmtS (AST.DStmt'Var ty mutability name maybeinitializer) =
+    put "var " >> ifMutablePut "mut " mutability >> put (unlocate name) >>
+    pprintTypeAnnotationS (unlocate ty) >>
+    (case maybeinitializer of
+        Just (_, initExpr) -> put " = " >> pprintExprS (unlocate initExpr)
+        Nothing -> return ()) >>
+    putnl
+
+pprintStmtS (AST.DStmt'Ret expr) = put "return " >>  pprintExprS (unlocate expr) >> putnl
+pprintStmtS (AST.DStmt'Expr expr) = pprintExprS (unlocate expr) >> putnl
+
 -- AST.DExpr {{{1
 pprintExprS :: AST.DExpr -> State PPCtx ()
 pprintExprS = undefined
 
 pprintBlockExprS :: AST.SBlockExpr -> State PPCtx ()
 pprintBlockExprS (AST.SBlockExpr' stmts) =
-    indent >> putnl
-    >> dedent
+    indent >> putnl >>
+    pprintList (pprintStmtS . unlocate) stmts >>
+    dedent
 -- AST.DParam {{{1
 pprintParamS :: AST.DParam -> State PPCtx ()
 pprintParamS (AST.DParam'Normal mutability lty lname) =
