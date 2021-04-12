@@ -8,7 +8,6 @@ import Control.Applicative(liftA2)
 makePrintVariants :: String -> Q [Dec]
 makePrintVariants name =
     let nonlocState = mkName $ "pprint" ++ name ++ "S"
-        locState = mkName $ "pprintL" ++ name ++ "S"
         nonlocFun = mkName $ "pprint" ++ name
         locFun = mkName $ "pprintL" ++ name
     in
@@ -21,18 +20,15 @@ makePrintVariants name =
 
             locatedAstTy :: Q Type
             locatedAstTy = AppT (ConT $ mkName "Located") <$> astTy
-            stateTy = return $ ConT (mkName "State") `AppT` ConT (mkName "PPCtx") `AppT` ConT (mkName "()")
 
             sigs = sequence
-                    [ SigD locState <$> [t| $(locatedAstTy) -> $(stateTy) |]
-                    , SigD nonlocFun <$> [t| $(astTy) -> String |]
+                    [ SigD nonlocFun <$> [t| $(astTy) -> String |]
                     , SigD locFun <$> [t| $(locatedAstTy) -> String |]
                     ]
 
             decls = [d|
-                    $(varP locState) = useWithLocated $(varE nonlocState)
                     $(varP nonlocFun) = stateToFun $(varE nonlocState)
-                    $(varP locFun) = stateToFun $(varE locState)
+                    $(varP locFun) = $(varE nonlocFun) . unlocate
                 |]
 
         in liftA2 (++) sigs decls
