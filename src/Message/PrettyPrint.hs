@@ -271,7 +271,7 @@ pprintExprS' (AST.DExpr'Unary op expr) =
             AST.UnTilde -> "~"
             AST.UnMinus -> "-"
             AST.UnStar -> "*"
-    in put opstr >> pprintExprWithPrecS AST.PrecCall (unlocate expr)
+    in put opstr >> pprintExprWithPrecS AST.PrecUnary (unlocate expr)
 pprintExprS' (AST.DExpr'Ref _ mutability expr) = put "&" >> ifMutablePut "mut " mutability >> pprintExprWithPrecS AST.PrecUnary (unlocate expr)
 
 pprintExprS' (AST.DExpr'Call expr _ args) =
