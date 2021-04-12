@@ -81,11 +81,19 @@ pprintPathS :: AST.DPath -> State PPCtx ()
 pprintPathS = undefined
 
 pprintFunDeclS :: AST.SFunDecl -> State PPCtx ()
-pprintFunDeclS (AST.SFunDecl' ret (Located _ name) params expr) =
+pprintFunDeclS (AST.SFunDecl' retty (Located _ name) params expr) =
     put "fun " >> put name >>
-    put "(" >>
-    pprintListDelim (pprintParamS . unlocate) (put ", ") params >>
-    put ")"
+    put "(" >> pprintListDelim (pprintParamS . unlocate) (put ", ") params >> put ")" >>
+    (pprintTypeAnnotationS . unlocate) `maybeDo` retty
+
+pprintTypeAnnotationS :: AST.DType -> State PPCtx ()
+pprintTypeAnnotationS ty = put ": " >> pprintTypeS ty
+
+maybeDo :: (a -> State PPCtx ()) -> Maybe a -> State PPCtx ()
+maybeDo st m =
+    case m of
+        Just x -> st x
+        Nothing -> return ()
 
 $(makePrintVariants "Mod")
 $(makePrintVariants "Decl")
