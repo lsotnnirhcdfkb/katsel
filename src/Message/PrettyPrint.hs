@@ -137,7 +137,7 @@ pprintModS (AST.DModule' decls) = pprintList (pprintDeclS . unlocate) decls
 pprintDeclS :: AST.DDecl -> State PPCtx ()
 pprintDeclS (AST.DDecl'Fun sf) = pprintFunDeclS $ unlocate sf
 pprintDeclS (AST.DDecl'Impl ty members) =
-    put "impl " >> pprintTypeS (unlocate ty) >> indent >> putnl >>
+    put "impl " >> pprintTypeS (unlocate ty) >> putnl >> indent >>
     pprintList (pprintImplMemberS . unlocate) members >>
     dedent
 -- AST.DImplMember {{{1
@@ -155,6 +155,7 @@ pprintStmtS (AST.DStmt'Var ty mutability name maybeinitializer) =
     putnl
 
 pprintStmtS (AST.DStmt'Ret expr) = put "return " >>  pprintExprS (unlocate expr) >> putnl
+-- TODO: properly handle {} expr stmt
 pprintStmtS (AST.DStmt'Expr expr) =
     let neednl = case unlocate expr of
             AST.DExpr'Block _ -> False
@@ -301,7 +302,7 @@ pprintExprS = pprintExprWithPrecS AST.PrecBlockLevel
 
 pprintBlockExprS :: AST.SBlockExpr -> State PPCtx ()
 pprintBlockExprS (AST.SBlockExpr' stmts) =
-    indent >> putnl >>
+    putnl >> indent >>
     pprintList (pprintStmtS . unlocate) stmts >>
     dedent
 -- AST.DParam {{{1
