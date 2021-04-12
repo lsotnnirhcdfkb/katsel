@@ -90,6 +90,8 @@ compile filename =
 
     in doTry (
         seq finalOutput putErrs >>
-        print (PPrint.pprintLMod <$> finalast)
+        case finalast of
+            Just x -> putStrLn $ PPrint.pprintLMod x
+            Nothing -> putStrLn "no ast"
 
     )
