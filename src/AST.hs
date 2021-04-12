@@ -1,4 +1,42 @@
-module AST where
+module AST
+    ( parse
+
+    -- manipulation stuff
+    , binOpPrec
+    , shortOpPrec
+
+    -- datatypes
+    , Mutability(..)
+    , ExprPrec(..)
+    , BinOp(..)
+    , ShortOp(..)
+    , UnaryOp(..)
+    , AssignOp(..)
+
+    , SFunDecl(..)
+    , SBlockExpr(..)
+
+    , DModule(..)
+    , DDecl(..)
+    , DImplMember(..)
+    , DStmt(..)
+    , DExpr(..)
+    , DParam(..)
+    , DType(..)
+    , DPath(..)
+
+    , LSFunDecl
+    , LSBlockExpr
+
+    , LDModule
+    , LDDecl
+    , LDImplMember
+    , LDStmt
+    , LDExpr
+    , LDParam
+    , LDType
+    , LDPath
+    ) where
 
 import Location
 
