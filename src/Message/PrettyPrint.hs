@@ -30,42 +30,53 @@ import Message.PrettyPrintTH
 
 -- PPCtx {{{1
 data PPCtx
-    = PPCtx Int String Bool
+    = PPCtx Int String Bool Bool
 startCtx :: PPCtx
-startCtx = PPCtx 0 "" False
+startCtx = PPCtx 0 "" False False
 -- run pprint state helper {{{1
 stateToFun :: (a -> State PPCtx ()) -> a -> String
 stateToFun statefun thing =
-    let (PPCtx _ res _) = execState (statefun thing) startCtx
+    let (PPCtx _ res _ _) = execState (statefun thing) startCtx
     in res
--- put, indent, dedent, and putnl {{{1
+-- put, putch, indent, dedent, and putnl {{{1
+putch :: Char -> State PPCtx ()
+putch ch = state $
+    \ (PPCtx ind acc _ lastnl) ->
+        let accWithIndent =
+                if lastnl
+                then acc ++ replicate (ind * 4) ' '
+                else acc
+            accWithCh = accWithIndent ++ [ch]
+        in ((), PPCtx ind accWithCh False (ch == '\n'))
+
 put :: String -> State PPCtx ()
-put str = state $ \ (PPCtx ind acc _) -> ((), PPCtx ind (acc ++ str) False)
+put str =
+    foldl (>>) (return ()) $ map putch str
 
 indent :: State PPCtx ()
 indent =
     state (
-        \ (PPCtx ind acc lastChangesIndent) ->
-            let newacc =
+        \ (PPCtx ind acc lastChangesIndent _) ->
+            let (curprintsnl, newacc) =
                     if lastChangesIndent
-                    then acc ++ "boom"
-                    else acc
-            in ((), PPCtx (ind + 1) newacc True)
-    ) >> putnl
+                    then (True, acc ++ "boom\n")
+                    else (False, acc)
+            in ((), PPCtx (ind + 1) newacc True curprintsnl)
+    )
 
 dedent :: State PPCtx ()
 dedent =
     state (
-        \ (PPCtx ind acc lastChangesIndent) ->
-            let newacc =
+        \ (PPCtx ind acc lastChangesIndent _) ->
+            let (curprintsnl, newacc) =
                     if lastChangesIndent
-                    then acc ++ "boom"
-                    else acc
-            in ((), PPCtx (ind - 1) newacc True)
-    ) >> putnl
+                    then (True, acc ++ "boom\n")
+                    else (False, acc)
+            in ((), PPCtx (ind - 1) newacc True curprintsnl)
+    )
 
 putnl :: State PPCtx ()
-putnl = state $ \ (PPCtx ind acc lastChangesIndent) -> ((), PPCtx ind (acc ++ "\n" ++ replicate (ind * 4) ' ') lastChangesIndent)
+putnl = put "\n"
 -- helper functions {{{1
 unlocate :: Located a -> a
 unlocate (Located _ a) = a
@@ -97,7 +108,7 @@ pprintModS (AST.DModule' decls) = pprintList (pprintDeclS . unlocate) decls
 pprintDeclS :: AST.DDecl -> State PPCtx ()
 pprintDeclS (AST.DDecl'Fun sf) = pprintFunDeclS $ unlocate sf
 pprintDeclS (AST.DDecl'Impl ty members) =
-    put "impl " >> pprintTypeS (unlocate ty) >> indent >>
+    put "impl " >> pprintTypeS (unlocate ty) >> indent >> putnl >>
     pprintList (pprintImplMemberS . unlocate) members >>
     dedent
 -- AST.DImplMember {{{1
@@ -135,7 +146,7 @@ pprintFunDeclS (AST.SFunDecl' retty (Located _ name) params expr) =
     (pprintTypeAnnotationS . unlocate) `maybeDo` retty >>
     putnl
 -- print type as type annotation {{{1
-pprintTypeAnnotationS :: AST.DType -> State PPCtx ()
+pprintTypeAnnotationS :: AST.DType -> State PPCtx () -- TODO: do not print if without it defaults to the type
 pprintTypeAnnotationS ty = put ": " >> pprintTypeS ty
 -- splices {{{1
 $(makePrintVariants "Mod")
