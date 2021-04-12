@@ -44,6 +44,7 @@ data LastIndentStatus
 data LastNLStatus
     = NLYes
     | NLNo
+    deriving Eq
 
 startCtx :: PPCtx
 startCtx = PPCtx 0 "" LastIndOther NLNo
@@ -60,7 +61,10 @@ putch ch = state $
                 case lastNlStatus of
                     NLYes -> acc ++ replicate (ind * 4) ' '
                     NLNo -> acc
-            accWithCh = accWithIndent ++ [ch]
+            accWithCh = accWithIndent ++
+                if lastNlStatus == NLYes && ch == '\n'
+                then ";\n"
+                else [ch]
 
             nlStatus =
                 if ch == '\n'
@@ -151,7 +155,13 @@ pprintStmtS (AST.DStmt'Var ty mutability name maybeinitializer) =
     putnl
 
 pprintStmtS (AST.DStmt'Ret expr) = put "return " >>  pprintExprS (unlocate expr) >> putnl
-pprintStmtS (AST.DStmt'Expr expr) = pprintExprS (unlocate expr) >> putnl
+pprintStmtS (AST.DStmt'Expr expr) =
+    let neednl = case unlocate expr of
+            AST.DExpr'Block _ -> False
+            AST.DExpr'If _ _ _ _ -> False
+            AST.DExpr'While _ _ -> False
+            _ -> True
+    in pprintExprS (unlocate expr) >> if neednl then putnl else return ()
 
 -- AST.DExpr {{{1
 -- precedence things {{{
