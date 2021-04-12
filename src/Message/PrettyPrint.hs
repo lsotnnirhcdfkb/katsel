@@ -154,8 +154,41 @@ pprintStmtS (AST.DStmt'Ret expr) = put "return " >>  pprintExprS (unlocate expr)
 pprintStmtS (AST.DStmt'Expr expr) = pprintExprS (unlocate expr) >> putnl
 
 -- AST.DExpr {{{1
+-- precedence things {{{
+exprRequiresPrec :: AST.DExpr -> AST.ExprPrec
+exprRequiresPrec (AST.DExpr'Block _) = AST.PrecBlockLevel
+exprRequiresPrec (AST.DExpr'If _ _ _ _) = AST.PrecBlockLevel
+exprRequiresPrec (AST.DExpr'While _ _) = AST.PrecBlockLevel
+exprRequiresPrec (AST.DExpr'Assign _ op _) = AST.PrecAssign
+exprRequiresPrec (AST.DExpr'ShortCircuit _ op _) = AST.shortOpPrec $ unlocate op
+exprRequiresPrec (AST.DExpr'Binary _ op _) = AST.binOpPrec $ unlocate op
+exprRequiresPrec (AST.DExpr'Cast _ _) = AST.PrecCast
+exprRequiresPrec (AST.DExpr'Unary _ _) = AST.PrecUnary
+exprRequiresPrec (AST.DExpr'Ref _ _ _) = AST.PrecUnary
+exprRequiresPrec (AST.DExpr'Call _ _ _) = AST.PrecCall
+exprRequiresPrec (AST.DExpr'Field _ _ _) = AST.PrecCall
+exprRequiresPrec (AST.DExpr'Method _ _ _ _ _) = AST.PrecCall
+exprRequiresPrec (AST.DExpr'Bool _) = AST.PrecPrimary
+exprRequiresPrec (AST.DExpr'Float _) = AST.PrecPrimary
+exprRequiresPrec (AST.DExpr'Int _) = AST.PrecPrimary
+exprRequiresPrec (AST.DExpr'Char _) = AST.PrecPrimary
+exprRequiresPrec (AST.DExpr'String _) = AST.PrecPrimary
+exprRequiresPrec (AST.DExpr'This) = AST.PrecPrimary
+exprRequiresPrec (AST.DExpr'Path _) = AST.PrecPrimary
+
+pprintExprWithPrecS :: AST.ExprPrec -> AST.DExpr -> State PPCtx ()
+pprintExprWithPrecS curPrec ex =
+    if exprRequiresPrec ex < curPrec
+    then put "(" >> pprintExprWithPrecS AST.PrecBlockLevel ex >> put ")"
+    else pprintExprS' ex
+
+-- }}}
+-- printing different kinds of expressions {{{
+pprintExprS' :: AST.DExpr -> State PPCtx ()
+pprintExprS' ex = undefined
+-- }}}
 pprintExprS :: AST.DExpr -> State PPCtx ()
-pprintExprS = undefined
+pprintExprS = pprintExprWithPrecS AST.PrecBlockLevel
 
 pprintBlockExprS :: AST.SBlockExpr -> State PPCtx ()
 pprintBlockExprS (AST.SBlockExpr' stmts) =
