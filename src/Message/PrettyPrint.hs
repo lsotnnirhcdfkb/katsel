@@ -36,12 +36,45 @@ data PPrintSegment
     | Indent
     | Dedent
     | Newline
--- processSegments {{{1
-processSegments :: [PPrintSegment] -> String
-processSegments = error "TODO"
+    | Boom
+-- stringifySegments {{{1
+newtype IndentAmt = IndentAmt { indentAmt :: Int }
+
+processTwoSegments :: PPrintSegment -> PPrintSegment -> [PPrintSegment]
+processTwoSegments = error "not implemented yet"
+
+stringifySegments :: [PPrintSegment] -> String
+stringifySegments segments = stringify $ process segments
+    where
+        stringify s = snd $ foldl' segmentToStr (IndentAmt 0, "") s
+
+        process :: [PPrintSegment] -> [PPrintSegment]
+        process (x : (more@(y:_))) = processTwoSegments x y ++ process more
+        process [_] = []
+        process [] = []
+
+safeLast :: [a] -> Maybe a
+safeLast [a] = Just a
+safeLast (_:more) = safeLast more
+safeLast [] = Nothing
+
+addToAcc :: String -> IndentAmt -> String -> String
+addToAcc acc (IndentAmt indamt) adding =
+    acc ++
+    (if safeLast acc == Just '\n'
+    then replicate (indamt * 4) ' '
+    else "") ++
+    adding
+
+segmentToStr :: (IndentAmt, String) -> PPrintSegment -> (IndentAmt, String)
+segmentToStr (indamt, acc) (Literal s) = (indamt, addToAcc acc indamt s)
+segmentToStr (indamt, acc) Indent = (IndentAmt $ indentAmt indamt + 1, addToAcc acc indamt "\n")
+segmentToStr (indamt, acc) Dedent = (IndentAmt $ indentAmt indamt - 1, acc)
+segmentToStr (indamt, acc) Newline = (indamt, addToAcc acc indamt "\n")
+segmentToStr (indamt, acc) Boom = (indamt, addToAcc acc indamt "boom\n")
 -- run pprint state helper {{{1
 stateToFun :: (a -> State [PPrintSegment] ()) -> a -> String
-stateToFun statefun thing = processSegments $ execState (statefun thing) []
+stateToFun statefun thing = stringifySegments $ execState (statefun thing) []
 -- put, putch, indent, dedent, and putnl {{{1
 putch :: Char -> State [PPrintSegment] ()
 putch '\n' = state $ \ segments -> ((), segments ++ [Newline])
@@ -88,7 +121,7 @@ pprintModS (AST.DModule' decls) = pprintList (pprintDeclS . unlocate) decls
 pprintDeclS :: AST.DDecl -> State [PPrintSegment] ()
 pprintDeclS (AST.DDecl'Fun sf) = pprintFunDeclS $ unlocate sf
 pprintDeclS (AST.DDecl'Impl ty members) =
-    put "impl " >> pprintTypeS (unlocate ty) >> putnl >> indent >>
+    put "impl " >> pprintTypeS (unlocate ty) >> indent >>
     pprintList (pprintImplMemberS . unlocate) members >>
     dedent
 -- AST.DImplMember {{{1
@@ -253,7 +286,7 @@ pprintExprS = pprintExprWithPrecS AST.PrecBlockLevel
 
 pprintBlockExprS :: AST.SBlockExpr -> State [PPrintSegment] ()
 pprintBlockExprS (AST.SBlockExpr' stmts) =
-    putnl >> indent >>
+    indent >>
     pprintList (pprintStmtS . unlocate) stmts >>
     dedent
 -- AST.DParam {{{1
