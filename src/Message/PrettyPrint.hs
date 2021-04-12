@@ -26,6 +26,7 @@ import qualified AST
 import Location
 
 import Data.List(foldl', intersperse)
+import Data.Char(isSpace)
 
 import Message.PrettyPrintTH
 
@@ -61,10 +62,15 @@ putch ch = state $
                     NLNo -> acc
             accWithCh = accWithIndent ++ [ch]
 
-            (nlStatus, indStatus) =
+            nlStatus =
                 if ch == '\n'
-                then (NLYes, lastIndStatus)
-                else (NLNo, LastIndOther)
+                then NLYes
+                else NLNo
+
+            indStatus =
+                if isSpace ch
+                then lastIndStatus
+                else LastIndOther
 
         in ((), PPCtx ind accWithCh indStatus nlStatus)
 
