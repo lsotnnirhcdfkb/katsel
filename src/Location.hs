@@ -13,6 +13,8 @@ module Location
     ) where
 
 import File
+import Data.List(minimumBy, maximumBy)
+import Data.Function(on)
 
 data Location
     = Location
@@ -35,7 +37,14 @@ fmtSpan (Span (Location sfile _ slnnr scoln) (Location efile _ elnnr ecoln)) =
     else name sfile ++ ":(" ++ show slnnr ++ ":" ++ show scoln ++ " " ++ show elnnr ++ ":" ++ show ecoln ++ ")"
 
 joinSpan :: Span -> Span -> Span
-joinSpan (Span s _) (Span _ e) = Span s e
+joinSpan (Span s1 e1) (Span s2 e2) =
+    if all (==(fileOfLoc $ head allLocs)) $ map fileOfLoc allLocs
+    then Span minsp maxsp
+    else error "join two spans where some locations are different to others"
+    where
+        allLocs = [s1, e1, s2, e2]
+        minsp = minimumBy (compare `on` indOfLoc) allLocs
+        maxsp = maximumBy (compare `on` indOfLoc) allLocs
 
 data Located a = Located Span a
     deriving Eq
