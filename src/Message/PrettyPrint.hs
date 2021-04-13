@@ -147,7 +147,6 @@ pprintStmtS (AST.DStmt'Var ty mutability name maybeinitializer) =
     putnl
 
 pprintStmtS (AST.DStmt'Ret expr) = put "return " >>  pprintExprS (unlocate expr) >> putnl
--- TODO: properly handle {} expr stmt
 pprintStmtS (AST.DStmt'Expr expr) =
     let neednl = case unlocate expr of
             AST.DExpr'Block _ -> False
