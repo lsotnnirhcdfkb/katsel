@@ -70,7 +70,7 @@ compile filename =
             lexStage file >>=
             parseStage >>= \ mast ->
             case mast of
-                Just ast -> lowerASTStage ast >>= \ lowered -> return $ Just lowered
+                Just ast -> Just <$> lowerASTStage ast
                 Nothing -> return Nothing
 
         putErrs = hPutStr stderr $ concatMap Message.report finalErrs
