@@ -57,7 +57,7 @@ stringifySegments segments = stringify $ process segments
 
         process :: [PPrintSegment] -> [PPrintSegment]
         process (x : (more@(y:_))) = processTwoSegments x y ++ process more
-        process [_] = []
+        process [x] = [x]
         process [] = []
 
 safeLast :: [a] -> Maybe a
