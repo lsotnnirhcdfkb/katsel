@@ -37,11 +37,18 @@ data PPrintSegment
     | Dedent
     | Newline
     | Boom
+    | Semi
 -- stringifySegments {{{1
 newtype IndentAmt = IndentAmt { indentAmt :: Int }
 
 processTwoSegments :: PPrintSegment -> PPrintSegment -> [PPrintSegment]
-processTwoSegments = error "not implemented yet"
+processTwoSegments (Indent) (Indent) = [Indent, Boom]
+processTwoSegments (Indent) (Dedent) = [Indent, Boom]
+processTwoSegments (Indent) (Newline) = [Indent, Semi]
+processTwoSegments (Dedent) (Indent) = [Dedent, Boom]
+processTwoSegments (Dedent) (Newline) = [Dedent, Semi]
+processTwoSegments (Newline) (Indent) = [Semi]
+processTwoSegments x _ = [x]
 
 stringifySegments :: [PPrintSegment] -> String
 stringifySegments segments = stringify $ process segments
@@ -71,6 +78,7 @@ segmentToStr (indamt, acc) (Literal s) = (indamt, addToAcc acc indamt s)
 segmentToStr (indamt, acc) Indent = (IndentAmt $ indentAmt indamt + 1, addToAcc acc indamt "\n")
 segmentToStr (indamt, acc) Dedent = (IndentAmt $ indentAmt indamt - 1, acc)
 segmentToStr (indamt, acc) Newline = (indamt, addToAcc acc indamt "\n")
+segmentToStr (indamt, acc) Semi = (indamt, addToAcc acc indamt ";\n")
 segmentToStr (indamt, acc) Boom = (indamt, addToAcc acc indamt "boom\n")
 -- run pprint state helper {{{1
 stateToFun :: (a -> State [PPrintSegment] ()) -> a -> String
