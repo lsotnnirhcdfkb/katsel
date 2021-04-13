@@ -1,4 +1,42 @@
-module AST where
+module AST
+    ( parse
+
+    -- manipulation stuff
+    , binOpPrec
+    , shortOpPrec
+
+    -- datatypes
+    , Mutability(..)
+    , ExprPrec(..)
+    , BinOp(..)
+    , ShortOp(..)
+    , UnaryOp(..)
+    , AssignOp(..)
+
+    , SFunDecl(..)
+    , SBlockExpr(..)
+
+    , DModule(..)
+    , DDecl(..)
+    , DImplMember(..)
+    , DStmt(..)
+    , DExpr(..)
+    , DParam(..)
+    , DType(..)
+    , DPath(..)
+
+    , LSFunDecl
+    , LSBlockExpr
+
+    , LDModule
+    , LDDecl
+    , LDImplMember
+    , LDStmt
+    , LDExpr
+    , LDParam
+    , LDType
+    , LDPath
+    ) where
 
 import Location
 
@@ -52,6 +90,13 @@ type LocStr = Located String
 
 data Mutability = Mutable | Immutable
 
+data ExprPrec
+    = PrecBlockLevel | PrecAssign | PrecBinOr | PrecBinAnd
+    | PrecCompEQ | PrecCompLGT | PrecBitXor | PrecBitOr
+    | PrecBitAnd | PrecBitShift | PrecAdd | PrecMult
+    | PrecCast | PrecUnary | PrecCall | PrecPrimary
+    deriving (Eq, Ord) -- Ord derives it as the later constructors are greater, i.e. PrecPrimary > PrecCall and PrecCall > PrecBlockLevel
+
 type LBinOp = Located BinOp
 data BinOp
     = Plus | Minus | Star | Slash | Percent
@@ -66,6 +111,28 @@ type LUnaryOp = Located UnaryOp
 data UnaryOp = UnBang | UnTilde | UnMinus | UnStar
 type LAssignOp = Located AssignOp
 data AssignOp = Equal
+
+binOpPrec :: BinOp -> ExprPrec
+binOpPrec Plus = PrecAdd
+binOpPrec Minus = PrecAdd
+binOpPrec Star = PrecMult
+binOpPrec Slash = PrecMult
+binOpPrec Percent = PrecMult
+binOpPrec Greater = PrecCompLGT
+binOpPrec Less = PrecCompLGT
+binOpPrec GreaterEqual = PrecCompLGT
+binOpPrec LessEqual = PrecCompLGT
+binOpPrec Amper = PrecBitAnd
+binOpPrec Pipe = PrecBitOr
+binOpPrec Caret = PrecBitXor
+binOpPrec DoubleGreater = PrecBitShift
+binOpPrec DoubleLess = PrecBitShift
+binOpPrec DoubleEqual = PrecCompEQ
+binOpPrec BangEqual = PrecCompEQ
+
+shortOpPrec :: ShortOp -> ExprPrec
+shortOpPrec DoubleAmper = PrecBinAnd
+shortOpPrec DoublePipe = PrecBinOr
 
 type LSFunDecl = Located SFunDecl
 data SFunDecl = SFunDecl' (Maybe LDType) LocStr [LDParam] LSBlockExpr

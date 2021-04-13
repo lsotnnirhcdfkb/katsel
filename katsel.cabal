@@ -37,6 +37,9 @@ executable katsel
                      , Message
                      , Message.Underlines
                      , Message.Utils
+                     , Message.PrettyPrint
+                     , Message.PrettyPrintTH
+
 
   main-is:             Main.hs
   -- other-extensions:
@@ -44,6 +47,7 @@ executable katsel
                      , ansi-terminal >= 0.10
                      , mtl >= 2.2.2 && < 3
                      , containers >= 0.6.2.1
+                     , template-haskell >= 2.16.0.0
 
   default-language:    Haskell2010
 
