@@ -66,12 +66,12 @@ lowerASTStage = return . IR.buildIR
 compile :: String -> IO ()
 compile filename =
     openFile filename >>= \ file ->
-    let (ErrorAcc (finalast, finalOutput) finalErrs) =
+    let (ErrorAcc finalOutput finalErrs) =
             lexStage file >>=
             parseStage >>= \ mast ->
             case mast of
-                Just ast -> lowerASTStage ast >>= \ lowered -> return (mast, Just lowered)
-                Nothing -> return (mast, Nothing)
+                Just ast -> lowerASTStage ast >>= \ lowered -> return $ Just lowered
+                Nothing -> return Nothing
 
         putErrs = hPutStr stderr $ concatMap Message.report finalErrs
 
@@ -89,9 +89,5 @@ compile filename =
                     evaluate (error "stop after catching internal error")
 
     in doTry (
-        seq finalOutput putErrs >>
-        case finalast of
-            Just x -> putStr $ PPrint.pprintLMod x
-            Nothing -> putStrLn "no ast"
-
+        seq finalOutput putErrs
     )
