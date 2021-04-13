@@ -38,7 +38,7 @@ fmtSpan (Span (Location sfile _ slnnr scoln) (Location efile _ elnnr ecoln)) =
 
 joinSpan :: Span -> Span -> Span
 joinSpan (Span s1 e1) (Span s2 e2) =
-    if all (==(fileOfLoc $ head allLocs)) $ map fileOfLoc allLocs
+    if all (==(fileOfLoc s1)) $ map fileOfLoc allLocs
     then Span minsp maxsp
     else error "join two spans where some locations are different to others"
     where
