@@ -1,10 +1,10 @@
 # katsel
 
-A language some things.
+A language with some things.
 I maintain this for fun; you probably wouldn't want to use this ever.
 
 ## To do things
-You need [The Haskell Tool Stack](https://docs.haskellstack.org/en/stable/README/), and probably nothing else so far.
+You need [The Haskell Cabal](https://www.haskell.org/cabal/download.html) (specifically cabal-install, which is the command line interface to the Cabal library), and probably nothing else so far.
 Unlike in the `oldcpp` branch, I'm planning to have the Haskell port use C code as a backend.
 
 ## Inspiration/Resources/Info
