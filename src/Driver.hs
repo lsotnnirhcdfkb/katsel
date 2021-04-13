@@ -9,7 +9,6 @@ import File
 import Location
 
 import qualified Message
-import qualified Message.PrettyPrint as PPrint
 
 import qualified Tokens
 import qualified AST
