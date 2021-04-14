@@ -246,9 +246,6 @@ drawSectionLine indent (UnderlineLine underlines messages) =
                     else acc
                     where
                         anyUnderlinesLeft = any (\ (Message (Span _ end) _ _ _) -> col <= colMinus1 end) underlines
-                        -- TODO: inCurCol is kind of broken because it doesn't handle multiline underlines properly
-                        --       it just uses the column number without regard for the line number, so a multiline underline would just highlight the columns that are inbetween the start and end columns
-                        --       kind of like a visual block selection vs a visual selection
                         inCurCol = find (\ (Message (Span start end) _ _ _) -> colnOfLoc start <= col && col <= colMinus1 end) underlines
                         current = case inCurCol of
                             Nothing -> Nothing
