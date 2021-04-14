@@ -298,8 +298,17 @@ pprintBlockExprS (AST.SBlockExpr' stmts) =
     dedent
 -- AST.DParam {{{1
 pprintParamS :: AST.DParam -> State [PPrintSegment] ()
+pprintParamS (AST.DParam'Normal AST.Immutable (
+        (Located _ AST.DType'This)
+    ) (Located _ "this")) = put "this"
+pprintParamS (AST.DParam'Normal AST.Immutable (
+        (Located _ (AST.DType'Pointer AST.Immutable (Located _ AST.DType'This)))
+    ) (Located _ "this")) = put "*this"
+pprintParamS (AST.DParam'Normal AST.Immutable (
+        (Located _ (AST.DType'Pointer AST.Mutable (Located _ AST.DType'This)))
+    ) (Located _ "this")) = put "*mut this"
+pprintParamS (AST.DParam'Normal _ _ (Located _ "this")) = error "pretty print malformed 'this' parameter"
 pprintParamS (AST.DParam'Normal mutability lty lname) =
-    -- TODO: properly handle 'this' parameters
     ifMutablePut "mut " mutability >>
     put (unlocate lname) >>
     pprintTypeAnnotationS (unlocate lty)
