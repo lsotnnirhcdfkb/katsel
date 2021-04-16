@@ -161,7 +161,7 @@ class Parent p c i | p c -> i where
     get :: p -> i -> Maybe c
 -- lowering modules {{{2
 type ModParent = Maybe Module
--- ModParent instances {{{
+-- parent instances {{{
 instance Parent ModParent Module () where
     add _ _ m = Just m
     get m _ = m
