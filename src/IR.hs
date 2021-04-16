@@ -194,11 +194,24 @@ instance Parent p Module () => Lowerable AST.LDModule p where
     vdefine parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls parentmod vdefine
         where
             (Just parentmod) = get parent () :: Maybe Module
+-- lowering functions {{{2
+instance Parent p Value String => Lowerable AST.LSFunDecl p where
+    -- functions do not lower to anything during the declaration phases
+    ddeclare parent _ = parent
+    ddefine parent _ = parent
+
+    vdeclare parent (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) = error "not implemented yet"
+    vdefine parent (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) = error "not implemented yet"
 -- lowering declarations {{{2
 instance Parent p Value String => Lowerable AST.LDDecl p where
-    ddeclare _ (Located _ (AST.DDecl'Fun _)) = undefined
-    ddeclare _ (Located _ (AST.DDecl'Impl _ _)) = undefined
+    ddeclare parent (Located _ (AST.DDecl'Fun sf)) = ddeclare parent sf
+    ddeclare _ (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
 
-    ddefine = undefined
-    vdeclare = undefined
-    vdefine = undefined
+    ddefine parent (Located _ (AST.DDecl'Fun sf)) = ddefine parent sf
+    ddefine _ (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
+
+    vdeclare parent (Located _ (AST.DDecl'Fun sf)) = vdeclare parent sf
+    vdeclare _ (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
+
+    vdefine parent (Located _ (AST.DDecl'Fun sf)) = vdefine parent sf
+    vdefine _ (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
