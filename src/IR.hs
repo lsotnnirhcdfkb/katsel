@@ -27,6 +27,8 @@ type VMap = StrMap Value
 
 data Mutability = Mutable | Immutable
 data Signedness = Signed | Unsigned
+
+newtype TyCtx = TyCtx [Type]
 -- IRId types and functions {{{1
 newtype DSIRId resolve = DSIRId [String]
 data VIRId resolve = VIRId (DSIRId DeclSymbol) String
@@ -54,7 +56,9 @@ vresolve parentmod (VIRId parent childname) =
 data DeclSymbol where
     DeclSymbol :: (Typeable d, DSChildren d, VChildren d) => d -> DeclSymbol
 
-data Module = Module DSMap VMap
+data Module = Module DSMap VMap TyCtx
+
+newtype TyIdx = TyIdx Int
 data Type
     = FloatType DSMap Int
     | IntType DSMap Int Signedness
@@ -96,9 +100,9 @@ instance DSChildren Type where
     getDSMap (PointerType dsmap _ _) = dsmap
 -- Module {{{4
 instance DSChildren Module where
-    getDSMap (Module dsmap _) = dsmap
+    getDSMap (Module dsmap _ _) = dsmap
 instance VChildren Module where
-    getVMap (Module _ vmap) = vmap
+    getVMap (Module _ vmap _) = vmap
 -- Values {{{2
 data Value where
     Value :: (Typeable v) => v -> Value
@@ -181,7 +185,7 @@ instance Parent Module Value String where
 instance Parent p Module () => Lowerable AST.LDModule p where
     ddeclare parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls startModule ddeclare
         where
-            startModule = Module Map.empty Map.empty
+            startModule = Module Map.empty Map.empty $ TyCtx []
 
     ddefine parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls parentmod ddefine
         where
