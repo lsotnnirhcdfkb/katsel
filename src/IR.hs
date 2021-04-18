@@ -145,20 +145,13 @@ buildIR lmod =
         Just ir -> ir
         Nothing -> error "lowering ast to ir returned Nothing"
     where
-        ddeclared = ddeclare Nothing lmod
-        ddefined = ddefine ddeclared lmod
-        vdeclared = vdeclare ddefined lmod
-        vdefined = vdefine vdeclared lmod
-        loweredMod = vdefined
+        loweredMod = vdefine lmod . vdeclare lmod .  ddefine lmod .  ddeclare lmod $ Nothing
 -- helper functions {{{2
-lowerAllInList :: Lowerable l p => [l] -> p -> (p -> l -> p) -> p
-lowerAllInList things parent fn = foldl' fn parent things
+lowerAllInList :: Lowerable l p => [l] -> p -> (l -> p -> p) -> p
+lowerAllInList things parent fn = foldl' (flip fn) parent things
 -- Lowerable class {{{2
 class Lowerable l p where
-    ddeclare :: p -> l -> p
-    ddefine :: p -> l -> p
-    vdeclare :: p -> l -> p
-    vdefine :: p -> l -> p
+    ddeclare, ddefine, vdeclare, vdefine :: l -> p -> p
 -- Parent class {{{2
 class Parent p c i | p c -> i where
     add :: p -> i -> c -> p
@@ -183,39 +176,45 @@ instance Parent Module Value String where
     get = getValue
 -- }}}
 instance Parent p Module () => Lowerable AST.LDModule p where
-    ddeclare parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls startModule ddeclare
+    ddeclare (Located _ (AST.DModule' decls)) parent = add parent () $ lowerAllInList decls startModule ddeclare
         where
             startModule = Module Map.empty Map.empty $ TyCtx []
 
-    ddefine parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls parentmod ddefine
+    ddefine (Located _ (AST.DModule' decls)) parent = add parent () $ lowerAllInList decls parentmod ddefine
         where
             (Just parentmod) = get parent () :: Maybe Module -- not sure why this type annotation is needed to compile
 
-    vdeclare parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls parentmod vdeclare
+    vdeclare (Located _ (AST.DModule' decls)) parent = add parent () $ lowerAllInList decls parentmod vdeclare
         where
             (Just parentmod) = get parent () :: Maybe Module
 
-    vdefine parent (Located _ (AST.DModule' decls)) = add parent () $ lowerAllInList decls parentmod vdefine
+    vdefine (Located _ (AST.DModule' decls)) parent = add parent () $ lowerAllInList decls parentmod vdefine
         where
             (Just parentmod) = get parent () :: Maybe Module
 -- lowering functions {{{2
 instance Parent p Value String => Lowerable AST.LSFunDecl p where
     -- functions do not lower to anything during the declaration phases
-    ddeclare parent _ = parent
-    ddefine parent _ = parent
+    ddeclare _ parent = parent
+    ddefine _ parent = parent
 
-    vdeclare parent (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) = error "not implemented yet"
-    vdefine parent (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) = error "not implemented yet"
+    vdeclare (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) parent = add parent name fun
+        where
+            retty = resolveTy retty
+            newty = FunctionType Map.empty retty (map makeParam params)
+            makeParam (AST.DParam'Normal mutability ty _) = (mutability, ty)
+
+            fun = error "not implemented yet" :: Value
+    vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) parent = error "not implemented yet"
 -- lowering declarations {{{2
 instance Parent p Value String => Lowerable AST.LDDecl p where
-    ddeclare parent (Located _ (AST.DDecl'Fun sf)) = ddeclare parent sf
-    ddeclare _ (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
+    ddeclare (Located _ (AST.DDecl'Fun sf)) parent = ddeclare sf parent
+    ddeclare (Located _ (AST.DDecl'Impl _ _)) _ = error "not implemented yet"
 
-    ddefine parent (Located _ (AST.DDecl'Fun sf)) = ddefine parent sf
-    ddefine _ (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
+    ddefine (Located _ (AST.DDecl'Fun sf)) parent = ddefine sf parent
+    ddefine (Located _ (AST.DDecl'Impl _ _)) _ = error "not implemented yet"
 
-    vdeclare parent (Located _ (AST.DDecl'Fun sf)) = vdeclare parent sf
-    vdeclare _ (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
+    vdeclare (Located _ (AST.DDecl'Fun sf)) parent = vdeclare sf parent
+    vdeclare (Located _ (AST.DDecl'Impl _ _)) _ = error "not implemented yet"
 
-    vdefine parent (Located _ (AST.DDecl'Fun sf)) = vdefine parent sf
-    vdefine _ (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
+    vdefine (Located _ (AST.DDecl'Fun sf)) parent = vdefine sf parent
+    vdefine (Located _ (AST.DDecl'Impl _ _)) _ = error "not implemented yet"
