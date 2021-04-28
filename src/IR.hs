@@ -178,7 +178,7 @@ instance Parent Module Value String where
 instance Parent p Module () => Lowerable AST.LDModule p where
     ddeclare (Located _ (AST.DModule' decls)) parent = add parent () $ lowerAllInList decls startModule ddeclare
         where
-            startModule = Module Map.empty Map.empty $  TyCtx []
+            startModule = Module Map.empty Map.empty $ TyCtx []
 
     ddefine (Located _ (AST.DModule' decls)) parent = add parent () $ lowerAllInList decls parentmod ddefine
         where
