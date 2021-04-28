@@ -105,7 +105,7 @@ assignMessages messages = (firstrow, msglines)
                 overlapping = any ((curMsgEndCol>=) . colOfAssignment) onCurRow
 
                 curMsgEndCol = endColOfMsg curMsg
-                colOfAssignment (_, Message (Span _ eloc) _ _ _) =  colMinus1 eloc
+                colOfAssignment (_, Message (Span _ eloc) _ _ _) = colMinus1 eloc
                 endColOfMsg (Message (Span _ end) _ _ str) = colMinus1 end + length str + 3
 
         assigned = assign (sortBy comparator messages) []
