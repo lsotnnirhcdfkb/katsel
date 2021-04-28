@@ -145,7 +145,7 @@ buildIR lmod =
         Just ir -> ir
         Nothing -> error "lowering ast to ir returned Nothing"
     where
-        loweredMod = vdefine lmod . vdeclare lmod .  ddefine lmod .  ddeclare lmod $ Nothing
+        loweredMod = vdefine lmod . vdeclare lmod . ddefine lmod . ddeclare lmod $ Nothing
 -- helper functions {{{2
 lowerAllInList :: Lowerable l p => [l] -> p -> (l -> p -> p) -> p
 lowerAllInList things parent fn = foldl' (flip fn) parent things
