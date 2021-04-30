@@ -56,7 +56,7 @@ vresolve parentmod (VIRId parent childname) =
 data DeclSymbol where
     DeclSymbol :: (Typeable d, DSChildren d, VChildren d) => d -> DeclSymbol
 
-data Module = Module DSMap VMap TyCtx
+data Module = Module DSMap VMap
 
 newtype TyIdx = TyIdx Int
 data Type
@@ -100,9 +100,9 @@ instance DSChildren Type where
     getDSMap (PointerType dsmap _ _) = dsmap
 -- Module {{{4
 instance DSChildren Module where
-    getDSMap (Module dsmap _ _) = dsmap
+    getDSMap (Module dsmap _) = dsmap
 instance VChildren Module where
-    getVMap (Module _ vmap _) = vmap
+    getVMap (Module _ vmap) = vmap
 -- Values {{{2
 data Value where
     Value :: (Typeable v) => v -> Value
@@ -145,13 +145,16 @@ buildIR lmod =
         Just ir -> ir
         Nothing -> error "lowering ast to ir returned Nothing"
     where
-        loweredMod = vdefine lmod . vdeclare lmod . ddefine lmod . ddeclare lmod $ Nothing
+        (loweredMod, tyctx) = vdefine lmod . vdeclare lmod . ddefine lmod . ddeclare lmod $ (Nothing, TyCtx [])
 -- helper functions {{{2
-lowerAllInList :: Lowerable l p => [l] -> p -> (l -> p -> p) -> p
-lowerAllInList things parent fn = foldl' (flip fn) parent things
+lowerAllInList :: Lowerable l p => [l] -> (l -> (p, TyCtx) -> (p, TyCtx)) -> (p, TyCtx) -> (p, TyCtx)
+lowerAllInList things fun parent = foldl' (flip fun) parent things
+
+addFstToParent :: Parent p c i => p -> i -> (c, TyCtx) -> (p, TyCtx)
+addFstToParent parent ind (child, tyctx) = (add parent ind child, tyctx)
 -- Lowerable class {{{2
 class Lowerable l p where
-    ddeclare, ddefine, vdeclare, vdefine :: l -> p -> p
+    ddeclare, ddefine, vdeclare, vdefine :: l -> (p, TyCtx) -> (p, TyCtx)
 -- Parent class {{{2
 class Parent p c i | p c -> i where
     add :: p -> i -> c -> p
@@ -176,32 +179,32 @@ instance Parent Module Value String where
     get = getValue
 -- }}}
 instance Parent p Module () => Lowerable AST.LDModule p where
-    ddeclare (Located _ (AST.DModule' decls)) parent = add parent () $ lowerAllInList decls startModule ddeclare
-        where
-            startModule = Module Map.empty Map.empty $ TyCtx []
+    ddeclare (Located _ (AST.DModule' decls)) (parent, tyCtx) =
+        let startModule = Module Map.empty Map.empty
+        in addFstToParent parent () $ lowerAllInList decls ddeclare (startModule, tyCtx)
 
-    ddefine (Located _ (AST.DModule' decls)) parent = add parent () $ lowerAllInList decls parentmod ddefine
-        where
-            (Just parentmod) = get parent () :: Maybe Module -- not sure why this type annotation is needed to compile
+    ddefine (Located _ (AST.DModule' decls)) (parent, tyCtx) =
+        let (Just parentmod) = get parent () :: Maybe Module
+        in addFstToParent parent () $ lowerAllInList decls ddefine (parentmod, tyCtx)
 
-    vdeclare (Located _ (AST.DModule' decls)) parent = add parent () $ lowerAllInList decls parentmod vdeclare
-        where
-            (Just parentmod) = get parent () :: Maybe Module
+    vdeclare (Located _ (AST.DModule' decls)) (parent, tyCtx) =
+        let (Just parentmod) = get parent () :: Maybe Module
+        in addFstToParent parent () $ lowerAllInList decls vdeclare (parentmod, tyCtx)
 
-    vdefine (Located _ (AST.DModule' decls)) parent = add parent () $ lowerAllInList decls parentmod vdefine
-        where
-            (Just parentmod) = get parent () :: Maybe Module
+    vdefine (Located _ (AST.DModule' decls)) (parent, tyCtx) =
+        let (Just parentmod) = get parent () :: Maybe Module
+        in addFstToParent parent () $ lowerAllInList decls vdefine (parentmod, tyCtx)
 -- lowering functions {{{2
 instance Parent p Value String => Lowerable AST.LSFunDecl p where
     -- functions do not lower to anything during the declaration phases
     ddeclare _ parent = parent
     ddefine _ parent = parent
 
-    vdeclare (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) parent = add parent name fun
+    vdeclare (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) (parent, tyctx) = (add parent name fun, tyctx)
         where
-            retty = resolveTy retty
-            newty = FunctionType Map.empty retty (map makeParam params)
-            makeParam (AST.DParam'Normal mutability ty _) = (mutability, ty)
+            -- retty = resolveTy retty
+            -- newty = FunctionType Map.empty retty (map makeParam params)
+            -- makeParam (AST.DParam'Normal mutability ty _) = (mutability, ty)
 
             fun = error "not implemented yet" :: Value
     vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) parent = error "not implemented yet"
