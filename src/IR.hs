@@ -23,7 +23,7 @@ import Data.List(foldl')
 
 import Data.Typeable(Typeable, cast)
 
-import Control.Monad.State.Lazy(State, state, runState)
+import Control.Monad.State.Lazy(state, runState)
 
 -- utility types and aliases {{{1
 type StrMap = Map String
@@ -155,7 +155,6 @@ data IRBuilder = IRBuilder TyCtx [IRBuildError]
 add_error :: IRBuildError -> IRBuilder -> IRBuilder
 add_error err (IRBuilder tyctx errs) = IRBuilder tyctx (errs ++ [err])
 -- }}}
-
 build_ir :: AST.LDModule -> (Module, TyCtx, [IRBuildError])
 build_ir lmod =
     case lowered_mod of
@@ -234,12 +233,11 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
     ddefine _ parent builder = (parent, builder)
 
     vdeclare (Located _ (AST.SFunDecl' mretty (Located _ name) params _)) parent = runState $
-        ((state $ case mretty of
+        (state $ case mretty of
             Just retty -> resolve_ty retty
             Nothing -> get_void_type
-        ) :: State IRBuilder TyIdx) >>= \ retty' ->
-        let make_param :: AST.LDParam -> State IRBuilder (Mutability, TyIdx)
-            make_param (Located _ (AST.DParam'Normal mutability ty_ast _)) =
+        ) >>= \ retty' ->
+        let make_param (Located _ (AST.DParam'Normal mutability ty_ast _)) =
                 state (resolve_ty ty_ast) >>= \ ty ->
                 return (ast_muty_to_ir_muty mutability, ty)
         in sequence (map make_param params) >>= \ param_tys ->
