@@ -238,9 +238,9 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
         in (state . convert_tyctx_state_fun_to_cg_tuple_fun) (add_ty newty) >>= \ fun_ty_idx ->
         let fun = Function
                   { get_function_blocks = []
-                  , get_function_registers = []
+                  , get_function_registers = map (\ (param_mut, param_ty) -> Register param_ty param_mut) param_tys
                   , get_function_ret_reg = 0
-                  , get_function_param_regs = []
+                  , get_function_param_regs = take (length params) [1..]
                   , get_function_type = fun_ty_idx
                   }
         in state . convert_parent_state_fun_to_cg_tuple_fun . convert_non_state_fun_with_unit_res $ add name $ Value fun
