@@ -158,7 +158,7 @@ add_first_to_parent :: Parent p c i => i -> (c, TyCtx) -> p -> (p, TyCtx)
 add_first_to_parent ind (child, tyctx) parent = (add ind child parent, tyctx)
 
 convert_non_state_fun_with_unit_res :: (a -> a) -> (a -> ((), a))
-convert_non_state_fun_with_unit_res fun thing = ((), thing)
+convert_non_state_fun_with_unit_res fun thing = ((), fun thing)
 
 convert_tyctx_state_fun_to_cg_tuple_fun :: (TyCtx -> (r, TyCtx)) -> ((p, TyCtx) -> (r, (p, TyCtx)))
 convert_tyctx_state_fun_to_cg_tuple_fun fun (p, tyctx) =
@@ -169,7 +169,7 @@ convert_parent_state_fun_to_cg_tuple_fun :: (p -> (r, p)) -> ((p, TyCtx) -> (r, 
 convert_parent_state_fun_to_cg_tuple_fun fun (p, tyctx) =
     let (res, res_p) = fun p
     in (res, (res_p, tyctx))
--- type resolution & type interning {{{1
+-- type resolution & type interning {{{2
 resolve_ty :: AST.LDType -> TyCtx -> (TyIdx, TyCtx)
 resolve_ty = error "not implemented yet"
 
@@ -189,7 +189,7 @@ class Parent p c i | p c -> i where
 type ModParent = Maybe Module
 -- parent instances {{{
 instance Parent ModParent Module () where
-    add _ mod _ = Just mod
+    add _ m _ = Just m
     get _ m = m
 instance Parent DeclSymbol DeclSymbol String where
     add = add_decl_symbol
@@ -226,7 +226,7 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
     ddeclare _ = id
     ddefine _ = id
 
-    vdeclare (Located _ (AST.SFunDecl' mretty (Located _ name) params expr)) = execState $
+    vdeclare (Located _ (AST.SFunDecl' mretty (Located _ name) params _)) = execState $
         (state . convert_tyctx_state_fun_to_cg_tuple_fun $ case mretty of
             Just retty -> resolve_ty retty
             Nothing -> get_void_type
@@ -243,7 +243,7 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
                   , get_function_param_regs = []
                   , get_function_type = fun_ty_idx
                   }
-        in state . convert_parent_state_fun_to_cg_tuple_fun . convert_non_state_fun_with_unit_res $ add name (Value fun)
+        in state . convert_parent_state_fun_to_cg_tuple_fun . convert_non_state_fun_with_unit_res $ add name $ Value fun
 
     -- vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) parent = error "not implemented yet"
     vdefine = error "not implemented yet"
