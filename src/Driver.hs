@@ -60,7 +60,9 @@ parse_stage toks =
             return Nothing
 
 lower_ast_stage :: AST.LDModule -> ErrorAccumulated (IR.Module, IR.TyCtx)
-lower_ast_stage = return . IR.build_ir
+lower_ast_stage mod_ast =
+    let (ir_mod, tyctx, errs) = IR.build_ir mod_ast
+    in add_errors (map Message.to_diagnostic errs) >> return (ir_mod, tyctx)
 
 compile :: String -> IO ()
 compile filename =

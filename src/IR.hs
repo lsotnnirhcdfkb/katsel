@@ -12,6 +12,8 @@ module IR
 
 import qualified AST
 
+import qualified Message
+
 import Location
 
 import Data.Map(Map)
@@ -21,7 +23,7 @@ import Data.List(foldl')
 
 import Data.Typeable(Typeable, cast)
 
-import Control.Monad.State.Lazy(State, state, execState)
+import Control.Monad.State.Lazy(State, state, runState)
 
 -- utility types and aliases {{{1
 type StrMap = Map String
@@ -142,44 +144,36 @@ data Br
     | BrCond FValue BasicBlock BasicBlock
 -- }}}
 -- building the IR {{{1
-build_ir :: AST.LDModule -> (Module, TyCtx)
+data IRBuildError
+instance Message.ToDiagnostic IRBuildError where
+    to_diagnostic = error "not implemented yet"
+
+data IRBuilder = IRBuilder TyCtx [IRBuildError]
+
+build_ir :: AST.LDModule -> (Module, TyCtx, [IRBuildError])
 build_ir lmod =
     case lowered_mod of
-        Just ir -> (ir, tyctx)
+        Just ir -> (ir, tyctx, errors)
         Nothing -> error "lowering ast to ir returned Nothing"
     where
-        (lowered_mod, tyctx) = vdefine lmod . vdeclare lmod . ddefine lmod . ddeclare lmod $ (Nothing, TyCtx [])
+        (lowered_mod, IRBuilder tyctx errors) = uncurry (vdefine lmod) . uncurry (vdeclare lmod) . uncurry (ddefine lmod) . uncurry (ddeclare lmod) $ (Nothing, IRBuilder (TyCtx []) [])
 -- helper functions {{{2
-lower_all_in_list :: Lowerable l p => [l] -> (l -> (p, TyCtx) -> (p, TyCtx)) -> (p, TyCtx) -> (p, TyCtx)
-lower_all_in_list things fun parent = foldl' (flip fun) parent things
-
-add_first_to_parent :: Parent p c i => i -> (c, TyCtx) -> p -> (p, TyCtx)
-add_first_to_parent ind (child, tyctx) parent = (add ind child parent, tyctx)
-
-convert_non_state_fun_with_unit_res :: (a -> a) -> (a -> ((), a))
-convert_non_state_fun_with_unit_res fun thing = ((), fun thing)
-
-convert_tyctx_state_fun_to_cg_tuple_fun :: (TyCtx -> (r, TyCtx)) -> ((p, TyCtx) -> (r, (p, TyCtx)))
-convert_tyctx_state_fun_to_cg_tuple_fun fun (p, tyctx) =
-    let (res, res_tyctx) = fun tyctx
-    in (res, (p, res_tyctx))
-
-convert_parent_state_fun_to_cg_tuple_fun :: (p -> (r, p)) -> ((p, TyCtx) -> (r, (p, TyCtx)))
-convert_parent_state_fun_to_cg_tuple_fun fun (p, tyctx) =
-    let (res, res_p) = fun p
-    in (res, (res_p, tyctx))
+lower_all_in_list :: Lowerable l p => [l] -> (l -> p -> IRBuilder -> (p, IRBuilder)) -> p -> IRBuilder -> (p, IRBuilder)
+lower_all_in_list things fun parent builder = foldl' modified (parent, builder) things
+    where
+        modified (p, b) thing = fun thing p b
 -- type resolution & type interning {{{2
-resolve_ty :: AST.LDType -> TyCtx -> (TyIdx, TyCtx)
+resolve_ty :: AST.LDType -> IRBuilder -> (TyIdx, IRBuilder)
 resolve_ty = error "not implemented yet"
 
-add_ty :: Type -> TyCtx -> (TyIdx, TyCtx)
-add_ty ty (TyCtx tys) = (TyIdx $ length tys, TyCtx $ tys ++ [ty])
+add_ty :: Type -> IRBuilder -> (TyIdx, IRBuilder)
+add_ty ty (IRBuilder (TyCtx tys) errs) = (TyIdx $ length tys, IRBuilder (TyCtx $ tys ++ [ty]) errs)
 
-get_void_type :: TyCtx -> (TyIdx, TyCtx)
+get_void_type :: IRBuilder -> (TyIdx, IRBuilder)
 get_void_type = error "not implemented yet"
 -- Lowerable class {{{2
 class Lowerable l p where
-    ddeclare, ddefine, vdeclare, vdefine :: l -> (p, TyCtx) -> (p, TyCtx)
+    ddeclare, ddefine, vdeclare, vdefine :: l -> p -> IRBuilder -> (p, IRBuilder)
 -- Parent class {{{2
 class Parent p c i | p c -> i where
     add :: i -> c -> p -> p
@@ -204,37 +198,41 @@ instance Parent Module Value String where
     get = get_value
 -- }}}
 instance Parent p Module () => Lowerable AST.LDModule p where
-    ddeclare (Located _ (AST.DModule' decls)) (parent, tyctx) =
+    ddeclare (Located _ (AST.DModule' decls)) parent builder =
         let start_module = Module Map.empty Map.empty
-        in add_first_to_parent () (lower_all_in_list decls ddeclare (start_module, tyctx)) parent
+            (lowered_module, builder') = lower_all_in_list decls ddeclare start_module builder
+        in (add () lowered_module parent, builder')
 
-    ddefine (Located _ (AST.DModule' decls)) (parent, tyctx) =
-        let (Just parentmod) = get () parent :: Maybe Module
-        in add_first_to_parent () (lower_all_in_list decls ddefine (parentmod, tyctx)) parent
+    ddefine (Located _ (AST.DModule' decls)) parent builder =
+        let (Just parent_mod) = get () parent :: Maybe Module
+            (lowered_module, builder') = lower_all_in_list decls ddefine parent_mod builder
+        in (add () lowered_module parent, builder')
 
-    vdeclare (Located _ (AST.DModule' decls)) (parent, tyctx) =
-        let (Just parentmod) = get () parent :: Maybe Module
-        in add_first_to_parent () (lower_all_in_list decls vdeclare (parentmod, tyctx)) parent
+    vdeclare (Located _ (AST.DModule' decls)) parent builder =
+        let (Just parent_mod) = get () parent :: Maybe Module
+            (lowered_module, builder') = lower_all_in_list decls vdeclare parent_mod builder
+        in (add () lowered_module parent, builder')
 
-    vdefine (Located _ (AST.DModule' decls)) (parent, tyctx) =
-        let (Just parentmod) = get () parent :: Maybe Module
-        in add_first_to_parent () (lower_all_in_list decls vdefine (parentmod, tyctx)) parent
+    vdefine (Located _ (AST.DModule' decls)) parent builder =
+        let (Just parent_mod) = get () parent :: Maybe Module
+            (lowered_module, builder') = lower_all_in_list decls vdefine parent_mod builder
+        in (add () lowered_module parent, builder')
 -- lowering functions {{{2
 instance Parent p Value String => Lowerable AST.LSFunDecl p where
     -- functions do not lower to anything during the declaration phases
-    ddeclare _ = id
-    ddefine _ = id
+    ddeclare _ parent builder = (parent, builder)
+    ddefine _ parent builder = (parent, builder)
 
-    vdeclare (Located _ (AST.SFunDecl' mretty (Located _ name) params _)) = execState $
-        (state . convert_tyctx_state_fun_to_cg_tuple_fun $ case mretty of
+    vdeclare (Located _ (AST.SFunDecl' mretty (Located _ name) params _)) parent = runState $
+        ((state $ case mretty of
             Just retty -> resolve_ty retty
             Nothing -> get_void_type
-        ) >>= \ retty' ->
-        let make_param :: AST.LDParam -> State (p, TyCtx) (Mutability, TyIdx)
+        ) :: State IRBuilder TyIdx) >>= \ retty' ->
+        let make_param :: AST.LDParam -> State IRBuilder (Mutability, TyIdx)
             make_param = undefined
         in sequence (map make_param params) >>= \ param_tys ->
         let newty = FunctionType Map.empty retty' param_tys
-        in (state . convert_tyctx_state_fun_to_cg_tuple_fun) (add_ty newty) >>= \ fun_ty_idx ->
+        in state (add_ty newty) >>= \ fun_ty_idx ->
         let fun = Function
                   { get_function_blocks = []
                   , get_function_registers = map (\ (param_mut, param_ty) -> Register param_ty param_mut) param_tys
@@ -242,7 +240,7 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
                   , get_function_param_regs = take (length params) [1..]
                   , get_function_type = fun_ty_idx
                   }
-        in state . convert_parent_state_fun_to_cg_tuple_fun . convert_non_state_fun_with_unit_res $ add name $ Value fun
+        in return $ add name (Value fun) parent
 
     -- vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) parent = error "not implemented yet"
     vdefine = error "not implemented yet"
