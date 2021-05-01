@@ -8,10 +8,10 @@ import qualified Driver
 main :: IO ()
 main =
     getArgs >>= \ args ->
-    getProgName >>= \ progName ->
+    getProgName >>= \ prog_name ->
     case args of
-        [] -> usageMessage progName
+        [] -> usage_message prog_name
         [filename] -> Driver.compile filename
-        _ -> usageMessage progName
+        _ -> usage_message prog_name
     where
-        usageMessage progName = hPutStrLn stderr $ "usage: " ++ progName ++ " <filename>"
+        usage_message prog_name = hPutStrLn stderr $ "usage: " ++ prog_name ++ " <filename>"

@@ -6,10 +6,10 @@ data File = File
             }
             deriving Eq
 
-openFile :: String -> IO File
-openFile filename =
-    readFile filename >>= \ fileContents ->
+open_file :: String -> IO File
+open_file filename =
+    readFile filename >>= \ file_contents ->
     return File
            { name = filename
-           , source = fileContents
+           , source = file_contents
            }

@@ -23,40 +23,40 @@ import Control.Exception(SomeException, try, evaluate, displayException)
 
 -- data OutputFormat = Lexed | Parsed | KatselIR | BackendCode Backend
 
-lexStage :: File -> ErrorAccumulated [Located Tokens.Token]
-lexStage contents =
+lex_stage :: File -> ErrorAccumulated [Located Tokens.Token]
+lex_stage contents =
     let lexed = Tokens.lex contents
-        errs = [Message.toDiagnostic x | Left x <- lexed]
+        errs = [Message.to_diagnostic x | Left x <- lexed]
         toks = [x | Right x <- lexed]
-    in addErrors errs >> return toks
+    in add_errors errs >> return toks
 
-parseStage :: [Located Tokens.Token] -> ErrorAccumulated (Maybe AST.LDModule)
-parseStage toks =
+parse_stage :: [Located Tokens.Token] -> ErrorAccumulated (Maybe AST.LDModule)
+parse_stage toks =
     case AST.parse toks of
         Right result ->
             return $ Just result
 
         Left err ->
-            addErrors [Message.toDiagnostic err] >>
+            add_errors [Message.to_diagnostic err] >>
             return Nothing
 
-lowerASTStage :: AST.LDModule -> ErrorAccumulated IR.Module
-lowerASTStage = return . IR.buildIR
+lower_ast_stage :: AST.LDModule -> ErrorAccumulated IR.Module
+lower_ast_stage = return . IR.build_ir
 
 compile :: String -> IO ()
 compile filename =
-    openFile filename >>= \ file ->
-    let (ErrorAcc finalOutput finalErrs) =
-            lexStage file >>=
-            parseStage >>= \ mast ->
+    open_file filename >>= \ file ->
+    let (ErrorAcc final_output final_errs) =
+            lex_stage file >>=
+            parse_stage >>= \ mast ->
             case mast of
-                Just ast -> Just <$> lowerASTStage ast
+                Just ast -> Just <$> lower_ast_stage ast
                 Nothing -> return Nothing
 
-        putErrs = hPutStr stderr $ concatMap Message.report finalErrs
+        put_errs = hPutStr stderr $ concatMap Message.report final_errs
 
         -- TODO: do not catch user interrupt
-        doTry x = (try x :: IO (Either SomeException ())) >>= \ ei ->
+        do_try x = (try x :: IO (Either SomeException ())) >>= \ ei ->
             case ei of
                 Right () -> return ()
                 Left err ->
@@ -68,6 +68,6 @@ compile filename =
                     )) >>
                     evaluate (error "stop after catching internal error")
 
-    in doTry (
-        seq finalOutput putErrs
+    in do_try (
+        seq final_output put_errs
     )

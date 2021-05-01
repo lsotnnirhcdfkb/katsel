@@ -3,8 +3,8 @@ module Message.Underlines
     , Message(..)
     , Importance(..)
     , Type(..)
-    , showUnderlinesSection
-    , indentOfUnderlinesSection
+    , show_underlines_section
+    , indent_of_underlines_section
     ) where
 
 import Location
@@ -25,46 +25,46 @@ data Message = Message Span Type Importance String
 data Importance = Primary | Secondary | Tertiary
 data Type = Error | Warning | Note | Hint
 
-locMinus1 :: Location -> Location
-locMinus1 loc = makeLocation (fileOfLoc loc) (indOfLoc loc - 1)
-lineMinus1 :: Location -> Int
-lineMinus1 loc = lnnOfLoc $ locMinus1 loc
-colMinus1 :: Location -> Int
-colMinus1 loc = colnOfLoc $ locMinus1 loc
+loc_minus_1 :: Location -> Location
+loc_minus_1 loc = make_location (file_of_loc loc) (ind_of_loc loc - 1)
+line_minus_1 :: Location -> Int
+line_minus_1 loc = lnn_of_loc $ loc_minus_1 loc
+col_minus_1 :: Location -> Int
+col_minus_1 loc = coln_of_loc $ loc_minus_1 loc
 
 data ShowLine = ShowLine File Int Dimness
 data Dimness = Dim | Normal
 
-linenrsOfMessages :: [Message] -> [ShowLine]
-linenrsOfMessages msgs = sortBy sortComparator $ nubBy nubComparator linesWithDim
+line_nrs_of_messages :: [Message] -> [ShowLine]
+line_nrs_of_messages msgs = sortBy sort_comparator $ nubBy nub_comparator lines_with_dim
     where
         -- nub keeps the first occurance, so it will keep all the normal lines if there are duplicate dim lines
         -- since the dim lines are all appended to the end of the list
-        linesWithDim = linesWithoutDim ++ concatMap getDimLines linesWithoutDim
-        getDimLines (ShowLine fl nr _) = mapMaybe makeDim [-2..2] -- will have a duplicate line at offset 0 that is filtered out by nub
+        lines_with_dim = lines_without_dim ++ concatMap get_dim_lines lines_without_dim
+        get_dim_lines (ShowLine fl nr _) = mapMaybe make_dim [-2..2] -- will have a duplicate line at offset 0 that is filtered out by nub
             where
-                makeDim n
+                make_dim n
                     | nr+n >= 1 = Just $ ShowLine fl (nr+n) Dim
                     | otherwise = Nothing
 
-        linesWithoutDim = concatMap linenrsof msgs
-        linenrsof (Message (Span start end) _ _ _) = [ShowLine (fileOfLoc start) (lnnOfLoc start) Normal, ShowLine (fileOfLoc start) (lineMinus1 end) Normal]
+        lines_without_dim = concatMap linenrsof msgs
+        linenrsof (Message (Span start end) _ _ _) = [ShowLine (file_of_loc start) (lnn_of_loc start) Normal, ShowLine (file_of_loc start) (line_minus_1 end) Normal]
 
-        sortComparator (ShowLine fl1 nr1 _) (ShowLine fl2 nr2 _) =
+        sort_comparator (ShowLine fl1 nr1 _) (ShowLine fl2 nr2 _) =
             if fl1 == fl2
             then nr1 `compare` nr2
             else name fl1 `compare` name fl2
 
-        nubComparator (ShowLine fl1 nr1 _) (ShowLine fl2 nr2 _) = (fl1, nr1) == (fl2, nr2)
+        nub_comparator (ShowLine fl1 nr1 _) (ShowLine fl2 nr2 _) = (fl1, nr1) == (fl2, nr2)
 
-indentOfUnderlinesSection :: UnderlinesSection -> Int
-indentOfUnderlinesSection (UnderlinesSection msgs) = 1 + maximum (map getWidth $ linenrsOfMessages msgs)
+indent_of_underlines_section :: UnderlinesSection -> Int
+indent_of_underlines_section (UnderlinesSection msgs) = 1 + maximum (map get_width $ line_nrs_of_messages msgs)
     where
-        getWidth (ShowLine _ ln _) = length . show $ ln
+        get_width (ShowLine _ ln _) = length . show $ ln
 
-showUnderlinesSection :: Int -> UnderlinesSection -> String
-showUnderlinesSection indent sec =
-    concatMap (drawSectionLine indent) $ sectionLines sec
+show_underlines_section :: Int -> UnderlinesSection -> String
+show_underlines_section indent sec =
+    concatMap (draw_section_line indent) $ section_lines sec
 
 data DrawableMessage = DMessage [ANSI.SGR] Int String
 data SectionLine
@@ -87,172 +87,172 @@ data SectionLine
     | MessageLine [DrawableMessage]
     | MultilineMessageLines Message
 
-assignMessages :: [Message] -> ([DrawableMessage], [SectionLine])
-assignMessages messages = (firstrow, msglines)
+assign_messages :: [Message] -> ([DrawableMessage], [SectionLine])
+assign_messages messages = (firstrow, msglines)
     where
         assign [] already = already
-        assign (toAssign:rest) already =
-            let newAssignment = tryAssign toAssign (0 :: Int) already
-            in assign rest $ newAssignment:already
+        assign (to_assign:rest) already =
+            let new_assignment = try_assign to_assign (0 :: Int) already
+            in assign rest $ new_assignment:already
 
-        tryAssign curMsg currow already =
+        try_assign cur_msg currow already =
             if overlapping
-            then tryAssign curMsg (currow + 1) already
-            else (currow, curMsg)
+            then try_assign cur_msg (currow + 1) already
+            else (currow, cur_msg)
             where
-                onCurRow = filter ((currow==) . fst) already
+                on_cur_row = filter ((currow==) . fst) already
 
-                overlapping = any ((curMsgEndCol>=) . colOfAssignment) onCurRow
+                overlapping = any ((cur_msg_end_col>=) . col_of_assignment) on_cur_row
 
-                curMsgEndCol = endColOfMsg curMsg
-                colOfAssignment (_, Message (Span _ eloc) _ _ _) = colMinus1 eloc
-                endColOfMsg (Message (Span _ end) _ _ str) = colMinus1 end + length str + 3
+                cur_msg_end_col = end_col_of_msg cur_msg
+                col_of_assignment (_, Message (Span _ eloc) _ _ _) = col_minus_1 eloc
+                end_col_of_msg (Message (Span _ end) _ _ str) = col_minus_1 end + length str + 3
 
         assigned = assign (sortBy comparator messages) []
-        comparator (Message (Span _ end1) _ _ _) (Message (Span _ end2) _ _ _) = colMinus1 end2 `compare` colMinus1 end1
+        comparator (Message (Span _ end1) _ _ _) (Message (Span _ end2) _ _ _) = col_minus_1 end2 `compare` col_minus_1 end1
 
-        firstrow = findMsgsOnRow 0
+        firstrow = find_msgs_on_row 0
 
-        msglines = map MessageLine $ takeWhile (not . null) $ map findMsgsOnRow [1..]
-        findMsgsOnRow row = map (todmsg . snd) $ filter ((row==) . fst) assigned
+        msglines = map MessageLine $ takeWhile (not . null) $ map find_msgs_on_row [1..]
+        find_msgs_on_row row = map (todmsg . snd) $ filter ((row==) . fst) assigned
 
-        todmsg (Message (Span _ end) ty _ str) = DMessage (sgrOfTy ty) (colMinus1 end) str
+        todmsg (Message (Span _ end) ty _ str) = DMessage (sgr_of_ty ty) (col_minus_1 end) str
 
-sectionLines :: UnderlinesSection -> [SectionLine]
-sectionLines (UnderlinesSection msgs) =
-    makeLines [] (zip flnrs $ Nothing : map Just flnrs) ++ map MultilineMessageLines multilineMsgs
+section_lines :: UnderlinesSection -> [SectionLine]
+section_lines (UnderlinesSection msgs) =
+    make_lines [] (zip flnrs $ Nothing : map Just flnrs) ++ map MultilineMessageLines multiline_msgs
     where
-        flnrs = linenrsOfMessages msgs
+        flnrs = line_nrs_of_messages msgs
 
-        multilineMsgs = filter isMultiline msgs
+        multiline_msgs = filter is_multiline msgs
             where
-                isMultiline (Message (Span start end) _ _ _) = lnnOfLoc start /= lineMinus1 end
+                is_multiline (Message (Span start end) _ _ _) = lnn_of_loc start /= line_minus_1 end
 
-        makeLines acc ((ShowLine curfl curnr curdimn, lastshln):more) =
-            makeLines nextAcc more
+        make_lines acc ((ShowLine curfl curnr curdimn, lastshln):more) =
+            make_lines next_acc more
             where
-                nextAcc = acc ++ maybeToList fileLine ++ maybeToList elipsisLine ++ contentLines
+                next_acc = acc ++ maybeToList file_line ++ maybeToList elipsis_line ++ content_lines
                     where
-                        contentLines =
+                        content_lines =
                             case curdimn of
                                 Dim -> [DimQuote curfl curnr]
-                                Normal -> [quoteLine] ++ maybeToList underlineLine ++ messageLines
+                                Normal -> [quote_line] ++ maybeToList underline_line ++ message_lines
 
-                fileLine =
+                file_line =
                     case lastshln of
                         Just (ShowLine lastfl _ _)
                             | lastfl == curfl -> Nothing
                         _ -> Just $ FileLine curfl
 
-                elipsisLine =
+                elipsis_line =
                     case lastshln of
                         Just (ShowLine lastfl lastnr _)
                             | lastfl == curfl && lastnr + 1 /= curnr ->
                                 Just ElipsisLine
                         _ -> Nothing
 
-                quoteLine = QuoteLine curfl curnr
+                quote_line = QuoteLine curfl curnr
 
-                underlineLine =
-                    if null lineUnderlines
+                underline_line =
+                    if null line_underlines
                     then Nothing
-                    else Just $ UnderlineLine lineUnderlines firstRowMessages
+                    else Just $ UnderlineLine line_underlines first_row_messages
 
-                (firstRowMessages, messageLines) = assignMessages lineMessages
+                (first_row_messages, message_lines) = assign_messages line_messages
 
-                isSingleLine start end = lnnOfLoc start == lineMinus1 end
+                is_single_line start end = lnn_of_loc start == line_minus_1 end
 
-                lineMessages = filter isCorrectLine msgs
+                line_messages = filter is_correct_line msgs
                     where
-                        isCorrectLine (Message (Span undstart msgloc) _ _ _) = (fileOfLoc msgloc, lineMinus1 msgloc) == (curfl, curnr) && isSingleLine undstart msgloc
-                lineUnderlines = filter isCorrectLine msgs
+                        is_correct_line (Message (Span undstart msgloc) _ _ _) = (file_of_loc msgloc, line_minus_1 msgloc) == (curfl, curnr) && is_single_line undstart msgloc
+                line_underlines = filter is_correct_line msgs
                     where
-                        isCorrectLine (Message (Span start end) _ _ _) = curfl == fileOfLoc start && lnnOfLoc start == curnr && isSingleLine start end
+                        is_correct_line (Message (Span start end) _ _ _) = curfl == file_of_loc start && lnn_of_loc start == curnr && is_single_line start end
 
-        makeLines acc [] = acc
+        make_lines acc [] = acc
 
-charOfImp :: Importance -> Char
-charOfImp Primary = '^'
-charOfImp Secondary = '~'
-charOfImp Tertiary = '.'
+char_of_imp :: Importance -> Char
+char_of_imp Primary = '^'
+char_of_imp Secondary = '~'
+char_of_imp Tertiary = '.'
 
-sgrOfTy :: Type -> [ANSI.SGR]
-sgrOfTy Error = [boldSGR, vividForeColorSGR ANSI.Red]
-sgrOfTy Warning = [boldSGR, vividForeColorSGR ANSI.Magenta]
-sgrOfTy Note = [boldSGR, vividForeColorSGR ANSI.Green]
-sgrOfTy Hint = [boldSGR, vividForeColorSGR ANSI.Blue]
+sgr_of_ty :: Type -> [ANSI.SGR]
+sgr_of_ty Error = [bold_sgr, vivid_fore_color_sgr ANSI.Red]
+sgr_of_ty Warning = [bold_sgr, vivid_fore_color_sgr ANSI.Magenta]
+sgr_of_ty Note = [bold_sgr, vivid_fore_color_sgr ANSI.Green]
+sgr_of_ty Hint = [bold_sgr, vivid_fore_color_sgr ANSI.Blue]
 
-elipsisPrefix :: Int -> String
-elipsisPrefix indent = replicate (indent - 1) '.'
+elipsis_prefix :: Int -> String
+elipsis_prefix indent = replicate (indent - 1) '.'
 
-drawSectionLine :: Int -> SectionLine -> String
-drawSectionLine indent (FileLine fl) = makeIndentWithDivider '>' "" indent ++ ANSI.setSGRCode filePathSGR ++ name fl ++ ANSI.setSGRCode [] ++ "\n"
-drawSectionLine indent (DimQuote fl ln) =
+draw_section_line :: Int -> SectionLine -> String
+draw_section_line indent (FileLine fl) = make_indent_with_divider '>' "" indent ++ ANSI.setSGRCode file_path_sgr ++ name fl ++ ANSI.setSGRCode [] ++ "\n"
+draw_section_line indent (DimQuote fl ln) =
     case drop (ln - 1) $ lines (source fl) of
         -- it is called a dim line, but it is not drawn dimly
         -- cannot handle empty lines here because if some dim lines are hidden here then elipsis lines are not inserted when necessary
-        quote:_ -> makeIndentWithDivider '|' (show ln) indent ++ quote ++ "\n"
+        quote:_ -> make_indent_with_divider '|' (show ln) indent ++ quote ++ "\n"
         [] -> ""
-drawSectionLine indent (QuoteLine fl ln) = makeIndentWithDivider '|' (show ln) indent ++ quote ++ "\n"
+draw_section_line indent (QuoteLine fl ln) = make_indent_with_divider '|' (show ln) indent ++ quote ++ "\n"
     where
         quote = case drop (ln - 1) $ lines (source fl) of
             x:_ -> x
             [] -> ""
-drawSectionLine indent ElipsisLine = makeIndentWithDivider '|' (elipsisPrefix indent) indent ++ "...\n"
+draw_section_line indent ElipsisLine = make_indent_with_divider '|' (elipsis_prefix indent) indent ++ "...\n"
 
-drawSectionLine indent (UnderlineLine underlines messages) =
-    makeIndentWithDivider '|' "" indent ++ draw 0 "" ++ "\n"
+draw_section_line indent (UnderlineLine underlines messages) =
+    make_indent_with_divider '|' "" indent ++ draw 0 "" ++ "\n"
     where
         draw ind acc
-            | ind > length columnMessages && ind > length columnUnderlines = acc
+            | ind > length column_messages && ind > length column_underlines = acc
             | otherwise =
-                let curUnderline =
-                        case drop ind columnUnderlines of
+                let cur_underline =
+                        case drop ind column_underlines of
                             x:_ -> x
                             [] -> Nothing
-                    curMsg =
-                        case drop ind columnMessages of
+                    cur_msg =
+                        case drop ind column_messages of
                             x: _ -> x
                             [] -> Nothing
-                in case (curUnderline, curMsg) of
+                in case (cur_underline, cur_msg) of
                     -- messages have higher priority than underlines
                     (_, Just (DMessage sgr _ str)) ->
                         let len = length str
                         in draw (ind + len + 3) (acc ++ ANSI.setSGRCode sgr ++ "-- " ++ str ++ ANSI.setSGRCode [])
 
                     (Just (imp, ty), Nothing) ->
-                        draw (ind + 1) (acc ++ ANSI.setSGRCode (sgrOfTy ty) ++ [charOfImp imp] ++ ANSI.setSGRCode [])
+                        draw (ind + 1) (acc ++ ANSI.setSGRCode (sgr_of_ty ty) ++ [char_of_imp imp] ++ ANSI.setSGRCode [])
 
                     (Nothing, Nothing) -> draw (ind + 1) (acc ++ " ")
 
-        columnMessages = helper messages 1 []
+        column_messages = helper messages 1 []
             where
                 helper [] _ acc = acc
                 helper curmessages col acc =
                     helper rest (col+1) (acc ++ [current])
                     where
-                        (inCurCol, rest) = partition (\ (DMessage _ msgcol _) -> col == (msgcol + 1)) curmessages
+                        (in_cur_col, rest) = partition (\ (DMessage _ msgcol _) -> col == (msgcol + 1)) curmessages
                         current =
-                            case inCurCol of
+                            case in_cur_col of
                                 [] -> Nothing
                                 [x] -> Just x
                                 _ -> error "multiple messages for same column in UnderlineLine"
 
-        columnUnderlines = helper 1 []
+        column_underlines = helper 1 []
             where
                 helper col acc =
-                    if anyUnderlinesLeft
+                    if any_underlines_left
                     then helper (col+1) (acc ++ [current])
                     else acc
                     where
-                        anyUnderlinesLeft = any (\ (Message (Span _ end) _ _ _) -> col <= colMinus1 end) underlines
-                        inCurCol = find (\ (Message (Span start end) _ _ _) -> colnOfLoc start <= col && col <= colMinus1 end) underlines
-                        current = case inCurCol of
+                        any_underlines_left = any (\ (Message (Span _ end) _ _ _) -> col <= col_minus_1 end) underlines
+                        in_cur_col = find (\ (Message (Span start end) _ _ _) -> coln_of_loc start <= col && col <= col_minus_1 end) underlines
+                        current = case in_cur_col of
                             Nothing -> Nothing
                             Just (Message _ ty imp _) -> Just (imp, ty)
 
-drawSectionLine indent (MessageLine msgs) =
-    makeIndentWithDivider '|' "" indent ++ draw msgs 1 "" ++ "\n"
+draw_section_line indent (MessageLine msgs) =
+    make_indent_with_divider '|' "" indent ++ draw msgs 1 "" ++ "\n"
     where
         draw curmessages@(_:_) col acc =
             case curs of
@@ -269,61 +269,61 @@ drawSectionLine indent (MessageLine msgs) =
         draw [] _ acc = acc
 
 -- TODO: this is really messy and has a lot of magic numbers, refactor this maybe
-drawSectionLine indent (MultilineMessageLines (Message (Span spstart spend) ty imp msg)) =
+draw_section_line indent (MultilineMessageLines (Message (Span spstart spend) ty imp msg)) =
     fileline ++
-    beforeFirstQuoteLine ++
-    firstQuoteLine ++
-    fromMaybe "" afterFirstQuoteLine ++
-    middleQuoteLines ++
-    fromMaybe "" beforeLastQuoteLine ++
-    lastQuoteLine ++
-    afterLastQuoteLine
+    before_first_quote_line ++
+    first_quote_line ++
+    fromMaybe "" after_first_quote_line ++
+    middle_quote_lines ++
+    fromMaybe "" before_last_quote_line ++
+    last_quote_line ++
+    after_last_quote_line
     where
-        prefix ch = makeIndentWithDivider ch "" indent
+        prefix ch = make_indent_with_divider ch "" indent
 
-        tycolor = ANSI.setSGRCode $ sgrOfTy ty
+        tycolor = ANSI.setSGRCode $ sgr_of_ty ty
         colorify x = tycolor ++ x ++ ANSI.setSGRCode []
 
-        impchar = charOfImp imp
+        impchar = char_of_imp imp
 
-        fileline = drawSectionLine indent $ FileLine $ fileOfLoc spstart
+        fileline = draw_section_line indent $ FileLine $ file_of_loc spstart
 
-        startlnn = lnnOfLoc spstart
-        endlnn = lineMinus1 spend
+        startlnn = lnn_of_loc spstart
+        endlnn = line_minus_1 spend
         msglnns = [startlnn+1..endlnn-1]
 
-        firstcol = colnOfLoc spstart
-        mincol = 1 + minimum (map whInLine [startlnn+1..endlnn])
+        firstcol = coln_of_loc spstart
+        mincol = 1 + minimum (map wh_in_line [startlnn+1..endlnn])
             where
-                whInLine lnnr =
+                wh_in_line lnnr =
                     if all isSpace ln
                     then maxBound
                     else length $ takeWhile isSpace ln
                     where
                         ln = getlnn lnnr
         maxcol = 1 + maximum (map (length . getlnn) [startlnn..endlnn-1])
-        lastcol = colMinus1 spend
+        lastcol = col_minus_1 spend
 
-        getlnn n = case drop (n - 1) $ lines $ source $ fileOfLoc spstart of
+        getlnn n = case drop (n - 1) $ lines $ source $ file_of_loc spstart of
             x:_ -> x
             [] -> "after"
 
-        surroundDelim = [' ', impchar, ' ']
+        surround_delim = [' ', impchar, ' ']
         surround str startcol endcol =
-            notSurroundedLeft ++ colorify surroundDelim ++ surrounded ++ colorify surroundDelim ++ notSurroundedRight
+            not_surrounded_left ++ colorify surround_delim ++ surrounded ++ colorify surround_delim ++ not_surrounded_right
             where
-                strExtended = str ++ repeat ' '
-                (notSurroundedLeft, rest) = splitAt (startcol - 1) strExtended
+                str_extended = str ++ repeat ' '
+                (not_surrounded_left, rest) = splitAt (startcol - 1) str_extended
                                                -- +1 because end column is included in the box
                 (surrounded, rest') = splitAt (endcol - startcol + 1) rest
-                notSurroundedRight = take (length str - endcol) rest'
+                not_surrounded_right = take (length str - endcol) rest'
                                                                                    -- +4 for '^ ' and ' ^'
                                                                                    -- +1 for inclusive end
         topbottom startcol endcol = colorify $ replicate startcol ' ' ++ replicate (endcol-startcol+4+1) impchar
-        transitionLine a1 b1 a2 b2 =
+        transition_line a1 b1 a2 b2 =
             if a1 == b1 && a2 == b2
             then Nothing
-            else Just $ makeIndentWithDivider '|' "" indent ++ colorify (replicate abs1start ' ' ++ replicate abs1len impchar ++ replicate absdistbetween ' ' ++ replicate abs2len impchar) ++ "\n"
+            else Just $ make_indent_with_divider '|' "" indent ++ colorify (replicate abs1start ' ' ++ replicate abs1len impchar ++ replicate absdistbetween ' ' ++ replicate abs2len impchar) ++ "\n"
             where
                 lowerupper a b = (min a b, max a b)
                 (lower1, upper1) = lowerupper a1 b1
@@ -338,23 +338,23 @@ drawSectionLine indent (MultilineMessageLines (Message (Span spstart spend) ty i
                 absdistbetween = abs2start - abs1end
                 abs2len = abs2end - abs2start + 1 -- +1 also for inclusive end
 
-        beforeFirstQuoteLine = prefix '|' ++ topbottom firstcol maxcol ++ "\n"
-        firstQuoteLine = makeIndentWithDivider '|' (show startlnn) indent ++ surround (getlnn startlnn) firstcol maxcol ++ "\n"
-        afterFirstQuoteLine = transitionLine firstcol mincol maxcol maxcol
+        before_first_quote_line = prefix '|' ++ topbottom firstcol maxcol ++ "\n"
+        first_quote_line = make_indent_with_divider '|' (show startlnn) indent ++ surround (getlnn startlnn) firstcol maxcol ++ "\n"
+        after_first_quote_line = transition_line firstcol mincol maxcol maxcol
 
-        middleQuoteLines = linesTrimmed
+        middle_quote_lines = lines_trimmed
             where
-                linesTrimmed =
+                lines_trimmed =
                     if len <= 10
-                    then concatMap makeLine msglnns
+                    then concatMap make_line msglnns
                     else
-                        concatMap makeLine (take 5 msglnns) ++
-                        makeIndentWithDivider '|' (elipsisPrefix indent) indent ++ "...\n" ++
-                        concatMap makeLine (drop (len - 5) msglnns)
+                        concatMap make_line (take 5 msglnns) ++
+                        make_indent_with_divider '|' (elipsis_prefix indent) indent ++ "...\n" ++
+                        concatMap make_line (drop (len - 5) msglnns)
                     where
                         len = length msglnns
-                makeLine lnnr = makeIndentWithDivider '|' (show lnnr) indent ++ surround (getlnn lnnr) mincol maxcol ++ "\n"
+                make_line lnnr = make_indent_with_divider '|' (show lnnr) indent ++ surround (getlnn lnnr) mincol maxcol ++ "\n"
 
-        beforeLastQuoteLine = transitionLine mincol mincol maxcol lastcol
-        lastQuoteLine = makeIndentWithDivider '|' (show endlnn) indent ++ surround (getlnn endlnn) mincol lastcol ++ "\n"
-        afterLastQuoteLine = prefix '|' ++ topbottom mincol lastcol ++ colorify ("-- " ++ colorify msg) ++ "\n"
+        before_last_quote_line = transition_line mincol mincol maxcol lastcol
+        last_quote_line = make_indent_with_divider '|' (show endlnn) indent ++ surround (getlnn endlnn) mincol lastcol ++ "\n"
+        after_last_quote_line = prefix '|' ++ topbottom mincol lastcol ++ colorify ("-- " ++ colorify msg) ++ "\n"

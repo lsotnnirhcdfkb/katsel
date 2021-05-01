@@ -5,7 +5,7 @@
 {-# LANGUAGE GADTs #-}
 
 module IR
-    ( buildIR
+    ( build_ir
     , Module
     ) where
 
@@ -37,24 +37,24 @@ newtype TyCtx = TyCtx [Type]
 newtype DSIRId resolve = DSIRId [String]
 data VIRId resolve = VIRId (DSIRId DeclSymbol) String
 
-newDSIRId :: [String] -> resolve -> DSIRId resolve
-newDSIRId segments _ = DSIRId segments
-newVIRId :: [String] -> resolve -> VIRId resolve
-newVIRId segments _ = VIRId (DSIRId $ init segments) (last segments)
+new_dsirid :: [String] -> resolve -> DSIRId resolve
+new_dsirid segments _ = DSIRId segments
+new_virid :: [String] -> resolve -> VIRId resolve
+new_virid segments _ = VIRId (DSIRId $ init segments) (last segments)
 
 dsresolve :: Typeable r => Module -> DSIRId r -> Maybe r
 dsresolve parentmod (DSIRId path) =
     foldl' next (Just $ DeclSymbol parentmod) path >>= cast
     where
-        next (Just ds) name = getDeclSymbol name ds
+        next (Just ds) name = get_decl_symbol name ds
         next Nothing _ = Nothing
 
 vresolve :: Typeable r => Module -> VIRId r -> Maybe r
 vresolve parentmod (VIRId parent childname) =
     child >>= cast
     where
-        parentResolved = dsresolve parentmod parent
-        child = parentResolved >>= getValue childname
+        parent_resolved = dsresolve parentmod parent
+        child = parent_resolved >>= get_value childname
 -- IR datatypes {{{1
 -- DeclSymbols {{{2
 data DeclSymbol where
@@ -73,51 +73,51 @@ data Type
     | PointerType DSMap Mutability TyIdx
 -- classes {{{3
 class DSChildren d where
-    getDSMap :: d -> DSMap
-    getDeclSymbol :: String -> d -> Maybe DeclSymbol
-    addDeclSymbol :: String -> DeclSymbol -> d -> d
+    get_dsmap :: d -> DSMap
+    get_decl_symbol :: String -> d -> Maybe DeclSymbol
+    add_decl_symbol :: String -> DeclSymbol -> d -> d
 
-    getDeclSymbol n d = Map.lookup n $ getDSMap d
+    get_decl_symbol n d = Map.lookup n $ get_dsmap d
 
 class VChildren v where
-    getVMap :: v -> VMap
-    getValue :: String -> v -> Maybe Value
-    addValue :: String -> Value -> v -> v
+    get_vmap :: v -> VMap
+    get_value :: String -> v -> Maybe Value
+    add_value :: String -> Value -> v -> v
 
-    getValue n v = Map.lookup n $ getVMap v
+    get_value n v = Map.lookup n $ get_vmap v
 -- instances {{{3
 -- DeclSymbol {{{3
 instance DSChildren DeclSymbol where
-    getDSMap (DeclSymbol d) = getDSMap d
-    addDeclSymbol name child (DeclSymbol ds) = DeclSymbol $ addDeclSymbol name child ds
+    get_dsmap (DeclSymbol d) = get_dsmap d
+    add_decl_symbol name child (DeclSymbol ds) = DeclSymbol $ add_decl_symbol name child ds
 instance VChildren DeclSymbol where
-    getVMap (DeclSymbol d) = getVMap d
-    addValue name child (DeclSymbol ds) = DeclSymbol $ addValue name child ds
+    get_vmap (DeclSymbol d) = get_vmap d
+    add_value name child (DeclSymbol ds) = DeclSymbol $ add_value name child ds
 -- Type {{{4
 instance DSChildren Type where
-    getDSMap (FloatType dsmap _) = dsmap
-    getDSMap (IntType dsmap _ _) = dsmap
-    getDSMap (CharType dsmap) = dsmap
-    getDSMap (BoolType dsmap) = dsmap
-    getDSMap (FunctionType dsmap _ _) = dsmap
-    getDSMap (VoidType dsmap) = dsmap
-    getDSMap (PointerType dsmap _ _) = dsmap
+    get_dsmap (FloatType dsmap _) = dsmap
+    get_dsmap (IntType dsmap _ _) = dsmap
+    get_dsmap (CharType dsmap) = dsmap
+    get_dsmap (BoolType dsmap) = dsmap
+    get_dsmap (FunctionType dsmap _ _) = dsmap
+    get_dsmap (VoidType dsmap) = dsmap
+    get_dsmap (PointerType dsmap _ _) = dsmap
 -- Module {{{4
 instance DSChildren Module where
-    getDSMap (Module dsmap _) = dsmap
+    get_dsmap (Module dsmap _) = dsmap
 instance VChildren Module where
-    getVMap (Module _ vmap) = vmap
+    get_vmap (Module _ vmap) = vmap
 -- Values {{{2
 data Value where
     Value :: (Typeable v) => v -> Value
 -- Function {{{
 data Function
     = Function
-      { functionBlocks :: [BasicBlock]
-      , functionRegisters :: [Register]
-      , functionRetReg :: Int
-      , functionParamRegs :: [Int]
-      , functionType :: TyIdx
+      { get_function_blocks :: [BasicBlock]
+      , get_function_registers :: [Register]
+      , get_function_ret_reg :: Int
+      , get_function_param_regs :: [Int]
+      , get_function_type :: TyIdx
       }
 data BasicBlock = BasicBlock [Instruction] (Maybe Br)
 data Register = Register TyIdx Mutability
@@ -143,41 +143,41 @@ data Br
     | BrCond FValue BasicBlock BasicBlock
 -- }}}
 -- building the IR {{{1
-buildIR :: AST.LDModule -> Module
-buildIR lmod =
-    case loweredMod of
+build_ir :: AST.LDModule -> Module
+build_ir lmod =
+    case lowered_mod of
         Just ir -> ir
         Nothing -> error "lowering ast to ir returned Nothing"
     where
-        (loweredMod, tyctx) = vdefine lmod . vdeclare lmod . ddefine lmod . ddeclare lmod $ (Nothing, TyCtx [])
+        (lowered_mod, tyctx) = vdefine lmod . vdeclare lmod . ddefine lmod . ddeclare lmod $ (Nothing, TyCtx [])
 -- helper functions {{{2
-lowerAllInList :: Lowerable l p => [l] -> (l -> (p, TyCtx) -> (p, TyCtx)) -> (p, TyCtx) -> (p, TyCtx)
-lowerAllInList things fun parent = foldl' (flip fun) parent things
+lower_all_in_list :: Lowerable l p => [l] -> (l -> (p, TyCtx) -> (p, TyCtx)) -> (p, TyCtx) -> (p, TyCtx)
+lower_all_in_list things fun parent = foldl' (flip fun) parent things
 
-addFstToParent :: Parent p c i => i -> (c, TyCtx) -> p -> (p, TyCtx)
-addFstToParent ind (child, tyctx) parent = (add ind child parent, tyctx)
+add_first_to_parent :: Parent p c i => i -> (c, TyCtx) -> p -> (p, TyCtx)
+add_first_to_parent ind (child, tyctx) parent = (add ind child parent, tyctx)
 
-notStateToUnitRes :: (a -> a) -> (a -> ((), a))
-notStateToUnitRes fun thing = ((), thing)
+convert_non_state_fun_with_unit_res :: (a -> a) -> (a -> ((), a))
+convert_non_state_fun_with_unit_res fun thing = ((), thing)
 
-tyCtxStateFunToCGTupleFun :: (TyCtx -> (r, TyCtx)) -> ((p, TyCtx) -> (r, (p, TyCtx)))
-tyCtxStateFunToCGTupleFun fun (p, tyctx) =
-    let (res, resTyCtx) = fun tyctx
-    in (res, (p, resTyCtx))
+convert_tyctx_state_fun_to_cg_tuple_fun :: (TyCtx -> (r, TyCtx)) -> ((p, TyCtx) -> (r, (p, TyCtx)))
+convert_tyctx_state_fun_to_cg_tuple_fun fun (p, tyctx) =
+    let (res, res_tyctx) = fun tyctx
+    in (res, (p, res_tyctx))
 
-parentStateFunToCGTupleFun :: (p -> (r, p)) -> ((p, TyCtx) -> (r, (p, TyCtx)))
-parentStateFunToCGTupleFun fun (p, tyctx) =
-    let (res, resP) = fun p
-    in (res, (resP, tyctx))
+convert_parent_state_fun_to_cg_tuple_fun :: (p -> (r, p)) -> ((p, TyCtx) -> (r, (p, TyCtx)))
+convert_parent_state_fun_to_cg_tuple_fun fun (p, tyctx) =
+    let (res, res_p) = fun p
+    in (res, (res_p, tyctx))
 -- type resolution & type interning {{{1
-resolveTy :: AST.LDType -> TyCtx -> (TyIdx, TyCtx)
-resolveTy = error "not implemented yet"
+resolve_ty :: AST.LDType -> TyCtx -> (TyIdx, TyCtx)
+resolve_ty = error "not implemented yet"
 
-addTy :: Type -> TyCtx -> (TyIdx, TyCtx)
-addTy ty (TyCtx tys) = (TyIdx $ length tys, TyCtx $ tys ++ [ty])
+add_ty :: Type -> TyCtx -> (TyIdx, TyCtx)
+add_ty ty (TyCtx tys) = (TyIdx $ length tys, TyCtx $ tys ++ [ty])
 
-getVoidType :: TyCtx -> (TyIdx, TyCtx)
-getVoidType = error "not implemented yet"
+get_void_type :: TyCtx -> (TyIdx, TyCtx)
+get_void_type = error "not implemented yet"
 -- Lowerable class {{{2
 class Lowerable l p where
     ddeclare, ddefine, vdeclare, vdefine :: l -> (p, TyCtx) -> (p, TyCtx)
@@ -192,34 +192,34 @@ instance Parent ModParent Module () where
     add _ mod _ = Just mod
     get _ m = m
 instance Parent DeclSymbol DeclSymbol String where
-    add = addDeclSymbol
-    get = getDeclSymbol
+    add = add_decl_symbol
+    get = get_decl_symbol
 instance Parent DeclSymbol Value String where
-    add = addValue
-    get = getValue
+    add = add_value
+    get = get_value
 instance Parent Module DeclSymbol String where
-    add = addDeclSymbol
-    get = getDeclSymbol
+    add = add_decl_symbol
+    get = get_decl_symbol
 instance Parent Module Value String where
-    add = addValue
-    get = getValue
+    add = add_value
+    get = get_value
 -- }}}
 instance Parent p Module () => Lowerable AST.LDModule p where
-    ddeclare (Located _ (AST.DModule' decls)) (parent, tyCtx) =
-        let startModule = Module Map.empty Map.empty
-        in addFstToParent () (lowerAllInList decls ddeclare (startModule, tyCtx)) parent
+    ddeclare (Located _ (AST.DModule' decls)) (parent, tyctx) =
+        let start_module = Module Map.empty Map.empty
+        in add_first_to_parent () (lower_all_in_list decls ddeclare (start_module, tyctx)) parent
 
-    ddefine (Located _ (AST.DModule' decls)) (parent, tyCtx) =
+    ddefine (Located _ (AST.DModule' decls)) (parent, tyctx) =
         let (Just parentmod) = get () parent :: Maybe Module
-        in addFstToParent () (lowerAllInList decls ddefine (parentmod, tyCtx)) parent
+        in add_first_to_parent () (lower_all_in_list decls ddefine (parentmod, tyctx)) parent
 
-    vdeclare (Located _ (AST.DModule' decls)) (parent, tyCtx) =
+    vdeclare (Located _ (AST.DModule' decls)) (parent, tyctx) =
         let (Just parentmod) = get () parent :: Maybe Module
-        in addFstToParent () (lowerAllInList decls vdeclare (parentmod, tyCtx)) parent
+        in add_first_to_parent () (lower_all_in_list decls vdeclare (parentmod, tyctx)) parent
 
-    vdefine (Located _ (AST.DModule' decls)) (parent, tyCtx) =
+    vdefine (Located _ (AST.DModule' decls)) (parent, tyctx) =
         let (Just parentmod) = get () parent :: Maybe Module
-        in addFstToParent () (lowerAllInList decls vdefine (parentmod, tyCtx)) parent
+        in add_first_to_parent () (lower_all_in_list decls vdefine (parentmod, tyctx)) parent
 -- lowering functions {{{2
 instance Parent p Value String => Lowerable AST.LSFunDecl p where
     -- functions do not lower to anything during the declaration phases
@@ -227,23 +227,23 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
     ddefine _ = id
 
     vdeclare (Located _ (AST.SFunDecl' mretty (Located _ name) params expr)) = execState $
-        (state . tyCtxStateFunToCGTupleFun $ case mretty of
-            Just retty -> resolveTy retty
-            Nothing -> getVoidType
+        (state . convert_tyctx_state_fun_to_cg_tuple_fun $ case mretty of
+            Just retty -> resolve_ty retty
+            Nothing -> get_void_type
         ) >>= \ retty' ->
-        let makeParam :: AST.LDParam -> State (p, TyCtx) (Mutability, TyIdx)
-            makeParam = undefined
-        in sequence (map makeParam params) >>= \ paramTys ->
-        let newty = FunctionType Map.empty retty' paramTys
-        in (state . tyCtxStateFunToCGTupleFun) (addTy newty) >>= \ funtyIdx ->
+        let make_param :: AST.LDParam -> State (p, TyCtx) (Mutability, TyIdx)
+            make_param = undefined
+        in sequence (map make_param params) >>= \ param_tys ->
+        let newty = FunctionType Map.empty retty' param_tys
+        in (state . convert_tyctx_state_fun_to_cg_tuple_fun) (add_ty newty) >>= \ fun_ty_idx ->
         let fun = Function
-                  { functionBlocks = []
-                  , functionRegisters = []
-                  , functionRetReg = 0
-                  , functionParamRegs = []
-                  , functionType = funtyIdx
+                  { get_function_blocks = []
+                  , get_function_registers = []
+                  , get_function_ret_reg = 0
+                  , get_function_param_regs = []
+                  , get_function_type = fun_ty_idx
                   }
-        in state . parentStateFunToCGTupleFun . notStateToUnitRes $ add name (Value fun)
+        in state . convert_parent_state_fun_to_cg_tuple_fun . convert_non_state_fun_with_unit_res $ add name (Value fun)
 
     -- vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) parent = error "not implemented yet"
     vdefine = error "not implemented yet"

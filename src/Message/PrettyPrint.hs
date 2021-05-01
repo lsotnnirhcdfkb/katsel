@@ -1,22 +1,22 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Message.PrettyPrint
-    ( pprintLMod
-    , pprintMod
-    , pprintLDecl
-    , pprintDecl
-    , pprintLImplMember
-    , pprintImplMember
-    , pprintLStmt
-    , pprintStmt
-    , pprintLExpr
-    , pprintExpr
-    , pprintLParam
-    , pprintParam
-    , pprintLType
-    , pprintType
-    , pprintLPath
-    , pprintPath
+    ( pprint_lmod
+    , pprint_mod
+    , pprint_ldecl
+    , pprint_decl
+    , pprint_limpl_member
+    , pprint_impl_member
+    , pprint_lstmt
+    , pprint_stmt
+    , pprint_lexpr
+    , pprint_expr
+    , pprint_lparam
+    , pprint_param
+    , pprint_ltype
+    , pprint_type
+    , pprint_lpath
+    , pprint_path
     ) where
 
 import Control.Monad.State.Lazy(State, state, execState)
@@ -38,51 +38,51 @@ data PPrintSegment
     | Newline
     | Boom
     | Semi
--- stringifySegments {{{1
-newtype IndentAmt = IndentAmt { indentAmt :: Int }
+-- stringify_segments {{{1
+newtype IndentAmt = IndentAmt { indent_amt :: Int }
 
-processTwoSegments :: PPrintSegment -> PPrintSegment -> [PPrintSegment]
-processTwoSegments (Indent) (Indent) = [Indent, Boom]
-processTwoSegments (Indent) (Dedent) = [Indent, Boom]
-processTwoSegments (Indent) (Newline) = [Indent, Semi]
-processTwoSegments (Dedent) (Indent) = [Dedent, Boom]
-processTwoSegments (Dedent) (Newline) = [Dedent, Semi]
-processTwoSegments (Newline) (Indent) = [Semi]
-processTwoSegments x _ = [x]
+process_two_segments :: PPrintSegment -> PPrintSegment -> [PPrintSegment]
+process_two_segments (Indent) (Indent) = [Indent, Boom]
+process_two_segments (Indent) (Dedent) = [Indent, Boom]
+process_two_segments (Indent) (Newline) = [Indent, Semi]
+process_two_segments (Dedent) (Indent) = [Dedent, Boom]
+process_two_segments (Dedent) (Newline) = [Dedent, Semi]
+process_two_segments (Newline) (Indent) = [Semi]
+process_two_segments x _ = [x]
 
-stringifySegments :: [PPrintSegment] -> String
-stringifySegments segments = stringify $ process segments
+stringify_segments :: [PPrintSegment] -> String
+stringify_segments segments = stringify $ process segments
     where
-        stringify s = snd $ foldl' segmentToStr (IndentAmt 0, "") s
+        stringify s = snd $ foldl' segment_to_str (IndentAmt 0, "") s
 
         process :: [PPrintSegment] -> [PPrintSegment]
-        process (x : (more@(y:_))) = processTwoSegments x y ++ process more
+        process (x : (more@(y:_))) = process_two_segments x y ++ process more
         process [x] = [x]
         process [] = []
 
-safeLast :: [a] -> Maybe a
-safeLast [a] = Just a
-safeLast (_:more) = safeLast more
-safeLast [] = Nothing
+safe_last :: [a] -> Maybe a
+safe_last [a] = Just a
+safe_last (_:more) = safe_last more
+safe_last [] = Nothing
 
-addToAcc :: String -> IndentAmt -> String -> String
-addToAcc acc (IndentAmt indamt) adding =
+add_to_acc :: String -> IndentAmt -> String -> String
+add_to_acc acc (IndentAmt indamt) adding =
     acc ++
-    (if safeLast acc == Just '\n'
+    (if safe_last acc == Just '\n'
     then replicate (indamt * 4) ' '
     else "") ++
     adding
 
-segmentToStr :: (IndentAmt, String) -> PPrintSegment -> (IndentAmt, String)
-segmentToStr (indamt, acc) (Literal s) = (indamt, addToAcc acc indamt s)
-segmentToStr (indamt, acc) Indent = (IndentAmt $ indentAmt indamt + 1, addToAcc acc indamt "\n")
-segmentToStr (indamt, acc) Dedent = (IndentAmt $ indentAmt indamt - 1, acc)
-segmentToStr (indamt, acc) Newline = (indamt, addToAcc acc indamt "\n")
-segmentToStr (indamt, acc) Semi = (indamt, addToAcc acc indamt ";\n")
-segmentToStr (indamt, acc) Boom = (indamt, addToAcc acc indamt "boom\n")
+segment_to_str :: (IndentAmt, String) -> PPrintSegment -> (IndentAmt, String)
+segment_to_str (indamt, acc) (Literal s) = (indamt, add_to_acc acc indamt s)
+segment_to_str (indamt, acc) Indent = (IndentAmt $ indent_amt indamt + 1, add_to_acc acc indamt "\n")
+segment_to_str (indamt, acc) Dedent = (IndentAmt $ indent_amt indamt - 1, acc)
+segment_to_str (indamt, acc) Newline = (indamt, add_to_acc acc indamt "\n")
+segment_to_str (indamt, acc) Semi = (indamt, add_to_acc acc indamt ";\n")
+segment_to_str (indamt, acc) Boom = (indamt, add_to_acc acc indamt "boom\n")
 -- run pprint state helper {{{1
-stateToFun :: (a -> State [PPrintSegment] ()) -> a -> String
-stateToFun statefun thing = stringifySegments $ execState (statefun thing) []
+state_to_fun :: (a -> State [PPrintSegment] ()) -> a -> String
+state_to_fun statefun thing = stringify_segments $ execState (statefun thing) []
 -- put, putch, indent, dedent, and putnl {{{1
 putch :: Char -> State [PPrintSegment] ()
 putch '\n' = state $ \ segments -> ((), segments ++ [Newline])
@@ -102,112 +102,112 @@ putnl = state $ \ segments -> ((), segments ++ [Newline])
 unlocate :: Located a -> a
 unlocate (Located _ a) = a
 
-maybeDo :: (a -> State [PPrintSegment] ()) -> Maybe a -> State [PPrintSegment] ()
-maybeDo st m =
+maybe_do :: (a -> State [PPrintSegment] ()) -> Maybe a -> State [PPrintSegment] ()
+maybe_do st m =
     case m of
         Just x -> st x
         Nothing -> return ()
 
-actOnMutability :: State [PPrintSegment] () -> State [PPrintSegment] () -> AST.Mutability -> State [PPrintSegment] ()
-actOnMutability ifMut ifImmut mutability =
+act_on_mutability :: State [PPrintSegment] () -> State [PPrintSegment] () -> AST.Mutability -> State [PPrintSegment] ()
+act_on_mutability if_mut if_immut mutability =
     case mutability of
-        AST.Mutable -> ifMut
-        AST.Immutable -> ifImmut
+        AST.Mutable -> if_mut
+        AST.Immutable -> if_immut
 
-ifMutablePut :: String -> AST.Mutability -> State [PPrintSegment] ()
-ifMutablePut str mutability = actOnMutability (put str) (return ()) mutability
+if_mutable_put :: String -> AST.Mutability -> State [PPrintSegment] ()
+if_mutable_put str mutability = act_on_mutability (put str) (return ()) mutability
 
-pprintList :: (a -> State [PPrintSegment] ()) -> [a] -> State [PPrintSegment] ()
-pprintList pprintfun things = foldl' (>>) (return ()) $ map pprintfun things
+pprint_list :: (a -> State [PPrintSegment] ()) -> [a] -> State [PPrintSegment] ()
+pprint_list pprintfun things = foldl' (>>) (return ()) $ map pprintfun things
 
-pprintListDelim :: (a -> State [PPrintSegment] ()) -> State [PPrintSegment] () -> [a] -> State [PPrintSegment] ()
-pprintListDelim pprintfun delim things = foldl' (>>) (return ()) $ intersperse delim $ map pprintfun things
+pprint_list_delim :: (a -> State [PPrintSegment] ()) -> State [PPrintSegment] () -> [a] -> State [PPrintSegment] ()
+pprint_list_delim pprintfun delim things = foldl' (>>) (return ()) $ intersperse delim $ map pprintfun things
 -- AST.DModule {{{1
-pprintModS :: AST.DModule -> State [PPrintSegment] ()
-pprintModS (AST.DModule' decls) = pprintList (pprintDeclS . unlocate) decls
+pprint_mod_s :: AST.DModule -> State [PPrintSegment] ()
+pprint_mod_s (AST.DModule' decls) = pprint_list (pprint_decl_s . unlocate) decls
 -- AST.DDecl {{{1
-pprintDeclS :: AST.DDecl -> State [PPrintSegment] ()
-pprintDeclS (AST.DDecl'Fun sf) = pprintFunDeclS $ unlocate sf
-pprintDeclS (AST.DDecl'Impl ty members) =
-    put "impl " >> pprintTypeS (unlocate ty) >> indent >>
-    pprintList (pprintImplMemberS . unlocate) members >>
+pprint_decl_s :: AST.DDecl -> State [PPrintSegment] ()
+pprint_decl_s (AST.DDecl'Fun sf) = pprint_fun_decl_s $ unlocate sf
+pprint_decl_s (AST.DDecl'Impl ty members) =
+    put "impl " >> pprint_type_s (unlocate ty) >> indent >>
+    pprint_list (pprint_impl_member_s . unlocate) members >>
     dedent
 -- AST.DImplMember {{{1
-pprintImplMemberS :: AST.DImplMember -> State [PPrintSegment] ()
-pprintImplMemberS (AST.DImplMember'Fun sf) = pprintFunDeclS $ unlocate sf
+pprint_impl_member_s :: AST.DImplMember -> State [PPrintSegment] ()
+pprint_impl_member_s (AST.DImplMember'Fun sf) = pprint_fun_decl_s $ unlocate sf
 -- AST.DStmt {{{1
-pprintStmtS :: AST.DStmt -> State [PPrintSegment] ()
+pprint_stmt_s :: AST.DStmt -> State [PPrintSegment] ()
 
-pprintStmtS (AST.DStmt'Var ty mutability name maybeinitializer) =
-    put "var " >> ifMutablePut "mut " mutability >> put (unlocate name) >>
-    pprintTypeAnnotationS (unlocate ty) >>
+pprint_stmt_s (AST.DStmt'Var ty mutability name maybeinitializer) =
+    put "var " >> if_mutable_put "mut " mutability >> put (unlocate name) >>
+    pprint_type_annotation_s (unlocate ty) >>
     (case maybeinitializer of
-        Just (_, initExpr) -> put " = " >> pprintExprS (unlocate initExpr)
+        Just (_, init_expr) -> put " = " >> pprint_expr_s (unlocate init_expr)
         Nothing -> return ()) >>
     putnl
 
-pprintStmtS (AST.DStmt'Ret expr) = put "return " >> pprintExprS (unlocate expr) >> putnl
-pprintStmtS (AST.DStmt'Expr expr) =
+pprint_stmt_s (AST.DStmt'Ret expr) = put "return " >> pprint_expr_s (unlocate expr) >> putnl
+pprint_stmt_s (AST.DStmt'Expr expr) =
     let neednl = case unlocate expr of
             AST.DExpr'Block _ -> False
             AST.DExpr'If _ _ _ _ -> False
             AST.DExpr'While _ _ -> False
             _ -> True
-    in pprintExprS (unlocate expr) >> if neednl then putnl else return ()
+    in pprint_expr_s (unlocate expr) >> if neednl then putnl else return ()
 
 -- AST.DExpr {{{1
 -- precedence things {{{
-exprRequiresPrec :: AST.DExpr -> AST.ExprPrec
-exprRequiresPrec (AST.DExpr'Block _) = AST.PrecBlockLevel
-exprRequiresPrec (AST.DExpr'If _ _ _ _) = AST.PrecBlockLevel
-exprRequiresPrec (AST.DExpr'While _ _) = AST.PrecBlockLevel
-exprRequiresPrec (AST.DExpr'Assign _ _ _) = AST.PrecAssign
-exprRequiresPrec (AST.DExpr'ShortCircuit _ op _) = AST.shortOpPrec $ unlocate op
-exprRequiresPrec (AST.DExpr'Binary _ op _) = AST.binOpPrec $ unlocate op
-exprRequiresPrec (AST.DExpr'Cast _ _) = AST.PrecCast
-exprRequiresPrec (AST.DExpr'Unary _ _) = AST.PrecUnary
-exprRequiresPrec (AST.DExpr'Ref _ _ _) = AST.PrecUnary
-exprRequiresPrec (AST.DExpr'Call _ _ _) = AST.PrecCall
-exprRequiresPrec (AST.DExpr'Field _ _ _) = AST.PrecCall
-exprRequiresPrec (AST.DExpr'Method _ _ _ _ _) = AST.PrecCall
-exprRequiresPrec (AST.DExpr'Bool _) = AST.PrecPrimary
-exprRequiresPrec (AST.DExpr'Float _) = AST.PrecPrimary
-exprRequiresPrec (AST.DExpr'Int _) = AST.PrecPrimary
-exprRequiresPrec (AST.DExpr'Char _) = AST.PrecPrimary
-exprRequiresPrec (AST.DExpr'String _) = AST.PrecPrimary
-exprRequiresPrec (AST.DExpr'This) = AST.PrecPrimary
-exprRequiresPrec (AST.DExpr'Path _) = AST.PrecPrimary
+expr_requires_prec :: AST.DExpr -> AST.ExprPrec
+expr_requires_prec (AST.DExpr'Block _) = AST.PrecBlockLevel
+expr_requires_prec (AST.DExpr'If _ _ _ _) = AST.PrecBlockLevel
+expr_requires_prec (AST.DExpr'While _ _) = AST.PrecBlockLevel
+expr_requires_prec (AST.DExpr'Assign _ _ _) = AST.PrecAssign
+expr_requires_prec (AST.DExpr'ShortCircuit _ op _) = AST.prec_of_short_op $ unlocate op
+expr_requires_prec (AST.DExpr'Binary _ op _) = AST.prec_of_bin_op $ unlocate op
+expr_requires_prec (AST.DExpr'Cast _ _) = AST.PrecCast
+expr_requires_prec (AST.DExpr'Unary _ _) = AST.PrecUnary
+expr_requires_prec (AST.DExpr'Ref _ _ _) = AST.PrecUnary
+expr_requires_prec (AST.DExpr'Call _ _ _) = AST.PrecCall
+expr_requires_prec (AST.DExpr'Field _ _ _) = AST.PrecCall
+expr_requires_prec (AST.DExpr'Method _ _ _ _ _) = AST.PrecCall
+expr_requires_prec (AST.DExpr'Bool _) = AST.PrecPrimary
+expr_requires_prec (AST.DExpr'Float _) = AST.PrecPrimary
+expr_requires_prec (AST.DExpr'Int _) = AST.PrecPrimary
+expr_requires_prec (AST.DExpr'Char _) = AST.PrecPrimary
+expr_requires_prec (AST.DExpr'String _) = AST.PrecPrimary
+expr_requires_prec (AST.DExpr'This) = AST.PrecPrimary
+expr_requires_prec (AST.DExpr'Path _) = AST.PrecPrimary
 
-pprintExprWithPrecS :: AST.ExprPrec -> AST.DExpr -> State [PPrintSegment] ()
-pprintExprWithPrecS curPrec ex =
-    if exprRequiresPrec ex < curPrec
-    then put "(" >> pprintExprWithPrecS AST.PrecBlockLevel ex >> put ")"
-    else pprintExprS' ex
+pprint_expr_with_prec_s :: AST.ExprPrec -> AST.DExpr -> State [PPrintSegment] ()
+pprint_expr_with_prec_s cur_prec ex =
+    if expr_requires_prec ex < cur_prec
+    then put "(" >> pprint_expr_with_prec_s AST.PrecBlockLevel ex >> put ")"
+    else pprint_expr_s' ex
 -- }}}
 -- printing different kinds of expressions {{{
-pprintExprS' :: AST.DExpr -> State [PPrintSegment] ()
+pprint_expr_s' :: AST.DExpr -> State [PPrintSegment] ()
 
-pprintExprS' (AST.DExpr'Block bl) = pprintBlockExprS $ unlocate bl
+pprint_expr_s' (AST.DExpr'Block bl) = pprint_block_expr_s $ unlocate bl
 
-pprintExprS' (AST.DExpr'If _ cond trueb mfalseb) =
-    put "if " >> pprintExprS (unlocate cond) >> pprintExprS (unlocate trueb) >>
+pprint_expr_s' (AST.DExpr'If _ cond trueb mfalseb) =
+    put "if " >> pprint_expr_s (unlocate cond) >> pprint_expr_s (unlocate trueb) >>
     case mfalseb of
-        Just (_, falseb) -> put "else " >> pprintExprS (unlocate falseb)
+        Just (_, falseb) -> put "else " >> pprint_expr_s (unlocate falseb)
         Nothing -> return ()
 
-pprintExprS' (AST.DExpr'While cond body) = put "while " >> pprintExprS (unlocate cond) >> pprintExprS (unlocate body)
+pprint_expr_s' (AST.DExpr'While cond body) = put "while " >> pprint_expr_s (unlocate cond) >> pprint_expr_s (unlocate body)
 
-pprintExprS' (AST.DExpr'Assign lhs op rhs) =
+pprint_expr_s' (AST.DExpr'Assign lhs op rhs) =
     let opstr = case unlocate op of
             AST.Equal -> "="
-    in pprintExprWithPrecS AST.PrecBinOr (unlocate lhs) >> put " " >> put opstr >> put " " >> pprintExprWithPrecS AST.PrecAssign (unlocate rhs)
+    in pprint_expr_with_prec_s AST.PrecBinOr (unlocate lhs) >> put " " >> put opstr >> put " " >> pprint_expr_with_prec_s AST.PrecAssign (unlocate rhs)
 
-pprintExprS' (AST.DExpr'ShortCircuit lhs op rhs) =
+pprint_expr_s' (AST.DExpr'ShortCircuit lhs op rhs) =
     let opstr = case unlocate op of
             AST.DoubleAmper -> "&&"
             AST.DoublePipe -> "||"
 
-        opprec = AST.shortOpPrec $ unlocate op
+        opprec = AST.prec_of_short_op $ unlocate op
 
         lhsprec = opprec
 
@@ -216,10 +216,10 @@ pprintExprS' (AST.DExpr'ShortCircuit lhs op rhs) =
             AST.PrecBinAnd -> AST.PrecCompEQ
             _ -> error "invalid precedence for precedence of short circuit operator"
 
-    in pprintExprWithPrecS lhsprec (unlocate lhs) >> put " " >> put opstr >> put " " >> pprintExprWithPrecS rhsprec (unlocate rhs)
+    in pprint_expr_with_prec_s lhsprec (unlocate lhs) >> put " " >> put opstr >> put " " >> pprint_expr_with_prec_s rhsprec (unlocate rhs)
 
-pprintExprS' (AST.DExpr'Binary lhs op rhs) =
-    let opprec = AST.binOpPrec $ unlocate op
+pprint_expr_s' (AST.DExpr'Binary lhs op rhs) =
+    let opprec = AST.prec_of_bin_op $ unlocate op
 
         lhsprec = opprec
 
@@ -252,93 +252,93 @@ pprintExprS' (AST.DExpr'Binary lhs op rhs) =
             AST.DoubleEqual -> "=="
             AST.BangEqual -> "!="
 
-    in pprintExprWithPrecS lhsprec (unlocate lhs) >> put " " >> put opstr >> put " " >> pprintExprWithPrecS rhsprec (unlocate rhs)
+    in pprint_expr_with_prec_s lhsprec (unlocate lhs) >> put " " >> put opstr >> put " " >> pprint_expr_with_prec_s rhsprec (unlocate rhs)
 
-pprintExprS' (AST.DExpr'Cast ty expr) = pprintExprWithPrecS AST.PrecUnary (unlocate expr) >> put " -> " >> pprintTypeS (unlocate ty)
+pprint_expr_s' (AST.DExpr'Cast ty expr) = pprint_expr_with_prec_s AST.PrecUnary (unlocate expr) >> put " -> " >> pprint_type_s (unlocate ty)
 
-pprintExprS' (AST.DExpr'Unary op expr) =
+pprint_expr_s' (AST.DExpr'Unary op expr) =
     let opstr = case unlocate op of
             AST.UnBang -> "!"
             AST.UnTilde -> "~"
             AST.UnMinus -> "-"
             AST.UnStar -> "*"
-    in put opstr >> pprintExprWithPrecS AST.PrecUnary (unlocate expr)
-pprintExprS' (AST.DExpr'Ref _ mutability expr) = put "&" >> ifMutablePut "mut " mutability >> pprintExprWithPrecS AST.PrecUnary (unlocate expr)
+    in put opstr >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
+pprint_expr_s' (AST.DExpr'Ref _ mutability expr) = put "&" >> if_mutable_put "mut " mutability >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
 
-pprintExprS' (AST.DExpr'Call expr _ args) =
-    (let calleeIsField = case unlocate expr of
+pprint_expr_s' (AST.DExpr'Call expr _ args) =
+    (let callee_is_field = case unlocate expr of
             AST.DExpr'Field _ _ _ -> True
             _ -> False
-    in if calleeIsField
-    then put "(" >> pprintExprS (unlocate expr) >> put ")"
-    else pprintExprWithPrecS AST.PrecCall (unlocate expr)) >>
-    put "(" >> pprintListDelim (pprintExprS . unlocate) (put ", ") args >> put ")"
+    in if callee_is_field
+    then put "(" >> pprint_expr_s (unlocate expr) >> put ")"
+    else pprint_expr_with_prec_s AST.PrecCall (unlocate expr)) >>
+    put "(" >> pprint_list_delim (pprint_expr_s . unlocate) (put ", ") args >> put ")"
 
-pprintExprS' (AST.DExpr'Field expr _ field) = pprintExprWithPrecS AST.PrecCall (unlocate expr) >> put "." >> put (unlocate field)
-pprintExprS' (AST.DExpr'Method expr _ method _ args) =
-    pprintExprWithPrecS AST.PrecCall (unlocate expr) >> put "." >> put (unlocate method) >>
-    put "(" >> pprintListDelim (pprintExprS . unlocate) (put ", ") args >> put ")"
+pprint_expr_s' (AST.DExpr'Field expr _ field) = pprint_expr_with_prec_s AST.PrecCall (unlocate expr) >> put "." >> put (unlocate field)
+pprint_expr_s' (AST.DExpr'Method expr _ method _ args) =
+    pprint_expr_with_prec_s AST.PrecCall (unlocate expr) >> put "." >> put (unlocate method) >>
+    put "(" >> pprint_list_delim (pprint_expr_s . unlocate) (put ", ") args >> put ")"
 
-pprintExprS' (AST.DExpr'Bool val) = put $ if val then "true" else "false"
-pprintExprS' (AST.DExpr'Float val) = put $ show val
-pprintExprS' (AST.DExpr'Int val) = put $ show val
-pprintExprS' (AST.DExpr'Char val) = put $ show val
+pprint_expr_s' (AST.DExpr'Bool val) = put $ if val then "true" else "false"
+pprint_expr_s' (AST.DExpr'Float val) = put $ show val
+pprint_expr_s' (AST.DExpr'Int val) = put $ show val
+pprint_expr_s' (AST.DExpr'Char val) = put $ show val
 -- TODO: escape things and properly print multiline strings
-pprintExprS' (AST.DExpr'String val) = put $ show val
-pprintExprS' (AST.DExpr'This) = put "this"
-pprintExprS' (AST.DExpr'Path path) = pprintPathS $ unlocate path
+pprint_expr_s' (AST.DExpr'String val) = put $ show val
+pprint_expr_s' (AST.DExpr'This) = put "this"
+pprint_expr_s' (AST.DExpr'Path path) = pprint_path_s $ unlocate path
 -- }}}
-pprintExprS :: AST.DExpr -> State [PPrintSegment] ()
-pprintExprS = pprintExprWithPrecS AST.PrecBlockLevel
+pprint_expr_s :: AST.DExpr -> State [PPrintSegment] ()
+pprint_expr_s = pprint_expr_with_prec_s AST.PrecBlockLevel
 
-pprintBlockExprS :: AST.SBlockExpr -> State [PPrintSegment] ()
-pprintBlockExprS (AST.SBlockExpr' stmts) =
+pprint_block_expr_s :: AST.SBlockExpr -> State [PPrintSegment] ()
+pprint_block_expr_s (AST.SBlockExpr' stmts) =
     indent >>
-    pprintList (pprintStmtS . unlocate) stmts >>
+    pprint_list (pprint_stmt_s . unlocate) stmts >>
     dedent
 -- AST.DParam {{{1
-pprintParamS :: AST.DParam -> State [PPrintSegment] ()
-pprintParamS (AST.DParam'Normal AST.Immutable (
+pprint_param_s :: AST.DParam -> State [PPrintSegment] ()
+pprint_param_s (AST.DParam'Normal AST.Immutable (
         (Located _ AST.DType'This)
     ) (Located _ "this")) = put "this"
-pprintParamS (AST.DParam'Normal AST.Immutable (
+pprint_param_s (AST.DParam'Normal AST.Immutable (
         (Located _ (AST.DType'Pointer AST.Immutable (Located _ AST.DType'This)))
     ) (Located _ "this")) = put "*this"
-pprintParamS (AST.DParam'Normal AST.Immutable (
+pprint_param_s (AST.DParam'Normal AST.Immutable (
         (Located _ (AST.DType'Pointer AST.Mutable (Located _ AST.DType'This)))
     ) (Located _ "this")) = put "*mut this"
-pprintParamS (AST.DParam'Normal _ _ (Located _ "this")) = error "pretty print malformed 'this' parameter"
-pprintParamS (AST.DParam'Normal mutability lty lname) =
-    ifMutablePut "mut " mutability >>
+pprint_param_s (AST.DParam'Normal _ _ (Located _ "this")) = error "pretty print malformed 'this' parameter"
+pprint_param_s (AST.DParam'Normal mutability lty lname) =
+    if_mutable_put "mut " mutability >>
     put (unlocate lname) >>
-    pprintTypeAnnotationS (unlocate lty)
+    pprint_type_annotation_s (unlocate lty)
 -- AST.DType {{{1
-pprintTypeS :: AST.DType -> State [PPrintSegment] ()
-pprintTypeS (AST.DType'Path path) = pprintPathS $ unlocate path
-pprintTypeS (AST.DType'Pointer mutability lty) =
+pprint_type_s :: AST.DType -> State [PPrintSegment] ()
+pprint_type_s (AST.DType'Path path) = pprint_path_s $ unlocate path
+pprint_type_s (AST.DType'Pointer mutability lty) =
     put "*" >>
-    ifMutablePut "mut " mutability >>
-    pprintTypeS (unlocate lty)
-pprintTypeS (AST.DType'This) = put "this"
+    if_mutable_put "mut " mutability >>
+    pprint_type_s (unlocate lty)
+pprint_type_s (AST.DType'This) = put "this"
 -- AST.DPath {{{1
-pprintPathS :: AST.DPath -> State [PPrintSegment] ()
-pprintPathS (AST.DPath' segments) = pprintListDelim (put . unlocate) (put "::") segments
+pprint_path_s :: AST.DPath -> State [PPrintSegment] ()
+pprint_path_s (AST.DPath' segments) = pprint_list_delim (put . unlocate) (put "::") segments
 -- AST.SFunDecl {{{1
-pprintFunDeclS :: AST.SFunDecl -> State [PPrintSegment] ()
-pprintFunDeclS (AST.SFunDecl' retty (Located _ name) params expr) =
+pprint_fun_decl_s :: AST.SFunDecl -> State [PPrintSegment] ()
+pprint_fun_decl_s (AST.SFunDecl' retty (Located _ name) params expr) =
     put "fun " >> put name >>
-    put "(" >> pprintListDelim (pprintParamS . unlocate) (put ", ") params >> put ")" >>
-    (pprintTypeAnnotationS . unlocate) `maybeDo` retty >>
-    pprintBlockExprS (unlocate expr)
+    put "(" >> pprint_list_delim (pprint_param_s . unlocate) (put ", ") params >> put ")" >>
+    (pprint_type_annotation_s . unlocate) `maybe_do` retty >>
+    pprint_block_expr_s (unlocate expr)
 -- print type as type annotation {{{1
-pprintTypeAnnotationS :: AST.DType -> State [PPrintSegment] () -- TODO: do not print if without it defaults to the type
-pprintTypeAnnotationS ty = put ": " >> pprintTypeS ty
+pprint_type_annotation_s :: AST.DType -> State [PPrintSegment] () -- TODO: do not print if without it defaults to the type
+pprint_type_annotation_s ty = put ": " >> pprint_type_s ty
 -- splices {{{1
-$(makePrintVariants "Mod")
-$(makePrintVariants "Decl")
-$(makePrintVariants "ImplMember")
-$(makePrintVariants "Stmt")
-$(makePrintVariants "Expr")
-$(makePrintVariants "Param")
-$(makePrintVariants "Type")
-$(makePrintVariants "Path")
+$(make_print_variants "mod")
+$(make_print_variants "decl")
+$(make_print_variants "impl_member")
+$(make_print_variants "stmt")
+$(make_print_variants "expr")
+$(make_print_variants "param")
+$(make_print_variants "type")
+$(make_print_variants "path")

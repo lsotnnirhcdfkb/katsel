@@ -20,5 +20,5 @@ instance Monad ErrorAccumulated where
         let (ErrorAcc bval berrs) = f aval
         in ErrorAcc bval $ aerrs ++ berrs
 
-addErrors :: [Message.SimpleDiag] -> ErrorAccumulated ()
-addErrors = ErrorAcc ()
+add_errors :: [Message.SimpleDiag] -> ErrorAccumulated ()
+add_errors = ErrorAcc ()

@@ -3,17 +3,17 @@ module Message
     , SimpleDiagType(..)
     , SimpleDiag(..)
     , ToDiagnostic
-    , toDiagnostic
+    , to_diagnostic
     , report
-    , makeCode
-    , makeIndentWithDivider
+    , make_code
+    , make_indent_with_divider
     ) where
 
 import Location
 
 import qualified System.Console.ANSI as ANSI
 
-import Message.Underlines(UnderlinesSection, showUnderlinesSection, indentOfUnderlinesSection)
+import Message.Underlines(UnderlinesSection, show_underlines_section, indent_of_underlines_section)
 import Message.Utils
 
 data Section
@@ -27,70 +27,70 @@ data SimpleDiagType
     | DebugMessage
     | InternalError
 
-textOfDiagType :: SimpleDiagType -> String
-textOfDiagType Error = "error"
-textOfDiagType InternalError = "internal error!"
-textOfDiagType Warning = "warning"
-textOfDiagType DebugMessage = "debug message"
+text_of_diag_type :: SimpleDiagType -> String
+text_of_diag_type Error = "error"
+text_of_diag_type InternalError = "internal error!"
+text_of_diag_type Warning = "warning"
+text_of_diag_type DebugMessage = "debug message"
 
-sgrOfDiagType :: SimpleDiagType -> [ANSI.SGR]
-sgrOfDiagType Error = [boldSGR, vividForeColorSGR ANSI.Red]
-sgrOfDiagType InternalError = [boldSGR, vividForeColorSGR ANSI.Red]
-sgrOfDiagType Warning = [boldSGR, vividForeColorSGR ANSI.Magenta]
-sgrOfDiagType DebugMessage = [boldSGR, vividForeColorSGR ANSI.Green]
+sgr_of_diag_type :: SimpleDiagType -> [ANSI.SGR]
+sgr_of_diag_type Error = [bold_sgr, vivid_fore_color_sgr ANSI.Red]
+sgr_of_diag_type InternalError = [bold_sgr, vivid_fore_color_sgr ANSI.Red]
+sgr_of_diag_type Warning = [bold_sgr, vivid_fore_color_sgr ANSI.Magenta]
+sgr_of_diag_type DebugMessage = [bold_sgr, vivid_fore_color_sgr ANSI.Green]
 
 newtype DiagCode = DiagCode String
 
-makeCode :: String -> Maybe DiagCode
-makeCode str = Just $ DiagCode str
+make_code :: String -> Maybe DiagCode
+make_code str = Just $ DiagCode str
 
 data SimpleDiag = SimpleDiag SimpleDiagType (Maybe Span) (Maybe DiagCode) (Maybe String) [Section]
 
 class ToDiagnostic e where
-    toDiagnostic :: e -> SimpleDiag
+    to_diagnostic :: e -> SimpleDiag
 instance ToDiagnostic SimpleDiag where
-    toDiagnostic = id
+    to_diagnostic = id
 
 report :: (ToDiagnostic e) => e -> String
-report = report' . toDiagnostic
+report = report' . to_diagnostic
 
 report' :: SimpleDiag -> String
-report' (SimpleDiag ty maybeSpan maybeDiagCode maybeName sections) =
+report' (SimpleDiag ty maybe_span maybe_diag_code maybe_name sections) =
     header ++ "\n" ++
-    shownSections ++
+    shown_sections ++
     footer
     where
         header =
-            ANSI.setSGRCode (sgrOfDiagType ty) ++ textOfDiagType ty ++ ANSI.setSGRCode [] ++
-            (case maybeSpan of
-                Just sp -> " at " ++ ANSI.setSGRCode filePathSGR ++ fmtSpan sp ++ ANSI.setSGRCode []
+            ANSI.setSGRCode (sgr_of_diag_type ty) ++ text_of_diag_type ty ++ ANSI.setSGRCode [] ++
+            (case maybe_span of
+                Just sp -> " at " ++ ANSI.setSGRCode file_path_sgr ++ fmt_span sp ++ ANSI.setSGRCode []
                 Nothing -> ""
             ) ++ ":"
 
         footer =
-            case (maybeDiagCode, maybeName) of
-                (Just (DiagCode diagCode), Just diagName) -> prefix ++ diagCodeFmt diagCode ++ ": " ++ diagName ++ "\n"
-                (Nothing                 , Just diagName) -> prefix ++ diagName ++ "\n"
-                (Just (DiagCode diagCode), Nothing      ) -> prefix ++ diagCodeFmt diagCode ++ "\n"
+            case (maybe_diag_code, maybe_name) of
+                (Just (DiagCode diag_code), Just diag_name) -> prefix ++ diag_code_fmt diag_code ++ ": " ++ diag_name ++ "\n"
+                (Nothing                 , Just diag_name) -> prefix ++ diag_name ++ "\n"
+                (Just (DiagCode diag_code), Nothing      ) -> prefix ++ diag_code_fmt diag_code ++ "\n"
 
                 _ -> ""
             where
-                diagCodeFmt code = "[" ++ ANSI.setSGRCode [boldSGR] ++ code ++ ANSI.setSGRCode [] ++ "]"
-                prefix = indentStr ++ "==> "
+                diag_code_fmt code = "[" ++ ANSI.setSGRCode [bold_sgr] ++ code ++ ANSI.setSGRCode [] ++ "]"
+                prefix = indent_str ++ "==> "
 
-        shownSections = concatMap (showSection indentAmt) sections
+        shown_sections = concatMap (show_section indent_amt) sections
 
-        indentAmt = maximum $ map indentOf sections
-        indentStr = makeIndentStr indentAmt
+        indent_amt = maximum $ map indent_of sections
+        indent_str = make_indent_str indent_amt
 
-indentOf :: Section -> Int
-indentOf (SimpleText _) = 4
-indentOf (SimpleMultilineText _) = 4
-indentOf (Underlines sec) = indentOfUnderlinesSection sec
+indent_of :: Section -> Int
+indent_of (SimpleText _) = 4
+indent_of (SimpleMultilineText _) = 4
+indent_of (Underlines sec) = indent_of_underlines_section sec
 
-showSection :: Int -> Section -> String
-showSection indent (SimpleText text) = makeIndentStr indent ++ " " ++ text ++ "\n"
-showSection indent (SimpleMultilineText text) = unlines $ map ((indentStr ++ " ")++) $ lines text
+show_section :: Int -> Section -> String
+show_section indent (SimpleText text) = make_indent_str indent ++ " " ++ text ++ "\n"
+show_section indent (SimpleMultilineText text) = unlines $ map ((indent_str ++ " ")++) $ lines text
     where
-        indentStr = makeIndentStr indent
-showSection indent (Underlines sec) = showUnderlinesSection indent sec
+        indent_str = make_indent_str indent
+show_section indent (Underlines sec) = show_underlines_section indent sec
