@@ -40,9 +40,6 @@ executable katsel
                      , Message.PrettyPrint
                      , Message.PrettyPrintTH
 
-                     -- error accumulation monad
-                     , ErrorAcc
-
 
   main-is:             Main.hs
   -- other-extensions:

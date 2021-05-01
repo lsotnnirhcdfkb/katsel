@@ -14,14 +14,33 @@ import qualified Tokens
 import qualified AST
 import qualified IR
 
-import ErrorAcc
-
 import System.IO(hPutStr, stderr)
 import Control.Exception(SomeException, try, evaluate, displayException)
 
 -- data Backend = CBackend
 
 -- data OutputFormat = Lexed | Parsed | KatselIR | BackendCode Backend
+
+data ErrorAccumulated r = ErrorAcc r [Message.SimpleDiag]
+
+instance Functor ErrorAccumulated where
+    fmap f (ErrorAcc v errs) = ErrorAcc (f v) errs
+
+instance Applicative ErrorAccumulated where
+    pure x = ErrorAcc x []
+
+    eaf <*> eav =
+        eaf >>= \ f ->
+        eav >>= \ v ->
+        pure $ f v
+
+instance Monad ErrorAccumulated where
+    (ErrorAcc aval aerrs) >>= f =
+        let (ErrorAcc bval berrs) = f aval
+        in ErrorAcc bval $ aerrs ++ berrs
+
+add_errors :: [Message.SimpleDiag] -> ErrorAccumulated ()
+add_errors = ErrorAcc ()
 
 lex_stage :: File -> ErrorAccumulated [Located Tokens.Token]
 lex_stage contents =
