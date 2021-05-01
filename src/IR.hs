@@ -13,12 +13,16 @@ import qualified AST
 
 import Location
 
+import ErrorAcc
+
 import Data.Map(Map)
 import qualified Data.Map as Map
 
 import Data.List(foldl')
 
 import Data.Typeable(Typeable, cast)
+
+import Control.Monad.State.Lazy(State, state, execState)
 
 -- utility types and aliases {{{1
 type StrMap = Map String
@@ -42,7 +46,7 @@ dsresolve :: Typeable r => Module -> DSIRId r -> Maybe r
 dsresolve parentmod (DSIRId path) =
     foldl' next (Just $ DeclSymbol parentmod) path >>= cast
     where
-        next (Just ds) name = getDeclSymbol ds name
+        next (Just ds) name = getDeclSymbol name ds
         next Nothing _ = Nothing
 
 vresolve :: Typeable r => Module -> VIRId r -> Maybe r
@@ -50,7 +54,7 @@ vresolve parentmod (VIRId parent childname) =
     child >>= cast
     where
         parentResolved = dsresolve parentmod parent
-        child = parentResolved >>= flip getValue childname
+        child = parentResolved >>= getValue childname
 -- IR datatypes {{{1
 -- DeclSymbols {{{2
 data DeclSymbol where
@@ -64,31 +68,31 @@ data Type
     | IntType DSMap Int Signedness
     | CharType DSMap
     | BoolType DSMap
-    | FunctionType DSMap (DSIRId Type) [(Mutability, DSIRId Type)]
+    | FunctionType DSMap TyIdx [(Mutability, TyIdx)]
     | VoidType DSMap
-    | PointerType DSMap Mutability (DSIRId Type)
+    | PointerType DSMap Mutability TyIdx
 -- classes {{{3
 class DSChildren d where
     getDSMap :: d -> DSMap
-    getDeclSymbol :: d -> String -> Maybe DeclSymbol
-    addDeclSymbol :: d -> String -> DeclSymbol -> d
+    getDeclSymbol :: String -> d -> Maybe DeclSymbol
+    addDeclSymbol :: String -> DeclSymbol -> d -> d
 
-    getDeclSymbol d n = Map.lookup n $ getDSMap d
+    getDeclSymbol n d = Map.lookup n $ getDSMap d
 
 class VChildren v where
     getVMap :: v -> VMap
-    getValue :: v -> String -> Maybe Value
-    addValue :: v -> String -> Value -> v
+    getValue :: String -> v -> Maybe Value
+    addValue :: String -> Value -> v -> v
 
-    getValue v n = Map.lookup n $ getVMap v
+    getValue n v = Map.lookup n $ getVMap v
 -- instances {{{3
 -- DeclSymbol {{{3
 instance DSChildren DeclSymbol where
     getDSMap (DeclSymbol d) = getDSMap d
-    addDeclSymbol (DeclSymbol ds) name child = DeclSymbol $ addDeclSymbol ds name child
+    addDeclSymbol name child (DeclSymbol ds) = DeclSymbol $ addDeclSymbol name child ds
 instance VChildren DeclSymbol where
     getVMap (DeclSymbol d) = getVMap d
-    addValue (DeclSymbol ds) name child = DeclSymbol $ addValue ds name child
+    addValue name child (DeclSymbol ds) = DeclSymbol $ addValue name child ds
 -- Type {{{4
 instance DSChildren Type where
     getDSMap (FloatType dsmap _) = dsmap
@@ -113,10 +117,10 @@ data Function
       , functionRegisters :: [Register]
       , functionRetReg :: Int
       , functionParamRegs :: [Int]
-      , functionType :: DSIRId Type
+      , functionType :: TyIdx
       }
 data BasicBlock = BasicBlock [Instruction] (Maybe Br)
-data Register = Register (DSIRId Type) Mutability
+data Register = Register TyIdx Mutability
 data Instruction
     = Copy Register FValue
     | Call Function [FValue]
@@ -150,21 +154,43 @@ buildIR lmod =
 lowerAllInList :: Lowerable l p => [l] -> (l -> (p, TyCtx) -> (p, TyCtx)) -> (p, TyCtx) -> (p, TyCtx)
 lowerAllInList things fun parent = foldl' (flip fun) parent things
 
-addFstToParent :: Parent p c i => p -> i -> (c, TyCtx) -> (p, TyCtx)
-addFstToParent parent ind (child, tyctx) = (add parent ind child, tyctx)
+addFstToParent :: Parent p c i => i -> (c, TyCtx) -> p -> (p, TyCtx)
+addFstToParent ind (child, tyctx) parent = (add ind child parent, tyctx)
+
+notStateToUnitRes :: (a -> a) -> (a -> ((), a))
+notStateToUnitRes fun thing = ((), thing)
+
+tyCtxStateFunToCGTupleFun :: (TyCtx -> (r, TyCtx)) -> ((p, TyCtx) -> (r, (p, TyCtx)))
+tyCtxStateFunToCGTupleFun fun (p, tyctx) =
+    let (res, resTyCtx) = fun tyctx
+    in (res, (p, resTyCtx))
+
+parentStateFunToCGTupleFun :: (p -> (r, p)) -> ((p, TyCtx) -> (r, (p, TyCtx)))
+parentStateFunToCGTupleFun fun (p, tyctx) =
+    let (res, resP) = fun p
+    in (res, (resP, tyctx))
+-- type resolution & type interning {{{1
+resolveTy :: AST.LDType -> TyCtx -> (TyIdx, TyCtx)
+resolveTy = error "not implemented yet"
+
+addTy :: Type -> TyCtx -> (TyIdx, TyCtx)
+addTy ty (TyCtx tys) = (TyIdx $ length tys, TyCtx $ tys ++ [ty])
+
+getVoidType :: TyCtx -> (TyIdx, TyCtx)
+getVoidType = error "not implemented yet"
 -- Lowerable class {{{2
 class Lowerable l p where
     ddeclare, ddefine, vdeclare, vdefine :: l -> (p, TyCtx) -> (p, TyCtx)
 -- Parent class {{{2
 class Parent p c i | p c -> i where
-    add :: p -> i -> c -> p
-    get :: p -> i -> Maybe c
+    add :: i -> c -> p -> p
+    get :: i -> p -> Maybe c
 -- lowering modules {{{2
 type ModParent = Maybe Module
 -- parent instances {{{
 instance Parent ModParent Module () where
-    add _ _ m = Just m
-    get m _ = m
+    add _ mod _ = Just mod
+    get _ m = m
 instance Parent DeclSymbol DeclSymbol String where
     add = addDeclSymbol
     get = getDeclSymbol
@@ -181,33 +207,46 @@ instance Parent Module Value String where
 instance Parent p Module () => Lowerable AST.LDModule p where
     ddeclare (Located _ (AST.DModule' decls)) (parent, tyCtx) =
         let startModule = Module Map.empty Map.empty
-        in addFstToParent parent () $ lowerAllInList decls ddeclare (startModule, tyCtx)
+        in addFstToParent () (lowerAllInList decls ddeclare (startModule, tyCtx)) parent
 
     ddefine (Located _ (AST.DModule' decls)) (parent, tyCtx) =
-        let (Just parentmod) = get parent () :: Maybe Module
-        in addFstToParent parent () $ lowerAllInList decls ddefine (parentmod, tyCtx)
+        let (Just parentmod) = get () parent :: Maybe Module
+        in addFstToParent () (lowerAllInList decls ddefine (parentmod, tyCtx)) parent
 
     vdeclare (Located _ (AST.DModule' decls)) (parent, tyCtx) =
-        let (Just parentmod) = get parent () :: Maybe Module
-        in addFstToParent parent () $ lowerAllInList decls vdeclare (parentmod, tyCtx)
+        let (Just parentmod) = get () parent :: Maybe Module
+        in addFstToParent () (lowerAllInList decls vdeclare (parentmod, tyCtx)) parent
 
     vdefine (Located _ (AST.DModule' decls)) (parent, tyCtx) =
-        let (Just parentmod) = get parent () :: Maybe Module
-        in addFstToParent parent () $ lowerAllInList decls vdefine (parentmod, tyCtx)
+        let (Just parentmod) = get () parent :: Maybe Module
+        in addFstToParent () (lowerAllInList decls vdefine (parentmod, tyCtx)) parent
 -- lowering functions {{{2
 instance Parent p Value String => Lowerable AST.LSFunDecl p where
     -- functions do not lower to anything during the declaration phases
-    ddeclare _ parent = parent
-    ddefine _ parent = parent
+    ddeclare _ = id
+    ddefine _ = id
 
-    vdeclare (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) (parent, tyctx) = (add parent name fun, tyctx)
-        where
-            -- retty = resolveTy retty
-            -- newty = FunctionType Map.empty retty (map makeParam params)
-            -- makeParam (AST.DParam'Normal mutability ty _) = (mutability, ty)
+    vdeclare (Located _ (AST.SFunDecl' mretty (Located _ name) params expr)) = execState $
+        (state . tyCtxStateFunToCGTupleFun $ case mretty of
+            Just retty -> resolveTy retty
+            Nothing -> getVoidType
+        ) >>= \ retty' ->
+        let makeParam :: AST.LDParam -> State (p, TyCtx) (Mutability, TyIdx)
+            makeParam = undefined
+        in sequence (map makeParam params) >>= \ paramTys ->
+        let newty = FunctionType Map.empty retty' paramTys
+        in (state . tyCtxStateFunToCGTupleFun) (addTy newty) >>= \ funtyIdx ->
+        let fun = Function
+                  { functionBlocks = []
+                  , functionRegisters = []
+                  , functionRetReg = 0
+                  , functionParamRegs = []
+                  , functionType = funtyIdx
+                  }
+        in state . parentStateFunToCGTupleFun . notStateToUnitRes $ add name (Value fun)
 
-            fun = error "not implemented yet" :: Value
-    vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) parent = error "not implemented yet"
+    -- vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) parent = error "not implemented yet"
+    vdefine = error "not implemented yet"
 -- lowering declarations {{{2
 instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) parent = ddeclare sf parent
