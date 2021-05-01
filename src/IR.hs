@@ -144,11 +144,17 @@ data Br
     | BrCond FValue BasicBlock BasicBlock
 -- }}}
 -- building the IR {{{1
+-- IRBuildError {{{
 data IRBuildError
 instance Message.ToDiagnostic IRBuildError where
     to_diagnostic = error "not implemented yet"
-
+-- }}}
+-- IRBuilder {{{
 data IRBuilder = IRBuilder TyCtx [IRBuildError]
+
+add_error :: IRBuildError -> IRBuilder -> IRBuilder
+add_error err (IRBuilder tyctx errs) = IRBuilder tyctx (errs ++ [err])
+-- }}}
 
 build_ir :: AST.LDModule -> (Module, TyCtx, [IRBuildError])
 build_ir lmod =
@@ -162,6 +168,10 @@ lower_all_in_list :: Lowerable l p => [l] -> (l -> p -> IRBuilder -> (p, IRBuild
 lower_all_in_list things fun parent builder = foldl' modified (parent, builder) things
     where
         modified (p, b) thing = fun thing p b
+
+ast_muty_to_ir_muty :: AST.Mutability -> Mutability
+ast_muty_to_ir_muty AST.Immutable = Immutable
+ast_muty_to_ir_muty AST.Mutable = Mutable
 -- type resolution & type interning {{{2
 resolve_ty :: AST.LDType -> IRBuilder -> (TyIdx, IRBuilder)
 resolve_ty = error "not implemented yet"
@@ -229,7 +239,9 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
             Nothing -> get_void_type
         ) :: State IRBuilder TyIdx) >>= \ retty' ->
         let make_param :: AST.LDParam -> State IRBuilder (Mutability, TyIdx)
-            make_param = undefined
+            make_param (Located _ (AST.DParam'Normal mutability ty_ast _)) =
+                state (resolve_ty ty_ast) >>= \ ty ->
+                return (ast_muty_to_ir_muty mutability, ty)
         in sequence (map make_param params) >>= \ param_tys ->
         let newty = FunctionType Map.empty retty' param_tys
         in state (add_ty newty) >>= \ fun_ty_idx ->
