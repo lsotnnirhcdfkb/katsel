@@ -40,7 +40,7 @@ parse_stage toks =
             add_errors [Message.to_diagnostic err] >>
             return Nothing
 
-lower_ast_stage :: AST.LDModule -> ErrorAccumulated IR.Module
+lower_ast_stage :: AST.LDModule -> ErrorAccumulated (IR.Module, IR.TyCtx)
 lower_ast_stage = return . IR.build_ir
 
 compile :: String -> IO ()

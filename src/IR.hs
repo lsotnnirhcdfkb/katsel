@@ -7,6 +7,7 @@
 module IR
     ( build_ir
     , Module
+    , TyCtx
     ) where
 
 import qualified AST
@@ -143,10 +144,10 @@ data Br
     | BrCond FValue BasicBlock BasicBlock
 -- }}}
 -- building the IR {{{1
-build_ir :: AST.LDModule -> Module
+build_ir :: AST.LDModule -> (Module, TyCtx)
 build_ir lmod =
     case lowered_mod of
-        Just ir -> ir
+        Just ir -> (ir, tyctx)
         Nothing -> error "lowering ast to ir returned Nothing"
     where
         (lowered_mod, tyctx) = vdefine lmod . vdeclare lmod . ddefine lmod . ddeclare lmod $ (Nothing, TyCtx [])
