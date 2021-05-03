@@ -23,7 +23,14 @@ import Data.List(foldl')
 
 import Data.Typeable(Typeable, cast)
 
-import Control.Monad.State.Lazy(state, runState)
+import Control.Monad.State.Lazy(state, execState)
+
+{-
+TODO: more typeclasses!
+    split DSChildren and VChildren into DSChildGet, DSChildAdd, VChildGet, and VChildAdd
+    and also split Parent into ParentWriteOnly and ParentReadOnly
+    in order to make sure that lowering functions only read from the first arguments and only modify in the IRDiff
+-}
 
 -- utility types and aliases {{{1
 type StrMap = Map String
@@ -156,21 +163,44 @@ add_error :: IRBuildError -> IRBuilder -> IRBuilder
 add_error err (IRBuilder tyctx errs) = IRBuilder tyctx (errs ++ [err])
 -- }}}
 build_ir :: AST.LDModule -> (Module, TyCtx, [IRBuildError])
-build_ir lmod =
-    case lowered_mod of
-        Just ir -> (ir, tyctx, errors)
-        Nothing -> error "lowering ast to ir returned Nothing"
+build_ir mod_ast = (lowered_mod, tyctx, errors)
     where
-        (lowered_mod, IRBuilder tyctx errors) = uncurry (vdefine lmod) . uncurry (vdeclare lmod) . uncurry (ddefine lmod) . uncurry (ddeclare lmod) $ (Nothing, IRBuilder (TyCtx []) [])
+        apply_stage :: (AST.LDModule -> ModParent -> Module -> IRDiff ModParent) -> (ModParent, IRBuilder) -> (ModParent, IRBuilder)
+        apply_stage fun parent_builder_tup@(mod_parent@(ModParent module_), _) =
+            let diff = fun mod_ast mod_parent module_
+            in apply_diff diff parent_builder_tup
+
+        initial_parent_builder_tup = (ModParent $ Module Map.empty Map.empty, IRBuilder (TyCtx []) [])
+        (ModParent lowered_mod, IRBuilder tyctx errors) =
+            apply_stage vdefine .
+            apply_stage vdeclare .
+            apply_stage ddefine .
+            apply_stage ddeclare $
+            initial_parent_builder_tup
+
 -- helper functions {{{2
-lower_all_in_list :: Lowerable l p => [l] -> (l -> p -> IRBuilder -> (p, IRBuilder)) -> p -> IRBuilder -> (p, IRBuilder)
-lower_all_in_list things fun parent builder = foldl' modified (parent, builder) things
+lower_all_in_list :: Lowerable l p => [l] -> (l -> p -> Module -> IRDiff p) -> p -> Module -> IRDiff p
+lower_all_in_list things fun parent root = IRDiff $ foldl' (.) id diffs
     where
-        modified (p, b) thing = fun thing p b
+        apply_fun thing = fun thing parent root
+        diffs = map (apply_diff . apply_fun) things
 
 ast_muty_to_ir_muty :: AST.Mutability -> Mutability
 ast_muty_to_ir_muty AST.Immutable = Immutable
 ast_muty_to_ir_muty AST.Mutable = Mutable
+
+add_unit_res :: (s -> s) -> s -> ((), s)
+add_unit_res fun thing = ((), fun thing)
+
+parent_fun_to_cgtup_fun :: (p -> (r, p)) -> (p, IRBuilder) -> (r, (p, IRBuilder))
+parent_fun_to_cgtup_fun fun (parent, ir_builder) =
+    let (res, next_parent) = fun parent
+    in (res, (next_parent, ir_builder))
+
+irbuilder_fun_to_cgtup_fun :: (IRBuilder -> (r, IRBuilder)) -> (p, IRBuilder) -> (r, (p, IRBuilder))
+irbuilder_fun_to_cgtup_fun fun (parent, ir_builder) =
+    let (res, next_ir_builder) = fun ir_builder
+    in (res, (parent, next_ir_builder))
 -- type resolution & type interning {{{2
 resolve_ty :: AST.LDType -> IRBuilder -> (TyIdx, IRBuilder)
 resolve_ty = error "not implemented yet"
@@ -181,18 +211,19 @@ add_ty ty (IRBuilder (TyCtx tys) errs) = (TyIdx $ length tys, IRBuilder (TyCtx $
 get_void_type :: IRBuilder -> (TyIdx, IRBuilder)
 get_void_type = error "not implemented yet"
 -- Lowerable class {{{2
+newtype IRDiff p = IRDiff { apply_diff :: (p, IRBuilder) -> (p, IRBuilder) }
 class Lowerable l p where
-    ddeclare, ddefine, vdeclare, vdefine :: l -> p -> IRBuilder -> (p, IRBuilder)
+    ddeclare, ddefine, vdeclare, vdefine :: l -> p -> Module -> IRDiff p
 -- Parent class {{{2
 class Parent p c i | p c -> i where
     add :: i -> c -> p -> p
     get :: i -> p -> Maybe c
 -- lowering modules {{{2
-type ModParent = Maybe Module
+newtype ModParent = ModParent Module
 -- parent instances {{{
 instance Parent ModParent Module () where
-    add _ m _ = Just m
-    get _ m = m
+    add _ m _ = ModParent m
+    get _ (ModParent m) = Just m
 instance Parent DeclSymbol DeclSymbol String where
     add = add_decl_symbol
     get = get_decl_symbol
@@ -207,42 +238,50 @@ instance Parent Module Value String where
     get = get_value
 -- }}}
 instance Parent p Module () => Lowerable AST.LDModule p where
-    ddeclare (Located _ (AST.DModule' decls)) parent builder =
-        let start_module = Module Map.empty Map.empty
-            (lowered_module, builder') = lower_all_in_list decls ddeclare start_module builder
-        in (add () lowered_module parent, builder')
+    ddeclare (Located _ (AST.DModule' decls)) parent root =
+        let (Just module_) = get () parent :: Maybe Module
+            module_diff = lower_all_in_list decls ddeclare module_ root
+        in IRDiff $ \ (wo_parent, ir_builder) ->
+                let (module_', ir_builder') = apply_diff module_diff (module_, ir_builder)
+                in (add () module_' wo_parent, ir_builder')
 
-    ddefine (Located _ (AST.DModule' decls)) parent builder =
-        let (Just parent_mod) = get () parent :: Maybe Module
-            (lowered_module, builder') = lower_all_in_list decls ddefine parent_mod builder
-        in (add () lowered_module parent, builder')
+    ddefine (Located _ (AST.DModule' decls)) parent root =
+        let (Just module_) = get () parent :: Maybe Module
+            module_diff = lower_all_in_list decls ddefine module_ root
+        in IRDiff $ \ (wo_parent, ir_builder) ->
+                let (module_', ir_builder') = apply_diff module_diff (module_, ir_builder)
+                in (add () module_' wo_parent, ir_builder')
 
-    vdeclare (Located _ (AST.DModule' decls)) parent builder =
-        let (Just parent_mod) = get () parent :: Maybe Module
-            (lowered_module, builder') = lower_all_in_list decls vdeclare parent_mod builder
-        in (add () lowered_module parent, builder')
+    vdeclare (Located _ (AST.DModule' decls)) parent root =
+        let (Just module_) = get () parent :: Maybe Module
+            module_diff = lower_all_in_list decls vdeclare module_ root
+        in IRDiff $ \ (wo_parent, ir_builder) ->
+                let (module_', ir_builder') = apply_diff module_diff (module_, ir_builder)
+                in (add () module_' wo_parent, ir_builder')
 
-    vdefine (Located _ (AST.DModule' decls)) parent builder =
-        let (Just parent_mod) = get () parent :: Maybe Module
-            (lowered_module, builder') = lower_all_in_list decls vdefine parent_mod builder
-        in (add () lowered_module parent, builder')
+    vdefine (Located _ (AST.DModule' decls)) parent root =
+        let (Just module_) = get () parent :: Maybe Module
+            module_diff = lower_all_in_list decls vdefine module_ root
+        in IRDiff $ \ (wo_parent, ir_builder) ->
+                let (module_', ir_builder') = apply_diff module_diff (module_, ir_builder)
+                in (add () module_' wo_parent, ir_builder')
 -- lowering functions {{{2
 instance Parent p Value String => Lowerable AST.LSFunDecl p where
     -- functions do not lower to anything during the declaration phases
-    ddeclare _ parent builder = (parent, builder)
-    ddefine _ parent builder = (parent, builder)
+    ddeclare _ _ _ = IRDiff id
+    ddefine _ _ _ = IRDiff id
 
-    vdeclare (Located _ (AST.SFunDecl' mretty (Located _ name) params _)) parent = runState $
-        (state $ case mretty of
+    vdeclare (Located _ (AST.SFunDecl' mretty (Located _ name) params _)) roparent root = IRDiff $ execState $
+        (state . irbuilder_fun_to_cgtup_fun $ case mretty of
             Just retty -> resolve_ty retty
             Nothing -> get_void_type
         ) >>= \ retty' ->
         let make_param (Located _ (AST.DParam'Normal mutability ty_ast _)) =
-                state (resolve_ty ty_ast) >>= \ ty ->
+                state (irbuilder_fun_to_cgtup_fun $ resolve_ty ty_ast) >>= \ ty ->
                 return (ast_muty_to_ir_muty mutability, ty)
         in sequence (map make_param params) >>= \ param_tys ->
         let newty = FunctionType Map.empty retty' param_tys
-        in state (add_ty newty) >>= \ fun_ty_idx ->
+        in state (irbuilder_fun_to_cgtup_fun $ add_ty newty) >>= \ fun_ty_idx ->
         let fun = Function
                   { get_function_blocks = []
                   , get_function_registers = map (uncurry $ flip Register) param_tys
@@ -250,7 +289,7 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
                   , get_function_param_regs = take (length params) [1..]
                   , get_function_type = fun_ty_idx
                   }
-        in return $ add name (Value fun) parent
+        in state $ parent_fun_to_cgtup_fun . add_unit_res $ add name (Value fun)
 
     -- vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) parent = error "not implemented yet"
     vdefine = error "not implemented yet"
