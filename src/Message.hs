@@ -26,6 +26,7 @@ data SimpleDiagType
     | Warning
     | DebugMessage
     | InternalError
+    deriving Eq
 
 text_of_diag_type :: SimpleDiagType -> String
 text_of_diag_type Error = "error"

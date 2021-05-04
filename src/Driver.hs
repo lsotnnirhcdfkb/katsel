@@ -17,6 +17,9 @@ import qualified IR
 import System.IO(hPutStr, stderr)
 import Control.Exception(SomeException, try, evaluate, displayException)
 
+import Data.Maybe(catMaybes)
+import Data.List(intercalate)
+
 -- data Backend = CBackend
 
 -- data OutputFormat = Lexed | Parsed | KatselIR | BackendCode Backend
@@ -69,12 +72,26 @@ compile filename =
     open_file filename >>= \ file ->
     let (ErrorAcc final_output final_errs) =
             lex_stage file >>=
-            parse_stage >>= \ mast ->
-            case mast of
-                Just ast -> Just <$> lower_ast_stage ast
-                Nothing -> return Nothing
+            parse_stage -- >>= \ mast ->
+            -- case mast of
+                -- Just ast -> Just <$> lower_ast_stage ast
+                -- Nothing -> return Nothing
 
         put_errs = hPutStr stderr $ concatMap Message.report final_errs
+
+        put_ending_line =
+            let find_diag diag_ty (Message.SimpleDiag ty _ _ _ _) = ty == diag_ty
+                make_msg diag_ty kind =
+                    let amount = length $ filter (find_diag diag_ty) final_errs
+                    in if amount > 0
+                        then Just $ show amount ++ " " ++ kind ++ (if amount > 1 then "s" else "") ++ " generated"
+                        else Nothing
+
+                error_msg = make_msg Message.Error "error"
+                warning_msg = make_msg Message.Warning "warning"
+                dbg_msg = make_msg Message.DebugMessage "debug message"
+
+            in putStrLn $ intercalate ", " $ catMaybes [error_msg, warning_msg, dbg_msg]
 
         -- TODO: do not catch user interrupt
         do_try x = (try x :: IO (Either SomeException ())) >>= \ ei ->
@@ -90,5 +107,6 @@ compile filename =
                     evaluate (error "stop after catching internal error")
 
     in do_try (
-        seq final_output put_errs
+        seq final_output put_errs >>
+        put_ending_line
     )
