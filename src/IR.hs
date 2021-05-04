@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE GADTs #-}
 
 module IR
@@ -24,12 +25,6 @@ import Data.List(foldl')
 import Data.Typeable(Typeable, cast)
 
 import Control.Monad.State.Lazy(state, execState)
-
-{-
-TODO: more typeclasses!
-    split Parent into ParentWrite and ParentRead
-    in order to make sure that lowering functions only read from the first arguments and only modify in the IRDiff
--}
 
 -- utility types and aliases {{{1
 type StrMap = Map String
@@ -63,16 +58,31 @@ vresolve parentmod (VIRId parent childname) =
         parent_resolved = dsresolve parentmod parent
         child = parent_resolved >>= get childname :: Maybe Value
 -- IR datatypes {{{1
--- Parent class {{{2
-class Ord i => Parent p c i | p c -> i where
+-- Parent things {{{2
+class Ord i => ParentR p c i | p c -> i where
     get_child_map :: p -> Map i c
     get :: i -> p -> Maybe c
-    add :: i -> c -> p -> p
 
     get ind parent = Map.lookup ind (get_child_map parent)
+
+class Ord i => ParentW p c i | p c -> i where
+    add :: i -> c -> p -> p
+
+newtype IRRO a = IRRO a
+newtype IRWO a = IRWO a
+
+instance (Ord i, ParentR a c i) => ParentR (IRRO a) (IRRO c) i where
+    get_child_map (IRRO ro) = Map.map IRRO $ get_child_map ro
+
+instance (Ord i, ParentW a c i) => ParentW (IRWO a) (IRWO c) i where
+    add ind (IRWO child) (IRWO wo) = IRWO $ add ind child wo
+
+type ParentRW p c i = (ParentR p c i, ParentW p c i)
 -- DeclSymbols {{{2
 data DeclSymbol where
-    DeclSymbol :: (Typeable d, Parent d DeclSymbol String, Parent d Value String) => d -> DeclSymbol
+    DeclSymbol :: (Typeable d,
+            ParentR d DeclSymbol String, ParentW d DeclSymbol String,
+            ParentR d Value String,      ParentW d Value String) => d -> DeclSymbol
 
 data Module = Module DSMap VMap
 
@@ -87,14 +97,17 @@ data Type
     | PointerType DSMap Mutability TyIdx
 -- instances {{{3
 -- DeclSymbol {{{4
-instance Parent DeclSymbol DeclSymbol String where
+instance ParentR DeclSymbol DeclSymbol String where
     get_child_map (DeclSymbol d) = get_child_map d
+instance ParentW DeclSymbol DeclSymbol String where
     add name child (DeclSymbol ds) = DeclSymbol $ add name child ds
-instance Parent DeclSymbol Value String where
+
+instance ParentR DeclSymbol Value String where
     get_child_map (DeclSymbol d) = get_child_map d
+instance ParentW DeclSymbol Value String where
     add name child (DeclSymbol ds) = DeclSymbol $ add name child ds
 -- Type {{{4
-instance Parent Type DeclSymbol String where
+instance ParentR Type DeclSymbol String where
     get_child_map (FloatType dsmap _) = dsmap
     get_child_map (IntType dsmap _ _) = dsmap
     get_child_map (CharType dsmap) = dsmap
@@ -103,10 +116,13 @@ instance Parent Type DeclSymbol String where
     get_child_map (VoidType dsmap) = dsmap
     get_child_map (PointerType dsmap _ _) = dsmap
 -- Module {{{4
-instance Parent Module DeclSymbol String where
+instance ParentR Module DeclSymbol String where
     get_child_map (Module dsmap _) = dsmap
-instance Parent Module Value String where
+instance ParentR Module Value String where
     get_child_map (Module _ vmap) = vmap
+
+instance ParentW Module DeclSymbol String where
+instance ParentW Module Value String where
 -- Values {{{2
 data Value where
     Value :: (Typeable v) => v -> Value
@@ -157,10 +173,11 @@ add_error err (IRBuilder tyctx errs) = IRBuilder tyctx (errs ++ [err])
 build_ir :: AST.LDModule -> (Module, TyCtx, [IRBuildError])
 build_ir mod_ast = (lowered_mod, tyctx, errors)
     where
-        apply_stage :: (AST.LDModule -> ModParent -> Module -> IRDiff ModParent) -> (ModParent, IRBuilder) -> (ModParent, IRBuilder)
-        apply_stage fun parent_builder_tup@(mod_parent@(ModParent module_), _) =
-            let diff = fun mod_ast mod_parent module_
-            in apply_diff diff parent_builder_tup
+        apply_stage :: (AST.LDModule -> IRRO ModParent -> IRRO Module -> IRDiff (IRWO ModParent)) -> (ModParent, IRBuilder) -> (ModParent, IRBuilder)
+        apply_stage fun (mod_parent@(ModParent module_), ir_builder) =
+            let diff = fun mod_ast (IRRO mod_parent) (IRRO module_)
+                (IRWO module_', ir_builder') = apply_diff diff (IRWO mod_parent, ir_builder)
+            in (module_', ir_builder')
 
         initial_parent_builder_tup = (ModParent $ Module Map.empty Map.empty, IRBuilder (TyCtx []) [])
         (ModParent lowered_mod, IRBuilder tyctx errors) =
@@ -171,7 +188,7 @@ build_ir mod_ast = (lowered_mod, tyctx, errors)
             initial_parent_builder_tup
 
 -- helper functions {{{2
-lower_all_in_list :: Lowerable l p => [l] -> (l -> p -> Module -> IRDiff p) -> p -> Module -> IRDiff p
+lower_all_in_list :: Lowerable l p => [l] -> (l -> IRRO p -> IRRO Module -> IRDiff (IRWO p)) -> IRRO p -> IRRO Module -> IRDiff (IRWO p)
 lower_all_in_list things fun parent root = IRDiff $ foldl' (.) id diffs
     where
         apply_fun thing = fun thing parent root
@@ -193,6 +210,9 @@ irbuilder_fun_to_cgtup_fun :: (IRBuilder -> (r, IRBuilder)) -> (p, IRBuilder) ->
 irbuilder_fun_to_cgtup_fun fun (parent, ir_builder) =
     let (res, next_ir_builder) = fun ir_builder
     in (res, (parent, next_ir_builder))
+
+ro_to_wo :: IRRO a -> IRWO a
+ro_to_wo (IRRO a) = IRWO a
 -- type resolution & type interning {{{2
 resolve_ty :: AST.LDType -> IRBuilder -> (TyIdx, IRBuilder)
 resolve_ty = error "not implemented yet"
@@ -205,43 +225,44 @@ get_void_type = error "not implemented yet"
 -- Lowerable class {{{2
 newtype IRDiff p = IRDiff { apply_diff :: (p, IRBuilder) -> (p, IRBuilder) }
 class Lowerable l p where
-    ddeclare, ddefine, vdeclare, vdefine :: l -> p -> Module -> IRDiff p
+    ddeclare, ddefine, vdeclare, vdefine :: l -> IRRO p -> IRRO Module -> IRDiff (IRWO p)
 -- lowering modules {{{2
 newtype ModParent = ModParent Module
-instance Parent ModParent Module () where
+instance ParentR ModParent Module () where
     get_child_map (ModParent mp) = Map.fromList [((), mp)]
+instance ParentW ModParent Module () where
     add _ m _ = ModParent m
 
-instance Parent p Module () => Lowerable AST.LDModule p where
+instance ParentRW p Module () => Lowerable AST.LDModule p where
     ddeclare (Located _ (AST.DModule' decls)) parent root =
-        let (Just module_) = get () parent :: Maybe Module
+        let (Just module_) = get () parent :: Maybe (IRRO Module)
             module_diff = lower_all_in_list decls ddeclare module_ root
         in IRDiff $ \ (wo_parent, ir_builder) ->
-                let (module_', ir_builder') = apply_diff module_diff (module_, ir_builder)
+                let (module_', ir_builder') = apply_diff module_diff (ro_to_wo module_, ir_builder)
                 in (add () module_' wo_parent, ir_builder')
 
     ddefine (Located _ (AST.DModule' decls)) parent root =
-        let (Just module_) = get () parent :: Maybe Module
+        let (Just module_) = get () parent :: Maybe (IRRO Module)
             module_diff = lower_all_in_list decls ddefine module_ root
         in IRDiff $ \ (wo_parent, ir_builder) ->
-                let (module_', ir_builder') = apply_diff module_diff (module_, ir_builder)
+                let (module_', ir_builder') = apply_diff module_diff (ro_to_wo module_, ir_builder)
                 in (add () module_' wo_parent, ir_builder')
 
     vdeclare (Located _ (AST.DModule' decls)) parent root =
-        let (Just module_) = get () parent :: Maybe Module
+        let (Just module_) = get () parent :: Maybe (IRRO Module)
             module_diff = lower_all_in_list decls vdeclare module_ root
         in IRDiff $ \ (wo_parent, ir_builder) ->
-                let (module_', ir_builder') = apply_diff module_diff (module_, ir_builder)
+                let (module_', ir_builder') = apply_diff module_diff (ro_to_wo module_, ir_builder)
                 in (add () module_' wo_parent, ir_builder')
 
     vdefine (Located _ (AST.DModule' decls)) parent root =
-        let (Just module_) = get () parent :: Maybe Module
+        let (Just module_) = get () parent :: Maybe (IRRO Module)
             module_diff = lower_all_in_list decls vdefine module_ root
-        in IRDiff $ \ (wo_parent, ir_builder) ->
-                let (module_', ir_builder') = apply_diff module_diff (module_, ir_builder)
+        in IRDiff $ \ cgtuple@(wo_parent, ir_builder) ->
+                let (module_', ir_builder') = apply_diff module_diff (ro_to_wo module_, ir_builder)
                 in (add () module_' wo_parent, ir_builder')
 -- lowering functions {{{2
-instance Parent p Value String => Lowerable AST.LSFunDecl p where
+instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
     -- functions do not lower to anything during the declaration phases
     ddeclare _ _ _ = IRDiff id
     ddefine _ _ _ = IRDiff id
@@ -264,12 +285,12 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
                   , get_function_param_regs = take (length params) [1..]
                   , get_function_type = fun_ty_idx
                   }
-        in state $ parent_fun_to_cgtup_fun . add_unit_res $ add name (Value fun)
+        in state $ parent_fun_to_cgtup_fun . add_unit_res $ add name $ IRWO $ Value fun
 
     -- vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) parent = error "not implemented yet"
     vdefine = error "not implemented yet"
 -- lowering declarations {{{2
-instance Parent p Value String => Lowerable AST.LDDecl p where
+instance ParentRW p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) parent = ddeclare sf parent
     ddeclare (Located _ (AST.DDecl'Impl _ _)) _ = error "not implemented yet"
 
