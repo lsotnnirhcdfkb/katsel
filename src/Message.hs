@@ -59,7 +59,7 @@ report' :: SimpleDiag -> String
 report' (SimpleDiag ty maybe_span maybe_diag_code maybe_name sections) =
     header ++ "\n" ++
     shown_sections ++
-    footer
+    footer ++ "\n"
     where
         header =
             ANSI.setSGRCode (sgr_of_diag_type ty) ++ text_of_diag_type ty ++ ANSI.setSGRCode [] ++
