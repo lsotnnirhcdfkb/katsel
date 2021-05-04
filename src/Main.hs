@@ -11,7 +11,8 @@ main =
     getProgName >>= \ prog_name ->
     case args of
         [] -> usage_message prog_name
-        [filename] -> Driver.compile filename
-        _ -> usage_message prog_name
+        filenames -> sequence_ $ map compile $ zip ([1..] :: [Int]) filenames
     where
-        usage_message prog_name = hPutStrLn stderr $ "usage: " ++ prog_name ++ " <filename>"
+        usage_message prog_name = hPutStrLn stderr $ "usage: " ++ prog_name ++ " FILENAMES..."
+
+        compile (num, filename) = putStrLn ("=> [" ++ show num ++ "] compiling " ++ filename) >> Driver.compile filename
