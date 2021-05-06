@@ -76,10 +76,10 @@ compile filename =
     open_file filename >>= \ file ->
     let (ErrorAcc final_output final_errs) =
             lex_stage file >>=
-            parse_stage -- >>= \ mast ->
-            -- case mast of
-                -- Just ast -> Just <$> lower_ast_stage ast
-                -- Nothing -> return Nothing
+            parse_stage >>= \ mast ->
+            case mast of
+                Just ast -> Just <$> lower_ast_stage ast
+                Nothing -> return Nothing
 
         put_errs = hPutStr stderr $ concatMap Message.report final_errs
 
@@ -93,7 +93,7 @@ compile filename =
                             ANSI.hSetSGR stderr sgr >>
                             hPutStr stderr (kind ++ (if amount > 1 then "s" else "")) >>
                             ANSI.hSetSGR stderr [] >>
-                            hPutStr stderr" emitted"
+                            hPutStr stderr " emitted"
                         else Nothing
 
                 error_msg = make_msg Message.Error "error" Colors.error_sgr
