@@ -66,17 +66,16 @@ class Ord i => ParentR p c i | p c -> i where
     get ind parent = Map.lookup ind (get_child_map parent)
 
 class Ord i => ParentW p c i | p c -> i where
-    add :: i -> c -> p -> (Bool, p)
+    add :: i -> c -> p -> (Maybe c, p)
 
 add_replace :: ParentW p c i => i -> c -> p -> p
 add_replace i c p = snd $ add i c p
 
-add_noreplace :: ParentW p c i => i -> c -> p -> Maybe p
+add_noreplace :: ParentW p c i => i -> c -> p -> Either c p
 add_noreplace i c p =
-    let (replaced, added) = add i c p
-    in if replaced
-        then Nothing
-        else Just added
+    case add i c p of
+        (Just old, _) -> Left old
+        (Nothing, parent) -> Right parent
 
 newtype IRRO a = IRRO a
 newtype IRWO a = IRWO a
@@ -87,7 +86,7 @@ instance (Ord i, ParentR a c i) => ParentR (IRRO a) (IRRO c) i where
 instance (Ord i, ParentW a c i) => ParentW (IRWO a) (IRWO c) i where
     add ind (IRWO child) (IRWO wo) =
         let (replaced, added) = add ind child wo
-        in (replaced, IRWO added)
+        in (IRWO <$> replaced, IRWO added)
 
 type ParentRW p c i = (ParentR p c i, ParentW p c i)
 -- DeclSymbols {{{2
@@ -177,6 +176,8 @@ data Br
 -- building the IR {{{1
 -- IRBuildError {{{
 data IRBuildError
+    = DuplicateValue (IRWO Value) Value
+
 instance Message.ToDiagnostic IRBuildError where
     to_diagnostic = error "not implemented yet"
 -- }}}
@@ -246,7 +247,7 @@ newtype ModParent = ModParent Module
 instance ParentR ModParent Module () where
     get_child_map (ModParent mp) = Map.fromList [((), mp)]
 instance ParentW ModParent Module () where
-    add _ m _ = (True, ModParent m)
+    add _ child (ModParent prev) = (Just prev, ModParent child)
 
 instance ParentRW p Module () => Lowerable AST.LDModule p where
     ddeclare (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder) =
@@ -296,12 +297,15 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
                   , get_function_param_regs = take (length params) [1..]
                   , get_function_type = fun_ty_idx
                   }
+            fun_val = Value fun
         in State.get >>= \ before@(woparent, ir_builder) ->
-            case add_noreplace name (IRWO $ Value fun) woparent of
-                Nothing -> return before
-                Just added -> return (added, ir_builder)
+            case add_noreplace name (IRWO fun_val) woparent of
+                Left other_value ->
+                    State.state (irbuilder_fun_to_cgtup_fun $ add_unit_res $ add_error $ DuplicateValue other_value fun_val) >>
+                    return before
+                Right added -> return (added, ir_builder)
 
-    vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) roparent root (woparent, ir_builder) = undefined
+    vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) roparent root (woparent, ir_builder) = error "not implemented yet"
 -- lowering declarations {{{2
 instance ParentRW p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) parent = ddeclare sf parent
