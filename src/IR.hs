@@ -24,7 +24,7 @@ import Data.List(foldl')
 
 import Data.Typeable(Typeable, cast)
 
-import Control.Monad.State.Lazy(state, execState)
+import qualified Control.Monad.State.Lazy as State(state, execState, get)
 
 -- utility types and aliases {{{1
 type StrMap = Map String
@@ -66,7 +66,17 @@ class Ord i => ParentR p c i | p c -> i where
     get ind parent = Map.lookup ind (get_child_map parent)
 
 class Ord i => ParentW p c i | p c -> i where
-    add :: i -> c -> p -> p
+    add :: i -> c -> p -> (Bool, p)
+
+add_replace :: ParentW p c i => i -> c -> p -> p
+add_replace i c p = snd $ add i c p
+
+add_noreplace :: ParentW p c i => i -> c -> p -> Maybe p
+add_noreplace i c p =
+    let (replaced, added) = add i c p
+    in if replaced
+        then Nothing
+        else Just added
 
 newtype IRRO a = IRRO a
 newtype IRWO a = IRWO a
@@ -75,7 +85,9 @@ instance (Ord i, ParentR a c i) => ParentR (IRRO a) (IRRO c) i where
     get_child_map (IRRO ro) = Map.map IRRO $ get_child_map ro
 
 instance (Ord i, ParentW a c i) => ParentW (IRWO a) (IRWO c) i where
-    add ind (IRWO child) (IRWO wo) = IRWO $ add ind child wo
+    add ind (IRWO child) (IRWO wo) =
+        let (replaced, added) = add ind child wo
+        in (replaced, IRWO added)
 
 type ParentRW p c i = (ParentR p c i, ParentW p c i)
 -- DeclSymbols {{{2
@@ -100,12 +112,16 @@ data Type
 instance ParentR DeclSymbol DeclSymbol String where
     get_child_map (DeclSymbol d) = get_child_map d
 instance ParentW DeclSymbol DeclSymbol String where
-    add name child (DeclSymbol ds) = DeclSymbol $ add name child ds
+    add name child (DeclSymbol ds) =
+        let (replaced, added) = add name child ds
+        in (replaced, DeclSymbol added)
 
 instance ParentR DeclSymbol Value String where
     get_child_map (DeclSymbol d) = get_child_map d
 instance ParentW DeclSymbol Value String where
-    add name child (DeclSymbol ds) = DeclSymbol $ add name child ds
+    add name child (DeclSymbol ds) =
+        let (replaced, added) = add name child ds
+        in (replaced, DeclSymbol added)
 -- Type {{{4
 instance ParentR Type DeclSymbol String where
     get_child_map (FloatType dsmap _) = dsmap
@@ -230,49 +246,49 @@ newtype ModParent = ModParent Module
 instance ParentR ModParent Module () where
     get_child_map (ModParent mp) = Map.fromList [((), mp)]
 instance ParentW ModParent Module () where
-    add _ m _ = ModParent m
+    add _ m _ = (True, ModParent m)
 
 instance ParentRW p Module () => Lowerable AST.LDModule p where
     ddeclare (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder) =
         let (Just module_) = get () parent :: Maybe (IRRO Module)
             module_diff = lower_all_in_list decls ddeclare module_ root
             (module_', ir_builder') = module_diff (ro_to_wo module_, ir_builder)
-        in (add () module_' wo_parent, ir_builder')
+        in (add_replace () module_' wo_parent, ir_builder')
 
     ddefine (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder) =
         let (Just module_) = get () parent :: Maybe (IRRO Module)
             module_diff = lower_all_in_list decls ddefine module_ root
             (module_', ir_builder') = module_diff (ro_to_wo module_, ir_builder)
-        in (add () module_' wo_parent, ir_builder')
+        in (add_replace () module_' wo_parent, ir_builder')
 
     vdeclare (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder) =
         let (Just module_) = get () parent :: Maybe (IRRO Module)
             module_diff = lower_all_in_list decls vdeclare module_ root
             (module_', ir_builder') = module_diff (ro_to_wo module_, ir_builder)
-        in (add () module_' wo_parent, ir_builder')
+        in (add_replace () module_' wo_parent, ir_builder')
 
     vdefine (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder) =
         let (Just module_) = get () parent :: Maybe (IRRO Module)
             module_diff = lower_all_in_list decls vdefine module_ root
             (module_', ir_builder') = module_diff (ro_to_wo module_, ir_builder)
-        in (add () module_' wo_parent, ir_builder')
+        in (add_replace () module_' wo_parent, ir_builder')
 -- lowering functions {{{2
 instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
     -- functions do not lower to anything during the declaration phases
     ddeclare _ _ _ = id
     ddefine _ _ _ = id
 
-    vdeclare (Located _ (AST.SFunDecl' mretty (Located _ name) params _)) roparent root = execState $
-        (state $ case mretty of
+    vdeclare (Located _ (AST.SFunDecl' mretty (Located _ name) params _)) roparent root = State.execState $
+        (State.state $ case mretty of
             Just retty -> resolve_ty retty root
             Nothing -> irbuilder_fun_to_cgtup_fun get_void_type
         ) >>= \ retty' ->
         let make_param (Located _ (AST.DParam'Normal mutability ty_ast _)) =
-                state (resolve_ty ty_ast root) >>= \ ty ->
+                State.state (resolve_ty ty_ast root) >>= \ ty ->
                 return (ast_muty_to_ir_muty mutability, ty)
         in sequence (map make_param params) >>= \ param_tys ->
         let newty = FunctionType Map.empty retty' param_tys
-        in state (irbuilder_fun_to_cgtup_fun $ add_ty newty) >>= \ fun_ty_idx ->
+        in State.state (irbuilder_fun_to_cgtup_fun $ add_ty newty) >>= \ fun_ty_idx ->
         let fun = Function
                   { get_function_blocks = []
                   , get_function_registers = map (uncurry $ flip Register) param_tys
@@ -280,7 +296,10 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
                   , get_function_param_regs = take (length params) [1..]
                   , get_function_type = fun_ty_idx
                   }
-        in state $ parent_fun_to_cgtup_fun . add_unit_res $ add name $ IRWO $ Value fun
+        in State.get >>= \ before@(woparent, ir_builder) ->
+            case add_noreplace name (IRWO $ Value fun) woparent of
+                Nothing -> return before
+                Just added -> return (added, ir_builder)
 
     vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) roparent root (woparent, ir_builder) = undefined
 -- lowering declarations {{{2
