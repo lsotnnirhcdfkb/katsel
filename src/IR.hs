@@ -213,7 +213,7 @@ irbuilder_fun_to_cgtup_fun fun (parent, ir_builder) =
 ro_to_wo :: IRRO a -> IRWO a
 ro_to_wo (IRRO a) = IRWO a
 -- type resolution & type interning {{{2
-resolve_ty :: AST.LDType -> IRBuilder -> (TyIdx, IRBuilder)
+resolve_ty :: AST.LDType -> IRRO Module -> (p, IRBuilder) -> (TyIdx, (p, IRBuilder))
 resolve_ty = error "not implemented yet"
 
 add_ty :: Type -> IRBuilder -> (TyIdx, IRBuilder)
@@ -263,12 +263,12 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
     ddefine _ _ _ = id
 
     vdeclare (Located _ (AST.SFunDecl' mretty (Located _ name) params _)) roparent root = execState $
-        (state . irbuilder_fun_to_cgtup_fun $ case mretty of
-            Just retty -> resolve_ty retty
-            Nothing -> get_void_type
+        (state $ case mretty of
+            Just retty -> resolve_ty retty root
+            Nothing -> irbuilder_fun_to_cgtup_fun get_void_type
         ) >>= \ retty' ->
         let make_param (Located _ (AST.DParam'Normal mutability ty_ast _)) =
-                state (irbuilder_fun_to_cgtup_fun $ resolve_ty ty_ast) >>= \ ty ->
+                state (resolve_ty ty_ast root) >>= \ ty ->
                 return (ast_muty_to_ir_muty mutability, ty)
         in sequence (map make_param params) >>= \ param_tys ->
         let newty = FunctionType Map.empty retty' param_tys
@@ -282,8 +282,7 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
                   }
         in state $ parent_fun_to_cgtup_fun . add_unit_res $ add name $ IRWO $ Value fun
 
-    -- vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) roparent root = error "not implemented yet"
-    vdefine = error "not implemented yet"
+    vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) roparent root (woparent, ir_builder) = undefined
 -- lowering declarations {{{2
 instance ParentRW p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) parent = ddeclare sf parent
