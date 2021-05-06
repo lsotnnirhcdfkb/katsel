@@ -16,6 +16,8 @@ import qualified System.Console.ANSI as ANSI
 import Message.Underlines(UnderlinesSection, show_underlines_section, indent_of_underlines_section)
 import Message.Utils
 
+import qualified Colors
+
 data Section
     = SimpleText String
     | SimpleMultilineText String
@@ -35,10 +37,10 @@ text_of_diag_type Warning = "warning"
 text_of_diag_type DebugMessage = "debug message"
 
 sgr_of_diag_type :: SimpleDiagType -> [ANSI.SGR]
-sgr_of_diag_type Error = [bold_sgr, vivid_fore_color_sgr ANSI.Red]
-sgr_of_diag_type InternalError = [bold_sgr, vivid_fore_color_sgr ANSI.Red]
-sgr_of_diag_type Warning = [bold_sgr, vivid_fore_color_sgr ANSI.Magenta]
-sgr_of_diag_type DebugMessage = [bold_sgr, vivid_fore_color_sgr ANSI.Green]
+sgr_of_diag_type Error = Colors.error_sgr
+sgr_of_diag_type InternalError = Colors.error_sgr
+sgr_of_diag_type Warning = Colors.warning_sgr
+sgr_of_diag_type DebugMessage = Colors.dbgmsg_sgr
 
 newtype DiagCode = DiagCode String
 
@@ -64,7 +66,7 @@ report' (SimpleDiag ty maybe_span maybe_diag_code maybe_name sections) =
         header =
             ANSI.setSGRCode (sgr_of_diag_type ty) ++ text_of_diag_type ty ++ ANSI.setSGRCode [] ++
             (case maybe_span of
-                Just sp -> " at " ++ ANSI.setSGRCode file_path_sgr ++ fmt_span sp ++ ANSI.setSGRCode []
+                Just sp -> " at " ++ ANSI.setSGRCode Colors.file_path_sgr ++ fmt_span sp ++ ANSI.setSGRCode []
                 Nothing -> ""
             ) ++ ":"
 
@@ -76,7 +78,7 @@ report' (SimpleDiag ty maybe_span maybe_diag_code maybe_name sections) =
 
                 _ -> ""
             where
-                diag_code_fmt code = "[" ++ ANSI.setSGRCode [bold_sgr] ++ code ++ ANSI.setSGRCode [] ++ "]"
+                diag_code_fmt code = "[" ++ ANSI.setSGRCode Colors.bold_sgr ++ code ++ ANSI.setSGRCode [] ++ "]"
                 prefix = indent_str ++ "==> "
 
         shown_sections = concatMap (show_section indent_amt) sections

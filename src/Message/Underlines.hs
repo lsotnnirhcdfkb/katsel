@@ -20,6 +20,8 @@ import Data.Char(isSpace)
 
 import qualified System.Console.ANSI as ANSI
 
+import qualified Colors
+
 newtype UnderlinesSection = UnderlinesSection [Message]
 data Message = Message Span Type Importance String
 data Importance = Primary | Secondary | Tertiary
@@ -177,16 +179,16 @@ char_of_imp Secondary = '~'
 char_of_imp Tertiary = '.'
 
 sgr_of_ty :: Type -> [ANSI.SGR]
-sgr_of_ty Error = [bold_sgr, vivid_fore_color_sgr ANSI.Red]
-sgr_of_ty Warning = [bold_sgr, vivid_fore_color_sgr ANSI.Magenta]
-sgr_of_ty Note = [bold_sgr, vivid_fore_color_sgr ANSI.Green]
-sgr_of_ty Hint = [bold_sgr, vivid_fore_color_sgr ANSI.Blue]
+sgr_of_ty Error = Colors.error_sgr
+sgr_of_ty Warning = Colors.warning_sgr
+sgr_of_ty Note = Colors.note_sgr
+sgr_of_ty Hint = Colors.hint_sgr
 
 elipsis_prefix :: Int -> String
 elipsis_prefix indent = replicate (indent - 1) '.'
 
 draw_section_line :: Int -> SectionLine -> String
-draw_section_line indent (FileLine fl) = make_indent_with_divider '>' "" indent ++ ANSI.setSGRCode file_path_sgr ++ name fl ++ ANSI.setSGRCode [] ++ "\n"
+draw_section_line indent (FileLine fl) = make_indent_with_divider '>' "" indent ++ ANSI.setSGRCode Colors.file_path_sgr ++ name fl ++ ANSI.setSGRCode [] ++ "\n"
 draw_section_line indent (DimQuote fl ln) =
     case drop (ln - 1) $ lines (source fl) of
         -- it is called a dim line, but it is not drawn dimly

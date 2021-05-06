@@ -40,6 +40,9 @@ executable katsel
                      , Message.PrettyPrint
                      , Message.PrettyPrintTH
 
+                     -- ANSI colors
+                     , Colors
+
 
   main-is:             Main.hs
   -- other-extensions:

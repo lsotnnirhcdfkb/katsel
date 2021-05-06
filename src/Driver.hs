@@ -14,11 +14,15 @@ import qualified Tokens
 import qualified AST
 import qualified IR
 
-import System.IO(hPutStr, stderr)
+import qualified Colors
+
+import System.IO(hPutStr, hPutStrLn, stderr)
 import Control.Exception(SomeException, try, evaluate, displayException)
 
 import Data.Maybe(catMaybes)
-import Data.List(intercalate)
+import Data.List(intersperse)
+
+import qualified System.Console.ANSI as ANSI
 
 -- data Backend = CBackend
 
@@ -81,17 +85,26 @@ compile filename =
 
         put_ending_line =
             let find_diag diag_ty (Message.SimpleDiag ty _ _ _ _) = ty == diag_ty
-                make_msg diag_ty kind =
+                make_msg diag_ty kind sgr =
                     let amount = length $ filter (find_diag diag_ty) final_errs
                     in if amount > 0
-                        then Just $ show amount ++ " " ++ kind ++ (if amount > 1 then "s" else "") ++ " generated"
+                        then Just $
+                            hPutStr stderr (show amount ++ " ") >>
+                            ANSI.hSetSGR stderr sgr >>
+                            hPutStr stderr (kind ++ (if amount > 1 then "s" else "")) >>
+                            ANSI.hSetSGR stderr [] >>
+                            hPutStr stderr" emitted"
                         else Nothing
 
-                error_msg = make_msg Message.Error "error"
-                warning_msg = make_msg Message.Warning "warning"
-                dbg_msg = make_msg Message.DebugMessage "debug message"
+                error_msg = make_msg Message.Error "error" Colors.error_sgr
+                warning_msg = make_msg Message.Warning "warning" Colors.warning_sgr
+                dbg_msg = make_msg Message.DebugMessage "debug message" Colors.dbgmsg_sgr
 
-            in putStrLn $ intercalate ", " $ catMaybes [error_msg, warning_msg, dbg_msg]
+                msgs :: [IO ()]
+                msgs = catMaybes [error_msg, warning_msg, dbg_msg]
+            in if length msgs > 0
+                then sequence_ (intersperse (hPutStr stderr ", ") msgs) >> hPutStrLn stderr ""
+                else return ()
 
         -- TODO: do not catch user interrupt
         do_try x = (try x :: IO (Either SomeException ())) >>= \ ei ->
