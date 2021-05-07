@@ -58,9 +58,9 @@ vresolve parentmod (VIRId parent childname) =
         parent_resolved = dsresolve parentmod parent
         child = parent_resolved >>= get childname :: Maybe Value
 -- IR datatypes {{{1
--- HasDeclSpan class {{{2
-class HasDeclSpan l where
-    decl_span :: l -> Span
+-- DeclSpan class {{{2
+class DeclSpan h where
+    decl_span :: h -> Maybe Span
 -- Parent things {{{2
 class Ord i => ParentR p c i | p c -> i where
     get_child_map :: p -> Map i c
@@ -99,7 +99,7 @@ wo_cast (IRWO a) = IRWO <$> cast a
 type ParentRW p c i = (ParentR p c i, ParentW p c i)
 -- DeclSymbols {{{2
 data DeclSymbol where
-    DeclSymbol :: (Typeable d,
+    DeclSymbol :: (Typeable d, DeclSpan d,
             ParentR d DeclSymbol String, ParentW d DeclSymbol String,
             ParentR d Value String,      ParentW d Value String) => d -> DeclSymbol
 
@@ -116,6 +116,11 @@ instance ParentW DeclSymbol Value String where
         let (replaced, added) = add name child ds
         in (replaced, DeclSymbol added)
 
+instance DeclSpan DeclSymbol where
+    decl_span (DeclSymbol ds) = decl_span ds
+
+ds_cast :: Typeable r => DeclSymbol -> Maybe r
+ds_cast (DeclSymbol v) = cast v
 -- Type {{{3
 newtype TyIdx = TyIdx Int
 data Type
@@ -146,11 +151,17 @@ instance ParentR Module Value String where
 instance ParentW Module DeclSymbol String where
 instance ParentW Module Value String where
 
-instance HasDeclSpan Module where
-    decl_span (Module _ _ sp) = sp
+instance DeclSpan Module where
+    decl_span (Module _ _ sp) = Just sp
 -- Values {{{2
 data Value where
-    Value :: (Typeable v) => v -> Value
+    Value :: (Typeable v, DeclSpan v) => v -> Value
+
+instance DeclSpan Value where
+    decl_span (Value v) = decl_span v
+
+value_cast :: Typeable r => Value -> Maybe r
+value_cast (Value v) = cast v
 -- Function {{{3
 data Function
     = Function
@@ -184,15 +195,22 @@ data Br
     | BrGoto BasicBlock
     | BrCond FValue BasicBlock BasicBlock
 
-instance HasDeclSpan Function where
-    decl_span f = get_function_span f
+instance DeclSpan Function where
+    decl_span f = Just $ get_function_span f
 -- building the IR {{{1
 -- IRBuildError {{{
 data IRBuildError
-    = DuplicateValue (IRWO Value) Value
+    = DuplicateValue String (IRWO Value) Value
 
 instance Message.ToDiagnostic IRBuildError where
-    to_diagnostic (DuplicateValue (IRWO old) new) = error "not implemented yet"
+    to_diagnostic (DuplicateValue name (IRWO old) new) =
+        Message.SimpleDiag Message.Error m_oldsp Nothing (Just "redecl-val")
+            [ error "not implemented yet"
+            ]
+        where
+            m_oldsp = decl_span old
+            m_newsp = decl_span new
+
 -- }}}
 -- IRBuilder {{{
 data IRBuilder = IRBuilder TyCtx [IRBuildError]
@@ -315,7 +333,7 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
         in State.get >>= \ before@(woparent, ir_builder) ->
             case add_noreplace name (IRWO fun_val) woparent of
                 Left other_value ->
-                    State.state (irbuilder_fun_to_cgtup_fun $ add_unit_res $ add_error $ DuplicateValue other_value fun_val) >>
+                    State.state (irbuilder_fun_to_cgtup_fun $ add_unit_res $ add_error $ DuplicateValue name other_value fun_val) >>
                     return before
                 Right added -> return (added, ir_builder)
 
@@ -333,14 +351,14 @@ lower_fun_body :: ParentW p (IRWO Value) String => IRWO Function -> (p, IRBuilde
 lower_fun_body = error "not implemented yet"
 -- lowering declarations {{{2
 instance ParentRW p Value String => Lowerable AST.LDDecl p where
-    ddeclare (Located _ (AST.DDecl'Fun sf)) parent = ddeclare sf parent
-    ddeclare (Located _ (AST.DDecl'Impl _ _)) _ = error "not implemented yet"
+    ddeclare (Located _ (AST.DDecl'Fun sf)) = ddeclare sf
+    ddeclare (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
 
-    ddefine (Located _ (AST.DDecl'Fun sf)) parent = ddefine sf parent
-    ddefine (Located _ (AST.DDecl'Impl _ _)) _ = error "not implemented yet"
+    ddefine (Located _ (AST.DDecl'Fun sf)) = ddefine sf
+    ddefine (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
 
-    vdeclare (Located _ (AST.DDecl'Fun sf)) parent = vdeclare sf parent
-    vdeclare (Located _ (AST.DDecl'Impl _ _)) _ = error "not implemented yet"
+    vdeclare (Located _ (AST.DDecl'Fun sf)) = vdeclare sf
+    vdeclare (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
 
-    vdefine (Located _ (AST.DDecl'Fun sf)) parent = vdefine sf parent
-    vdefine (Located _ (AST.DDecl'Impl _ _)) _ = error "not implemented yet"
+    vdefine (Located _ (AST.DDecl'Fun sf)) = vdefine sf
+    vdefine (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
