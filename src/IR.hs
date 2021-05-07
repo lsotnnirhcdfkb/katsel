@@ -301,7 +301,11 @@ unwrap_maybe (Just x) = x
 unwrap_maybe Nothing = error "unwrap maybe that is Nothing"
 
 (>>=?) :: Monad m => m (Maybe a) -> m b -> (a -> m b) -> m b
-(>>=?) m r c = undefined
+(>>=?) m r c =
+    m >>= \ m_res ->
+    case m_res of
+        Just res -> c res
+        Nothing -> r
 
 infixl 1 >>=?
 -- type resolution & type interning {{{2
