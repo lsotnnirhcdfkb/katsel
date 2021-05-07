@@ -210,10 +210,10 @@ build_ir mod_ast = (lowered_mod, tyctx, errors)
 
 -- helper functions {{{2
 lower_all_in_list :: Lowerable l p => [l] -> (l -> IRRO p -> IRRO Module -> IRDiff (IRWO p)) -> IRRO p -> IRRO Module -> IRDiff (IRWO p)
-lower_all_in_list things fun parent root = foldl' (.) id diffs
+lower_all_in_list things fun parent root = foldl' (.) id funs
     where
         apply_fun thing = fun thing parent root
-        diffs = map apply_fun things
+        funs = map apply_fun things
 
 ast_muty_to_ir_muty :: AST.Mutability -> Mutability
 ast_muty_to_ir_muty AST.Immutable = Immutable
@@ -261,26 +261,22 @@ instance ParentW ModParent Module () where
 instance ParentRW p Module () => Lowerable AST.LDModule p where
     ddeclare (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder) =
         let (Just module_) = get () parent :: Maybe (IRRO Module)
-            module_diff = lower_all_in_list decls ddeclare module_ root
-            (module_', ir_builder') = module_diff (ro_to_wo module_, ir_builder)
+            (module_', ir_builder') = lower_all_in_list decls ddeclare module_ root (ro_to_wo module_, ir_builder)
         in (add_replace () module_' wo_parent, ir_builder')
 
     ddefine (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder) =
         let (Just module_) = get () parent :: Maybe (IRRO Module)
-            module_diff = lower_all_in_list decls ddefine module_ root
-            (module_', ir_builder') = module_diff (ro_to_wo module_, ir_builder)
+            (module_', ir_builder') = lower_all_in_list decls ddefine module_ root (ro_to_wo module_, ir_builder)
         in (add_replace () module_' wo_parent, ir_builder')
 
     vdeclare (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder) =
         let (Just module_) = get () parent :: Maybe (IRRO Module)
-            module_diff = lower_all_in_list decls vdeclare module_ root
-            (module_', ir_builder') = module_diff (ro_to_wo module_, ir_builder)
+            (module_', ir_builder') = lower_all_in_list decls vdeclare module_ root (ro_to_wo module_, ir_builder)
         in (add_replace () module_' wo_parent, ir_builder')
 
     vdefine (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder) =
         let (Just module_) = get () parent :: Maybe (IRRO Module)
-            module_diff = lower_all_in_list decls vdefine module_ root
-            (module_', ir_builder') = module_diff (ro_to_wo module_, ir_builder)
+            (module_', ir_builder') = lower_all_in_list decls vdefine module_ root (ro_to_wo module_, ir_builder)
         in (add_replace () module_' wo_parent, ir_builder')
 -- lowering functions {{{2
 instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
