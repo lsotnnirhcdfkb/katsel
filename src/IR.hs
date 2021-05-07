@@ -61,6 +61,9 @@ vresolve parentmod (VIRId parent childname) =
 -- DeclSpan class {{{2
 class DeclSpan h where
     decl_span :: h -> Maybe Span
+-- Describe class {{{2
+class Describe d where
+    describe :: d -> String
 -- Parent things {{{2
 class Ord i => ParentR p c i | p c -> i where
     get_child_map :: p -> Map i c
@@ -99,7 +102,7 @@ wo_cast (IRWO a) = IRWO <$> cast a
 type ParentRW p c i = (ParentR p c i, ParentW p c i)
 -- DeclSymbols {{{2
 data DeclSymbol where
-    DeclSymbol :: (Typeable d, DeclSpan d,
+    DeclSymbol :: (Typeable d, DeclSpan d, Describe d,
             ParentR d DeclSymbol String, ParentW d DeclSymbol String,
             ParentR d Value String,      ParentW d Value String) => d -> DeclSymbol
 
@@ -118,6 +121,8 @@ instance ParentW DeclSymbol Value String where
 
 instance DeclSpan DeclSymbol where
     decl_span (DeclSymbol ds) = decl_span ds
+instance Describe DeclSymbol where
+    describe (DeclSymbol ds) = describe ds
 
 ds_cast :: Typeable r => DeclSymbol -> Maybe r
 ds_cast (DeclSymbol v) = cast v
@@ -153,12 +158,16 @@ instance ParentW Module Value String where
 
 instance DeclSpan Module where
     decl_span (Module _ _ sp) = Just sp
+instance Describe Module where
+    describe _ = "module being compiled"
 -- Values {{{2
 data Value where
-    Value :: (Typeable v, DeclSpan v) => v -> Value
+    Value :: (Typeable v, DeclSpan v, Describe v) => v -> Value
 
 instance DeclSpan Value where
     decl_span (Value v) = decl_span v
+instance Describe Value where
+    describe (Value v) = describe v
 
 value_cast :: Typeable r => Value -> Maybe r
 value_cast (Value v) = cast v
@@ -171,6 +180,7 @@ data Function
       , get_function_param_regs :: [Int]
       , get_function_type :: TyIdx
       , get_function_span :: Span
+      , get_function_name :: String
       }
 data BasicBlock = BasicBlock [Instruction] (Maybe Br)
 data Register = Register TyIdx Mutability
@@ -197,6 +207,8 @@ data Br
 
 instance DeclSpan Function where
     decl_span f = Just $ get_function_span f
+instance Describe Function where
+    describe f = "function named " ++ get_function_name f
 -- building the IR {{{1
 -- IRBuildError {{{
 data IRBuildError
@@ -328,6 +340,7 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
                   , get_function_param_regs = take (length params) [1..]
                   , get_function_type = fun_ty_idx
                   , get_function_span = fun_sp
+                  , get_function_name = name
                   }
             fun_val = Value fun
         in State.get >>= \ before@(woparent, ir_builder) ->
