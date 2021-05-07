@@ -18,16 +18,15 @@ import qualified Message.Underlines as MsgUnds
 
 import Location
 
-import Data.Maybe(catMaybes)
-
 import Data.Map(Map)
 import qualified Data.Map as Map
 
 import Data.List(foldl')
+import Data.Maybe(catMaybes)
 
 import Data.Typeable(Typeable, cast)
 
-import qualified Control.Monad.State.Lazy as State(state, execState, get)
+import qualified Control.Monad.State.Lazy as State(State, state, execState, get, put)
 
 -- utility types and aliases {{{1
 type StrMap = Map String
@@ -300,8 +299,13 @@ ro_to_wo (IRRO a) = IRWO a
 unwrap_maybe :: Maybe a -> a
 unwrap_maybe (Just x) = x
 unwrap_maybe Nothing = error "unwrap maybe that is Nothing"
+
+(>>=?) :: Monad m => m (Maybe a) -> m b -> (a -> m b) -> m b
+(>>=?) m r c = undefined
+
+infixl 1 >>=?
 -- type resolution & type interning {{{2
-resolve_ty :: AST.LDType -> IRRO Module -> (p, IRBuilder) -> (TyIdx, (p, IRBuilder))
+resolve_ty :: AST.LDType -> IRRO Module -> (p, IRBuilder) -> (Maybe TyIdx, (p, IRBuilder))
 resolve_ty = error "not implemented yet"
 
 add_ty :: Type -> IRBuilder -> (TyIdx, IRBuilder)
@@ -349,12 +353,17 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
     vdeclare (Located fun_sp (AST.SFunDecl' mretty (Located _ name) params _)) roparent root = State.execState $
         (State.state $ case mretty of
             Just retty -> resolve_ty retty root
-            Nothing -> irbuilder_fun_to_cgtup_fun get_void_type
-        ) >>= \ retty' ->
-        let make_param (Located _ (AST.DParam'Normal mutability ty_ast _)) =
-                State.state (resolve_ty ty_ast root) >>= \ ty ->
-                return (ast_muty_to_ir_muty mutability, ty)
-        in sequence (map make_param params) >>= \ param_tys ->
+            Nothing -> \ (p, irb) ->
+                let (idx, irb') = get_void_type irb
+                in (Just idx, (p, irb'))
+        ) >>=? (return ()) $ \ retty' ->
+        let make_param :: AST.LDParam -> State.State (p, IRBuilder) (Maybe (Mutability, TyIdx))
+            make_param (Located _ (AST.DParam'Normal mutability ty_ast _)) =
+                State.state (resolve_ty ty_ast root) >>= \ m_ty ->
+                case m_ty of
+                    Just ty -> return $ Just (ast_muty_to_ir_muty mutability, ty)
+                    Nothing -> return Nothing
+        in sequence <$> (sequence $ map make_param params) >>=? (return ()) $ \ param_tys ->
         let newty = FunctionType Map.empty retty' param_tys
         in State.state (irbuilder_fun_to_cgtup_fun $ add_ty newty) >>= \ fun_ty_idx ->
         let fun = Function
@@ -371,8 +380,8 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
             case add_noreplace name (IRWO fun_val) woparent of
                 Left other_value ->
                     State.state (irbuilder_fun_to_cgtup_fun $ add_unit_res $ add_error $ DuplicateValue name other_value fun_val) >>
-                    return before
-                Right added -> return (added, ir_builder)
+                    State.put before
+                Right added -> State.put (added, ir_builder)
 
     vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) roparent root cgtup =
         let m_val = get name roparent :: Maybe (IRRO Value)
