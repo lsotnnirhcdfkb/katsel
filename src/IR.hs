@@ -88,6 +88,11 @@ instance (Ord i, ParentW a c i) => ParentW (IRWO a) (IRWO c) i where
         let (replaced, added) = add ind child wo
         in (IRWO <$> replaced, IRWO added)
 
+ro_cast :: (Typeable a, Typeable b) => IRRO a -> Maybe (IRRO b)
+ro_cast (IRRO a) = IRRO <$> cast a
+wo_cast :: (Typeable a, Typeable b) => IRWO a -> Maybe (IRWO b)
+wo_cast (IRWO a) = IRWO <$> cast a
+
 type ParentRW p c i = (ParentR p c i, ParentW p c i)
 -- DeclSymbols {{{2
 data DeclSymbol where
@@ -229,6 +234,10 @@ irbuilder_fun_to_cgtup_fun fun (parent, ir_builder) =
 
 ro_to_wo :: IRRO a -> IRWO a
 ro_to_wo (IRRO a) = IRWO a
+
+unwrap_maybe :: Maybe a -> a
+unwrap_maybe (Just x) = x
+unwrap_maybe Nothing = error "unwrap maybe that is Nothing"
 -- type resolution & type interning {{{2
 resolve_ty :: AST.LDType -> IRRO Module -> (p, IRBuilder) -> (TyIdx, (p, IRBuilder))
 resolve_ty = error "not implemented yet"
@@ -305,7 +314,18 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
                     return before
                 Right added -> return (added, ir_builder)
 
-    vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) roparent root (woparent, ir_builder) = error "not implemented yet"
+    vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) roparent root cgtup =
+        let m_val = get name roparent :: Maybe (IRRO Value)
+            m_fun = m_val >>= ro_cast :: Maybe (IRRO Function)
+        in case m_fun of
+            -- silently ignore becuase the only way this can happen is if there is another global declaration
+            -- that made a value of the same name that is not a function, which should already be reported as a duplicate value error
+            Nothing -> cgtup
+
+            Just old_fun -> lower_fun_body (ro_to_wo old_fun) cgtup
+-- lowering function bodies {{{3
+lower_fun_body :: ParentW p (IRWO Value) String => IRWO Function -> (p, IRBuilder) -> (p, IRBuilder)
+lower_fun_body = error "not implemented yet"
 -- lowering declarations {{{2
 instance ParentRW p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) parent = ddeclare sf parent
