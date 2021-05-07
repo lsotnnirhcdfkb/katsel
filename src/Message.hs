@@ -22,6 +22,7 @@ data Section
     = SimpleText String
     | SimpleMultilineText String
     | Underlines UnderlinesSection
+    | Note String
 
 data SimpleDiagType
     = Error
@@ -90,10 +91,15 @@ indent_of :: Section -> Int
 indent_of (SimpleText _) = 4
 indent_of (SimpleMultilineText _) = 4
 indent_of (Underlines sec) = indent_of_underlines_section sec
+indent_of (Note _) = 4
 
 show_section :: Int -> Section -> String
 show_section indent (SimpleText text) = make_indent_str indent ++ " " ++ text ++ "\n"
 show_section indent (SimpleMultilineText text) = unlines $ map ((indent_str ++ " ")++) $ lines text
     where
         indent_str = make_indent_str indent
+show_section indent (Note text) = make_indent_with_divider '\\' "" indent ++ notesgr ++ "note" ++ resetsgr ++ ": " ++ notesgr ++ text ++ resetsgr ++ "\n"
+    where
+        notesgr = ANSI.setSGRCode Colors.note_sgr
+        resetsgr = ANSI.setSGRCode []
 show_section indent (Underlines sec) = show_underlines_section indent sec

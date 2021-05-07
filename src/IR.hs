@@ -184,7 +184,7 @@ data IRBuildError
     = DuplicateValue (IRWO Value) Value
 
 instance Message.ToDiagnostic IRBuildError where
-    to_diagnostic = error "not implemented yet"
+    to_diagnostic (DuplicateValue (IRWO old) new) = error "not implemented yet"
 -- }}}
 -- IRBuilder {{{
 data IRBuilder = IRBuilder TyCtx [IRBuildError]
