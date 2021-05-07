@@ -14,8 +14,11 @@ module IR
 import qualified AST
 
 import qualified Message
+import qualified Message.Underlines as MsgUnds
 
 import Location
+
+import Data.Maybe(catMaybes)
 
 import Data.Map(Map)
 import qualified Data.Map as Map
@@ -216,13 +219,27 @@ data IRBuildError
 
 instance Message.ToDiagnostic IRBuildError where
     to_diagnostic (DuplicateValue name (IRWO old) new) =
-        Message.SimpleDiag Message.Error m_oldsp Nothing (Just "redecl-val")
-            [ error "not implemented yet"
-            ]
-        where
-            m_oldsp = decl_span old
+        let m_oldsp = decl_span old
             m_newsp = decl_span new
+            old_desc = describe old
+            new_desc = describe new
 
+            if_span m_sp ty imp msg =
+                case m_sp of
+                    Just sp -> Right $ MsgUnds.Message sp ty imp msg
+                    Nothing -> Left $ Message.Note msg
+            oldmsg = if_span m_oldsp MsgUnds.Note MsgUnds.Secondary $ "'" ++ name ++ "' already declared as " ++ old_desc
+            newmsg = if_span m_newsp MsgUnds.Error MsgUnds.Primary $ "'" ++ name ++ "' redeclared as " ++ new_desc
+
+            totalmsgs = [oldmsg, newmsg]
+
+            underlines_section =
+                case [x | Right x <- [oldmsg, newmsg]] of
+                    [] -> Nothing
+                    msgs -> Just $ Message.Underlines $ MsgUnds.UnderlinesSection msgs
+            notes = [Just x | Left x <- [oldmsg, newmsg]]
+            sections = catMaybes $ underlines_section : notes
+        in Message.SimpleDiag Message.Error m_oldsp Nothing (Just "redecl-val") sections
 -- }}}
 -- IRBuilder {{{
 data IRBuilder = IRBuilder TyCtx [IRBuildError]
