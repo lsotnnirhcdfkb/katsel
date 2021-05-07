@@ -216,6 +216,7 @@ instance Describe Function where
 -- IRBuildError {{{
 data IRBuildError
     = DuplicateValue String (IRWO Value) Value
+    | ImplUnsupported Span
 
 instance Message.ToDiagnostic IRBuildError where
     to_diagnostic (DuplicateValue name (IRWO old) new) =
@@ -240,6 +241,12 @@ instance Message.ToDiagnostic IRBuildError where
             notes = [Just x | Left x <- [oldmsg, newmsg]]
             sections = catMaybes $ underlines_section : notes
         in Message.SimpleDiag Message.Error m_oldsp Nothing (Just "redecl-val") sections
+    to_diagnostic (ImplUnsupported sp) =
+        Message.SimpleDiag Message.Warning (Just sp) Nothing Nothing
+            [ Message.Underlines $ MsgUnds.UnderlinesSection
+                [ MsgUnds.Message sp MsgUnds.Warning MsgUnds.Primary $ "'impl' blocks are currently unsupported"
+                ]
+            ]
 -- }}}
 -- IRBuilder {{{
 data IRBuilder = IRBuilder TyCtx [IRBuildError]
@@ -257,7 +264,7 @@ build_ir mod_ast@(Located mod_sp _) = (lowered_mod, tyctx, errors)
 
         initial_parent_builder_tup = (ModParent $ Module Map.empty Map.empty mod_sp, IRBuilder (TyCtx []) [])
         (ModParent lowered_mod, IRBuilder tyctx errors) =
-            apply_stage vdefine .
+            -- apply_stage vdefine .
             apply_stage vdeclare .
             apply_stage ddefine .
             apply_stage ddeclare $
@@ -381,14 +388,16 @@ lower_fun_body :: ParentW p (IRWO Value) String => IRWO Function -> (p, IRBuilde
 lower_fun_body = error "not implemented yet"
 -- lowering declarations {{{2
 instance ParentRW p Value String => Lowerable AST.LDDecl p where
-    ddeclare (Located _ (AST.DDecl'Fun sf)) = ddeclare sf
-    ddeclare (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
+    ddeclare (Located _ (AST.DDecl'Fun sf)) roparent root cgtup = ddeclare sf roparent root cgtup
+    ddeclare (Located sp (AST.DDecl'Impl _ _)) roparent root (woparent, ir_builder) =
+        let warn = ImplUnsupported sp
+        in (woparent, add_error warn ir_builder)
 
-    ddefine (Located _ (AST.DDecl'Fun sf)) = ddefine sf
-    ddefine (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
+    ddefine (Located _ (AST.DDecl'Fun sf)) roparent root cgtup = ddefine sf roparent root cgtup
+    ddefine (Located _ (AST.DDecl'Impl _ _)) roparent root cgtup = cgtup
 
-    vdeclare (Located _ (AST.DDecl'Fun sf)) = vdeclare sf
-    vdeclare (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
+    vdeclare (Located _ (AST.DDecl'Fun sf)) roparent root cgtup = vdeclare sf roparent root cgtup
+    vdeclare (Located _ (AST.DDecl'Impl _ _)) roparent root cgtup = cgtup
 
-    vdefine (Located _ (AST.DDecl'Fun sf)) = vdefine sf
-    vdefine (Located _ (AST.DDecl'Impl _ _)) = error "not implemented yet"
+    vdefine (Located _ (AST.DDecl'Fun sf)) roparent root cgtup = vdefine sf roparent root cgtup
+    vdefine (Located _ (AST.DDecl'Impl _ _)) roparent root cgtup = cgtup
