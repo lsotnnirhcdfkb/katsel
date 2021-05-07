@@ -58,6 +58,9 @@ vresolve parentmod (VIRId parent childname) =
         parent_resolved = dsresolve parentmod parent
         child = parent_resolved >>= get childname :: Maybe Value
 -- IR datatypes {{{1
+-- HasDeclSpan class {{{2
+class HasDeclSpan l where
+    decl_span :: l -> Maybe Span
 -- Parent things {{{2
 class Ord i => ParentR p c i | p c -> i where
     get_child_map :: p -> Map i c
@@ -96,12 +99,24 @@ wo_cast (IRWO a) = IRWO <$> cast a
 type ParentRW p c i = (ParentR p c i, ParentW p c i)
 -- DeclSymbols {{{2
 data DeclSymbol where
-    DeclSymbol :: (Typeable d,
+    DeclSymbol :: (HasDeclSpan d, Typeable d,
             ParentR d DeclSymbol String, ParentW d DeclSymbol String,
             ParentR d Value String,      ParentW d Value String) => d -> DeclSymbol
 
-data Module = Module DSMap VMap
+instance ParentR DeclSymbol DeclSymbol String where
+    get_child_map (DeclSymbol d) = get_child_map d
+instance ParentW DeclSymbol DeclSymbol String where
+    add name child (DeclSymbol ds) =
+        let (replaced, added) = add name child ds
+        in (replaced, DeclSymbol added)
+instance ParentR DeclSymbol Value String where
+    get_child_map (DeclSymbol d) = get_child_map d
+instance ParentW DeclSymbol Value String where
+    add name child (DeclSymbol ds) =
+        let (replaced, added) = add name child ds
+        in (replaced, DeclSymbol added)
 
+-- Type {{{3
 newtype TyIdx = TyIdx Int
 data Type
     = FloatType DSMap Int
@@ -111,22 +126,7 @@ data Type
     | FunctionType DSMap TyIdx [(Mutability, TyIdx)]
     | VoidType DSMap
     | PointerType DSMap Mutability TyIdx
--- instances {{{3
--- DeclSymbol {{{4
-instance ParentR DeclSymbol DeclSymbol String where
-    get_child_map (DeclSymbol d) = get_child_map d
-instance ParentW DeclSymbol DeclSymbol String where
-    add name child (DeclSymbol ds) =
-        let (replaced, added) = add name child ds
-        in (replaced, DeclSymbol added)
 
-instance ParentR DeclSymbol Value String where
-    get_child_map (DeclSymbol d) = get_child_map d
-instance ParentW DeclSymbol Value String where
-    add name child (DeclSymbol ds) =
-        let (replaced, added) = add name child ds
-        in (replaced, DeclSymbol added)
--- Type {{{4
 instance ParentR Type DeclSymbol String where
     get_child_map (FloatType dsmap _) = dsmap
     get_child_map (IntType dsmap _ _) = dsmap
@@ -135,18 +135,23 @@ instance ParentR Type DeclSymbol String where
     get_child_map (FunctionType dsmap _ _) = dsmap
     get_child_map (VoidType dsmap) = dsmap
     get_child_map (PointerType dsmap _ _) = dsmap
--- Module {{{4
+-- Module {{{3
+data Module = Module DSMap VMap Span
+
 instance ParentR Module DeclSymbol String where
-    get_child_map (Module dsmap _) = dsmap
+    get_child_map (Module dsmap _ _) = dsmap
 instance ParentR Module Value String where
-    get_child_map (Module _ vmap) = vmap
+    get_child_map (Module _ vmap _) = vmap
 
 instance ParentW Module DeclSymbol String where
 instance ParentW Module Value String where
+
+instance HasDeclSpan Module where
+    decl_span (Module _ _ sp) = Just sp
 -- Values {{{2
 data Value where
-    Value :: (Typeable v) => v -> Value
--- Function {{{
+    Value :: (HasDeclSpan v, Typeable v) => v -> Value
+-- Function {{{3
 data Function
     = Function
       { get_function_blocks :: [BasicBlock]
@@ -154,6 +159,7 @@ data Function
       , get_function_ret_reg :: Int
       , get_function_param_regs :: [Int]
       , get_function_type :: TyIdx
+      , get_function_span :: Span
       }
 data BasicBlock = BasicBlock [Instruction] (Maybe Br)
 data Register = Register TyIdx Mutability
@@ -177,7 +183,9 @@ data Br
     = BrRet
     | BrGoto BasicBlock
     | BrCond FValue BasicBlock BasicBlock
--- }}}
+
+instance HasDeclSpan Function where
+    decl_span f = Just $ get_function_span f
 -- building the IR {{{1
 -- IRBuildError {{{
 data IRBuildError
@@ -193,14 +201,14 @@ add_error :: IRBuildError -> IRBuilder -> IRBuilder
 add_error err (IRBuilder tyctx errs) = IRBuilder tyctx (errs ++ [err])
 -- }}}
 build_ir :: AST.LDModule -> (Module, TyCtx, [IRBuildError])
-build_ir mod_ast = (lowered_mod, tyctx, errors)
+build_ir mod_ast@(Located mod_sp _) = (lowered_mod, tyctx, errors)
     where
         apply_stage :: (AST.LDModule -> IRRO ModParent -> IRRO Module -> IRDiff (IRWO ModParent)) -> (ModParent, IRBuilder) -> (ModParent, IRBuilder)
         apply_stage fun (mod_parent@(ModParent module_), ir_builder) =
             let (IRWO module_', ir_builder') = fun mod_ast (IRRO mod_parent) (IRRO module_) (IRWO mod_parent, ir_builder)
             in (module_', ir_builder')
 
-        initial_parent_builder_tup = (ModParent $ Module Map.empty Map.empty, IRBuilder (TyCtx []) [])
+        initial_parent_builder_tup = (ModParent $ Module Map.empty Map.empty mod_sp, IRBuilder (TyCtx []) [])
         (ModParent lowered_mod, IRBuilder tyctx errors) =
             apply_stage vdefine .
             apply_stage vdeclare .
@@ -284,7 +292,7 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
     ddeclare _ _ _ = id
     ddefine _ _ _ = id
 
-    vdeclare (Located _ (AST.SFunDecl' mretty (Located _ name) params _)) roparent root = State.execState $
+    vdeclare (Located fun_sp (AST.SFunDecl' mretty (Located _ name) params _)) roparent root = State.execState $
         (State.state $ case mretty of
             Just retty -> resolve_ty retty root
             Nothing -> irbuilder_fun_to_cgtup_fun get_void_type
@@ -301,6 +309,7 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
                   , get_function_ret_reg = 0
                   , get_function_param_regs = take (length params) [1..]
                   , get_function_type = fun_ty_idx
+                  , get_function_span = fun_sp
                   }
             fun_val = Value fun
         in State.get >>= \ before@(woparent, ir_builder) ->
