@@ -60,7 +60,7 @@ vresolve parentmod (VIRId parent childname) =
 -- IR datatypes {{{1
 -- HasDeclSpan class {{{2
 class HasDeclSpan l where
-    decl_span :: l -> Maybe Span
+    decl_span :: l -> Span
 -- Parent things {{{2
 class Ord i => ParentR p c i | p c -> i where
     get_child_map :: p -> Map i c
@@ -99,7 +99,7 @@ wo_cast (IRWO a) = IRWO <$> cast a
 type ParentRW p c i = (ParentR p c i, ParentW p c i)
 -- DeclSymbols {{{2
 data DeclSymbol where
-    DeclSymbol :: (HasDeclSpan d, Typeable d,
+    DeclSymbol :: (Typeable d,
             ParentR d DeclSymbol String, ParentW d DeclSymbol String,
             ParentR d Value String,      ParentW d Value String) => d -> DeclSymbol
 
@@ -147,10 +147,10 @@ instance ParentW Module DeclSymbol String where
 instance ParentW Module Value String where
 
 instance HasDeclSpan Module where
-    decl_span (Module _ _ sp) = Just sp
+    decl_span (Module _ _ sp) = sp
 -- Values {{{2
 data Value where
-    Value :: (HasDeclSpan v, Typeable v) => v -> Value
+    Value :: (Typeable v) => v -> Value
 -- Function {{{3
 data Function
     = Function
@@ -185,7 +185,7 @@ data Br
     | BrCond FValue BasicBlock BasicBlock
 
 instance HasDeclSpan Function where
-    decl_span f = Just $ get_function_span f
+    decl_span f = get_function_span f
 -- building the IR {{{1
 -- IRBuildError {{{
 data IRBuildError
