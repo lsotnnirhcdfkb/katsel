@@ -83,14 +83,22 @@ compile filename =
 
         put_errs = hPutStr stderr $ concatMap Message.report final_errs
 
+        find_diag diag_ty (Message.SimpleDiag ty _ _ _ _) = ty == diag_ty
+        amount_of_diag diag_ty = length $ filter (find_diag diag_ty) final_errs
+
+        put_if_fail =
+            let err_amt = amount_of_diag Message.Error
+            in if err_amt > 0
+            then hPutStrLn stderr $ "compilation of " ++ filename ++ " failed due to " ++ show err_amt ++ " errors"
+            else return ()
+
         put_ending_line =
-            let find_diag diag_ty (Message.SimpleDiag ty _ _ _ _) = ty == diag_ty
-                make_msg diag_ty kind sgr =
-                    let amount = length $ filter (find_diag diag_ty) final_errs
+            let make_msg diag_ty kind sgr =
+                    let amount = amount_of_diag diag_ty
                     in if amount > 0
                         then Just $
-                            hPutStr stderr (show amount ++ " ") >>
                             ANSI.hSetSGR stderr sgr >>
+                            hPutStr stderr (show amount ++ " ") >>
                             hPutStr stderr (kind ++ (if amount > 1 then "s" else "")) >>
                             ANSI.hSetSGR stderr [] >>
                             hPutStr stderr " emitted"
@@ -121,5 +129,6 @@ compile filename =
 
     in do_try (
         seq final_output put_errs >>
-        put_ending_line
+        put_ending_line >>
+        put_if_fail
     )
