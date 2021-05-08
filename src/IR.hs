@@ -316,10 +316,11 @@ resolve_path_d = error "not implemented yet"
 resolve_ty :: AST.LDType -> IRRO Module -> (p, IRBuilder) -> (Maybe TyIdx, (p, IRBuilder))
 
 resolve_ty (Located _ (AST.DType'Path path)) root cgtup =
-    let dsid = resolve_path_d path root
-        resolved = resolve_dsid root dsid
-        downcasted = (resolved >>= ds_cast) :: Maybe TyIdx
-    in (downcasted, cgtup)
+    let tyidx =
+            resolve_path_d path root >>= \ dsid ->
+            resolve_dsid root dsid >>= \ resvoled ->
+            ds_cast resvoled :: Maybe TyIdx
+    in (tyidx, cgtup)
 
 resolve_ty (Located sp (AST.DType'Pointer _ _)) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "pointer types" sp) ir_builder)) ---TODO
 resolve_ty (Located sp AST.DType'This) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "'this' types" sp) ir_builder)) -- TODO
