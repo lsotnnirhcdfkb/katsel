@@ -152,7 +152,7 @@ data Type
     | PointerType DSMap Mutability TyIdx
 
 ty_eq :: Type -> Type -> Bool
-ty_eq = undefined
+ty_eq = error "not implemented yet"
 
 instance ParentR Type DeclSymbol String where
     get_child_map (FloatType dsmap _) = dsmap
