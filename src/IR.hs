@@ -41,23 +41,23 @@ newtype TyCtx = TyCtx [Type]
 newtype DSIRId resolve = DSIRId [String]
 data VIRId resolve = VIRId (DSIRId DeclSymbol) String
 
-new_dsirid :: [String] -> resolve -> DSIRId resolve
-new_dsirid segments _ = DSIRId segments
-new_virid :: [String] -> resolve -> VIRId resolve
-new_virid segments _ = VIRId (DSIRId $ init segments) (last segments)
+new_dsid :: [String] -> resolve -> DSIRId resolve
+new_dsid segments _ = DSIRId segments
+new_vid :: [String] -> resolve -> VIRId resolve
+new_vid segments _ = VIRId (DSIRId $ init segments) (last segments)
 
-dsresolve :: Typeable r => Module -> DSIRId r -> Maybe r
-dsresolve parentmod (DSIRId path) =
-    foldl' next (Just $ DeclSymbol parentmod) path >>= cast
+resolve_dsid :: Typeable r => IRRO Module -> DSIRId r -> Maybe r
+resolve_dsid (IRRO root) (DSIRId path) =
+    foldl' next (Just $ DeclSymbol root) path >>= cast
     where
         next (Just ds) name = get name ds :: Maybe DeclSymbol
         next Nothing _ = Nothing
 
-vresolve :: Typeable r => Module -> VIRId r -> Maybe r
-vresolve parentmod (VIRId parent childname) =
+resolve_vid :: Typeable r => IRRO Module -> VIRId r -> Maybe r
+resolve_vid root (VIRId parent childname) =
     child >>= cast
     where
-        parent_resolved = dsresolve parentmod parent
+        parent_resolved = resolve_dsid root parent
         child = parent_resolved >>= get childname :: Maybe Value
 -- IR datatypes {{{1
 -- DeclSpan class {{{2
@@ -215,7 +215,7 @@ instance Describe Function where
 -- IRBuildError {{{
 data IRBuildError
     = DuplicateValue String (IRWO Value) Value
-    | ImplUnsupported Span
+    | Unsupported String Span
 
 instance Message.ToDiagnostic IRBuildError where
     to_diagnostic (DuplicateValue name (IRWO old) new) =
@@ -240,10 +240,10 @@ instance Message.ToDiagnostic IRBuildError where
             notes = [Just x | Left x <- [oldmsg, newmsg]]
             sections = catMaybes $ underlines_section : notes
         in Message.SimpleDiag Message.Error m_oldsp Nothing (Just "redecl-val") sections
-    to_diagnostic (ImplUnsupported sp) =
+    to_diagnostic (Unsupported name sp) =
         Message.SimpleDiag Message.Warning (Just sp) Nothing Nothing
             [ Message.Underlines $ MsgUnds.UnderlinesSection
-                [ MsgUnds.Message sp MsgUnds.Warning MsgUnds.Primary $ "'impl' blocks are currently unsupported"
+                [ MsgUnds.Message sp MsgUnds.Warning MsgUnds.Primary $ name ++ " are currently unsupported"
                 ]
             ]
 -- }}}
@@ -306,11 +306,23 @@ unwrap_maybe Nothing = error "unwrap maybe that is Nothing"
     case m_res of
         Just res -> c res
         Nothing -> r
-
 infixl 1 >>=?
 -- type resolution & type interning {{{2
+resolve_path_v :: AST.LDPath -> IRRO Module -> VIRId Value
+resolve_path_v = error "not implemented yet"
+resolve_path_d :: AST.LDPath -> IRRO Module -> DSIRId DeclSymbol
+resolve_path_d = error "not implemented yet"
+
 resolve_ty :: AST.LDType -> IRRO Module -> (p, IRBuilder) -> (Maybe TyIdx, (p, IRBuilder))
-resolve_ty = error "not implemented yet"
+
+resolve_ty (Located _ (AST.DType'Path path)) root cgtup =
+    let dsid = resolve_path_d path root
+        resolved = resolve_dsid root dsid
+        downcasted = (resolved >>= ds_cast) :: Maybe TyIdx
+    in (downcasted, cgtup)
+
+resolve_ty (Located sp (AST.DType'Pointer _ _)) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "pointer types" sp) ir_builder))
+resolve_ty (Located sp AST.DType'This) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "'this' types" sp) ir_builder))
 
 add_ty :: Type -> IRBuilder -> (TyIdx, IRBuilder)
 add_ty ty (IRBuilder (TyCtx tys) errs) = (TyIdx $ length tys, IRBuilder (TyCtx $ tys ++ [ty]) errs)
@@ -403,7 +415,7 @@ lower_fun_body = error "not implemented yet"
 instance ParentRW p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) roparent root cgtup = ddeclare sf roparent root cgtup
     ddeclare (Located sp (AST.DDecl'Impl _ _)) roparent root (woparent, ir_builder) =
-        let warn = ImplUnsupported sp
+        let warn = Unsupported "'impl' blocks" sp -- TODO
         in (woparent, add_error warn ir_builder)
 
     ddefine (Located _ (AST.DDecl'Fun sf)) roparent root cgtup = ddefine sf roparent root cgtup
