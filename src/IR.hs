@@ -229,7 +229,7 @@ data IRBuildError
     = DuplicateValue String (IRWO Value) Value
     | Unsupported String Span
     | NotAType Span DeclSymbol
-    | PathDoesntExist Span [String] -- TODO: change to 'no member called x in y'
+    | PathDoesntExist Span -- TODO: change to 'no member called x in y'
 
 instance Message.ToDiagnostic IRBuildError where
     to_diagnostic (DuplicateValue name (IRWO old) new) =
@@ -254,10 +254,26 @@ instance Message.ToDiagnostic IRBuildError where
             notes = [Just x | Left x <- [oldmsg, newmsg]]
             sections = catMaybes $ underlines_section : notes
         in Message.SimpleDiag Message.Error m_oldsp Nothing (Just "redecl-val") sections
+
     to_diagnostic (Unsupported name sp) =
         Message.SimpleDiag Message.Warning (Just sp) Nothing Nothing
             [ Message.Underlines $ MsgUnds.UnderlinesSection
                 [ MsgUnds.Message sp MsgUnds.Warning MsgUnds.Primary $ name ++ " are currently unsupported"
+                ]
+            ]
+
+    to_diagnostic (NotAType path_sp ds) =
+        Message.SimpleDiag Message.Error (Just path_sp) Nothing (Just "not-type")
+            [ Message.Underlines $ MsgUnds.UnderlinesSection
+                [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary "not a type"
+                , MsgUnds.Message path_sp MsgUnds.Note MsgUnds.Secondary $ "this path resolved to " ++ describe ds
+                ]
+            ]
+
+    to_diagnostic (PathDoesntExist path_sp) =
+        Message.SimpleDiag Message.Error (Just path_sp) Nothing (Just "path-doesnt-exist")
+            [ Message.Underlines $ MsgUnds.UnderlinesSection
+                [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary "member referred to by path doesn't exist"
                 ]
             ]
 -- }}}
@@ -326,7 +342,7 @@ resolve_path_d :: AST.LDPath -> IRRO Module -> (p, IRBuilder) -> (Maybe (DeclSym
 resolve_path_d (Located path_sp (AST.DPath' located_segments)) root cgtup@(parent, ir_builder) =
     case m_dsid of
         Just dsid -> (Just (resolve_dsid root dsid, dsid), cgtup)
-        Nothing -> (Nothing, (parent, add_error (PathDoesntExist path_sp segments) ir_builder))
+        Nothing -> (Nothing, (parent, add_error (PathDoesntExist path_sp) ir_builder))
     where
         unlocate (Located _ x) = x
         segments = map unlocate located_segments
@@ -336,7 +352,7 @@ resolve_path_v :: AST.LDPath -> IRRO Module -> (p, IRBuilder) -> (Maybe (Value, 
 resolve_path_v (Located path_sp (AST.DPath' located_segments)) root cgtup@(parent, ir_builder) =
     case m_vid of
         Just vid -> (Just (resolve_vid root vid, vid), cgtup)
-        Nothing -> (Nothing, (parent, add_error (PathDoesntExist path_sp segments) ir_builder))
+        Nothing -> (Nothing, (parent, add_error (PathDoesntExist path_sp) ir_builder))
     where
         unlocate (Located _ x) = x
         segments = map unlocate located_segments
