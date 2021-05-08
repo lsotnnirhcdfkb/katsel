@@ -308,9 +308,9 @@ unwrap_maybe Nothing = error "unwrap maybe that is Nothing"
         Nothing -> r
 infixl 1 >>=?
 -- type resolution & type interning {{{2
-resolve_path_v :: AST.LDPath -> IRRO Module -> VIRId Value
+resolve_path_v :: AST.LDPath -> IRRO Module -> Maybe (VIRId Value)
 resolve_path_v = error "not implemented yet"
-resolve_path_d :: AST.LDPath -> IRRO Module -> DSIRId DeclSymbol
+resolve_path_d :: AST.LDPath -> IRRO Module -> Maybe (DSIRId DeclSymbol)
 resolve_path_d = error "not implemented yet"
 
 resolve_ty :: AST.LDType -> IRRO Module -> (p, IRBuilder) -> (Maybe TyIdx, (p, IRBuilder))
@@ -321,8 +321,8 @@ resolve_ty (Located _ (AST.DType'Path path)) root cgtup =
         downcasted = (resolved >>= ds_cast) :: Maybe TyIdx
     in (downcasted, cgtup)
 
-resolve_ty (Located sp (AST.DType'Pointer _ _)) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "pointer types" sp) ir_builder))
-resolve_ty (Located sp AST.DType'This) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "'this' types" sp) ir_builder))
+resolve_ty (Located sp (AST.DType'Pointer _ _)) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "pointer types" sp) ir_builder)) ---TODO
+resolve_ty (Located sp AST.DType'This) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "'this' types" sp) ir_builder)) -- TODO
 
 add_ty :: Type -> IRBuilder -> (TyIdx, IRBuilder)
 add_ty ty (IRBuilder (TyCtx tys) errs) = (TyIdx $ length tys, IRBuilder (TyCtx $ tys ++ [ty]) errs)
