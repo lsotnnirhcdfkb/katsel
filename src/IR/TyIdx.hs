@@ -1,3 +1,3 @@
 module IR.TyIdx where
 
-newtype TyIdx = TyIdx { untyidx :: Int }
+newtype TyIdx = TyIdx { untyidx :: Int } deriving Eq
