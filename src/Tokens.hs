@@ -453,7 +453,7 @@ lex' prevtoks indent_stack lexer =
                                 (if last_is_semi
                                     then []
                                     else [Right $ make_tok_at_nl_before Newline]) ++
-                                replicate num_pop (Right $ make_tok_at_cur Dedent) ++
+                                replicate num_pop (Right $ make_tok_at_cur Dedent) ++ -- TODO: change dedent span to something better so that it doesnt include beginning of the next token
                                 (if is_valid_level
                                     then []
                                     else [Left $ make_error 0 1 BadDedent])

@@ -565,8 +565,8 @@ impl_decl :: ParseFunM AST.LDDecl
 impl_decl =
     consume_tok_s Tokens.Impl (XIsMissingYFound "implementation block" "introductory 'impl'") `seqparser` \ implsp ->
     parse_type `seqparser` \ impl_for@(Located tysp _)->
-    impl_body `seqparser` \ body ->
-    return $ Just $ Located (join_span implsp tysp) $ AST.DDecl'Impl impl_for $ snd body
+    impl_body `seqparser` \ (_, body) ->
+    return $ Just $ Located (join_span implsp tysp) $ AST.DDecl'Impl impl_for body
     where
         impl_body = blocked "implementation body" impl_list
         impl_list = zeromore $
