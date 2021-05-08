@@ -21,7 +21,7 @@ import Location
 import Data.Map(Map)
 import qualified Data.Map as Map
 
-import Data.List(foldl')
+import Data.List(foldl', findIndex)
 import Data.Maybe(catMaybes)
 
 import Data.Typeable(Typeable, cast)
@@ -150,6 +150,9 @@ data Type
     | FunctionType DSMap TyIdx [(Mutability, TyIdx)]
     | VoidType DSMap
     | PointerType DSMap Mutability TyIdx
+
+ty_eq :: Type -> Type -> Bool
+ty_eq = undefined
 
 instance ParentR Type DeclSymbol String where
     get_child_map (FloatType dsmap _) = dsmap
@@ -371,11 +374,11 @@ resolve_ty (Located path_sp (AST.DType'Path path)) root cgtup = flip State.runSt
 resolve_ty (Located sp (AST.DType'Pointer _ _)) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "pointer types" sp) ir_builder)) ---TODO
 resolve_ty (Located sp AST.DType'This) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "'this' types" sp) ir_builder)) -- TODO
 
-add_ty :: Type -> IRBuilder -> (TyIdx, IRBuilder)
-add_ty ty (IRBuilder (TyCtx tys) errs) = (TyIdx $ length tys, IRBuilder (TyCtx $ tys ++ [ty]) errs)
-
-get_void_type :: IRBuilder -> (TyIdx, IRBuilder)
-get_void_type = error "not implemented yet"
+get_ty :: Type -> IRBuilder -> (TyIdx, IRBuilder)
+get_ty ty ir_builder@(IRBuilder (TyCtx tys) errs) =
+    case findIndex (ty_eq ty) tys of
+        Just idx -> (TyIdx idx, ir_builder)
+        Nothing -> (TyIdx $ length tys, IRBuilder (TyCtx $ tys ++ [ty]) errs)
 -- Lowerable class {{{2
 type IRDiff p = (p, IRBuilder) -> (p, IRBuilder)
 class Lowerable l p where
@@ -417,7 +420,7 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
         (State.state $ case mretty of
             Just retty -> resolve_ty retty root
             Nothing -> \ (p, irb) ->
-                let (idx, irb') = get_void_type irb
+                let (idx, irb') = get_ty (VoidType Map.empty) irb
                 in (Just idx, (p, irb'))
         ) >>=? (return ()) $ \ retty' ->
         let make_param :: AST.LDParam -> State.State (p, IRBuilder) (Maybe (Mutability, TyIdx))
@@ -428,7 +431,7 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
                     Nothing -> return Nothing
         in sequence <$> (sequence $ map make_param params) >>=? (return ()) $ \ param_tys ->
         let newty = FunctionType Map.empty retty' param_tys
-        in State.state (irbuilder_fun_to_cgtup_fun $ add_ty newty) >>= \ fun_ty_idx ->
+        in State.state (irbuilder_fun_to_cgtup_fun $ get_ty newty) >>= \ fun_ty_idx ->
         let fun = Function
                   { get_function_blocks = []
                   , get_function_registers = map (uncurry $ flip Register) param_tys
