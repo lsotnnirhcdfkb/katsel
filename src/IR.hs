@@ -263,7 +263,7 @@ build_ir mod_ast@(Located mod_sp _) = (lowered_mod, tyctx, errors)
 
         initial_parent_builder_tup = (ModParent $ Module Map.empty Map.empty mod_sp, IRBuilder (TyCtx []) [])
         (ModParent lowered_mod, IRBuilder tyctx errors) =
-            -- apply_stage vdefine .
+            apply_stage vdefine .
             apply_stage vdeclare .
             apply_stage ddefine .
             apply_stage ddeclare $
