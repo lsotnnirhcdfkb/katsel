@@ -18,216 +18,29 @@ import qualified Message.Underlines as MsgUnds
 
 import Location
 
-import Data.Map(Map)
+import IR.ID
+import IR.Parent
+import IR.ROWO
+import IR.Describe
+import IR.DeclSpan
+
+import IR.TyCtx
+
+import IR.DeclSymbol
+import IR.Module
+import IR.Type
+
+import IR.Value
+import IR.Function
+
 import qualified Data.Map as Map
 
-import Data.List(foldl', findIndex)
+import Data.List(foldl')
 import Data.Maybe(catMaybes)
-
-import Data.Typeable(Typeable, cast)
 
 import qualified Control.Monad.State.Lazy as State(State, state, runState, execState, get, put)
 
--- utility types and aliases {{{1
-type StrMap = Map String
-type DSMap = StrMap DeclSymbol
-type VMap = StrMap Value
-
-data Mutability = Mutable | Immutable
-data Signedness = Signed | Unsigned
-
-newtype TyCtx = TyCtx [Type]
--- IRId types and functions {{{1
-data DSIRId resolve = DSIRId [String]
-data VIRId resolve = VIRId (DSIRId DeclSymbol) String
-
-__resolve_dsid :: Typeable r => IRRO Module -> DSIRId r -> Maybe r
-__resolve_dsid (IRRO root) (DSIRId segments) = foldl' next (Just $ DeclSymbol root) segments >>= cast
-    where
-        next (Just ds) name = get name ds :: Maybe DeclSymbol
-        next Nothing _ = Nothing
-__resolve_vid :: Typeable r => IRRO Module -> VIRId r -> Maybe r
-__resolve_vid root (VIRId ds_path v_name) = child >>= cast
-    where
-        parent_resolved = __resolve_dsid root ds_path :: Maybe DeclSymbol
-        child = parent_resolved >>= get v_name :: Maybe Value
-
-new_dsid :: Typeable resolve => IRRO Module -> [String] -> Maybe (DSIRId resolve)
-new_dsid root segments = dsid <$ __resolve_dsid root dsid
-    where
-        dsid = DSIRId segments
-new_vid :: Typeable resolve => IRRO Module -> [String] -> Maybe (VIRId resolve)
-new_vid root segments = vid <$ __resolve_vid root vid
-    where
-        vid = VIRId (DSIRId $ init segments) (last segments)
-
-resolve_dsid :: Typeable r => IRRO Module -> DSIRId r -> r
-resolve_dsid root dsid =
-    case __resolve_dsid root dsid of
-        Just x -> x
-        Nothing -> error "DSIRId does not resolve correctly"
-resolve_vid :: Typeable r => IRRO Module -> VIRId r -> r
-resolve_vid root vid =
-    case __resolve_vid root vid of
-        Just x -> x
-        Nothing -> error "VIRId does not resolve correctly"
--- IR datatypes {{{1
--- DeclSpan class {{{2
-class DeclSpan h where
-    decl_span :: h -> Maybe Span
--- Describe class {{{2
-class Describe d where
-    describe :: d -> String
--- Parent things {{{2
-class Ord i => ParentR p c i | p c -> i where
-    get_child_map :: p -> Map i c
-    get :: i -> p -> Maybe c
-
-    get ind parent = Map.lookup ind (get_child_map parent)
-
-class Ord i => ParentW p c i | p c -> i where
-    add :: i -> c -> p -> (Maybe c, p)
-
-add_replace :: ParentW p c i => i -> c -> p -> p
-add_replace i c p = snd $ add i c p
-
-add_noreplace :: ParentW p c i => i -> c -> p -> Either c p
-add_noreplace i c p =
-    case add i c p of
-        (Just old, _) -> Left old
-        (Nothing, parent) -> Right parent
-
-newtype IRRO a = IRRO a
-newtype IRWO a = IRWO a
-
-instance (Ord i, ParentR a c i) => ParentR (IRRO a) (IRRO c) i where
-    get_child_map (IRRO ro) = Map.map IRRO $ get_child_map ro
-
-instance (Ord i, ParentW a c i) => ParentW (IRWO a) (IRWO c) i where
-    add ind (IRWO child) (IRWO wo) =
-        let (replaced, added) = add ind child wo
-        in (IRWO <$> replaced, IRWO added)
-
-ro_cast :: (Typeable a, Typeable b) => IRRO a -> Maybe (IRRO b)
-ro_cast (IRRO a) = IRRO <$> cast a
-wo_cast :: (Typeable a, Typeable b) => IRWO a -> Maybe (IRWO b)
-wo_cast (IRWO a) = IRWO <$> cast a
-
-type ParentRW p c i = (ParentR p c i, ParentW p c i)
--- DeclSymbols {{{2
-data DeclSymbol where
-    DeclSymbol :: (Typeable d, DeclSpan d, Describe d,
-            ParentR d DeclSymbol String, ParentW d DeclSymbol String,
-            ParentR d Value String,      ParentW d Value String) => d -> DeclSymbol
-
-instance ParentR DeclSymbol DeclSymbol String where
-    get_child_map (DeclSymbol d) = get_child_map d
-instance ParentW DeclSymbol DeclSymbol String where
-    add name child (DeclSymbol ds) =
-        let (replaced, added) = add name child ds
-        in (replaced, DeclSymbol added)
-instance ParentR DeclSymbol Value String where
-    get_child_map (DeclSymbol d) = get_child_map d
-instance ParentW DeclSymbol Value String where
-    add name child (DeclSymbol ds) =
-        let (replaced, added) = add name child ds
-        in (replaced, DeclSymbol added)
-
-instance DeclSpan DeclSymbol where
-    decl_span (DeclSymbol ds) = decl_span ds
-instance Describe DeclSymbol where
-    describe (DeclSymbol ds) = describe ds
-
-ds_cast :: Typeable r => DeclSymbol -> Maybe r
-ds_cast (DeclSymbol v) = cast v
--- Type {{{3
-newtype TyIdx = TyIdx Int
-data Type
-    = FloatType DSMap Int
-    | IntType DSMap Int Signedness
-    | CharType DSMap
-    | BoolType DSMap
-    | FunctionType DSMap TyIdx [(Mutability, TyIdx)]
-    | VoidType DSMap
-    | PointerType DSMap Mutability TyIdx
-
-ty_eq :: Type -> Type -> Bool
-ty_eq = error "not implemented yet"
-
-instance ParentR Type DeclSymbol String where
-    get_child_map (FloatType dsmap _) = dsmap
-    get_child_map (IntType dsmap _ _) = dsmap
-    get_child_map (CharType dsmap) = dsmap
-    get_child_map (BoolType dsmap) = dsmap
-    get_child_map (FunctionType dsmap _ _) = dsmap
-    get_child_map (VoidType dsmap) = dsmap
-    get_child_map (PointerType dsmap _ _) = dsmap
--- Module {{{3
-data Module = Module DSMap VMap Span
-
-instance ParentR Module DeclSymbol String where
-    get_child_map (Module dsmap _ _) = dsmap
-instance ParentR Module Value String where
-    get_child_map (Module _ vmap _) = vmap
-
-instance ParentW Module DeclSymbol String where
-instance ParentW Module Value String where
-
-instance DeclSpan Module where
-    decl_span (Module _ _ sp) = Just sp
-instance Describe Module where
-    describe _ = "module being compiled"
--- Values {{{2
-data Value where
-    Value :: (Typeable v, DeclSpan v, Describe v) => v -> Value
-
-instance DeclSpan Value where
-    decl_span (Value v) = decl_span v
-instance Describe Value where
-    describe (Value v) = describe v
-
-value_cast :: Typeable r => Value -> Maybe r
-value_cast (Value v) = cast v
--- Function {{{3
-data Function
-    = Function
-      { get_function_blocks :: [BasicBlock]
-      , get_function_registers :: [Register]
-      , get_function_ret_reg :: Int
-      , get_function_param_regs :: [Int]
-      , get_function_type :: TyIdx
-      , get_function_span :: Span
-      , get_function_name :: String
-      }
-data BasicBlock = BasicBlock [Instruction] (Maybe Br)
-data Register = Register TyIdx Mutability
-data Instruction
-    = Copy Register FValue
-    | Call Function [FValue]
-    | Addrof Register Mutability
-    | DerefPtr FValue
-
-data FValue
-    = FVGlobalValue Value
-    | FVRegister Register
-    | FVConstInt Integer
-    | FVConstFloat Double
-    | FVConstBool Bool
-    | FVConstChar Char
-    | FVVoid
-    | FVInstruction Instruction
-
-data Br
-    = BrRet
-    | BrGoto BasicBlock
-    | BrCond FValue BasicBlock BasicBlock
-
-instance DeclSpan Function where
-    decl_span f = Just $ get_function_span f
-instance Describe Function where
-    describe f = "function named " ++ get_function_name f
--- building the IR {{{1
--- IRBuildError {{{
+-- IRBuildError {{{1
 data IRBuildError
     = DuplicateValue String (IRWO Value) Value
     | Unsupported String Span
@@ -235,8 +48,9 @@ data IRBuildError
     | PathDoesntExist Span -- TODO: change to 'no member called x in y'
 
 instance Message.ToDiagnostic IRBuildError where
-    to_diagnostic (DuplicateValue name (IRWO old) new) =
-        let m_oldsp = decl_span old
+    to_diagnostic (DuplicateValue name irwo_old new) =
+        let old = unirwo irwo_old
+            m_oldsp = decl_span old
             m_newsp = decl_span new
             old_desc = describe old
             new_desc = describe new
@@ -251,10 +65,10 @@ instance Message.ToDiagnostic IRBuildError where
             totalmsgs = [oldmsg, newmsg]
 
             underlines_section =
-                case [x | Right x <- [oldmsg, newmsg]] of
+                case [x | Right x <- totalmsgs] of
                     [] -> Nothing
                     msgs -> Just $ Message.Underlines $ MsgUnds.UnderlinesSection msgs
-            notes = [Just x | Left x <- [oldmsg, newmsg]]
+            notes = [Just x | Left x <- totalmsgs]
             sections = catMaybes $ underlines_section : notes
         in Message.SimpleDiag Message.Error m_oldsp Nothing (Just "redecl-val") sections
 
@@ -279,22 +93,22 @@ instance Message.ToDiagnostic IRBuildError where
                 [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary "member referred to by path doesn't exist"
                 ]
             ]
--- }}}
--- IRBuilder {{{
+-- IRBuilder {{{1
 data IRBuilder = IRBuilder TyCtx [IRBuildError]
 
 add_error :: IRBuildError -> IRBuilder -> IRBuilder
 add_error err (IRBuilder tyctx errs) = IRBuilder tyctx (errs ++ [err])
--- }}}
+-- build_ir {{{1
 build_ir :: AST.LDModule -> (Module, TyCtx, [IRBuildError])
 build_ir mod_ast@(Located mod_sp _) = (lowered_mod, tyctx, errors)
     where
         apply_stage :: (AST.LDModule -> IRRO ModParent -> IRRO Module -> IRDiff (IRWO ModParent)) -> (ModParent, IRBuilder) -> (ModParent, IRBuilder)
         apply_stage fun (mod_parent@(ModParent module_), ir_builder) =
-            let (IRWO module_', ir_builder') = fun mod_ast (IRRO mod_parent) (IRRO module_) (IRWO mod_parent, ir_builder)
-            in (module_', ir_builder')
+            let (module_', ir_builder') = fun mod_ast (make_irro mod_parent) (make_irro module_) (make_irwo mod_parent, ir_builder)
+                module_'' = unirwo module_'
+            in (module_'', ir_builder')
 
-        initial_parent_builder_tup = (ModParent $ Module Map.empty Map.empty mod_sp, IRBuilder (TyCtx []) [])
+        initial_parent_builder_tup = (ModParent $ Module Map.empty Map.empty mod_sp, IRBuilder empty_tyctx [])
         (ModParent lowered_mod, IRBuilder tyctx errors) =
             apply_stage vdefine .
             apply_stage vdeclare .
@@ -302,7 +116,7 @@ build_ir mod_ast@(Located mod_sp _) = (lowered_mod, tyctx, errors)
             apply_stage ddeclare $
             initial_parent_builder_tup
 
--- helper functions {{{2
+-- helper functions {{{1
 lower_all_in_list :: Lowerable l p => [l] -> (l -> IRRO p -> IRRO Module -> IRDiff (IRWO p)) -> IRRO p -> IRRO Module -> IRDiff (IRWO p)
 lower_all_in_list things fun parent root = foldl' (.) id funs
     where
@@ -326,9 +140,6 @@ irbuilder_fun_to_cgtup_fun fun (parent, ir_builder) =
     let (res, next_ir_builder) = fun ir_builder
     in (res, (parent, next_ir_builder))
 
-ro_to_wo :: IRRO a -> IRWO a
-ro_to_wo (IRRO a) = IRWO a
-
 unwrap_maybe :: Maybe a -> a
 unwrap_maybe (Just x) = x
 unwrap_maybe Nothing = error "unwrap maybe that is Nothing"
@@ -340,7 +151,7 @@ unwrap_maybe Nothing = error "unwrap maybe that is Nothing"
         Just res -> c res
         Nothing -> r
 infixl 1 >>=?
--- type resolution & type interning {{{2
+-- type resolution & type interning {{{1
 resolve_path_d :: AST.LDPath -> IRRO Module -> (p, IRBuilder) -> (Maybe (DeclSymbol, DSIRId DeclSymbol), (p, IRBuilder))
 resolve_path_d (Located path_sp (AST.DPath' located_segments)) root cgtup@(parent, ir_builder) =
     case m_dsid of
@@ -374,16 +185,16 @@ resolve_ty (Located path_sp (AST.DType'Path path)) root cgtup = flip State.runSt
 resolve_ty (Located sp (AST.DType'Pointer _ _)) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "pointer types" sp) ir_builder)) ---TODO
 resolve_ty (Located sp AST.DType'This) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "'this' types" sp) ir_builder)) -- TODO
 
-get_ty :: Type -> IRBuilder -> (TyIdx, IRBuilder)
-get_ty ty ir_builder@(IRBuilder (TyCtx tys) errs) =
-    case findIndex (ty_eq ty) tys of
-        Just idx -> (TyIdx idx, ir_builder)
-        Nothing -> (TyIdx $ length tys, IRBuilder (TyCtx $ tys ++ [ty]) errs)
--- Lowerable class {{{2
+get_ty_irbuilder :: Type -> IRBuilder -> (TyIdx, IRBuilder)
+get_ty_irbuilder ty (IRBuilder ctx errs) =
+    let (idx, ctx') = get_ty ty ctx
+    in (idx, IRBuilder ctx' errs)
+
+-- Lowerable class {{{1
 type IRDiff p = (p, IRBuilder) -> (p, IRBuilder)
 class Lowerable l p where
     ddeclare, ddefine, vdeclare, vdefine :: l -> IRRO p -> IRRO Module -> IRDiff (IRWO p)
--- lowering modules {{{2
+-- lowering modules {{{1
 newtype ModParent = ModParent Module
 instance ParentR ModParent Module () where
     get_child_map (ModParent mp) = Map.fromList [((), mp)]
@@ -410,7 +221,7 @@ instance ParentRW p Module () => Lowerable AST.LDModule p where
         let (Just module_) = get () parent :: Maybe (IRRO Module)
             (module_', ir_builder') = lower_all_in_list decls vdefine module_ root (ro_to_wo module_, ir_builder)
         in (add_replace () module_' wo_parent, ir_builder')
--- lowering functions {{{2
+-- lowering functions {{{1
 instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
     -- functions do not lower to anything during the declaration phases
     ddeclare _ _ _ = id
@@ -420,7 +231,7 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
         (State.state $ case mretty of
             Just retty -> resolve_ty retty root
             Nothing -> \ (p, irb) ->
-                let (idx, irb') = get_ty (VoidType Map.empty) irb
+                let (idx, irb') = get_ty_irbuilder (VoidType Map.empty) irb
                 in (Just idx, (p, irb'))
         ) >>=? (return ()) $ \ retty' ->
         let make_param :: AST.LDParam -> State.State (p, IRBuilder) (Maybe (Mutability, TyIdx))
@@ -431,7 +242,7 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
                     Nothing -> return Nothing
         in sequence <$> (sequence $ map make_param params) >>=? (return ()) $ \ param_tys ->
         let newty = FunctionType Map.empty retty' param_tys
-        in State.state (irbuilder_fun_to_cgtup_fun $ get_ty newty) >>= \ fun_ty_idx ->
+        in State.state (irbuilder_fun_to_cgtup_fun $ get_ty_irbuilder newty) >>= \ fun_ty_idx ->
         let fun = Function
                   { get_function_blocks = []
                   , get_function_registers = map (uncurry $ flip Register) param_tys
@@ -443,7 +254,7 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
                   }
             fun_val = Value fun
         in State.get >>= \ before@(before_woparent, before_ir_builder) ->
-            case add_noreplace name (IRWO fun_val) before_woparent of
+            case add_noreplace name (make_irwo fun_val) before_woparent of
                 Left other_value ->
                     State.put before >>
                     State.state (irbuilder_fun_to_cgtup_fun $ add_unit_res $ add_error $ DuplicateValue name other_value fun_val)
@@ -458,10 +269,10 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
             Nothing -> cgtup
 
             Just old_fun -> lower_fun_body (ro_to_wo old_fun) cgtup
--- lowering function bodies {{{3
+-- lowering function bodies {{{2
 lower_fun_body :: ParentW p (IRWO Value) String => IRWO Function -> (p, IRBuilder) -> (p, IRBuilder)
 lower_fun_body = error "not implemented yet"
--- lowering declarations {{{2
+-- lowering declarations {{{1
 instance ParentRW p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) roparent root cgtup = ddeclare sf roparent root cgtup
     ddeclare (Located sp (AST.DDecl'Impl _ _)) roparent root (woparent, ir_builder) =

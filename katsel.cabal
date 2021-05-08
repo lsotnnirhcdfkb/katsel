@@ -28,6 +28,19 @@ executable katsel
 
                        -- lowering the ast into ir
                      , IR
+                     , IR.DeclSpan
+                     , IR.DeclSymbol
+                     , IR.Describe
+                     , IR.Function
+                     , IR.ID
+                     , IR.MapSynonyms
+                     , IR.Module
+                     , IR.Parent
+                     , IR.ROWO
+                     , IR.TyCtx
+                     , IR.TyIdx
+                     , IR.Type
+                     , IR.Value
 
                        -- utility things
                      , Location
