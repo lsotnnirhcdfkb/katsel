@@ -1,5 +1,5 @@
-{-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE FunctionalDependencies #-}
 
 module IR.Parent
     ( ParentR(..)
