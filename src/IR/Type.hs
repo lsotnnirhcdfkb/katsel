@@ -32,7 +32,7 @@ ty_eq (FloatType _ size_a) (FloatType _ size_b)
     | size_a == size_b = True
 
 ty_eq (IntType _ size_a sign_a) (IntType _ size_b sign_b)
-    | size_a == size_b && sign_b == sign_b = True
+    | size_a == size_b && sign_a == sign_b = True
 
 ty_eq (FunctionType _ ret_a params_a) (FunctionType _ ret_b params_b)
     | ret_a == ret_b && params_a == params_b = True
