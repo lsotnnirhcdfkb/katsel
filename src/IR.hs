@@ -26,7 +26,7 @@ import Data.Maybe(catMaybes)
 
 import Data.Typeable(Typeable, cast)
 
-import qualified Control.Monad.State.Lazy as State(State, state, execState, get, put)
+import qualified Control.Monad.State.Lazy as State(State, state, runState, execState, get, put)
 
 -- utility types and aliases {{{1
 type StrMap = Map String
@@ -38,27 +38,39 @@ data Signedness = Signed | Unsigned
 
 newtype TyCtx = TyCtx [Type]
 -- IRId types and functions {{{1
-newtype DSIRId resolve = DSIRId [String]
+data DSIRId resolve = DSIRId [String]
 data VIRId resolve = VIRId (DSIRId DeclSymbol) String
 
-new_dsid :: [String] -> resolve -> DSIRId resolve
-new_dsid segments _ = DSIRId segments
-new_vid :: [String] -> resolve -> VIRId resolve
-new_vid segments _ = VIRId (DSIRId $ init segments) (last segments)
-
-resolve_dsid :: Typeable r => IRRO Module -> DSIRId r -> Maybe r
-resolve_dsid (IRRO root) (DSIRId path) =
-    foldl' next (Just $ DeclSymbol root) path >>= cast
+__resolve_dsid :: Typeable r => IRRO Module -> DSIRId r -> Maybe r
+__resolve_dsid (IRRO root) (DSIRId segments) = foldl' next (Just $ DeclSymbol root) segments >>= cast
     where
         next (Just ds) name = get name ds :: Maybe DeclSymbol
         next Nothing _ = Nothing
-
-resolve_vid :: Typeable r => IRRO Module -> VIRId r -> Maybe r
-resolve_vid root (VIRId parent childname) =
-    child >>= cast
+__resolve_vid :: Typeable r => IRRO Module -> VIRId r -> Maybe r
+__resolve_vid root (VIRId ds_path v_name) = child >>= cast
     where
-        parent_resolved = resolve_dsid root parent
-        child = parent_resolved >>= get childname :: Maybe Value
+        parent_resolved = __resolve_dsid root ds_path :: Maybe DeclSymbol
+        child = parent_resolved >>= get v_name :: Maybe Value
+
+new_dsid :: Typeable resolve => IRRO Module -> [String] -> Maybe (DSIRId resolve)
+new_dsid root segments = dsid <$ __resolve_dsid root dsid
+    where
+        dsid = DSIRId segments
+new_vid :: Typeable resolve => IRRO Module -> [String] -> Maybe (VIRId resolve)
+new_vid root segments = vid <$ __resolve_vid root vid
+    where
+        vid = VIRId (DSIRId $ init segments) (last segments)
+
+resolve_dsid :: Typeable r => IRRO Module -> DSIRId r -> r
+resolve_dsid root dsid =
+    case __resolve_dsid root dsid of
+        Just x -> x
+        Nothing -> error "DSIRId does not resolve correctly"
+resolve_vid :: Typeable r => IRRO Module -> VIRId r -> r
+resolve_vid root vid =
+    case __resolve_vid root vid of
+        Just x -> x
+        Nothing -> error "VIRId does not resolve correctly"
 -- IR datatypes {{{1
 -- DeclSpan class {{{2
 class DeclSpan h where
@@ -216,6 +228,8 @@ instance Describe Function where
 data IRBuildError
     = DuplicateValue String (IRWO Value) Value
     | Unsupported String Span
+    | NotAType Span DeclSymbol
+    | PathDoesntExist Span [String] -- TODO: change to 'no member called x in y'
 
 instance Message.ToDiagnostic IRBuildError where
     to_diagnostic (DuplicateValue name (IRWO old) new) =
@@ -308,19 +322,35 @@ unwrap_maybe Nothing = error "unwrap maybe that is Nothing"
         Nothing -> r
 infixl 1 >>=?
 -- type resolution & type interning {{{2
-resolve_path_v :: AST.LDPath -> IRRO Module -> Maybe (VIRId Value)
-resolve_path_v = error "not implemented yet"
-resolve_path_d :: AST.LDPath -> IRRO Module -> Maybe (DSIRId DeclSymbol)
-resolve_path_d = error "not implemented yet"
+resolve_path_d :: AST.LDPath -> IRRO Module -> (p, IRBuilder) -> (Maybe (DeclSymbol, DSIRId DeclSymbol), (p, IRBuilder))
+resolve_path_d (Located path_sp (AST.DPath' located_segments)) root cgtup@(parent, ir_builder) =
+    case m_dsid of
+        Just dsid -> (Just (resolve_dsid root dsid, dsid), cgtup)
+        Nothing -> (Nothing, (parent, add_error (PathDoesntExist path_sp segments) ir_builder))
+    where
+        unlocate (Located _ x) = x
+        segments = map unlocate located_segments
+        m_dsid = new_dsid root segments :: Maybe (DSIRId DeclSymbol)
+
+resolve_path_v :: AST.LDPath -> IRRO Module -> (p, IRBuilder) -> (Maybe (Value, VIRId Value), (p, IRBuilder))
+resolve_path_v (Located path_sp (AST.DPath' located_segments)) root cgtup@(parent, ir_builder) =
+    case m_vid of
+        Just vid -> (Just (resolve_vid root vid, vid), cgtup)
+        Nothing -> (Nothing, (parent, add_error (PathDoesntExist path_sp segments) ir_builder))
+    where
+        unlocate (Located _ x) = x
+        segments = map unlocate located_segments
+        m_vid = new_vid root segments :: Maybe (VIRId Value)
 
 resolve_ty :: AST.LDType -> IRRO Module -> (p, IRBuilder) -> (Maybe TyIdx, (p, IRBuilder))
 
-resolve_ty (Located _ (AST.DType'Path path)) root cgtup =
-    let tyidx =
-            resolve_path_d path root >>= \ dsid ->
-            resolve_dsid root dsid >>= \ resvoled ->
-            ds_cast resvoled :: Maybe TyIdx
-    in (tyidx, cgtup)
+resolve_ty (Located path_sp (AST.DType'Path path)) root cgtup = flip State.runState cgtup $
+    (State.state $ resolve_path_d path root) >>=? (return Nothing) $ \ (ds, _) ->
+    case ds_cast ds :: Maybe TyIdx of
+        j@(Just _) -> return j
+        Nothing ->
+            State.state (irbuilder_fun_to_cgtup_fun $ add_unit_res $ add_error $ NotAType path_sp ds) >>
+            return Nothing
 
 resolve_ty (Located sp (AST.DType'Pointer _ _)) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "pointer types" sp) ir_builder)) ---TODO
 resolve_ty (Located sp AST.DType'This) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "'this' types" sp) ir_builder)) -- TODO
@@ -393,12 +423,12 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
                   , get_function_name = name
                   }
             fun_val = Value fun
-        in State.get >>= \ before@(woparent, ir_builder) ->
-            case add_noreplace name (IRWO fun_val) woparent of
+        in State.get >>= \ before@(before_woparent, before_ir_builder) ->
+            case add_noreplace name (IRWO fun_val) before_woparent of
                 Left other_value ->
-                    State.state (irbuilder_fun_to_cgtup_fun $ add_unit_res $ add_error $ DuplicateValue name other_value fun_val) >>
-                    State.put before
-                Right added -> State.put (added, ir_builder)
+                    State.put before >>
+                    State.state (irbuilder_fun_to_cgtup_fun $ add_unit_res $ add_error $ DuplicateValue name other_value fun_val)
+                Right added -> State.put (added, before_ir_builder)
 
     vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) roparent root cgtup =
         let m_val = get name roparent :: Maybe (IRRO Value)
