@@ -430,7 +430,7 @@ onemore ex = fun []
             ex >>= \ res ->
             case res of
                 Just thing ->
-                    fun (acc ++ [thing])
+                    fun $ acc ++ [thing]
 
                 Nothing ->
                     restore_location saved >>

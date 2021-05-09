@@ -118,7 +118,7 @@ build_ir mod_ast@(Located mod_sp _) = (lowered_mod, tyctx, errors)
 
 -- helper functions {{{1
 lower_all_in_list :: Lowerable l p => [l] -> (l -> IRRO p -> IRRO Module -> IRDiff (IRWO p)) -> IRRO p -> IRRO Module -> IRDiff (IRWO p)
-lower_all_in_list things fun parent root = foldl' (.) id funs
+lower_all_in_list things fun parent root = foldl' (flip (.)) id funs
     where
         apply_fun thing = fun thing parent root
         funs = map apply_fun things
