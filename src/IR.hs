@@ -50,7 +50,9 @@ build_ir mod_ast@(Located mod_sp _) = (lowered_mod, tyctx, errors)
                 module_'' = unirwo module_'
             in (module_'', ir_builder')
 
-        initial_cgtup = (ModParent $ Module Map.empty Map.empty mod_sp, IRBuilder empty_tyctx [])
+        initial_cgtup = (ModParent module_, IRBuilder tyctx [])
+            where
+                (module_, tyctx) = new_module mod_sp empty_tyctx
         (ModParent lowered_mod, IRBuilder tyctx errors) =
             apply_stage vdefine .
             apply_stage vdeclare .
