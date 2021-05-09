@@ -47,4 +47,4 @@ data Br
 instance DeclSpan Function where
     decl_span f = Just $ get_function_span f
 instance Describe Function where
-    describe f = "function named " ++ get_function_name f
+    describe f = "function named '" ++ get_function_name f ++ "'"
