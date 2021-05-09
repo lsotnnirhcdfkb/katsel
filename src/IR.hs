@@ -40,6 +40,25 @@ import Data.Maybe(catMaybes)
 
 import qualified Control.Monad.State.Lazy as State(State, state, runState, execState, get, put)
 
+-- build_ir {{{1
+build_ir :: AST.LDModule -> (Module, TyCtx, [IRBuildError])
+build_ir mod_ast@(Located mod_sp _) = (lowered_mod, tyctx, errors)
+    where
+        apply_stage :: (AST.LDModule -> IRRO ModParent -> IRRO Module -> IRDiff (IRWO ModParent)) -> (ModParent, IRBuilder) -> (ModParent, IRBuilder)
+        apply_stage fun (mod_parent@(ModParent module_), ir_builder) =
+            let (module_', ir_builder') = fun mod_ast (make_irro mod_parent) (make_irro module_) (make_irwo mod_parent, ir_builder)
+                module_'' = unirwo module_'
+            in (module_'', ir_builder')
+
+        initial_cgtup = (ModParent $ Module Map.empty Map.empty mod_sp, IRBuilder empty_tyctx [])
+        (ModParent lowered_mod, IRBuilder tyctx errors) =
+            apply_stage vdefine .
+            apply_stage vdeclare .
+            apply_stage ddefine .
+            apply_stage ddeclare $
+            initial_cgtup
+-- IRBuilder {{{1
+data IRBuilder = IRBuilder TyCtx [IRBuildError]
 -- IRBuildError {{{1
 data IRBuildError
     = DuplicateValue String (IRWO Value) Value
@@ -93,29 +112,6 @@ instance Message.ToDiagnostic IRBuildError where
                 [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary "member referred to by path doesn't exist"
                 ]
             ]
--- IRBuilder {{{1
-data IRBuilder = IRBuilder TyCtx [IRBuildError]
-
-add_error :: IRBuildError -> IRBuilder -> IRBuilder
-add_error err (IRBuilder tyctx errs) = IRBuilder tyctx (errs ++ [err])
--- build_ir {{{1
-build_ir :: AST.LDModule -> (Module, TyCtx, [IRBuildError])
-build_ir mod_ast@(Located mod_sp _) = (lowered_mod, tyctx, errors)
-    where
-        apply_stage :: (AST.LDModule -> IRRO ModParent -> IRRO Module -> IRDiff (IRWO ModParent)) -> (ModParent, IRBuilder) -> (ModParent, IRBuilder)
-        apply_stage fun (mod_parent@(ModParent module_), ir_builder) =
-            let (module_', ir_builder') = fun mod_ast (make_irro mod_parent) (make_irro module_) (make_irwo mod_parent, ir_builder)
-                module_'' = unirwo module_'
-            in (module_'', ir_builder')
-
-        initial_parent_builder_tup = (ModParent $ Module Map.empty Map.empty mod_sp, IRBuilder empty_tyctx [])
-        (ModParent lowered_mod, IRBuilder tyctx errors) =
-            apply_stage vdefine .
-            apply_stage vdeclare .
-            apply_stage ddefine .
-            apply_stage ddeclare $
-            initial_parent_builder_tup
-
 -- helper functions {{{1
 lower_all_in_list :: Lowerable l p => [l] -> (l -> IRRO p -> IRRO Module -> IRDiff (IRWO p)) -> IRRO p -> IRRO Module -> IRDiff (IRWO p)
 lower_all_in_list things fun parent root = foldl' (flip (.)) id funs
@@ -151,7 +147,10 @@ unwrap_maybe Nothing = error "unwrap maybe that is Nothing"
         Just res -> c res
         Nothing -> r
 infixl 1 >>=?
--- type resolution & type interning {{{1
+
+add_error :: IRBuildError -> IRBuilder -> IRBuilder
+add_error err (IRBuilder tyctx errs) = IRBuilder tyctx (errs ++ [err])
+-- path resultion, type resolution, type interning {{{1
 resolve_path_d :: AST.LDPath -> IRRO Module -> (p, IRBuilder) -> (Maybe (DeclSymbol, DSIRId DeclSymbol), (p, IRBuilder))
 resolve_path_d (Located path_sp (AST.DPath' located_segments)) root cgtup@(parent, ir_builder) =
     case m_dsid of
@@ -189,7 +188,6 @@ get_ty_irbuilder :: Type -> IRBuilder -> (TyIdx, IRBuilder)
 get_ty_irbuilder ty (IRBuilder ctx errs) =
     let (idx, ctx') = get_ty ty ctx
     in (idx, IRBuilder ctx' errs)
-
 -- Lowerable class {{{1
 type IRDiff p = (p, IRBuilder) -> (p, IRBuilder)
 class Lowerable l p where
@@ -197,7 +195,7 @@ class Lowerable l p where
 -- lowering modules {{{1
 newtype ModParent = ModParent Module
 instance ParentR ModParent Module () where
-    get_child_map (ModParent mp) = Map.fromList [((), mp)]
+    get_child_map (ModParent mp) = Map.singleton () mp
 instance ParentW ModParent Module () where
     add _ child (ModParent prev) = (Just prev, ModParent child)
 
