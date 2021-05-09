@@ -30,7 +30,7 @@ new_module sp irctx = (Module Map.empty Map.empty sp, irctx)
             in (tys ++ [(name, DeclSymbol idx)], ctx')
 
         dsmap = Map.fromList dsmap_list
-        (dsmap_list, tyctx') =
+        (dsmap_list, irctx') =
             make_list "void" (VoidType Map.empty) .
             make_list "float" (FloatType Map.empty 32) .
             make_list "double" (FloatType Map.empty 64) .
@@ -43,7 +43,7 @@ new_module sp irctx = (Module Map.empty Map.empty sp, irctx)
             make_list "sint8" (IntType Map.empty 8 Signed) .
             make_list "sint16" (IntType Map.empty 16 Signed) .
             make_list "sint32" (IntType Map.empty 32 Signed) .
-            make_list "sint64" (IntType Map.empty 64 Signed) $ ([], tyctx)
+            make_list "sint64" (IntType Map.empty 64 Signed) $ ([], irctx)
         -}
 
 instance ParentR Module DeclSymbol String where
