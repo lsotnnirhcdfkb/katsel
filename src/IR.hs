@@ -8,7 +8,7 @@
 module IR
     ( build_ir
     , Module
-    , TyCtx
+    , IRCtx
     ) where
 
 import qualified AST
@@ -24,7 +24,8 @@ import IR.ROWO
 import IR.Describe
 import IR.DeclSpan
 
-import IR.TyCtx
+import IR.TypeInterner
+import IR.IRCtx
 
 import IR.DeclSymbol
 import IR.Module
@@ -41,8 +42,8 @@ import Data.Maybe(catMaybes)
 import qualified Control.Monad.State.Lazy as State(State, state, runState, execState, get, put)
 
 -- build_ir {{{1
-build_ir :: AST.LDModule -> (Module, TyCtx, [IRBuildError])
-build_ir mod_ast@(Located mod_sp _) = (lowered_mod, tyctx, errors)
+build_ir :: AST.LDModule -> (Module, IRCtx, [IRBuildError])
+build_ir mod_ast@(Located mod_sp _) = (lowered_mod, irctx, errors)
     where
         apply_stage :: (AST.LDModule -> IRRO ModParent -> IRRO Module -> IRDiff (IRWO ModParent)) -> (ModParent, IRBuilder) -> (ModParent, IRBuilder)
         apply_stage fun (mod_parent@(ModParent module_), ir_builder) =
@@ -50,17 +51,17 @@ build_ir mod_ast@(Located mod_sp _) = (lowered_mod, tyctx, errors)
                 module_'' = unirwo module_'
             in (module_'', ir_builder')
 
-        initial_cgtup = (ModParent module_, IRBuilder tyctx [])
+        initial_cgtup = (ModParent module_, IRBuilder irctx [])
             where
-                (module_, tyctx) = new_module mod_sp empty_tyctx
-        (ModParent lowered_mod, IRBuilder tyctx errors) =
+                (module_, irctx) = new_module mod_sp new_irctx
+        (ModParent lowered_mod, IRBuilder irctx errors) =
             apply_stage vdefine .
             apply_stage vdeclare .
             apply_stage ddefine .
             apply_stage ddeclare $
             initial_cgtup
 -- IRBuilder {{{1
-data IRBuilder = IRBuilder TyCtx [IRBuildError]
+data IRBuilder = IRBuilder IRCtx [IRBuildError]
 -- IRBuildError {{{1
 data IRBuildError
     = DuplicateValue String (IRWO Value) Value
@@ -151,7 +152,7 @@ unwrap_maybe Nothing = error "unwrap maybe that is Nothing"
 infixl 1 >>=?
 
 add_error :: IRBuildError -> IRBuilder -> IRBuilder
-add_error err (IRBuilder tyctx errs) = IRBuilder tyctx (errs ++ [err])
+add_error err (IRBuilder irctx errs) = IRBuilder irctx (errs ++ [err])
 -- path resultion, type resolution, type interning {{{1
 resolve_path_d :: AST.LDPath -> IRRO Module -> (p, IRBuilder) -> (Maybe (DeclSymbol, DSIRId DeclSymbol), (p, IRBuilder))
 resolve_path_d (Located path_sp (AST.DPath' located_segments)) root cgtup@(parent, ir_builder) =
@@ -188,7 +189,7 @@ resolve_ty (Located sp AST.DType'This) root (p, ir_builder) = (Nothing, (p, add_
 
 get_ty_irbuilder :: Type -> IRBuilder -> (TyIdx, IRBuilder)
 get_ty_irbuilder ty (IRBuilder ctx errs) =
-    let (idx, ctx') = get_ty ty ctx
+    let (idx, ctx') = get_ty_irctx ty ctx
     in (idx, IRBuilder ctx' errs)
 -- Lowerable class {{{1
 type IRDiff p = (p, IRBuilder) -> (p, IRBuilder)

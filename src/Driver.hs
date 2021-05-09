@@ -66,7 +66,7 @@ parse_stage toks =
             add_errors [Message.to_diagnostic err] >>
             return Nothing
 
-lower_ast_stage :: AST.LDModule -> ErrorAccumulated (IR.Module, IR.TyCtx)
+lower_ast_stage :: AST.LDModule -> ErrorAccumulated (IR.Module, IR.IRCtx)
 lower_ast_stage mod_ast =
     let (ir_mod, tyctx, errs) = IR.build_ir mod_ast
     in add_errors (map Message.to_diagnostic errs) >> return (ir_mod, tyctx)

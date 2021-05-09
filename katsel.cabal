@@ -25,13 +25,14 @@ executable katsel
                      , IR.Describe
                      , IR.Function
                      , IR.ID
+                     , IR.IRCtx
                      , IR.MapSynonyms
                      , IR.Module
                      , IR.Parent
                      , IR.ROWO
-                     , IR.TyCtx
                      , IR.TyIdx
                      , IR.Type
+                     , IR.TypeInterner
                      , IR.Value
 
                        -- utility things

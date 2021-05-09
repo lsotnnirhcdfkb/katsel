@@ -8,20 +8,21 @@ module IR.Module
 
 import IR.Parent
 import IR.MapSynonyms
+import IR.IRCtx
 import IR.DeclSymbol
 import IR.Type
 import IR.Value
 import IR.DeclSpan
 import IR.Describe
-import IR.TyCtx
+import IR.TypeInterner
 
 import qualified Data.Map as Map
 
 import Location
 
 data Module = Module DSMap VMap Span
-new_module :: Span -> TyCtx -> (Module, TyCtx)
-new_module sp tyctx = (Module Map.empty Map.empty sp, tyctx)
+new_module :: Span -> IRCtx -> (Module, IRCtx)
+new_module sp irctx = (Module Map.empty Map.empty sp, irctx)
     where
         {-
         make_list name ty (tys, ctx) =
