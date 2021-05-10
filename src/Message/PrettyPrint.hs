@@ -5,8 +5,8 @@ module Message.PrettyPrint
     , pprint_mod
     , pprint_ldecl
     , pprint_decl
-    , pprint_limpl_member
-    , pprint_impl_member
+    , pprint_limpl_entity
+    , pprint_impl_entity
     , pprint_lstmt
     , pprint_stmt
     , pprint_lexpr
@@ -128,13 +128,13 @@ pprint_mod_s (AST.DModule' decls) = pprint_list (pprint_decl_s . unlocate) decls
 -- AST.DDecl {{{1
 pprint_decl_s :: AST.DDecl -> State [PPrintSegment] ()
 pprint_decl_s (AST.DDecl'Fun sf) = pprint_fun_decl_s $ unlocate sf
-pprint_decl_s (AST.DDecl'Impl ty members) =
+pprint_decl_s (AST.DDecl'Impl ty entities) =
     put "impl " >> pprint_type_s (unlocate ty) >> indent >>
-    pprint_list (pprint_impl_member_s . unlocate) members >>
+    pprint_list (pprint_impl_entity_s . unlocate) entities >>
     dedent
--- AST.DImplMember {{{1
-pprint_impl_member_s :: AST.DImplMember -> State [PPrintSegment] ()
-pprint_impl_member_s (AST.DImplMember'Fun sf) = pprint_fun_decl_s $ unlocate sf
+-- AST.DImplEntity {{{1
+pprint_impl_entity_s :: AST.DImplEntity -> State [PPrintSegment] ()
+pprint_impl_entity_s (AST.DImplEntity'Fun sf) = pprint_fun_decl_s $ unlocate sf
 -- AST.DStmt {{{1
 pprint_stmt_s :: AST.DStmt -> State [PPrintSegment] ()
 
@@ -336,7 +336,7 @@ pprint_type_annotation_s ty = put ": " >> pprint_type_s ty
 -- splices {{{1
 $(make_print_variants "mod")
 $(make_print_variants "decl")
-$(make_print_variants "impl_member")
+$(make_print_variants "impl_entity")
 $(make_print_variants "stmt")
 $(make_print_variants "expr")
 $(make_print_variants "param")

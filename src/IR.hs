@@ -67,7 +67,7 @@ data IRBuildError
     = DuplicateValue String (IRWO Value) Value
     | Unsupported String Span
     | NotAType Span DeclSymbol
-    | PathDoesntExist Span -- TODO: change to 'no member called x in y'
+    | PathDoesntExist Span -- TODO: change to 'no entity called x in y'
 
 instance Message.ToDiagnostic IRBuildError where
     to_diagnostic (DuplicateValue name irwo_old new) =
@@ -112,7 +112,7 @@ instance Message.ToDiagnostic IRBuildError where
     to_diagnostic (PathDoesntExist path_sp) =
         Message.SimpleDiag Message.Error (Just path_sp) Nothing (Just "path-doesnt-exist")
             [ Message.Underlines $ MsgUnds.UnderlinesSection
-                [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary "member referred to by path doesn't exist"
+                [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary "entity referred to by path doesn't exist"
                 ]
             ]
 -- helper functions {{{1

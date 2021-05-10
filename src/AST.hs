@@ -18,7 +18,7 @@ module AST
 
     , DModule(..)
     , DDecl(..)
-    , DImplMember(..)
+    , DImplEntity(..)
     , DStmt(..)
     , DExpr(..)
     , DParam(..)
@@ -30,7 +30,7 @@ module AST
 
     , LDModule
     , LDDecl
-    , LDImplMember
+    , LDImplEntity
     , LDStmt
     , LDExpr
     , LDParam
@@ -52,7 +52,7 @@ import Control.Monad.State.Lazy(State, state, runState)
 
 {-
     most asts are just a plain adt, but some asts are required in multiple asts
-    for example, function declarations are needed in a standard Decl and also in an ImplMember
+    for example, function declarations are needed in a standard Decl and also in an ImplEntity
     to prevent duplication, these asts are separated into separate datatypes
 
     so, a Decl is a variant, but a FunDecl is a separated datatype (due to its multiple uses)
@@ -146,11 +146,11 @@ newtype DModule = DModule' [LDDecl]
 type LDDecl = Located DDecl
 data DDecl
     = DDecl'Fun LSFunDecl
-    | DDecl'Impl LDType [LDImplMember]
+    | DDecl'Impl LDType [LDImplEntity]
 
-type LDImplMember = Located DImplMember
-newtype DImplMember
-    = DImplMember'Fun LSFunDecl
+type LDImplEntity = Located DImplEntity
+newtype DImplEntity
+    = DImplEntity'Fun LSFunDecl
 
 type LDStmt = Located DStmt
 data DStmt
@@ -572,7 +572,7 @@ impl_decl =
         impl_list = zeromore $
             choice
                 [ function_decl `seqparser` \ lsfd@(Located sp _) ->
-                  return $ Just $ Located sp $ AST.DImplMember'Fun lsfd
+                  return $ Just $ Located sp $ AST.DImplEntity'Fun lsfd
                 ]
 -- types {{{2
 type_annotation :: ParseFunM AST.LDType
