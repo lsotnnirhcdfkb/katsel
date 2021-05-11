@@ -224,6 +224,7 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
     ddeclare _ _ = id
     ddefine _ _ = id
 
+    -- TODO: refactor this a bit because it is very messy
     vdeclare (Located fun_sp (AST.SFunDecl' mretty (Located _ name) params _)) root = State.execState $
         (State.state $ case mretty of
             Just retty -> resolve_ty retty root
