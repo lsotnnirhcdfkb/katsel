@@ -20,7 +20,6 @@ import Location
 
 import IR.ID
 import IR.Parent
-import IR.ROWO
 import IR.Describe
 import IR.DeclSpan
 
@@ -44,11 +43,10 @@ import qualified Control.Monad.State.Lazy as State(State, state, runState, execS
 build_ir :: AST.LDModule -> (Module, IRCtx, [IRBuildError])
 build_ir mod_ast@(Located mod_sp _) = (lowered_mod, lowered_irctx, errors)
     where
-        apply_stage :: (AST.LDModule -> IRRO ModParent -> IRRO Module -> IRDiff (IRWO ModParent)) -> (ModParent, IRBuilder) -> (ModParent, IRBuilder)
+        apply_stage :: (AST.LDModule -> Module -> IRDiff ModParent) -> (ModParent, IRBuilder) -> (ModParent, IRBuilder)
         apply_stage fun (mod_parent@(ModParent module_), ir_builder) =
-            let (module_', ir_builder') = fun mod_ast (make_irro mod_parent) (make_irro module_) (make_irwo mod_parent, ir_builder)
-                module_'' = unirwo module_'
-            in (module_'', ir_builder')
+            let (module_', ir_builder') = fun mod_ast module_ (mod_parent, ir_builder)
+            in (module_', ir_builder')
 
         initial_cgtup = (ModParent module_, IRBuilder irctx [])
             where
@@ -63,15 +61,14 @@ build_ir mod_ast@(Located mod_sp _) = (lowered_mod, lowered_irctx, errors)
 data IRBuilder = IRBuilder IRCtx [IRBuildError]
 -- IRBuildError {{{1
 data IRBuildError
-    = DuplicateValue String (IRWO Value) Value
+    = DuplicateValue String Value Value
     | Unsupported String Span
     | NotAType Span DeclSymbol
     | PathDoesntExist Span -- TODO: change to 'no entity called x in y'
 
 instance Message.ToDiagnostic (IRBuildError, IRCtx) where
-    to_diagnostic (DuplicateValue name irwo_old new, irctx) =
-        let old = unirwo irwo_old
-            m_oldsp = decl_span irctx old
+    to_diagnostic (DuplicateValue name old new, irctx) =
+        let m_oldsp = decl_span irctx old
             m_newsp = decl_span irctx new
             old_desc = describe irctx old
             new_desc = describe irctx new
@@ -115,10 +112,10 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
                 ]
             ]
 -- helper functions {{{1
-lower_all_in_list :: Lowerable l p => [l] -> (l -> IRRO p -> IRRO Module -> IRDiff (IRWO p)) -> IRRO p -> IRRO Module -> IRDiff (IRWO p)
-lower_all_in_list things fun parent root = foldl' (flip (.)) id funs
+lower_all_in_list :: Lowerable l p => [l] -> (l -> Module -> IRDiff p) -> Module -> IRDiff p
+lower_all_in_list things fun root = foldl' (flip (.)) id funs
     where
-        apply_fun thing = fun thing parent root
+        apply_fun thing = fun thing root
         funs = map apply_fun things
 
 ast_muty_to_ir_muty :: AST.Mutability -> Mutability
@@ -153,7 +150,7 @@ infixl 1 >>=?
 add_error :: IRBuildError -> IRBuilder -> IRBuilder
 add_error err (IRBuilder irctx errs) = IRBuilder irctx (errs ++ [err])
 -- path resultion, type resolution, type interning {{{1
-resolve_path_d :: AST.LDPath -> IRRO Module -> (p, IRBuilder) -> (Maybe (DeclSymbol, DSIRId DeclSymbol), (p, IRBuilder))
+resolve_path_d :: AST.LDPath -> Module -> (p, IRBuilder) -> (Maybe (DeclSymbol, DSIRId DeclSymbol), (p, IRBuilder))
 resolve_path_d (Located path_sp (AST.DPath' located_segments)) root cgtup@(parent, ir_builder@(IRBuilder irctx _)) =
     case m_dsid of
         Just dsid -> (Just (resolve_dsid irctx root dsid, dsid), cgtup)
@@ -163,7 +160,7 @@ resolve_path_d (Located path_sp (AST.DPath' located_segments)) root cgtup@(paren
         segments = map unlocate located_segments
         m_dsid = new_dsid irctx root segments :: Maybe (DSIRId DeclSymbol)
 
-resolve_path_v :: AST.LDPath -> IRRO Module -> (p, IRBuilder) -> (Maybe (Value, VIRId Value), (p, IRBuilder))
+resolve_path_v :: AST.LDPath -> Module -> (p, IRBuilder) -> (Maybe (Value, VIRId Value), (p, IRBuilder))
 resolve_path_v (Located path_sp (AST.DPath' located_segments)) root cgtup@(parent, ir_builder@(IRBuilder irctx _)) =
     case m_vid of
         Just vid -> (Just (resolve_vid irctx root vid, vid), cgtup)
@@ -173,7 +170,7 @@ resolve_path_v (Located path_sp (AST.DPath' located_segments)) root cgtup@(paren
         segments = map unlocate located_segments
         m_vid = new_vid irctx root segments :: Maybe (VIRId Value)
 
-resolve_ty :: AST.LDType -> IRRO Module -> (p, IRBuilder) -> (Maybe TyIdx, (p, IRBuilder))
+resolve_ty :: AST.LDType -> Module -> (p, IRBuilder) -> (Maybe TyIdx, (p, IRBuilder))
 
 resolve_ty (Located path_sp (AST.DType'Path path)) root cgtup = flip State.runState cgtup $
     (State.state $ resolve_path_d path root) >>=? (return Nothing) $ \ (ds, _) ->
@@ -193,7 +190,7 @@ get_ty_irbuilder ty (IRBuilder ctx errs) =
 -- Lowerable class {{{1
 type IRDiff p = (p, IRBuilder) -> (p, IRBuilder)
 class Lowerable l p where
-    ddeclare, ddefine, vdeclare, vdefine :: l -> IRRO p -> IRRO Module -> IRDiff (IRWO p)
+    ddeclare, ddefine, vdeclare, vdefine :: l -> Module -> IRDiff p
 -- lowering modules {{{1
 newtype ModParent = ModParent Module
 instance ParentR ModParent Module () where
@@ -202,32 +199,32 @@ instance ParentW ModParent Module () where
     add _ _ child (ModParent prev) = (Just prev, ModParent child)
 
 instance ParentRW p Module () => Lowerable AST.LDModule p where
-    ddeclare (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder@(IRBuilder irctx _)) =
-        let (Just module_) = get irctx () parent :: Maybe (IRRO Module)
-            (module_', ir_builder') = lower_all_in_list decls ddeclare module_ root (ro_to_wo module_, ir_builder)
-        in (add_replace irctx () module_' wo_parent, ir_builder')
+    ddeclare (Located _ (AST.DModule' decls)) root (parent, ir_builder@(IRBuilder irctx _)) =
+        let (Just module_) = get irctx () parent :: Maybe Module
+            (module_', ir_builder') = lower_all_in_list decls ddeclare root (module_, ir_builder)
+        in (add_replace irctx () module_' parent, ir_builder')
 
-    ddefine (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder@(IRBuilder irctx _)) =
-        let (Just module_) = get irctx () parent :: Maybe (IRRO Module)
-            (module_', ir_builder') = lower_all_in_list decls ddefine module_ root (ro_to_wo module_, ir_builder)
-        in (add_replace irctx () module_' wo_parent, ir_builder')
+    ddefine (Located _ (AST.DModule' decls)) root (parent, ir_builder@(IRBuilder irctx _)) =
+        let (Just module_) = get irctx () parent :: Maybe Module
+            (module_', ir_builder') = lower_all_in_list decls ddefine root (module_, ir_builder)
+        in (add_replace irctx () module_' parent, ir_builder')
 
-    vdeclare (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder@(IRBuilder irctx _)) =
-        let (Just module_) = get irctx () parent :: Maybe (IRRO Module)
-            (module_', ir_builder') = lower_all_in_list decls vdeclare module_ root (ro_to_wo module_, ir_builder)
-        in (add_replace irctx () module_' wo_parent, ir_builder')
+    vdeclare (Located _ (AST.DModule' decls)) root (parent, ir_builder@(IRBuilder irctx _)) =
+        let (Just module_) = get irctx () parent :: Maybe Module
+            (module_', ir_builder') = lower_all_in_list decls vdeclare root (module_, ir_builder)
+        in (add_replace irctx () module_' parent, ir_builder')
 
-    vdefine (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder@(IRBuilder irctx _)) =
-        let (Just module_) = get irctx () parent :: Maybe (IRRO Module)
-            (module_', ir_builder') = lower_all_in_list decls vdefine module_ root (ro_to_wo module_, ir_builder)
-        in (add_replace irctx () module_' wo_parent, ir_builder')
+    vdefine (Located _ (AST.DModule' decls)) root (parent, ir_builder@(IRBuilder irctx _)) =
+        let (Just module_) = get irctx () parent :: Maybe Module
+            (module_', ir_builder') = lower_all_in_list decls vdefine root (module_, ir_builder)
+        in (add_replace irctx () module_' parent, ir_builder')
 -- lowering functions {{{1
 instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
     -- functions do not lower to anything during the declaration phases
-    ddeclare _ _ _ = id
-    ddefine _ _ _ = id
+    ddeclare _ _ = id
+    ddefine _ _ = id
 
-    vdeclare (Located fun_sp (AST.SFunDecl' mretty (Located _ name) params _)) _ root = State.execState $
+    vdeclare (Located fun_sp (AST.SFunDecl' mretty (Located _ name) params _)) root = State.execState $
         (State.state $ case mretty of
             Just retty -> resolve_ty retty root
             Nothing -> \ (p, irb) ->
@@ -253,37 +250,37 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
                   , get_function_name = name
                   }
             fun_val = Value fun
-        in State.get >>= \ before@(before_woparent, before_ir_builder@(IRBuilder irctx _)) ->
-            case add_noreplace irctx name (make_irwo fun_val) before_woparent of
+        in State.get >>= \ before@(before_parent, before_ir_builder@(IRBuilder irctx _)) ->
+            case add_noreplace irctx name fun_val before_parent of
                 Left other_value ->
                     State.put before >>
                     State.state (irbuilder_fun_to_cgtup_fun $ add_unit_res $ add_error $ DuplicateValue name other_value fun_val)
                 Right added -> State.put (added, before_ir_builder)
 
-    vdefine (Located _ (AST.SFunDecl' _ (Located _ name) _ _)) _ roparent cgtup@(_, IRBuilder irctx _) =
-        let m_val = get irctx name roparent :: Maybe (IRRO Value)
-            m_fun = m_val >>= ro_cast :: Maybe (IRRO Function)
+    vdefine (Located _ (AST.SFunDecl' _ (Located _ name) _ _)) _ cgtup@(parent, IRBuilder irctx _) =
+        let m_val = get irctx name parent :: Maybe Value
+            m_fun = m_val >>= value_cast :: Maybe Function
         in case m_fun of
             -- silently ignore becuase the only way this can happen is if there is another global declaration
             -- that made a value of the same name that is not a function, which should already be reported as a duplicate value error
             Nothing -> cgtup
 
-            Just old_fun -> lower_fun_body (ro_to_wo old_fun) cgtup
+            Just old_fun -> lower_fun_body old_fun cgtup
 -- lowering function bodies {{{2
-lower_fun_body :: ParentW p (IRWO Value) String => IRWO Function -> (p, IRBuilder) -> (p, IRBuilder)
+lower_fun_body :: ParentW p Value String => Function -> (p, IRBuilder) -> (p, IRBuilder)
 lower_fun_body = error "not implemented yet"
 -- lowering declarations {{{1
 instance ParentRW p Value String => Lowerable AST.LDDecl p where
-    ddeclare (Located _ (AST.DDecl'Fun sf)) roparent root cgtup = ddeclare sf roparent root cgtup
-    ddeclare (Located sp (AST.DDecl'Impl _ _)) _ _ (woparent, ir_builder) =
+    ddeclare (Located _ (AST.DDecl'Fun sf)) root cgtup = ddeclare sf root cgtup
+    ddeclare (Located sp (AST.DDecl'Impl _ _)) _ (parent, ir_builder) =
         let warn = Unsupported "'impl' blocks" sp -- TODO
-        in (woparent, add_error warn ir_builder)
+        in (parent, add_error warn ir_builder)
 
-    ddefine (Located _ (AST.DDecl'Fun sf)) roparent root cgtup = ddefine sf roparent root cgtup
-    ddefine (Located _ (AST.DDecl'Impl _ _)) _ _ cgtup = cgtup
+    ddefine (Located _ (AST.DDecl'Fun sf)) root cgtup = ddefine sf root cgtup
+    ddefine (Located _ (AST.DDecl'Impl _ _)) _ cgtup = cgtup
 
-    vdeclare (Located _ (AST.DDecl'Fun sf)) roparent root cgtup = vdeclare sf roparent root cgtup
-    vdeclare (Located _ (AST.DDecl'Impl _ _)) _ _ cgtup = cgtup
+    vdeclare (Located _ (AST.DDecl'Fun sf)) root cgtup = vdeclare sf root cgtup
+    vdeclare (Located _ (AST.DDecl'Impl _ _)) _ cgtup = cgtup
 
-    vdefine (Located _ (AST.DDecl'Fun sf)) roparent root cgtup = vdefine sf roparent root cgtup
-    vdefine (Located _ (AST.DDecl'Impl _ _)) _ _ cgtup = cgtup
+    vdefine (Located _ (AST.DDecl'Fun sf)) root cgtup = vdefine sf root cgtup
+    vdefine (Located _ (AST.DDecl'Impl _ _)) _ cgtup = cgtup

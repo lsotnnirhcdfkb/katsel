@@ -29,7 +29,6 @@ executable katsel
                      , IR.MapSynonyms
                      , IR.Module
                      , IR.Parent
-                     , IR.ROWO
                      , IR.TyIdx
                      , IR.Type
                      , IR.TypeInterner
