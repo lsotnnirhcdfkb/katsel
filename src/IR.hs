@@ -93,7 +93,7 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
             sections = catMaybes $ underlines_section : notes
         in Message.SimpleDiag Message.Error m_oldsp Nothing (Just "redecl-val") sections
 
-    to_diagnostic (Unsupported name sp, irctx) =
+    to_diagnostic (Unsupported name sp, _) =
         Message.SimpleDiag Message.Warning (Just sp) Nothing Nothing
             [ Message.Underlines $ MsgUnds.UnderlinesSection
                 [ MsgUnds.Message sp MsgUnds.Warning MsgUnds.Primary $ name ++ " are currently unsupported"
@@ -108,7 +108,7 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
                 ]
             ]
 
-    to_diagnostic (PathDoesntExist path_sp, irctx) =
+    to_diagnostic (PathDoesntExist path_sp, _) =
         Message.SimpleDiag Message.Error (Just path_sp) Nothing (Just "path-doesnt-exist")
             [ Message.Underlines $ MsgUnds.UnderlinesSection
                 [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary "entity referred to by path doesn't exist"
@@ -175,7 +175,7 @@ resolve_path_v (Located path_sp (AST.DPath' located_segments)) root cgtup@(paren
 
 resolve_ty :: AST.LDType -> IRRO Module -> (p, IRBuilder) -> (Maybe TyIdx, (p, IRBuilder))
 
-resolve_ty (Located path_sp (AST.DType'Path path)) root cgtup@(_, IRBuilder irctx _) = flip State.runState cgtup $
+resolve_ty (Located path_sp (AST.DType'Path path)) root cgtup = flip State.runState cgtup $
     (State.state $ resolve_path_d path root) >>=? (return Nothing) $ \ (ds, _) ->
     case ds_cast ds :: Maybe TyIdx of
         j@(Just _) -> return j
@@ -183,8 +183,8 @@ resolve_ty (Located path_sp (AST.DType'Path path)) root cgtup@(_, IRBuilder irct
             State.state (irbuilder_fun_to_cgtup_fun $ add_unit_res $ add_error $ NotAType path_sp ds) >>
             return Nothing
 
-resolve_ty (Located sp (AST.DType'Pointer _ _)) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "pointer types" sp) ir_builder)) ---TODO
-resolve_ty (Located sp AST.DType'This) root (p, ir_builder) = (Nothing, (p, add_error (Unsupported "'this' types" sp) ir_builder)) -- TODO
+resolve_ty (Located sp (AST.DType'Pointer _ _)) _ (p, ir_builder) = (Nothing, (p, add_error (Unsupported "pointer types" sp) ir_builder)) ---TODO
+resolve_ty (Located sp AST.DType'This) _ (p, ir_builder) = (Nothing, (p, add_error (Unsupported "'this' types" sp) ir_builder)) -- TODO
 
 get_ty_irbuilder :: Type -> IRBuilder -> (TyIdx, IRBuilder)
 get_ty_irbuilder ty (IRBuilder ctx errs) =
@@ -227,7 +227,7 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
     ddeclare _ _ _ = id
     ddefine _ _ _ = id
 
-    vdeclare (Located fun_sp (AST.SFunDecl' mretty (Located _ name) params _)) roparent root = State.execState $
+    vdeclare (Located fun_sp (AST.SFunDecl' mretty (Located _ name) params _)) _ root = State.execState $
         (State.state $ case mretty of
             Just retty -> resolve_ty retty root
             Nothing -> \ (p, irb) ->
@@ -260,7 +260,7 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
                     State.state (irbuilder_fun_to_cgtup_fun $ add_unit_res $ add_error $ DuplicateValue name other_value fun_val)
                 Right added -> State.put (added, before_ir_builder)
 
-    vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) roparent root cgtup@(_, IRBuilder irctx _) =
+    vdefine (Located _ (AST.SFunDecl' _ (Located _ name) _ _)) _ roparent cgtup@(_, IRBuilder irctx _) =
         let m_val = get irctx name roparent :: Maybe (IRRO Value)
             m_fun = m_val >>= ro_cast :: Maybe (IRRO Function)
         in case m_fun of
@@ -275,15 +275,15 @@ lower_fun_body = error "not implemented yet"
 -- lowering declarations {{{1
 instance ParentRW p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) roparent root cgtup = ddeclare sf roparent root cgtup
-    ddeclare (Located sp (AST.DDecl'Impl _ _)) roparent root (woparent, ir_builder) =
+    ddeclare (Located sp (AST.DDecl'Impl _ _)) _ _ (woparent, ir_builder) =
         let warn = Unsupported "'impl' blocks" sp -- TODO
         in (woparent, add_error warn ir_builder)
 
     ddefine (Located _ (AST.DDecl'Fun sf)) roparent root cgtup = ddefine sf roparent root cgtup
-    ddefine (Located _ (AST.DDecl'Impl _ _)) roparent root cgtup = cgtup
+    ddefine (Located _ (AST.DDecl'Impl _ _)) _ _ cgtup = cgtup
 
     vdeclare (Located _ (AST.DDecl'Fun sf)) roparent root cgtup = vdeclare sf roparent root cgtup
-    vdeclare (Located _ (AST.DDecl'Impl _ _)) roparent root cgtup = cgtup
+    vdeclare (Located _ (AST.DDecl'Impl _ _)) _ _ cgtup = cgtup
 
     vdefine (Located _ (AST.DDecl'Fun sf)) roparent root cgtup = vdefine sf roparent root cgtup
-    vdefine (Located _ (AST.DDecl'Impl _ _)) roparent root cgtup = cgtup
+    vdefine (Located _ (AST.DDecl'Impl _ _)) _ _ cgtup = cgtup
