@@ -4,7 +4,8 @@ A language with some things.
 I maintain this for fun; you probably wouldn't want to use this ever.
 
 ## To do things
-You need [The Haskell Cabal](https://www.haskell.org/cabal/download.html) (specifically cabal-install, which is the command line interface to the Cabal library), and probably nothing else so far.
+You need [The Haskell Cabal](https://www.haskell.org/cabal/download.html) (specifically cabal-install, which is the command line interface to the Cabal library), and also [GHC](https://www.haskell.org/ghc/).
+You do need to use GHC, because there are some circular imports that use hs-boot files.
 Unlike in the `oldcpp` branch, I'm planning to have the Haskell port use C code as a backend.
 
 ## Inspiration/Resources/Info

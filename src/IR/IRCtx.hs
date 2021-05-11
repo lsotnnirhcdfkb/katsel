@@ -7,7 +7,7 @@ module IR.IRCtx
 import IR.TypeInterner
 import IR.Type
 
-newtype IRCtx = IRCtx TypeInterner
+data IRCtx = IRCtx TypeInterner
 
 new_irctx :: IRCtx
 new_irctx = IRCtx new_type_interner

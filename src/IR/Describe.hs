@@ -1,6 +1,6 @@
 module IR.Describe where
 
--- TODO: import IR.IRCtx, fix circular import
+import {-# SOURCE #-} IR.IRCtx
 
 class Describe d where
     describe :: d -> String

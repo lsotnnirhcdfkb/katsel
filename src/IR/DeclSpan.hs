@@ -1,6 +1,7 @@
 module IR.DeclSpan where
 
--- TODO: import IR.IRCtx, fix circular import
+import {-# SOURCE #-} IR.IRCtx
+
 import Location
 
 class DeclSpan h where
