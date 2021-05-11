@@ -63,6 +63,6 @@ instance ParentW Module Value String where
         in (old_val, Module dsmap vmap' sp)
 
 instance DeclSpan Module where
-    decl_span (Module _ _ sp) = Just sp
+    decl_span _ (Module _ _ sp) = Just sp
 instance Describe Module where
-    describe _ = "module being compiled"
+    describe _ _ = "module being compiled"

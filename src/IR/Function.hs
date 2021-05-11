@@ -45,6 +45,6 @@ data Br
     | BrCond FValue BasicBlock BasicBlock
 
 instance DeclSpan Function where
-    decl_span f = Just $ get_function_span f
+    decl_span _ f = Just $ get_function_span f
 instance Describe Function where
-    describe f = "function named '" ++ get_function_name f ++ "'"
+    describe _ f = "function named '" ++ get_function_name f ++ "'"

@@ -34,9 +34,9 @@ instance ParentW DeclSymbol Value String where
         in (replaced, DeclSymbol added)
 
 instance DeclSpan DeclSymbol where
-    decl_span (DeclSymbol ds) = decl_span ds
+    decl_span irctx (DeclSymbol ds) = decl_span irctx ds
 instance Describe DeclSymbol where
-    describe (DeclSymbol ds) = describe ds
+    describe irctx (DeclSymbol ds) = describe irctx ds
 
 ds_cast :: Typeable r => DeclSymbol -> Maybe r
 ds_cast (DeclSymbol v) = cast v

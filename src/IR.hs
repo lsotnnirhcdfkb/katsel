@@ -69,13 +69,13 @@ data IRBuildError
     | NotAType Span DeclSymbol
     | PathDoesntExist Span -- TODO: change to 'no entity called x in y'
 
-instance Message.ToDiagnostic IRBuildError where
-    to_diagnostic (DuplicateValue name irwo_old new) =
+instance Message.ToDiagnostic (IRBuildError, IRCtx) where
+    to_diagnostic (DuplicateValue name irwo_old new, irctx) =
         let old = unirwo irwo_old
-            m_oldsp = decl_span old
-            m_newsp = decl_span new
-            old_desc = describe old
-            new_desc = describe new
+            m_oldsp = decl_span irctx old
+            m_newsp = decl_span irctx new
+            old_desc = describe irctx old
+            new_desc = describe irctx new
 
             if_span m_sp ty imp msg =
                 case m_sp of
@@ -94,22 +94,22 @@ instance Message.ToDiagnostic IRBuildError where
             sections = catMaybes $ underlines_section : notes
         in Message.SimpleDiag Message.Error m_oldsp Nothing (Just "redecl-val") sections
 
-    to_diagnostic (Unsupported name sp) =
+    to_diagnostic (Unsupported name sp, irctx) =
         Message.SimpleDiag Message.Warning (Just sp) Nothing Nothing
             [ Message.Underlines $ MsgUnds.UnderlinesSection
                 [ MsgUnds.Message sp MsgUnds.Warning MsgUnds.Primary $ name ++ " are currently unsupported"
                 ]
             ]
 
-    to_diagnostic (NotAType path_sp ds) =
+    to_diagnostic (NotAType path_sp ds, irctx) =
         Message.SimpleDiag Message.Error (Just path_sp) Nothing (Just "not-type")
             [ Message.Underlines $ MsgUnds.UnderlinesSection
                 [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary "not a type"
-                , MsgUnds.Message path_sp MsgUnds.Note MsgUnds.Secondary $ "this path resolved to " ++ describe ds
+                , MsgUnds.Message path_sp MsgUnds.Note MsgUnds.Secondary $ "this path resolved to " ++ describe irctx ds
                 ]
             ]
 
-    to_diagnostic (PathDoesntExist path_sp) =
+    to_diagnostic (PathDoesntExist path_sp, irctx) =
         Message.SimpleDiag Message.Error (Just path_sp) Nothing (Just "path-doesnt-exist")
             [ Message.Underlines $ MsgUnds.UnderlinesSection
                 [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary "entity referred to by path doesn't exist"
