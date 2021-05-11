@@ -14,7 +14,6 @@ import IR.Type
 import IR.Value
 import IR.DeclSpan
 import IR.Describe
-import IR.TypeInterner
 
 import qualified Data.Map as Map
 
@@ -22,11 +21,10 @@ import Location
 
 data Module = Module DSMap VMap Span
 new_module :: Span -> IRCtx -> (Module, IRCtx)
-new_module sp irctx = (Module Map.empty Map.empty sp, irctx)
+new_module sp irctx = (Module dsmap Map.empty sp, irctx')
     where
-        {-
         make_list name ty (tys, ctx) =
-            let (idx, ctx') = get_ty ty ctx
+            let (idx, ctx') = get_ty_irctx ty ctx
             in (tys ++ [(name, DeclSymbol idx)], ctx')
 
         dsmap = Map.fromList dsmap_list
@@ -44,7 +42,6 @@ new_module sp irctx = (Module Map.empty Map.empty sp, irctx)
             make_list "sint16" (IntType Map.empty 16 Signed) .
             make_list "sint32" (IntType Map.empty 32 Signed) .
             make_list "sint64" (IntType Map.empty 64 Signed) $ ([], irctx)
-        -}
 
 instance Parent Module DeclSymbol String where
     get_child_map _ (Module dsmap _ _) = dsmap
