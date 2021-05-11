@@ -21,16 +21,16 @@ data DeclSymbol where
             ParentR d Value String,      ParentW d Value String) => d -> DeclSymbol
 
 instance ParentR DeclSymbol DeclSymbol String where
-    get_child_map (DeclSymbol d) = get_child_map d
+    get_child_map irctx (DeclSymbol d) = get_child_map irctx d
 instance ParentW DeclSymbol DeclSymbol String where
-    add name child (DeclSymbol ds) =
-        let (replaced, added) = add name child ds
+    add irctx name child (DeclSymbol ds) =
+        let (replaced, added) = add irctx name child ds
         in (replaced, DeclSymbol added)
 instance ParentR DeclSymbol Value String where
-    get_child_map (DeclSymbol d) = get_child_map d
+    get_child_map irctx (DeclSymbol d) = get_child_map irctx d
 instance ParentW DeclSymbol Value String where
-    add name child (DeclSymbol ds) =
-        let (replaced, added) = add name child ds
+    add irctx name child (DeclSymbol ds) =
+        let (replaced, added) = add irctx name child ds
         in (replaced, DeclSymbol added)
 
 instance DeclSpan DeclSymbol where

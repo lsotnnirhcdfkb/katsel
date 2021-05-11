@@ -33,11 +33,11 @@ ro_to_wo :: IRRO a -> IRWO a
 ro_to_wo (IRRO a) = IRWO a
 
 instance (Ord i, ParentR a c i) => ParentR (IRRO a) (IRRO c) i where
-    get_child_map (IRRO ro) = Map.map IRRO $ get_child_map ro
+    get_child_map irctx (IRRO ro) = Map.map IRRO $ get_child_map irctx ro
 
 instance (Ord i, ParentW a c i) => ParentW (IRWO a) (IRWO c) i where
-    add ind (IRWO child) (IRWO wo) =
-        let (replaced, added) = add ind child wo
+    add irctx ind (IRWO child) (IRWO wo) =
+        let (replaced, added) = add irctx ind child wo
         in (IRWO <$> replaced, IRWO added)
 
 ro_cast :: (Typeable a, Typeable b) => IRRO a -> Maybe (IRRO b)

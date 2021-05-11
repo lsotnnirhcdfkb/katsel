@@ -24,7 +24,6 @@ import IR.ROWO
 import IR.Describe
 import IR.DeclSpan
 
-import IR.TypeInterner
 import IR.IRCtx
 
 import IR.DeclSymbol
@@ -43,7 +42,7 @@ import qualified Control.Monad.State.Lazy as State(State, state, runState, execS
 
 -- build_ir {{{1
 build_ir :: AST.LDModule -> (Module, IRCtx, [IRBuildError])
-build_ir mod_ast@(Located mod_sp _) = (lowered_mod, irctx, errors)
+build_ir mod_ast@(Located mod_sp _) = (lowered_mod, lowered_irctx, errors)
     where
         apply_stage :: (AST.LDModule -> IRRO ModParent -> IRRO Module -> IRDiff (IRWO ModParent)) -> (ModParent, IRBuilder) -> (ModParent, IRBuilder)
         apply_stage fun (mod_parent@(ModParent module_), ir_builder) =
@@ -54,7 +53,7 @@ build_ir mod_ast@(Located mod_sp _) = (lowered_mod, irctx, errors)
         initial_cgtup = (ModParent module_, IRBuilder irctx [])
             where
                 (module_, irctx) = new_module mod_sp new_irctx
-        (ModParent lowered_mod, IRBuilder irctx errors) =
+        (ModParent lowered_mod, IRBuilder lowered_irctx errors) =
             apply_stage vdefine .
             apply_stage vdeclare .
             apply_stage ddefine .
@@ -155,28 +154,28 @@ add_error :: IRBuildError -> IRBuilder -> IRBuilder
 add_error err (IRBuilder irctx errs) = IRBuilder irctx (errs ++ [err])
 -- path resultion, type resolution, type interning {{{1
 resolve_path_d :: AST.LDPath -> IRRO Module -> (p, IRBuilder) -> (Maybe (DeclSymbol, DSIRId DeclSymbol), (p, IRBuilder))
-resolve_path_d (Located path_sp (AST.DPath' located_segments)) root cgtup@(parent, ir_builder) =
+resolve_path_d (Located path_sp (AST.DPath' located_segments)) root cgtup@(parent, ir_builder@(IRBuilder irctx _)) =
     case m_dsid of
-        Just dsid -> (Just (resolve_dsid root dsid, dsid), cgtup)
+        Just dsid -> (Just (resolve_dsid irctx root dsid, dsid), cgtup)
         Nothing -> (Nothing, (parent, add_error (PathDoesntExist path_sp) ir_builder))
     where
         unlocate (Located _ x) = x
         segments = map unlocate located_segments
-        m_dsid = new_dsid root segments :: Maybe (DSIRId DeclSymbol)
+        m_dsid = new_dsid irctx root segments :: Maybe (DSIRId DeclSymbol)
 
 resolve_path_v :: AST.LDPath -> IRRO Module -> (p, IRBuilder) -> (Maybe (Value, VIRId Value), (p, IRBuilder))
-resolve_path_v (Located path_sp (AST.DPath' located_segments)) root cgtup@(parent, ir_builder) =
+resolve_path_v (Located path_sp (AST.DPath' located_segments)) root cgtup@(parent, ir_builder@(IRBuilder irctx _)) =
     case m_vid of
-        Just vid -> (Just (resolve_vid root vid, vid), cgtup)
+        Just vid -> (Just (resolve_vid irctx root vid, vid), cgtup)
         Nothing -> (Nothing, (parent, add_error (PathDoesntExist path_sp) ir_builder))
     where
         unlocate (Located _ x) = x
         segments = map unlocate located_segments
-        m_vid = new_vid root segments :: Maybe (VIRId Value)
+        m_vid = new_vid irctx root segments :: Maybe (VIRId Value)
 
 resolve_ty :: AST.LDType -> IRRO Module -> (p, IRBuilder) -> (Maybe TyIdx, (p, IRBuilder))
 
-resolve_ty (Located path_sp (AST.DType'Path path)) root cgtup = flip State.runState cgtup $
+resolve_ty (Located path_sp (AST.DType'Path path)) root cgtup@(_, IRBuilder irctx _) = flip State.runState cgtup $
     (State.state $ resolve_path_d path root) >>=? (return Nothing) $ \ (ds, _) ->
     case ds_cast ds :: Maybe TyIdx of
         j@(Just _) -> return j
@@ -198,30 +197,30 @@ class Lowerable l p where
 -- lowering modules {{{1
 newtype ModParent = ModParent Module
 instance ParentR ModParent Module () where
-    get_child_map (ModParent mp) = Map.singleton () mp
+    get_child_map _ (ModParent mp) = Map.singleton () mp
 instance ParentW ModParent Module () where
-    add _ child (ModParent prev) = (Just prev, ModParent child)
+    add _ _ child (ModParent prev) = (Just prev, ModParent child)
 
 instance ParentRW p Module () => Lowerable AST.LDModule p where
-    ddeclare (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder) =
-        let (Just module_) = get () parent :: Maybe (IRRO Module)
+    ddeclare (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder@(IRBuilder irctx _)) =
+        let (Just module_) = get irctx () parent :: Maybe (IRRO Module)
             (module_', ir_builder') = lower_all_in_list decls ddeclare module_ root (ro_to_wo module_, ir_builder)
-        in (add_replace () module_' wo_parent, ir_builder')
+        in (add_replace irctx () module_' wo_parent, ir_builder')
 
-    ddefine (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder) =
-        let (Just module_) = get () parent :: Maybe (IRRO Module)
+    ddefine (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder@(IRBuilder irctx _)) =
+        let (Just module_) = get irctx () parent :: Maybe (IRRO Module)
             (module_', ir_builder') = lower_all_in_list decls ddefine module_ root (ro_to_wo module_, ir_builder)
-        in (add_replace () module_' wo_parent, ir_builder')
+        in (add_replace irctx () module_' wo_parent, ir_builder')
 
-    vdeclare (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder) =
-        let (Just module_) = get () parent :: Maybe (IRRO Module)
+    vdeclare (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder@(IRBuilder irctx _)) =
+        let (Just module_) = get irctx () parent :: Maybe (IRRO Module)
             (module_', ir_builder') = lower_all_in_list decls vdeclare module_ root (ro_to_wo module_, ir_builder)
-        in (add_replace () module_' wo_parent, ir_builder')
+        in (add_replace irctx () module_' wo_parent, ir_builder')
 
-    vdefine (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder) =
-        let (Just module_) = get () parent :: Maybe (IRRO Module)
+    vdefine (Located _ (AST.DModule' decls)) parent root (wo_parent, ir_builder@(IRBuilder irctx _)) =
+        let (Just module_) = get irctx () parent :: Maybe (IRRO Module)
             (module_', ir_builder') = lower_all_in_list decls vdefine module_ root (ro_to_wo module_, ir_builder)
-        in (add_replace () module_' wo_parent, ir_builder')
+        in (add_replace irctx () module_' wo_parent, ir_builder')
 -- lowering functions {{{1
 instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
     -- functions do not lower to anything during the declaration phases
@@ -254,15 +253,15 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
                   , get_function_name = name
                   }
             fun_val = Value fun
-        in State.get >>= \ before@(before_woparent, before_ir_builder) ->
-            case add_noreplace name (make_irwo fun_val) before_woparent of
+        in State.get >>= \ before@(before_woparent, before_ir_builder@(IRBuilder irctx _)) ->
+            case add_noreplace irctx name (make_irwo fun_val) before_woparent of
                 Left other_value ->
                     State.put before >>
                     State.state (irbuilder_fun_to_cgtup_fun $ add_unit_res $ add_error $ DuplicateValue name other_value fun_val)
                 Right added -> State.put (added, before_ir_builder)
 
-    vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) roparent root cgtup =
-        let m_val = get name roparent :: Maybe (IRRO Value)
+    vdefine (Located _ (AST.SFunDecl' retty (Located _ name) params expr)) roparent root cgtup@(_, IRBuilder irctx _) =
+        let m_val = get irctx name roparent :: Maybe (IRRO Value)
             m_fun = m_val >>= ro_cast :: Maybe (IRRO Function)
         in case m_fun of
             -- silently ignore becuase the only way this can happen is if there is another global declaration

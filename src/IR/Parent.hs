@@ -9,24 +9,26 @@ module IR.Parent
     , add_noreplace
     ) where
 
+import {-# SOURCE #-} IR.IRCtx
+
 import Data.Map(Map)
 import qualified Data.Map as Map
 
 class Ord i => ParentR p c i | p c -> i where
-    get_child_map :: p -> Map i c
-    get :: i -> p -> Maybe c
+    get_child_map :: IRCtx -> p -> Map i c
+    get :: IRCtx -> i -> p -> Maybe c
 
-    get ind parent = Map.lookup ind (get_child_map parent)
+    get irctx ind parent = Map.lookup ind (get_child_map irctx parent)
 
 class Ord i => ParentW p c i | p c -> i where
-    add :: i -> c -> p -> (Maybe c, p)
+    add :: IRCtx -> i -> c -> p -> (Maybe c, p)
 
-add_replace :: ParentW p c i => i -> c -> p -> p
-add_replace i c p = snd $ add i c p
+add_replace :: ParentW p c i => IRCtx -> i -> c -> p -> p
+add_replace irctx i c p = snd $ add irctx i c p
 
-add_noreplace :: ParentW p c i => i -> c -> p -> Either c p
-add_noreplace i c p =
-    case add i c p of
+add_noreplace :: ParentW p c i => IRCtx -> i -> c -> p -> Either c p
+add_noreplace irctx i c p =
+    case add irctx i c p of
         (Just old, _) -> Left old
         (Nothing, parent) -> Right parent
 
