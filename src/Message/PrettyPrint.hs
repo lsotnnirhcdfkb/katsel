@@ -42,12 +42,12 @@ data PPrintSegment
 newtype IndentAmt = IndentAmt { indent_amt :: Int }
 
 process_two_segments :: PPrintSegment -> PPrintSegment -> [PPrintSegment]
-process_two_segments (Indent) (Indent) = [Indent, Boom]
-process_two_segments (Indent) (Dedent) = [Indent, Boom]
-process_two_segments (Indent) (Newline) = [Indent, Semi]
-process_two_segments (Dedent) (Indent) = [Dedent, Boom]
-process_two_segments (Dedent) (Newline) = [Dedent, Semi]
-process_two_segments (Newline) (Indent) = [Semi]
+process_two_segments Indent Indent = [Indent, Boom]
+process_two_segments Indent Dedent = [Indent, Boom]
+process_two_segments Indent Newline = [Indent, Semi]
+process_two_segments Dedent Indent = [Dedent, Boom]
+process_two_segments Dedent Newline = [Dedent, Semi]
+process_two_segments Newline Indent = [Semi]
 process_two_segments x _ = [x]
 
 stringify_segments :: [PPrintSegment] -> String
