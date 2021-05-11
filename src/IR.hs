@@ -193,12 +193,11 @@ class Lowerable l p where
     ddeclare, ddefine, vdeclare, vdefine :: l -> Module -> IRDiff p
 -- lowering modules {{{1
 newtype ModParent = ModParent Module
-instance ParentR ModParent Module () where
+instance Parent ModParent Module () where
     get_child_map _ (ModParent mp) = Map.singleton () mp
-instance ParentW ModParent Module () where
     add _ _ child (ModParent prev) = (Just prev, ModParent child)
 
-instance ParentRW p Module () => Lowerable AST.LDModule p where
+instance Parent p Module () => Lowerable AST.LDModule p where
     ddeclare (Located _ (AST.DModule' decls)) root (parent, ir_builder@(IRBuilder irctx _)) =
         let (Just module_) = get irctx () parent :: Maybe Module
             (module_', ir_builder') = lower_all_in_list decls ddeclare root (module_, ir_builder)
@@ -219,7 +218,7 @@ instance ParentRW p Module () => Lowerable AST.LDModule p where
             (module_', ir_builder') = lower_all_in_list decls vdefine root (module_, ir_builder)
         in (add_replace irctx () module_' parent, ir_builder')
 -- lowering functions {{{1
-instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
+instance Parent p Value String => Lowerable AST.LSFunDecl p where
     -- functions do not lower to anything during the declaration phases
     ddeclare _ _ = id
     ddefine _ _ = id
@@ -268,10 +267,10 @@ instance ParentRW p Value String => Lowerable AST.LSFunDecl p where
 
             Just old_fun -> lower_fun_body old_fun cgtup
 -- lowering function bodies {{{2
-lower_fun_body :: ParentW p Value String => Function -> (p, IRBuilder) -> (p, IRBuilder)
+lower_fun_body :: Parent p Value String => Function -> (p, IRBuilder) -> (p, IRBuilder)
 lower_fun_body = error "not implemented yet"
 -- lowering declarations {{{1
-instance ParentRW p Value String => Lowerable AST.LDDecl p where
+instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) root cgtup = ddeclare sf root cgtup
     ddeclare (Located sp (AST.DDecl'Impl _ _)) _ (parent, ir_builder) =
         let warn = Unsupported "'impl' blocks" sp -- TODO

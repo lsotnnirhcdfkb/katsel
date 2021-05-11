@@ -25,7 +25,7 @@ data Type
     | VoidType DSMap
     | PointerType DSMap Mutability TyIdx
 
-instance ParentR Type DeclSymbol String where
+instance Parent Type DeclSymbol String where
     get_child_map _ (FloatType dsmap _) = dsmap
     get_child_map _ (IntType dsmap _ _) = dsmap
     get_child_map _ (CharType dsmap) = dsmap

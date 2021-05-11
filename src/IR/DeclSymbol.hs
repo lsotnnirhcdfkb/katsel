@@ -16,19 +16,16 @@ import IR.Value
 import Data.Typeable(Typeable, cast)
 
 data DeclSymbol where
-    DeclSymbol :: (Typeable d, DeclSpan d, Describe d,
-            ParentR d DeclSymbol String, ParentW d DeclSymbol String,
-            ParentR d Value String,      ParentW d Value String) => d -> DeclSymbol
+    DeclSymbol :: (Typeable d, DeclSpan d, Describe d, Parent d DeclSymbol String, Parent d Value String) => d -> DeclSymbol
 
-instance ParentR DeclSymbol DeclSymbol String where
+instance Parent DeclSymbol DeclSymbol String where
     get_child_map irctx (DeclSymbol d) = get_child_map irctx d
-instance ParentW DeclSymbol DeclSymbol String where
     add irctx name child (DeclSymbol ds) =
         let (replaced, added) = add irctx name child ds
         in (replaced, DeclSymbol added)
-instance ParentR DeclSymbol Value String where
+
+instance Parent DeclSymbol Value String where
     get_child_map irctx (DeclSymbol d) = get_child_map irctx d
-instance ParentW DeclSymbol Value String where
     add irctx name child (DeclSymbol ds) =
         let (replaced, added) = add irctx name child ds
         in (replaced, DeclSymbol added)

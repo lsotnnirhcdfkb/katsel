@@ -46,17 +46,15 @@ new_module sp irctx = (Module Map.empty Map.empty sp, irctx)
             make_list "sint64" (IntType Map.empty 64 Signed) $ ([], irctx)
         -}
 
-instance ParentR Module DeclSymbol String where
+instance Parent Module DeclSymbol String where
     get_child_map _ (Module dsmap _ _) = dsmap
-instance ParentR Module Value String where
-    get_child_map _ (Module _ vmap _) = vmap
-
-instance ParentW Module DeclSymbol String where
     add _ name ds (Module dsmap vmap sp) =
         let old_val = Map.lookup name dsmap
             dsmap' = Map.insert name ds dsmap
         in (old_val, Module dsmap' vmap sp)
-instance ParentW Module Value String where
+
+instance Parent Module Value String where
+    get_child_map _ (Module _ vmap _) = vmap
     add _ name ds (Module dsmap vmap sp) =
         let old_val = Map.lookup name vmap
             vmap' = Map.insert name ds vmap
