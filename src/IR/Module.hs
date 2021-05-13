@@ -44,18 +44,18 @@ new_module sp irctx = (Module dsmap Map.empty sp, irctx')
             make_list "sint64" (IntType Map.empty 64 Signed) $ ([], irctx)
 
 instance Parent Module DeclSymbol String where
-    get_child_map _ (Module dsmap _ _) = dsmap
-    add _ name ds (Module dsmap vmap sp) =
+    get_child_map ((Module dsmap _ _), _) = dsmap
+    add name ds (Module dsmap vmap sp, irctx) =
         let old_val = Map.lookup name dsmap
             dsmap' = Map.insert name ds dsmap
-        in (old_val, Module dsmap' vmap sp)
+        in (old_val, (Module dsmap' vmap sp, irctx))
 
 instance Parent Module Value String where
-    get_child_map _ (Module _ vmap _) = vmap
-    add _ name ds (Module dsmap vmap sp) =
+    get_child_map ((Module _ vmap _), _) = vmap
+    add name ds (Module dsmap vmap sp, irctx) =
         let old_val = Map.lookup name vmap
             vmap' = Map.insert name ds vmap
-        in (old_val, Module dsmap vmap' sp)
+        in (old_val, (Module dsmap vmap' sp, irctx))
 
 instance DeclSpan Module where
     decl_span _ (Module _ _ sp) = Just sp

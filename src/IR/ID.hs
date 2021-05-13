@@ -25,13 +25,13 @@ data VIRId resolve = VIRId (DSIRId DeclSymbol) String
 m_resolve_dsid :: Typeable r => IRCtx -> Module -> DSIRId r -> Maybe r
 m_resolve_dsid irctx root (DSIRId segments) = foldl' next (Just $ DeclSymbol root) segments >>= cast
     where
-        next (Just ds) name = get irctx name ds :: Maybe DeclSymbol
+        next (Just ds) name = get name (ds, irctx) :: Maybe DeclSymbol
         next Nothing _ = Nothing
 m_resolve_vid :: Typeable r => IRCtx -> Module -> VIRId r -> Maybe r
-m_resolve_vid irctx root (VIRId ds_path v_name) = child >>= cast
-    where
-        parent_resolved = m_resolve_dsid irctx root ds_path :: Maybe DeclSymbol
-        child = parent_resolved >>= get irctx v_name :: Maybe Value
+m_resolve_vid irctx root (VIRId ds_path v_name) =
+    (m_resolve_dsid irctx root ds_path :: Maybe DeclSymbol) >>= \ parent_resolved ->
+    (get v_name (parent_resolved, irctx) :: Maybe Value) >>=
+    cast
 
 new_dsid :: Typeable resolve => IRCtx -> Module -> [String] -> Maybe (DSIRId resolve)
 new_dsid irctx root segments = dsid <$ m_resolve_dsid irctx root dsid

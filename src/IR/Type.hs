@@ -26,10 +26,10 @@ data Type
     | PointerType DSMap Mutability TyIdx
 
 instance Parent Type DeclSymbol String where
-    get_child_map _ (FloatType dsmap _) = dsmap
-    get_child_map _ (IntType dsmap _ _) = dsmap
-    get_child_map _ (CharType dsmap) = dsmap
-    get_child_map _ (BoolType dsmap) = dsmap
-    get_child_map _ (FunctionType dsmap _ _) = dsmap
-    get_child_map _ (VoidType dsmap) = dsmap
-    get_child_map _ (PointerType dsmap _ _) = dsmap
+    get_child_map ((FloatType dsmap _), _) = dsmap
+    get_child_map ((IntType dsmap _ _), _) = dsmap
+    get_child_map ((CharType dsmap), _) = dsmap
+    get_child_map ((BoolType dsmap), _) = dsmap
+    get_child_map ((FunctionType dsmap _ _), _) = dsmap
+    get_child_map ((VoidType dsmap), _) = dsmap
+    get_child_map ((PointerType dsmap _ _), _) = dsmap

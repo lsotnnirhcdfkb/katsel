@@ -13,17 +13,17 @@ import Data.Map(Map)
 import qualified Data.Map as Map
 
 class Ord i => Parent p c i | p c -> i where
-    get_child_map :: IRCtx -> p -> Map i c
-    get :: IRCtx -> i -> p -> Maybe c
-    add :: IRCtx -> i -> c -> p -> (Maybe c, p)
+    get_child_map :: (p, IRCtx) -> Map i c
+    get :: i -> (p, IRCtx) -> Maybe c
+    add :: i -> c -> (p, IRCtx) -> (Maybe c, (p, IRCtx))
 
-    get irctx ind parent = Map.lookup ind (get_child_map irctx parent)
+    get ind parent_irctx_tup = Map.lookup ind (get_child_map parent_irctx_tup)
 
-add_replace :: Parent p c i => IRCtx -> i -> c -> p -> p
-add_replace irctx i c p = snd $ add irctx i c p
+add_replace :: Parent p c i => i -> c -> (p, IRCtx) -> (p, IRCtx)
+add_replace i c tup = snd $ add i c tup
 
-add_noreplace :: Parent p c i => IRCtx -> i -> c -> p -> Either c p
-add_noreplace irctx i c p =
-    case add irctx i c p of
+add_noreplace :: Parent p c i => i -> c -> (p, IRCtx) -> Either c (p, IRCtx)
+add_noreplace i c tup =
+    case add i c tup of
         (Just old, _) -> Left old
         (Nothing, parent) -> Right parent

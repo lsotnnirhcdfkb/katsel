@@ -19,16 +19,16 @@ data DeclSymbol where
     DeclSymbol :: (Typeable d, DeclSpan d, Describe d, Parent d DeclSymbol String, Parent d Value String) => d -> DeclSymbol
 
 instance Parent DeclSymbol DeclSymbol String where
-    get_child_map irctx (DeclSymbol d) = get_child_map irctx d
-    add irctx name child (DeclSymbol ds) =
-        let (replaced, added) = add irctx name child ds
-        in (replaced, DeclSymbol added)
+    get_child_map ((DeclSymbol d), irctx) = get_child_map (d, irctx)
+    add name child ((DeclSymbol ds), irctx) =
+        let (replaced, (added, irctx')) = add name child (ds, irctx)
+        in (replaced, (DeclSymbol added, irctx'))
 
 instance Parent DeclSymbol Value String where
-    get_child_map irctx (DeclSymbol d) = get_child_map irctx d
-    add irctx name child (DeclSymbol ds) =
-        let (replaced, added) = add irctx name child ds
-        in (replaced, DeclSymbol added)
+    get_child_map ((DeclSymbol d), irctx) = get_child_map (d, irctx)
+    add name child ((DeclSymbol ds), irctx) =
+        let (replaced, (added, irctx')) = add name child (ds, irctx)
+        in (replaced, (DeclSymbol added, irctx'))
 
 instance DeclSpan DeclSymbol where
     decl_span irctx (DeclSymbol ds) = decl_span irctx ds
