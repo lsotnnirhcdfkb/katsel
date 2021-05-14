@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module IR
@@ -37,15 +38,15 @@ import qualified Data.Map as Map
 import Data.List(foldl')
 import Data.Maybe(catMaybes)
 
-import qualified Control.Monad.State.Lazy as State(State, state, runState, execState, get, put)
+import qualified Control.Monad.State.Lazy as State(State, state, runState)
 
 -- build_ir {{{1
 build_ir :: AST.LDModule -> (Module, IRCtx, [IRBuildError])
 build_ir mod_ast@(Located mod_sp _) = (lowered_mod, lowered_irctx, errors)
     where
-        apply_stage :: (AST.LDModule -> Module -> IRDiff ModParent) -> (ModParent, IRBuilder) -> (ModParent, IRBuilder)
+        apply_stage :: (AST.LDModule -> Module -> ModParent -> IRBuilder -> (ModParent, IRBuilder)) -> (ModParent, IRBuilder) -> (ModParent, IRBuilder)
         apply_stage fun (mod_parent@(ModParent module_), ir_builder) =
-            let (module_', ir_builder') = fun mod_ast module_ (mod_parent, ir_builder)
+            let (module_', ir_builder') = fun mod_ast module_ mod_parent ir_builder
             in (module_', ir_builder')
 
         initial_cgtup = (ModParent module_, IRBuilder irctx [])
@@ -112,32 +113,18 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
                 ]
             ]
 -- helper functions {{{1
-lower_all_in_list :: Lowerable l p => [l] -> (l -> Module -> IRDiff p) -> Module -> IRDiff p
-lower_all_in_list things fun root = foldl' (flip (.)) id funs
+lower_all_in_list :: Lowerable l p => [l] -> (l -> Module -> p -> IRBuilder -> (p, IRBuilder)) -> Module -> p -> IRBuilder -> (p, IRBuilder)
+lower_all_in_list things fun root start irb = (foldl' (flip (.)) id funs) (start, irb)
     where
-        apply_fun thing = fun thing root
+        apply_fun thing (p, irb') = fun thing root p irb'
         funs = map apply_fun things
+
+lower_all_in_list_s :: Lowerable l p => [l] -> (l -> Module -> p -> IRBuilder -> (p, IRBuilder)) -> Module -> p -> State.State IRBuilder p
+lower_all_in_list_s things fun root start = State.state $ lower_all_in_list things fun root start
 
 ast_muty_to_ir_muty :: AST.Mutability -> Mutability
 ast_muty_to_ir_muty AST.Immutable = Immutable
 ast_muty_to_ir_muty AST.Mutable = Mutable
-
-add_unit_res :: (s -> s) -> s -> ((), s)
-add_unit_res fun thing = ((), fun thing)
-
-parent_fun_to_cgtup_fun :: (p -> (r, p)) -> (p, IRBuilder) -> (r, (p, IRBuilder))
-parent_fun_to_cgtup_fun fun (parent, ir_builder) =
-    let (res, next_parent) = fun parent
-    in (res, (next_parent, ir_builder))
-
-irbuilder_fun_to_cgtup_fun :: (IRBuilder -> (r, IRBuilder)) -> (p, IRBuilder) -> (r, (p, IRBuilder))
-irbuilder_fun_to_cgtup_fun fun (parent, ir_builder) =
-    let (res, next_ir_builder) = fun ir_builder
-    in (res, (parent, next_ir_builder))
-
-unwrap_maybe :: Maybe a -> a
-unwrap_maybe (Just x) = x
-unwrap_maybe Nothing = error "unwrap maybe that is Nothing"
 
 (>>=?) :: Monad m => m (Maybe a) -> m b -> (a -> m b) -> m b
 (>>=?) m r c =
@@ -149,97 +136,109 @@ infixl 1 >>=?
 
 add_error :: IRBuildError -> IRBuilder -> IRBuilder
 add_error err (IRBuilder irctx errs) = IRBuilder irctx (errs ++ [err])
+
+add_error_s :: IRBuildError -> State.State IRBuilder ()
+add_error_s err = State.state $ \ irb -> ((), add_error err irb)
+
+get_s :: Parent p c i => i -> p -> State.State IRBuilder (Maybe c)
+get_s ind parent = State.state $ \ irb ->
+    let (IRBuilder irctx _) = irb
+    in (get ind (parent, irctx), irb)
+
+add_replace_s :: Parent p c i => i -> c -> p -> State.State IRBuilder p
+add_replace_s ind child parent = State.state $ \ irb ->
+    let (IRBuilder irctx errors) = irb
+        (parent', irctx') = add_replace ind child (parent, irctx)
+        irb' = IRBuilder irctx' errors
+    in (parent', irb')
+
+add_noreplace_s :: Parent p c i => i -> c -> p -> State.State IRBuilder (Either c p)
+add_noreplace_s ind child parent = State.state $ \ irb ->
+    let (IRBuilder irctx errors) = irb
+    in case add_noreplace ind child (parent, irctx) of
+        Left old -> (Left old, irb)
+        Right (parent', irctx') -> (Right parent', IRBuilder irctx' errors)
 -- path resultion, type resolution, type interning {{{1
-resolve_path_d :: AST.LDPath -> Module -> (p, IRBuilder) -> (Maybe (DeclSymbol, DSIRId DeclSymbol), (p, IRBuilder))
-resolve_path_d (Located path_sp (AST.DPath' located_segments)) root cgtup@(parent, ir_builder@(IRBuilder irctx _)) =
+resolve_path_d :: AST.LDPath -> Module -> IRBuilder -> (Maybe (DeclSymbol, DSIRId DeclSymbol), IRBuilder)
+resolve_path_d (Located path_sp (AST.DPath' located_segments)) root ir_builder@(IRBuilder irctx _) =
     case m_dsid of
-        Just dsid -> (Just (resolve_dsid irctx root dsid, dsid), cgtup)
-        Nothing -> (Nothing, (parent, add_error (PathDoesntExist path_sp) ir_builder))
+        Just dsid -> (Just (resolve_dsid irctx root dsid, dsid), ir_builder)
+        Nothing -> (Nothing, add_error (PathDoesntExist path_sp) ir_builder)
     where
         unlocate (Located _ x) = x
         segments = map unlocate located_segments
         m_dsid = new_dsid irctx root segments :: Maybe (DSIRId DeclSymbol)
 
-resolve_path_v :: AST.LDPath -> Module -> (p, IRBuilder) -> (Maybe (Value, VIRId Value), (p, IRBuilder))
-resolve_path_v (Located path_sp (AST.DPath' located_segments)) root cgtup@(parent, ir_builder@(IRBuilder irctx _)) =
+resolve_path_v :: AST.LDPath -> Module -> IRBuilder -> (Maybe (Value, VIRId Value), IRBuilder)
+resolve_path_v (Located path_sp (AST.DPath' located_segments)) root ir_builder@(IRBuilder irctx _) =
     case m_vid of
-        Just vid -> (Just (resolve_vid irctx root vid, vid), cgtup)
-        Nothing -> (Nothing, (parent, add_error (PathDoesntExist path_sp) ir_builder))
+        Just vid -> (Just (resolve_vid irctx root vid, vid), ir_builder)
+        Nothing -> (Nothing, add_error (PathDoesntExist path_sp) ir_builder)
     where
         unlocate (Located _ x) = x
         segments = map unlocate located_segments
         m_vid = new_vid irctx root segments :: Maybe (VIRId Value)
 
-resolve_ty :: AST.LDType -> Module -> (p, IRBuilder) -> (Maybe TyIdx, (p, IRBuilder))
+resolve_ty_s :: AST.LDType -> Module -> State.State IRBuilder (Maybe TyIdx)
 
-resolve_ty (Located path_sp (AST.DType'Path path)) root cgtup = flip State.runState cgtup $
+resolve_ty_s (Located path_sp (AST.DType'Path path)) root =
     (State.state $ resolve_path_d path root) >>=? (return Nothing) $ \ (ds, _) ->
     case ds_cast ds :: Maybe TyIdx of
         j@(Just _) -> return j
         Nothing ->
-            State.state (irbuilder_fun_to_cgtup_fun $ add_unit_res $ add_error $ NotAType path_sp ds) >>
+            add_error_s (NotAType path_sp ds) >>
             return Nothing
 
-resolve_ty (Located sp (AST.DType'Pointer _ _)) _ (p, ir_builder) = (Nothing, (p, add_error (Unsupported "pointer types" sp) ir_builder)) ---TODO
-resolve_ty (Located sp AST.DType'This) _ (p, ir_builder) = (Nothing, (p, add_error (Unsupported "'this' types" sp) ir_builder)) -- TODO
+resolve_ty_s (Located sp (AST.DType'Pointer _ _)) _ =
+    add_error_s (Unsupported "pointer types" sp) >> -- TODO
+    return Nothing
+resolve_ty_s (Located sp AST.DType'This) _ =
+    add_error_s (Unsupported "'this' types" sp) >> -- TODO
+    return Nothing
 
-get_ty_irbuilder :: Type -> IRBuilder -> (TyIdx, IRBuilder)
-get_ty_irbuilder ty (IRBuilder ctx errs) =
+get_ty_s :: Type -> State.State IRBuilder TyIdx
+get_ty_s ty = State.state $ \ (IRBuilder ctx errs) ->
     let (idx, ctx') = get_ty_irctx ty ctx
     in (idx, IRBuilder ctx' errs)
 -- Lowerable class {{{1
-type IRDiff p = (p, IRBuilder) -> (p, IRBuilder)
 class Lowerable l p where
-    ddeclare, ddefine, vdeclare, vdefine :: l -> Module -> IRDiff p
+    ddeclare, ddefine, vdeclare, vdefine :: l -> Module -> p -> IRBuilder -> (p, IRBuilder)
 -- lowering modules {{{1
 newtype ModParent = ModParent Module
 instance Parent ModParent Module () where
-    get_child_map _ (ModParent mp) = Map.singleton () mp
-    add _ _ child (ModParent prev) = (Just prev, ModParent child)
+    get_child_map (ModParent mp, _) = Map.singleton () mp
+    add _ child (ModParent prev, irctx) = (Just prev, (ModParent child, irctx))
+
+lower_module :: Parent a Module () => (AST.LDDecl -> Module -> Module -> IRBuilder -> (Module, IRBuilder)) -> Located AST.DModule -> Module -> a -> IRBuilder -> (a, IRBuilder)
+lower_module fun (Located _ (AST.DModule' decls)) root parent = State.runState $
+    get_s () parent >>= \ (Just (module_ :: Module)) ->
+    lower_all_in_list_s decls fun root module_ >>= \ added_module ->
+    add_replace_s () added_module parent >>= \ added_parent ->
+    return added_parent
 
 instance Parent p Module () => Lowerable AST.LDModule p where
-    ddeclare (Located _ (AST.DModule' decls)) root (parent, ir_builder@(IRBuilder irctx _)) =
-        let (Just module_) = get irctx () parent :: Maybe Module
-            (module_', ir_builder') = lower_all_in_list decls ddeclare root (module_, ir_builder)
-        in (add_replace irctx () module_' parent, ir_builder')
-
-    ddefine (Located _ (AST.DModule' decls)) root (parent, ir_builder@(IRBuilder irctx _)) =
-        let (Just module_) = get irctx () parent :: Maybe Module
-            (module_', ir_builder') = lower_all_in_list decls ddefine root (module_, ir_builder)
-        in (add_replace irctx () module_' parent, ir_builder')
-
-    vdeclare (Located _ (AST.DModule' decls)) root (parent, ir_builder@(IRBuilder irctx _)) =
-        let (Just module_) = get irctx () parent :: Maybe Module
-            (module_', ir_builder') = lower_all_in_list decls vdeclare root (module_, ir_builder)
-        in (add_replace irctx () module_' parent, ir_builder')
-
-    vdefine (Located _ (AST.DModule' decls)) root (parent, ir_builder@(IRBuilder irctx _)) =
-        let (Just module_) = get irctx () parent :: Maybe Module
-            (module_', ir_builder') = lower_all_in_list decls vdefine root (module_, ir_builder)
-        in (add_replace irctx () module_' parent, ir_builder')
+    ddeclare = lower_module ddeclare
+    ddefine = lower_module ddefine
+    vdeclare = lower_module vdeclare
+    vdefine = lower_module vdefine
 -- lowering functions {{{1
 instance Parent p Value String => Lowerable AST.LSFunDecl p where
     -- functions do not lower to anything during the declaration phases
-    ddeclare _ _ = id
-    ddefine _ _ = id
+    ddeclare _ _ = (,)
+    ddefine _ _ = (,)
 
-    -- TODO: refactor this a bit because it is very messy
-    vdeclare (Located fun_sp (AST.SFunDecl' mretty (Located _ name) params _)) root = State.execState $
-        (State.state $ case mretty of
-            Just retty -> resolve_ty retty root
-            Nothing -> \ (p, irb) ->
-                let (idx, irb') = get_ty_irbuilder (VoidType Map.empty) irb
-                in (Just idx, (p, irb'))
-        ) >>=? (return ()) $ \ retty' ->
-        let make_param :: AST.LDParam -> State.State (p, IRBuilder) (Maybe (Mutability, TyIdx))
+    vdeclare (Located fun_sp (AST.SFunDecl' mretty (Located _ name) params _)) root parent = State.runState $
+        (case mretty of
+            Just retty -> resolve_ty_s retty root
+            Nothing -> Just <$> get_ty_s (VoidType Map.empty)
+        ) >>=? (return parent) $ \ retty' ->
+        let make_param :: AST.LDParam -> State.State IRBuilder (Maybe (Mutability, TyIdx))
             make_param (Located _ (AST.DParam'Normal mutability ty_ast _)) =
-                State.state (resolve_ty ty_ast root) >>= \ m_ty ->
-                case m_ty of
-                    Just ty -> return $ Just (ast_muty_to_ir_muty mutability, ty)
-                    Nothing -> return Nothing
-        in sequence <$> (sequence $ map make_param params) >>=? (return ()) $ \ param_tys ->
+                resolve_ty_s ty_ast root >>=? (return Nothing) $ \ ty ->
+                return $ Just (ast_muty_to_ir_muty mutability, ty)
+        in sequence <$> (sequence $ map make_param params) >>=? (return parent) $ \ param_tys ->
         let newty = FunctionType Map.empty retty' param_tys
-        in State.state (irbuilder_fun_to_cgtup_fun $ get_ty_irbuilder newty) >>= \ fun_ty_idx ->
+        in get_ty_s newty >>= \ fun_ty_idx ->
         let fun = Function
                   { get_function_blocks = []
                   , get_function_registers = map (uncurry $ flip Register) param_tys
@@ -250,37 +249,37 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
                   , get_function_name = name
                   }
             fun_val = Value fun
-        in State.get >>= \ before@(before_parent, before_ir_builder@(IRBuilder irctx _)) ->
-            case add_noreplace irctx name fun_val before_parent of
-                Left other_value ->
-                    State.put before >>
-                    State.state (irbuilder_fun_to_cgtup_fun $ add_unit_res $ add_error $ DuplicateValue name other_value fun_val)
-                Right added -> State.put (added, before_ir_builder)
+        in add_noreplace_s name fun_val parent >>= \ parent' ->
+        case parent' of
+            Left other_value ->
+                add_error_s (DuplicateValue name other_value fun_val) >>
+                return parent
+            Right added -> return added
 
-    vdefine (Located _ (AST.SFunDecl' _ (Located _ name) _ _)) _ cgtup@(parent, IRBuilder irctx _) =
-        let m_val = get irctx name parent :: Maybe Value
-            m_fun = m_val >>= value_cast :: Maybe Function
+    vdefine (Located _ (AST.SFunDecl' _ (Located _ name) _ _)) _ parent = State.runState $
+        get_s name parent >>= \ m_val ->
+        let m_fun = m_val >>= value_cast :: Maybe Function
         in case m_fun of
             -- silently ignore becuase the only way this can happen is if there is another global declaration
             -- that made a value of the same name that is not a function, which should already be reported as a duplicate value error
-            Nothing -> cgtup
+            Nothing -> return parent
 
-            Just old_fun -> lower_fun_body old_fun cgtup
+            Just old_fun -> lower_fun_body old_fun parent
 -- lowering function bodies {{{2
-lower_fun_body :: Parent p Value String => Function -> (p, IRBuilder) -> (p, IRBuilder)
+lower_fun_body :: Parent p Value String => Function -> p -> State.State IRBuilder p
 lower_fun_body = error "not implemented yet"
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
-    ddeclare (Located _ (AST.DDecl'Fun sf)) root cgtup = ddeclare sf root cgtup
-    ddeclare (Located sp (AST.DDecl'Impl _ _)) _ (parent, ir_builder) =
+    ddeclare (Located _ (AST.DDecl'Fun sf)) root parent ir_builder = ddeclare sf root parent ir_builder
+    ddeclare (Located sp (AST.DDecl'Impl _ _)) _ parent ir_builder =
         let warn = Unsupported "'impl' blocks" sp -- TODO
         in (parent, add_error warn ir_builder)
 
-    ddefine (Located _ (AST.DDecl'Fun sf)) root cgtup = ddefine sf root cgtup
-    ddefine (Located _ (AST.DDecl'Impl _ _)) _ cgtup = cgtup
+    ddefine (Located _ (AST.DDecl'Fun sf)) root = ddefine sf root
+    ddefine (Located _ (AST.DDecl'Impl _ _)) _ = (,)
 
-    vdeclare (Located _ (AST.DDecl'Fun sf)) root cgtup = vdeclare sf root cgtup
-    vdeclare (Located _ (AST.DDecl'Impl _ _)) _ cgtup = cgtup
+    vdeclare (Located _ (AST.DDecl'Fun sf)) root = vdeclare sf root
+    vdeclare (Located _ (AST.DDecl'Impl _ _)) _ = (,)
 
-    vdefine (Located _ (AST.DDecl'Fun sf)) root cgtup = vdefine sf root cgtup
-    vdefine (Located _ (AST.DDecl'Impl _ _)) _ cgtup = cgtup
+    vdefine (Located _ (AST.DDecl'Fun sf)) root = vdefine sf root
+    vdefine (Located _ (AST.DDecl'Impl _ _)) _ = (,)
