@@ -268,7 +268,7 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
 -- lowering function bodies {{{2
 lower_fun_body :: Parent p Value String => AST.SFunDecl -> Function -> p -> State.State IRBuilder p
 lower_fun_body (AST.SFunDecl' _ _ _ (Located body_sp _)) _ parent =
-    add_error_s (Unsupported "function bodies" body_sp) >>
+    add_error_s (Unsupported "function bodies" body_sp) >> -- TODO
     return parent
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
