@@ -256,7 +256,7 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
                 return parent
             Right added -> return added
 
-    vdefine (Located _ (AST.SFunDecl' _ (Located _ name) _ _)) _ parent = State.runState $
+    vdefine (Located _ sf@(AST.SFunDecl' _ (Located _ name) _ _)) _ parent = State.runState $
         get_s name parent >>= \ m_val ->
         let m_fun = m_val >>= value_cast :: Maybe Function
         in case m_fun of
@@ -264,10 +264,12 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
             -- that made a value of the same name that is not a function, which should already be reported as a duplicate value error
             Nothing -> return parent
 
-            Just old_fun -> lower_fun_body old_fun parent
+            Just old_fun -> lower_fun_body sf old_fun parent
 -- lowering function bodies {{{2
-lower_fun_body :: Parent p Value String => Function -> p -> State.State IRBuilder p
-lower_fun_body = error "not implemented yet"
+lower_fun_body :: Parent p Value String => AST.SFunDecl -> Function -> p -> State.State IRBuilder p
+lower_fun_body (AST.SFunDecl' _ _ _ (Located body_sp _)) _ parent =
+    add_error_s (Unsupported "function bodies" body_sp) >>
+    return parent
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) root parent ir_builder = ddeclare sf root parent ir_builder
