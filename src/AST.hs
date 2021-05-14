@@ -908,8 +908,8 @@ parse_stmt, var_stmt, ret_stmt, expr_stmt :: ParseFunM AST.LDStmt
 parse_stmt = choice [expr_stmt, var_stmt, ret_stmt]
 
 var_stmt =
-    consume_tok_s Tokens.Var (XIsMissingYFound "variable statement" "introductory 'var'") `seqparser` \ varsp ->
-    consume_tok_u Tokens.Mut (XIsMissingYAfterZFound "variable statement" "'mut'" "'var'") >>= \ mmut ->
+    consume_tok_s Tokens.Let (XIsMissingYFound "variable statement" "introductory 'let'") `seqparser` \ varsp ->
+    consume_tok_u Tokens.Mut (XIsMissingYAfterZFound "variable statement" "'mut'" "'let'") >>= \ mmut ->
     consume_iden (XIsMissingYFound "variable statement" "variable name") `seqparser` \ name ->
     type_annotation `seqparser` \ ty ->
     (

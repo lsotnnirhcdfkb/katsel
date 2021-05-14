@@ -79,8 +79,8 @@ data Token
     | FloatLit Double
     | BoolLit Bool
     | This
-    | Var
     | Fun
+    | Root
     | Let
     | Mut
     | Data
@@ -161,8 +161,8 @@ format_token (IntLit _ i) = "integer literal " ++ show i
 format_token (FloatLit d) = "floating point literal " ++ show d
 format_token (BoolLit b) = "bool literal " ++ if b then "true" else "false"
 format_token This = "keyword 'this'"
-format_token Var = "keyword 'var'"
 format_token Fun = "keyword 'fun'"
+format_token Root = "keyword 'root'"
 format_token Let = "keyword 'let'"
 format_token Mut = "keyword 'mut'"
 format_token Data = "keyword 'data'"
@@ -539,7 +539,7 @@ lex' prevtoks indent_stack lexer =
                     "data" -> Data
                     "impl" -> Impl
                     "fun" -> Fun
-                    "var" -> Var
+                    "root" -> Root
                     "mut" -> Mut
                     "let" -> Let
                     "this" -> This
