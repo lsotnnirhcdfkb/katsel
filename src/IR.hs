@@ -67,29 +67,28 @@ data IRBuildError
     | NotAType Span DeclSymbol
     | PathDoesntExist Span -- TODO: change to 'no entity called x in y'
 
+duplicate_msg :: String -> String -> String -> (Maybe Span, String) -> (Maybe Span, String) -> Message.SimpleDiag
+duplicate_msg entity_kind diag_name name (old_sp, old_desc) (new_sp, new_desc) =
+    let if_span m_sp ty imp msg =
+            case m_sp of
+                Just sp -> Right $ MsgUnds.Message sp ty imp msg
+                Nothing -> Left $ Message.Note msg
+
+        oldmsg = if_span old_sp MsgUnds.Note MsgUnds.Secondary $ entity_kind ++ " '" ++ name ++ "' already declared as " ++ old_desc
+        newmsg = if_span new_sp MsgUnds.Error MsgUnds.Primary $ entity_kind ++ " '" ++ name ++ "' redeclared as " ++ new_desc
+        totalmsgs = [oldmsg, newmsg]
+
+        underlines_section =
+            case [x | Right x <- totalmsgs] of
+                [] -> Nothing
+                msgs -> Just $ Message.Underlines $ MsgUnds.UnderlinesSection msgs
+        notes = [Just x | Left x <- totalmsgs]
+        sections = catMaybes $ underlines_section : notes
+    in Message.SimpleDiag Message.Error new_sp Nothing (Just diag_name) sections
+
 instance Message.ToDiagnostic (IRBuildError, IRCtx) where
     to_diagnostic (DuplicateValue name old new, irctx) =
-        let m_oldsp = decl_span irctx old
-            m_newsp = decl_span irctx new
-            old_desc = describe irctx old
-            new_desc = describe irctx new
-
-            if_span m_sp ty imp msg =
-                case m_sp of
-                    Just sp -> Right $ MsgUnds.Message sp ty imp msg
-                    Nothing -> Left $ Message.Note msg
-            oldmsg = if_span m_oldsp MsgUnds.Note MsgUnds.Secondary $ "value '" ++ name ++ "' already declared as " ++ old_desc
-            newmsg = if_span m_newsp MsgUnds.Error MsgUnds.Primary $ "value '" ++ name ++ "' redeclared as " ++ new_desc
-
-            totalmsgs = [oldmsg, newmsg]
-
-            underlines_section =
-                case [x | Right x <- totalmsgs] of
-                    [] -> Nothing
-                    msgs -> Just $ Message.Underlines $ MsgUnds.UnderlinesSection msgs
-            notes = [Just x | Left x <- totalmsgs]
-            sections = catMaybes $ underlines_section : notes
-        in Message.SimpleDiag Message.Error m_oldsp Nothing (Just "redecl-val") sections
+        duplicate_msg "value" "redecl-val" name (decl_span irctx old, describe irctx old) (decl_span irctx new, describe irctx new)
 
     to_diagnostic (Unsupported name sp, _) =
         Message.SimpleDiag Message.Warning (Just sp) Nothing Nothing
