@@ -78,8 +78,8 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
                 case m_sp of
                     Just sp -> Right $ MsgUnds.Message sp ty imp msg
                     Nothing -> Left $ Message.Note msg
-            oldmsg = if_span m_oldsp MsgUnds.Note MsgUnds.Secondary $ "'" ++ name ++ "' already declared as " ++ old_desc
-            newmsg = if_span m_newsp MsgUnds.Error MsgUnds.Primary $ "'" ++ name ++ "' redeclared as " ++ new_desc
+            oldmsg = if_span m_oldsp MsgUnds.Note MsgUnds.Secondary $ "value '" ++ name ++ "' already declared as " ++ old_desc
+            newmsg = if_span m_newsp MsgUnds.Error MsgUnds.Primary $ "value '" ++ name ++ "' redeclared as " ++ new_desc
 
             totalmsgs = [oldmsg, newmsg]
 
