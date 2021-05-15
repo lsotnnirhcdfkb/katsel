@@ -13,8 +13,8 @@ main =
         [] -> usage_message prog_name
         filenames ->
             let maxnum = length filenames
-            in sequence_ $ map (compile maxnum) $ zip ([1..] :: [Int]) filenames
+                compile (num, filename) = Driver.compile num maxnum filename
+            in sequence_ $ map compile $ zip ([1..] :: [Int]) filenames
     where
         usage_message prog_name = hPutStrLn stderr $ "usage: " ++ prog_name ++ " FILENAMES..."
 
-        compile maxnum (num, filename) = putStrLn ("[" ++ show num ++ "/" ++ show maxnum ++ "] compiling " ++ filename) >> Driver.compile filename

@@ -71,8 +71,12 @@ lower_ast_stage mod_ast =
     let (ir_mod, irctx, errs) = IR.build_ir mod_ast
     in add_errors (map (\err -> Message.to_diagnostic (err, irctx)) errs) >> return (ir_mod, irctx)
 
-compile :: String -> IO ()
-compile filename =
+compile :: Int -> Int -> String -> IO ()
+compile num maxnum filename =
+    putStr ("[" ++ show num ++ "/" ++ show maxnum ++ "] compiling ") >>
+    ANSI.setSGR Colors.file_path_sgr >>
+    putStrLn filename >>
+    ANSI.setSGR [] >>
     open_file filename >>= \ file ->
     let (ErrorAcc final_output final_errs) =
             lex_stage file >>=
