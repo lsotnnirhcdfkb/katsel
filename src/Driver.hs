@@ -93,8 +93,16 @@ compile num maxnum filename =
         put_if_fail =
             let err_amt = amount_of_diag Message.Error
             in if err_amt > 0
-            then hPutStrLn stderr $ "compilation of " ++ filename ++ " failed due to " ++ show err_amt ++ " errors"
-            else return ()
+                then
+                    hPutStr stderr "compilation of " >>
+                    ANSI.hSetSGR stderr Colors.file_path_sgr >>
+                    hPutStr stderr filename >>
+                    ANSI.hSetSGR stderr [] >>
+                    hPutStr stderr " failed due to " >>
+                    ANSI.hSetSGR stderr Colors.error_sgr >>
+                    hPutStrLn stderr (show err_amt ++ " errors") >>
+                    ANSI.hSetSGR stderr []
+                else return ()
 
         put_ending_line =
             let make_msg diag_ty kind sgr =
