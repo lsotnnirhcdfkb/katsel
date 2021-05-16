@@ -267,9 +267,15 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
             Just old_fun -> lower_fun_body sf old_fun parent
 -- lowering function bodies {{{2
 lower_fun_body :: Parent p Value String => AST.SFunDecl -> Function -> p -> State.State IRBuilder p
-lower_fun_body (AST.SFunDecl' _ _ _ (Located body_sp _)) _ parent =
+lower_fun_body (AST.SFunDecl' _ (Located _ name) _ body) fun parent =
+    lower_body_expr body fun >>= \ fun' ->
+    add_replace_s name (Value fun') parent >>=
+    return
+
+lower_body_expr :: AST.LSBlockExpr -> Function -> State.State IRBuilder Function
+lower_body_expr (Located body_sp body_expr) fun =
     add_error_s (Unsupported "function bodies" body_sp) >> -- TODO
-    return parent
+    return fun
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) root parent ir_builder = ddeclare sf root parent ir_builder
