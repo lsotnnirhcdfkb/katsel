@@ -137,6 +137,14 @@ add_error err (IRBuilder irctx errs) = IRBuilder irctx (errs ++ [err])
 add_error_s :: IRBuildError -> State.State IRBuilder ()
 add_error_s err = State.state $ \ irb -> ((), add_error err irb)
 
+apply_irctx_to_irbuilder :: (IRCtx -> (r, IRCtx)) -> IRBuilder -> (r, IRBuilder)
+apply_irctx_to_irbuilder fun (IRBuilder irctx errs) =
+    let (r, irctx') = fun irctx
+    in (r, IRBuilder irctx' errs)
+
+apply_irctx_to_irbuilder_s :: (IRCtx -> (r, IRCtx)) -> State.State IRBuilder r
+apply_irctx_to_irbuilder_s fun = State.state $ apply_irctx_to_irbuilder fun
+
 get_s :: Parent p c i => i -> p -> State.State IRBuilder (Maybe c)
 get_s ind parent = State.state $ \ irb ->
     let (IRBuilder irctx _) = irb
@@ -237,18 +245,8 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
                 resolve_ty_s ty_ast root >>=? (return Nothing) $ \ ty ->
                 return $ Just (ast_muty_to_ir_muty mutability, ty)
         in sequence <$> (sequence $ map make_param params) >>=? (return parent) $ \ param_tys ->
-        let newty = FunctionType Map.empty retty' param_tys
-        in get_ty_s newty >>= \ fun_ty_idx ->
-        let fun = Function
-                  { get_function_blocks = []
-                  , get_function_registers = map (uncurry $ flip Register) param_tys
-                  , get_function_ret_reg = 0
-                  , get_function_param_regs = take (length params) [1..]
-                  , get_function_type = fun_ty_idx
-                  , get_function_span = fun_sp
-                  , get_function_name = name
-                  }
-            fun_val = Value fun
+        apply_irctx_to_irbuilder_s (new_function retty' param_tys fun_sp name) >>= \ fun ->
+        let fun_val = Value fun
         in add_noreplace_s name fun_val parent >>= \ parent' ->
         case parent' of
             Left other_value ->
