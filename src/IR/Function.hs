@@ -27,17 +27,22 @@ import qualified Data.Map as Map(empty)
 data Function
     = Function
       { get_function_blocks :: [BasicBlock]
+      , get_entry_block :: BlockIdx
+      , get_exit_block :: BlockIdx
+
       , get_function_registers :: [Register]
       , get_function_ret_reg :: RegisterIdx
       , get_function_param_regs :: [RegisterIdx]
+
       , get_function_type :: TyIdx
+
       , get_function_span :: Span
       , get_function_name :: String
       }
 newtype BlockIdx = BlockIdx Int
 newtype RegisterIdx = RegisterIdx Int
 
-data BasicBlock = BasicBlock [Instruction] (Maybe Br)
+data BasicBlock = BasicBlock String [Instruction] (Maybe Br)
 data Register = Register TyIdx Mutability
 data Instruction
     = Copy Register FValue
@@ -66,7 +71,7 @@ instance Describe Function where
     describe _ f = "function named '" ++ get_function_name f ++ "'"
 
 new_function :: TyIdx -> [(Mutability, TyIdx)] -> Span -> String -> IRCtx -> (Function, IRCtx)
-new_function ret_type param_tys span name irctx =
+new_function ret_type param_tys sp name irctx =
     let param_regs = map (uncurry $ flip Register) param_tys
         param_reg_idxs = map RegisterIdx $ take (length param_tys) [1..]
 
@@ -75,4 +80,9 @@ new_function ret_type param_tys span name irctx =
         function_type = FunctionType Map.empty ret_type param_tys
         (function_type_idx, irctx') = get_ty_irctx function_type irctx
 
-    in (Function [] registers (RegisterIdx 0) param_reg_idxs function_type_idx span name, irctx')
+        blocks =
+            [ BasicBlock "entry" [] Nothing
+            , BasicBlock "exit" [] Nothing
+            ]
+
+    in (Function blocks (BlockIdx 0) (BlockIdx 1) registers (RegisterIdx 0) param_reg_idxs function_type_idx sp name, irctx')
