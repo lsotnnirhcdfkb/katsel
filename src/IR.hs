@@ -188,9 +188,12 @@ resolve_ty_s (Located path_sp (AST.DType'Path path)) root =
             add_error_s (NotAType path_sp ds) >>
             return Nothing
 
-resolve_ty_s (Located sp (AST.DType'Pointer _ _)) _ =
-    add_error_s (Unsupported "pointer types" sp) >> -- TODO
-    return Nothing
+resolve_ty_s (Located _ (AST.DType'Pointer muty pointee)) root =
+    resolve_ty_s pointee root >>=? (return Nothing) $ \ pointee_idx ->
+    let pointer_ty = PointerType Map.empty (ast_muty_to_ir_muty muty) pointee_idx
+    in get_ty_s pointer_ty >>=
+    return . Just
+
 resolve_ty_s (Located sp AST.DType'This) _ =
     add_error_s (Unsupported "'this' types" sp) >> -- TODO
     return Nothing
