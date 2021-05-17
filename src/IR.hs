@@ -33,7 +33,7 @@ import IR.Function
 
 import qualified Data.Map as Map
 
-import Data.List(foldl')
+import Data.List(foldl', find)
 import Data.Maybe(catMaybes)
 
 import qualified Control.Monad.State.Lazy as State(State, state, runState)
@@ -61,6 +61,7 @@ data IRBuilder = IRBuilder IRCtx [IRBuildError]
 -- IRBuildError {{{1
 data IRBuildError
     = DuplicateValue String Value Value
+    | DuplicateLocal Function Local RegisterIdx String
     | Unsupported String Span
     | NotAType Span DeclSymbol
     | PathDoesntExist Span -- TODO: change to 'no entity called x in y'
@@ -264,14 +265,42 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
 
             Just old_fun -> lower_fun_body sf old_fun parent
 -- lowering function bodies {{{2
+data Local = Local String RegisterIdx Integer
+data FunctionCG = FunctionCG Integer [Local]
+
+add_local :: String -> RegisterIdx -> FunctionCG -> Either Local FunctionCG
+add_local name reg_idx fcg@(FunctionCG scope_idx locals) =
+    case get_local name fcg of
+        Just old -> Left old
+        Nothing -> Right $ FunctionCG scope_idx $ Local name reg_idx scope_idx : locals
+
+get_local :: String -> FunctionCG -> Maybe Local
+get_local name (FunctionCG _ locals) = find (\ (Local n _ _) -> n == name) locals
+
 lower_fun_body :: Parent p Value String => AST.SFunDecl -> Function -> p -> State.State IRBuilder p
-lower_fun_body (AST.SFunDecl' _ (Located _ name) _ body) fun parent =
-    lower_body_expr body fun >>= \ fun' ->
+lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) fun parent =
+    let param_to_local (Located _ (AST.DParam'Normal _ _ (Located _ param_name)), reg_idx) function_cg =
+            let m_function_cg' = add_local name reg_idx function_cg
+            in case m_function_cg' of
+                Right function_cg' -> return function_cg'
+                Left old_local ->
+                    add_error_s (DuplicateLocal fun old_local reg_idx param_name) >>
+                    return function_cg
+        add_locals_for_params = map param_to_local $ zip params $ get_param_regs fun
+        combine :: State.State IRBuilder FunctionCG -> (FunctionCG -> State.State IRBuilder FunctionCG) -> State.State IRBuilder FunctionCG
+        combine a f =
+            a >>= \ fcg ->
+            f fcg
+
+        start_function_cg = return $ FunctionCG 0 []
+
+    in foldl' combine start_function_cg add_locals_for_params >>= \ function_cg ->
+    lower_body_expr body function_cg fun >>= \ fun' ->
     add_replace_s name (Value fun') parent >>=
     return
 
-lower_body_expr :: AST.LSBlockExpr -> Function -> State.State IRBuilder Function
-lower_body_expr (Located body_sp body_expr) fun =
+lower_body_expr :: AST.LSBlockExpr -> FunctionCG -> Function -> State.State IRBuilder Function
+lower_body_expr (Located body_sp body_expr) funcg fun =
     add_error_s (Unsupported "function bodies" body_sp) >> -- TODO
     return fun
 -- lowering declarations {{{1
