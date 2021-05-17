@@ -8,8 +8,11 @@ module IR.Function
 
     , BlockIdx
     , RegisterIdx
+    , InstructionIdx
 
     , new_function
+
+    , get_param_regs
     ) where
 
 import IR.Type
@@ -26,21 +29,22 @@ import qualified Data.Map as Map(empty)
 
 data Function
     = Function
-      { get_function_blocks :: [BasicBlock]
+      { get_blocks :: [BasicBlock]
       , get_entry_block :: BlockIdx
       , get_exit_block :: BlockIdx
 
-      , get_function_registers :: [Register]
-      , get_function_ret_reg :: RegisterIdx
-      , get_function_param_regs :: [RegisterIdx]
+      , get_registers :: [Register]
+      , get_ret_reg :: RegisterIdx
+      , get_param_regs :: [RegisterIdx]
 
-      , get_function_type :: TyIdx
+      , get_type :: TyIdx
 
-      , get_function_span :: Span
-      , get_function_name :: String
+      , get_span :: Span
+      , get_name :: String
       }
 newtype BlockIdx = BlockIdx Int
 newtype RegisterIdx = RegisterIdx Int
+data InstructionIdx = InstructionIdx BlockIdx Int
 
 data BasicBlock = BasicBlock String [Instruction] (Maybe Br)
 data Register = Register TyIdx Mutability
@@ -52,13 +56,13 @@ data Instruction
 
 data FValue
     = FVGlobalValue Value
-    | FVRegister Register
+    | FVRegister RegisterIdx
     | FVConstInt Integer
     | FVConstFloat Double
     | FVConstBool Bool
     | FVConstChar Char
     | FVVoid
-    | FVInstruction Instruction
+    | FVInstruction InstructionIdx
 
 data Br
     = BrRet
@@ -66,9 +70,9 @@ data Br
     | BrCond FValue BasicBlock BasicBlock
 
 instance DeclSpan Function where
-    decl_span _ f = Just $ get_function_span f
+    decl_span _ f = Just $ get_span f
 instance Describe Function where
-    describe _ f = "function named '" ++ get_function_name f ++ "'"
+    describe _ f = "function named '" ++ get_name f ++ "'"
 
 new_function :: TyIdx -> [(Mutability, TyIdx)] -> Span -> String -> IRCtx -> (Function, IRCtx)
 new_function ret_type param_tys sp name irctx =
