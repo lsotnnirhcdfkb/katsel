@@ -292,14 +292,10 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) fun parent =
                     add_error_s (DuplicateLocal fun old_local reg_idx param_name) >>
                     return function_cg
         add_locals_for_params = map param_to_local $ zip params $ get_param_regs fun
-        combine :: State.State IRBuilder FunctionCG -> (FunctionCG -> State.State IRBuilder FunctionCG) -> State.State IRBuilder FunctionCG
-        combine a f =
-            a >>= \ fcg ->
-            f fcg
 
         start_function_cg = return $ FunctionCG 0 []
 
-    in foldl' combine start_function_cg add_locals_for_params >>= \ function_cg ->
+    in foldl' (>>=) start_function_cg add_locals_for_params >>= \ function_cg ->
     lower_body_expr body function_cg fun >>= \ fun' ->
     add_replace_s name (Value fun') parent >>=
     return
