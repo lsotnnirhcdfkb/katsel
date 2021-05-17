@@ -13,6 +13,7 @@ module IR.Function
     , new_function
 
     , get_param_regs
+    , get_register
     ) where
 
 import IR.Type
@@ -47,7 +48,7 @@ newtype RegisterIdx = RegisterIdx Int
 data InstructionIdx = InstructionIdx BlockIdx Int
 
 data BasicBlock = BasicBlock String [Instruction] (Maybe Br)
-data Register = Register TyIdx Mutability
+data Register = Register TyIdx Mutability Span
 data Instruction
     = Copy Register FValue
     | Call Function [FValue]
@@ -69,19 +70,31 @@ data Br
     | BrGoto BasicBlock
     | BrCond FValue BasicBlock BasicBlock
 
+instance DeclSpan Register where
+    decl_span _ (Register _ _ sp) = Just sp
+instance Describe Register where
+    describe irctx (Register ty_idx muty _) =
+        let muty_str = case muty of
+                Immutable -> "immutable"
+                Mutable -> "mutable"
+
+            ty_str = describe irctx ty_idx
+
+        in muty_str ++ " register of type '" ++ ty_str ++ "'"
+
 instance DeclSpan Function where
     decl_span _ f = Just $ get_span f
 instance Describe Function where
     describe _ f = "function named '" ++ get_name f ++ "'"
 
-new_function :: TyIdx -> [(Mutability, TyIdx)] -> Span -> String -> IRCtx -> (Function, IRCtx)
+new_function :: TyIdx -> [(Mutability, TyIdx, Span)] -> Span -> String -> IRCtx -> (Function, IRCtx)
 new_function ret_type param_tys sp name irctx =
-    let param_regs = map (uncurry $ flip Register) param_tys
+    let param_regs = map (\ (muty, tyidx, sp) -> Register tyidx muty sp) param_tys
         param_reg_idxs = map RegisterIdx $ take (length param_tys) [1..]
 
-        registers = (Register ret_type Mutable) : param_regs
+        registers = (Register ret_type Mutable sp) : param_regs
 
-        function_type = FunctionType Map.empty ret_type param_tys
+        function_type = FunctionType Map.empty ret_type $ map (\ (a, b, _) -> (a, b)) param_tys
         (function_type_idx, irctx') = get_ty_irctx function_type irctx
 
         blocks =
@@ -90,3 +103,6 @@ new_function ret_type param_tys sp name irctx =
             ]
 
     in (Function blocks (BlockIdx 0) (BlockIdx 1) registers (RegisterIdx 0) param_reg_idxs function_type_idx sp name, irctx')
+
+get_register :: Function -> RegisterIdx -> Register
+get_register fun (RegisterIdx idx) = get_registers fun !! idx

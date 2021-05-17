@@ -89,6 +89,11 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
     to_diagnostic (DuplicateValue name old new, irctx) =
         duplicate_msg "value" "redecl-val" name (decl_span irctx old, describe irctx old) (decl_span irctx new, describe irctx new)
 
+    to_diagnostic (DuplicateLocal fun (Local _ old_reg_idx _) new_reg_idx name, irctx) =
+        let old = get_register fun old_reg_idx
+            new = get_register fun new_reg_idx
+        in duplicate_msg "local" "redecl-local" name (decl_span irctx old, describe irctx old) (decl_span irctx new, describe irctx new)
+
     to_diagnostic (Unsupported name sp, _) =
         Message.SimpleDiag Message.Warning (Just sp) Nothing Nothing
             [ Message.Underlines $ MsgUnds.UnderlinesSection
@@ -241,10 +246,10 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
             Just retty -> resolve_ty_s retty root
             Nothing -> Just <$> get_ty_s (VoidType Map.empty)
         ) >>=? (return parent) $ \ retty' ->
-        let make_param :: AST.LDParam -> State.State IRBuilder (Maybe (Mutability, TyIdx))
-            make_param (Located _ (AST.DParam'Normal mutability ty_ast _)) =
+        let make_param :: AST.LDParam -> State.State IRBuilder (Maybe (Mutability, TyIdx, Span))
+            make_param (Located sp (AST.DParam'Normal mutability ty_ast _)) =
                 resolve_ty_s ty_ast root >>=? (return Nothing) $ \ ty ->
-                return $ Just (ast_muty_to_ir_muty mutability, ty)
+                return $ Just (ast_muty_to_ir_muty mutability, ty, sp)
         in sequence <$> (sequence $ map make_param params) >>=? (return parent) $ \ param_tys ->
         apply_irctx_to_irbuilder_s (new_function retty' param_tys fun_sp name) >>= \ fun ->
         let fun_val = Value fun
