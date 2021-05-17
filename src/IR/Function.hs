@@ -12,6 +12,7 @@ module IR.Function
 
     , new_function
 
+    , get_entry_block
     , get_param_regs
     , get_register
 

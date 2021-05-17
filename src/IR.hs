@@ -271,16 +271,16 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
             Just old_fun -> lower_fun_body sf old_fun parent
 -- lowering function bodies {{{2
 data Local = Local String RegisterIdx Integer
-data FunctionCG = FunctionCG Integer [Local]
+data FunctionCG = FunctionCG Integer [Local] BlockIdx
 
 add_local :: String -> RegisterIdx -> FunctionCG -> Either Local FunctionCG
-add_local name reg_idx fcg@(FunctionCG scope_idx locals) =
+add_local name reg_idx fcg@(FunctionCG scope_idx locals current_block) =
     case get_local name fcg of
         Just old -> Left old
-        Nothing -> Right $ FunctionCG scope_idx $ Local name reg_idx scope_idx : locals
+        Nothing -> Right $ FunctionCG scope_idx (Local name reg_idx scope_idx : locals) current_block
 
 get_local :: String -> FunctionCG -> Maybe Local
-get_local name (FunctionCG _ locals) = find (\ (Local n _ _) -> n == name) locals
+get_local name (FunctionCG _ locals _) = find (\ (Local n _ _) -> n == name) locals
 
 lower_fun_body :: Parent p Value String => AST.SFunDecl -> Function -> p -> State.State IRBuilder p
 lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) fun parent =
@@ -295,7 +295,7 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) fun parent =
                     return function_cg
         add_locals_for_params = map param_to_local $ zip params $ get_param_regs fun
 
-        start_function_cg = return $ FunctionCG 0 []
+        start_function_cg = return $ FunctionCG 0 [] (get_entry_block fun)
 
     in foldl' (>>=) start_function_cg add_locals_for_params >>= \ function_cg ->
     lower_body_expr body function_cg fun >>= \ fun' ->
