@@ -97,7 +97,20 @@ instance Parent TyIdx Value String where
         in (old_child, (tyidx, irctx''))
 
 instance DeclSpan Type where
+    -- all the types currently implemented are primitive types or types that otherwise wouldn't have declaration spans anyway, so this is a constant Nothing
+    decl_span _ _ = Nothing
 instance Describe Type where
+    describe _ (FloatType _ size) = "primitive " ++ show size ++ "-bit floating-point type"
+    describe _ (IntType _ size signedness) =
+        let signedness_str = case signedness of
+                Unsigned -> "unsigned"
+                Signed -> "signed"
+        in "primitive " ++ show size ++ "-bit " ++ signedness_str ++ " integer type"
+    describe _ (CharType _) = "primitive character type"
+    describe _ (BoolType _) = "primitive bool type"
+    describe _ (FunctionType _ _ _) = "function type" -- TODO: put argument types and return type here?
+    describe _ (VoidType _) = "primitive void type"
+    describe _ (PointerType _ _ _) = "pointer type" -- TODO: put pointee type here?
 
 instance Parent Type DeclSymbol String where
     get_child_map ((FloatType dsmap _), _) = dsmap
