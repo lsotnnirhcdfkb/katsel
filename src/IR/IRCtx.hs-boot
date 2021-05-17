@@ -2,4 +2,4 @@ module IR.IRCtx
     ( IRCtx
     ) where
 
-data IRCtx
+import {-# SOURCE #-} IR.TypeStuffAndIRCtx.Stuff

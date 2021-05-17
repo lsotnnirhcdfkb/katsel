@@ -33,6 +33,7 @@ executable katsel
                      , IR.Type
                      , IR.TypeInterner
                      , IR.Value
+                     , IR.TypeStuffAndIRCtx.Stuff
 
                        -- utility things
                      , Location

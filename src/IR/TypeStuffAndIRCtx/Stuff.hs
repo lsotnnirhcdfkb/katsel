@@ -1,0 +1,111 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+
+module IR.TypeStuffAndIRCtx.Stuff where
+
+import IR.DeclSpan
+import IR.DeclSymbol
+import IR.Describe
+import IR.MapSynonyms
+import IR.Parent
+import IR.Value
+
+import Data.List(findIndex)
+
+data IRCtx = IRCtx TypeInterner
+data Signedness = Signed | Unsigned deriving Eq
+data Mutability = Mutable | Immutable deriving Eq
+newtype TypeInterner = TypeInterner [Type]
+newtype TyIdx = TyIdx { untyidx :: Int } deriving Eq
+data Type
+    = FloatType DSMap Int
+    | IntType DSMap Int Signedness
+    | CharType DSMap
+    | BoolType DSMap
+    | FunctionType DSMap TyIdx [(Mutability, TyIdx)]
+    | VoidType DSMap
+    | PointerType DSMap Mutability TyIdx
+
+new_irctx :: IRCtx
+new_irctx = IRCtx new_type_interner
+
+new_type_interner :: TypeInterner
+new_type_interner = TypeInterner []
+
+get_ty_irctx :: Type -> IRCtx -> (TyIdx, IRCtx)
+get_ty_irctx ty (IRCtx interner) =
+    let (idx, interner') = get_ty ty interner
+    in (idx, IRCtx interner')
+
+resolve_tyidx :: TypeInterner -> TyIdx -> Type
+resolve_tyidx (TypeInterner tys) (TyIdx idx) = tys !! idx
+
+resolve_tyidx_irctx :: IRCtx -> TyIdx -> Type
+resolve_tyidx_irctx (IRCtx interner) idx = resolve_tyidx interner idx
+
+replace_ty :: IRCtx -> TyIdx -> Type -> IRCtx
+replace_ty (IRCtx (TypeInterner tys)) (TyIdx tyidx) ty =
+    let (keep, _:keep2) = splitAt tyidx tys
+        tys' = keep ++ ty : keep2
+        interner' = TypeInterner tys'
+    in IRCtx interner'
+
+get_ty :: Type -> TypeInterner -> (TyIdx, TypeInterner)
+get_ty ty ctx@(TypeInterner tys) =
+    case findIndex (ty_eq ty) tys of
+        Just idx -> (TyIdx idx, ctx)
+        Nothing -> (TyIdx $ length tys, TypeInterner $ tys ++ [ty])
+
+ty_eq :: Type -> Type -> Bool
+
+ty_eq (FloatType _ size_a) (FloatType _ size_b)
+    | size_a == size_b = True
+
+ty_eq (IntType _ size_a sign_a) (IntType _ size_b sign_b)
+    | size_a == size_b && sign_a == sign_b = True
+
+ty_eq (FunctionType _ ret_a params_a) (FunctionType _ ret_b params_b)
+    | ret_a == ret_b && params_a == params_b = True
+
+ty_eq (PointerType _ muty_a pointee_a) (PointerType _ muty_b pointee_b)
+    | muty_a == muty_b && pointee_a == pointee_b = True
+
+ty_eq (CharType _) (CharType _) = True
+ty_eq (BoolType _) (BoolType _) = True
+ty_eq (VoidType _) (VoidType _) = True
+
+ty_eq _ _ = False
+
+instance DeclSpan TyIdx where
+    decl_span irctx idx = decl_span irctx $ resolve_tyidx_irctx irctx idx
+instance Describe TyIdx where
+    describe irctx idx = describe irctx $ resolve_tyidx_irctx irctx idx
+instance Parent TyIdx DeclSymbol String where
+    get_child_map (idx, irctx) = get_child_map (resolve_tyidx_irctx irctx idx, irctx)
+    add i child (tyidx, irctx) =
+        let resolved_ty = resolve_tyidx_irctx irctx tyidx
+            (old_child, (resolved_ty', irctx')) = add i child (resolved_ty, irctx)
+            irctx'' = replace_ty irctx' tyidx resolved_ty'
+        in (old_child, (tyidx, irctx''))
+-- TODO: maybe this shouldn't be copy and pasted
+instance Parent TyIdx Value String where
+    get_child_map (idx, irctx) = get_child_map (resolve_tyidx_irctx irctx idx, irctx)
+    add i child (tyidx, irctx) =
+        let resolved_ty = resolve_tyidx_irctx irctx tyidx
+            (old_child, (resolved_ty', irctx')) = add i child (resolved_ty, irctx)
+            irctx'' = replace_ty irctx' tyidx resolved_ty'
+        in (old_child, (tyidx, irctx''))
+
+instance DeclSpan Type where
+instance Describe Type where
+
+instance Parent Type DeclSymbol String where
+    get_child_map ((FloatType dsmap _), _) = dsmap
+    get_child_map ((IntType dsmap _ _), _) = dsmap
+    get_child_map ((CharType dsmap), _) = dsmap
+    get_child_map ((BoolType dsmap), _) = dsmap
+    get_child_map ((FunctionType dsmap _ _), _) = dsmap
+    get_child_map ((VoidType dsmap), _) = dsmap
+    get_child_map ((PointerType dsmap _ _), _) = dsmap
+
+instance Parent Type Value String where
