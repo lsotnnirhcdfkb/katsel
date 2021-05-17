@@ -10,7 +10,7 @@ import IR.MapSynonyms
 import IR.Parent
 import IR.Value
 
-import Data.List(findIndex)
+import Data.List(findIndex, intercalate)
 
 data IRCtx = IRCtx TypeInterner
 data Signedness = Signed | Unsigned deriving Eq
@@ -75,6 +75,31 @@ ty_eq (BoolType _) (BoolType _) = True
 ty_eq (VoidType _) (VoidType _) = True
 
 ty_eq _ _ = False
+
+stringify_ty :: IRCtx -> Type -> String
+stringify_ty _ (FloatType _ 32) = "float"
+stringify_ty _ (FloatType _ 64) = "double"
+stringify_ty _ (FloatType _ _) = error "float type that is not size 32 or size 64"
+stringify_ty _ (IntType _ size signedness) =
+    let signedness_str = case signedness of
+            Unsigned -> "u"
+            Signed -> "s"
+    in signedness_str ++ "int" ++ show size
+stringify_ty _ (CharType _) = "char"
+stringify_ty _ (BoolType _) = "bool"
+stringify_ty irctx (FunctionType _ ret_idx params) =
+    let ret_str = stringify_tyidx irctx ret_idx
+        param_strs = map (stringify_tyidx irctx . snd) params
+    in "fun (" ++ intercalate ", " param_strs ++ "): " ++ ret_str
+stringify_ty _ (VoidType _) = "void"
+stringify_ty irctx (PointerType _ muty pointee) =
+    let muty_str = case muty of
+            Mutable -> "mut "
+            Immutable -> ""
+    in "*" ++ muty_str ++ stringify_tyidx irctx pointee
+
+stringify_tyidx :: IRCtx -> TyIdx -> String
+stringify_tyidx irctx idx = stringify_ty irctx $ resolve_tyidx_irctx irctx idx
 
 instance DeclSpan TyIdx where
     decl_span irctx idx = decl_span irctx $ resolve_tyidx_irctx irctx idx

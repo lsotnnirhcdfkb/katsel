@@ -3,6 +3,8 @@ module IR.Type
     , Signedness(..)
     , TyIdx
     , Type(..)
+    , stringify_ty
+    , stringify_tyidx
     ) where
 
 import IR.TypeStuffAndIRCtx.Stuff

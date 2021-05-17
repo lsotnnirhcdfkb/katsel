@@ -78,7 +78,7 @@ instance Describe Register where
                 Immutable -> "immutable"
                 Mutable -> "mutable"
 
-            ty_str = describe irctx ty_idx
+            ty_str = stringify_tyidx irctx ty_idx
 
         in muty_str ++ " register of type '" ++ ty_str ++ "'"
 
