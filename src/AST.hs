@@ -290,7 +290,7 @@ instance Message.ToDiagnostic ParseError where
 
 instance Message.ToDiagnostic UncondError where
     to_diagnostic (ThisParamMustBeFirst sp) =
-        Message.SimpleDiag Message.Error Nothing Nothing Nothing
+        Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
             [ Message.Underlines $ MsgUnds.UnderlinesSection $
                 [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary "'this' parameters must be the first parameter"
                 ]
