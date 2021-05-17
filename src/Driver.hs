@@ -62,8 +62,8 @@ parse_stage toks =
         Right result ->
             return $ Just result
 
-        Left err ->
-            add_errors [Message.to_diagnostic err] >>
+        Left errs ->
+            add_errors errs >>
             return Nothing
 
 lower_ast_stage :: AST.LDModule -> ErrorAccumulated (IR.Module, IR.IRCtx)

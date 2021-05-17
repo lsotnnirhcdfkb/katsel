@@ -207,6 +207,9 @@ data ErrorConditionVariant
     | IfContinuedNeeds String String String Span (Located Tokens.Token)
     deriving Eq
 
+data UncondError
+    = ThisParamMustBeFirst Span
+
 condition_to_sections :: ErrorConditionVariant -> ([MsgUnds.Message], [Message.Section])
 
 condition_to_sections (XIsMissingYFound x y sp (Located _ tok)) =
@@ -284,8 +287,16 @@ instance Message.ToDiagnostic ParseError where
 
                             [] -> acc ++ [current]
                                 -- if current coult not combine with any other things
+
+instance Message.ToDiagnostic UncondError where
+    to_diagnostic (ThisParamMustBeFirst sp) =
+        Message.SimpleDiag Message.Error Nothing Nothing Nothing
+            [ Message.Underlines $ MsgUnds.UnderlinesSection $
+                [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary "'this' parameters must be the first parameter"
+                ]
+            ]
 -- parser {{{1
-data Parser = Parser Int [Located Tokens.Token] [ErrorCondition]
+data Parser = Parser Int [Located Tokens.Token] [ErrorCondition] [UncondError]
 type ParseFun = State Parser
 type ParseFunM a = ParseFun (Maybe a)
 -- utility functions {{{1
@@ -303,14 +314,14 @@ is_tt_s a b@(Located sp _) = if is_tt a b then Just sp else Nothing
 -- parser helpers {{{1
 advance :: Int -> Parser -> Parser
 advance 0 p = p
-advance 1 (Parser ind toks errs) = Parser (ind + 1) toks errs
+advance 1 (Parser ind toks errs uncond_errs) = Parser (ind + 1) toks errs uncond_errs
 advance n p = advance 1 $ advance (n - 1) p
 
 advance_s :: Int -> ParseFun ()
 advance_s x = state $ \ parser -> ((), advance x parser)
 
 peek :: Parser -> Located Tokens.Token
-peek (Parser ind toks _) =
+peek (Parser ind toks _ _) =
     case drop ind toks of
         x:_ -> x
         [] -> error "peek on empty token stream"
@@ -319,22 +330,25 @@ peek_s :: ParseFun (Located Tokens.Token)
 peek_s = state $ \ parser -> (peek parser, parser)
 
 new_err :: ErrorConditionVariant -> Parser -> Parser
-new_err err (Parser ind toks errs) = Parser ind toks (errs ++ [ErrorCondition ind err])
+new_err err (Parser ind toks errs uncond_errs) = Parser ind toks (errs ++ [ErrorCondition ind err]) uncond_errs
 
 new_err_s :: ErrorConditionVariant -> ParseFun ()
 new_err_s err = state $ \ parser -> ((), new_err err parser)
+
+new_uncond_err_s :: UncondError -> ParseFun ()
+new_uncond_err_s err = state $ \ (Parser i t e uncond_errs) -> ((), Parser i t e (uncond_errs ++ [err]))
 
 get_parser :: ParseFun Parser
 get_parser = state $ \ parser -> (parser, parser)
 
 save_location :: ParseFun (Int, [Located Tokens.Token])
-save_location = state $ \ parser@(Parser ind toks _) -> ((ind, toks), parser)
+save_location = state $ \ parser@(Parser ind toks _ _) -> ((ind, toks), parser)
 
 restore_location :: (Int, [Located Tokens.Token]) -> ParseFun ()
-restore_location (ind, toks) = state $ \ (Parser _ _ errs) -> ((), Parser ind toks errs)
+restore_location (ind, toks) = state $ \ (Parser _ _ errs uncond_errs) -> ((), Parser ind toks errs uncond_errs)
 
 select_span_from_parser :: Parser -> Span
-select_span_from_parser (Parser ind toks _) =
+select_span_from_parser (Parser ind toks _ _) =
     let front =
             case drop ind toks of
                 x:_ -> Just x
@@ -503,7 +517,19 @@ decl_list :: ParseFunM [AST.LDDecl]
 decl_list = onemore parse_decl
 
 param_list :: ParseFunM [AST.LDParam]
-param_list = onemoredelim parse_param (consume_tok_u Tokens.Comma (IfContinuedNeeds "parameter list" "separator ','" "parameter"))
+param_list =
+    onemoredelim parse_param (consume_tok_u Tokens.Comma (IfContinuedNeeds "parameter list" "separator ','" "parameter")) `seqparser` \ params ->
+    (sequence $ map (
+        \ (p@(Located param_sp param), idx) ->
+        case param of
+            DParam'Normal _ _ (Located _ "this")
+                | idx /= 0 ->
+                    new_uncond_err_s (ThisParamMustBeFirst param_sp) >>
+                    return Nothing
+            _ -> return $ Just p
+    ) $ zip params ([0..] :: [Integer])) >>= \ m_params ->
+    return $ sequence m_params
+
 
 stmt_list :: ParseFunM [AST.LDStmt]
 stmt_list = onemore parse_stmt
@@ -945,9 +971,11 @@ expr_stmt =
     in return $ Just $ Located totalsp $ AST.DStmt'Expr expr
 
 -- parse {{{1
-parse :: [Located Tokens.Token] -> Either ParseError AST.LDModule
+parse :: [Located Tokens.Token] -> Either [Message.SimpleDiag] AST.LDModule
 parse toks =
-    let (res, Parser _ _ errs) = runState grammar $ Parser 0 toks []
-    in case res of
-        Just x -> Right x
-        Nothing -> Left $ ParseError errs
+    let (res, Parser _ _ errs uncond_errs) = runState grammar $ Parser 0 toks [] []
+        uncond_errs_simple = map Message.to_diagnostic uncond_errs
+    in case (res, uncond_errs) of
+        (Just x, []) -> Right x
+        (Nothing, []) -> Left $ [Message.to_diagnostic (ParseError errs)]
+        (_, _:_) -> Left uncond_errs_simple
