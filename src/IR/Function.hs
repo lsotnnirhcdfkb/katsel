@@ -14,6 +14,8 @@ module IR.Function
 
     , get_param_regs
     , get_register
+
+    , function_not_defined
     ) where
 
 import IR.Type
@@ -89,7 +91,7 @@ instance Describe Function where
 
 new_function :: TyIdx -> [(Mutability, TyIdx, Span)] -> Span -> String -> IRCtx -> (Function, IRCtx)
 new_function ret_type param_tys sp name irctx =
-    let param_regs = map (\ (muty, tyidx, sp) -> Register tyidx muty sp) param_tys
+    let param_regs = map (\ (muty, tyidx, param_sp) -> Register tyidx muty param_sp) param_tys
         param_reg_idxs = map RegisterIdx $ take (length param_tys) [1..]
 
         registers = (Register ret_type Mutable sp) : param_regs
@@ -106,3 +108,6 @@ new_function ret_type param_tys sp name irctx =
 
 get_register :: Function -> RegisterIdx -> Register
 get_register fun (RegisterIdx idx) = get_registers fun !! idx
+
+function_not_defined :: Function -> Bool
+function_not_defined = (2==) . length . get_blocks

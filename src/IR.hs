@@ -284,6 +284,8 @@ get_local name (FunctionCG _ locals) = find (\ (Local n _ _) -> n == name) local
 
 lower_fun_body :: Parent p Value String => AST.SFunDecl -> Function -> p -> State.State IRBuilder p
 lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) fun parent =
+    let function_valid = if function_not_defined fun then Just () else Nothing
+    in return function_valid >>=? (return parent) $ \ _ ->
     let param_to_local (Located _ (AST.DParam'Normal _ _ (Located _ param_name)), reg_idx) function_cg =
             let m_function_cg' = add_local param_name reg_idx function_cg
             in case m_function_cg' of
