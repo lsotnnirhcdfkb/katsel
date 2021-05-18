@@ -111,4 +111,4 @@ get_register :: Function -> RegisterIdx -> Register
 get_register fun (RegisterIdx idx) = get_registers fun !! idx
 
 function_not_defined :: Function -> Bool
-function_not_defined = (2==) . length . get_blocks
+function_not_defined = (2==) . length . get_blocks -- a function starts out with 2 blocks, and it only goes up from there; blocks cannot be removed
