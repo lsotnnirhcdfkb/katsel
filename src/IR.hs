@@ -36,7 +36,7 @@ import qualified Data.Map as Map
 import Data.List(foldl', find)
 import Data.Maybe(catMaybes)
 
-import qualified Control.Monad.State.Lazy as State(State, state, runState)
+import qualified Control.Monad.State.Lazy as State(State, state, runState, get, put)
 
 -- build_ir {{{1
 build_ir :: AST.LDModule -> (Module, IRCtx, [IRBuildError])
@@ -298,14 +298,23 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) fun parent =
         start_function_cg = return $ FunctionCG 0 [] (get_entry_block fun)
 
     in foldl' (>>=) start_function_cg add_locals_for_params >>= \ function_cg ->
-    lower_body_expr body function_cg fun >>= \ fun' ->
+
+    State.get >>= \ ir_builder ->
+    let (fun', (ir_builder', _)) = State.runState (lower_body_expr body fun) (ir_builder, function_cg)
+    in State.put ir_builder' >>
+
     add_replace_s name (Value fun') parent >>=
     return
 
-lower_body_expr :: AST.LSBlockExpr -> FunctionCG -> Function -> State.State IRBuilder Function
-lower_body_expr (Located body_sp body_expr) funcg fun =
-    add_error_s (Unsupported "function bodies" body_sp) >> -- TODO
-    return fun
+apply_irb_to_funcgtup_s :: State.State IRBuilder r -> State.State (IRBuilder, FunctionCG) r
+apply_irb_to_funcgtup_s st = State.state $ \ (irb, fcg) ->
+    let (r, irb') = State.runState st irb
+    in (r, (irb', fcg))
+
+lower_body_expr :: AST.LSBlockExpr -> Function -> State.State (IRBuilder, FunctionCG) Function
+lower_body_expr (Located body_sp body_expr) fun =
+    apply_irb_to_funcgtup_s (add_error_s $ Unsupported "function bodies" body_sp) >> -- TODO
+    return (error "not implemented yet")
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) root parent ir_builder = ddeclare sf root parent ir_builder
