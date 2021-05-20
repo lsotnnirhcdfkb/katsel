@@ -300,21 +300,52 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) fun parent =
     in foldl' (>>=) start_function_cg add_locals_for_params >>= \ function_cg ->
 
     State.get >>= \ ir_builder ->
-    let (fun', (ir_builder', _)) = State.runState (lower_body_expr body fun) (ir_builder, function_cg)
-    in State.put ir_builder' >>
-
-    add_replace_s name (Value fun') parent >>=
+    let (res, (ir_builder', _, fun')) = State.runState (lower_body_expr body) (ir_builder, function_cg, fun)
+    in (case res of
+        Just _ ->
+            State.put ir_builder' >>
+            add_replace_s name (Value fun') parent
+        Nothing ->
+            return parent) >>=
     return
 
-apply_irb_to_funcgtup_s :: State.State IRBuilder r -> State.State (IRBuilder, FunctionCG) r
-apply_irb_to_funcgtup_s st = State.state $ \ (irb, fcg) ->
+apply_irb_to_funcgtup_s :: State.State IRBuilder r -> State.State (IRBuilder, FunctionCG, Function) r
+apply_irb_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
     let (r, irb') = State.runState st irb
-    in (r, (irb', fcg))
+    in (r, (irb', fcg, fun))
 
-lower_body_expr :: AST.LSBlockExpr -> Function -> State.State (IRBuilder, FunctionCG) Function
-lower_body_expr (Located body_sp body_expr) fun =
-    apply_irb_to_funcgtup_s (add_error_s $ Unsupported "function bodies" body_sp) >> -- TODO
+apply_fcg_to_funcgtup_s :: State.State FunctionCG r -> State.State (IRBuilder, FunctionCG, Function) r
+apply_fcg_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
+    let (r, fcg') = State.runState st fcg
+    in (r, (irb, fcg', fun))
+
+apply_fun_to_funcgtup_s :: State.State Function r -> State.State (IRBuilder, FunctionCG, Function) r
+apply_fun_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
+    let (r, fun') = State.runState st fun
+    in (r, (irb, fcg, fun'))
+
+lower_body_expr :: AST.LSBlockExpr -> State.State (IRBuilder, FunctionCG, Function) (Maybe ())
+lower_body_expr body =
+    lower_block_expr body >>= \ res ->
+    -- TODO: return res
+    return (Just ())
+
+lower_expr :: AST.LDExpr -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
+
+lower_expr (Located sp _) =
+    apply_irb_to_funcgtup_s (add_error_s $ Unsupported "expressions" sp) >> -- TODO
     return (error "not implemented yet")
+
+lower_block_expr :: AST.LSBlockExpr -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
+lower_block_expr (Located sp (AST.SBlockExpr' stmts)) =
+    sequence <$> sequence (map lower_stmt stmts) >>= \ reses ->
+    apply_irb_to_funcgtup_s (add_error_s $ Unsupported "block expressions" sp) >> -- TODO
+    return (error "not implemented yet")
+
+lower_stmt :: AST.LDStmt -> State.State (IRBuilder, FunctionCG, Function) (Maybe ())
+lower_stmt (Located sp _) =
+    apply_irb_to_funcgtup_s (add_error_s $ Unsupported "statements" sp) >> -- TODO
+    return Nothing
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) root parent ir_builder = ddeclare sf root parent ir_builder
