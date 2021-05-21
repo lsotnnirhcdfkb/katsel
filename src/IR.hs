@@ -348,15 +348,21 @@ lower_block_expr (Located _ (AST.SBlockExpr' stmts)) =
             Just (Located retexprsp (AST.DStmt'Expr ret)) -> (safe_init stmts, Just retexprsp, Just ret)
             _ -> (stmts, Nothing, Nothing)
 
-    in sequence <$> sequence (map lower_stmt stmts') >>= \ reses ->
+    in sequence <$> sequence (map lower_stmt stmts') >>=? (return Nothing) $ \ _ ->
     (case ret_expr_sp of
         Just resp -> apply_irb_to_funcgtup_s (add_error_s $ Unsupported "block returns" resp)
         Nothing -> return ()) >> -- TODO
     return (error "not implemented yet")
 
 lower_stmt :: AST.LDStmt -> State.State (IRBuilder, FunctionCG, Function) (Maybe ())
-lower_stmt (Located sp _) =
-    apply_irb_to_funcgtup_s (add_error_s $ Unsupported "statements" sp) >> -- TODO
+lower_stmt (Located _ (AST.DStmt'Expr ex)) = lower_expr ex >> return (Just ())
+
+lower_stmt (Located sp (AST.DStmt'Var _ _ _ _)) =
+    apply_irb_to_funcgtup_s (add_error_s $ Unsupported "variable statements" sp) >> -- TODO
+    return Nothing
+
+lower_stmt (Located sp (AST.DStmt'Ret _)) =
+    apply_irb_to_funcgtup_s (add_error_s $ Unsupported "return statements" sp) >> -- TODO
     return Nothing
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
