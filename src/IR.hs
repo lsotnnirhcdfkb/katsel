@@ -363,8 +363,67 @@ lower_body_expr body root =
 
 lower_expr :: AST.LDExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
 
-lower_expr (Located sp _) _ =
-    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "expressions" sp) >> -- TODO
+lower_expr (Located _ (AST.DExpr'Block block)) root = lower_block_expr block root
+
+lower_expr (Located sp (AST.DExpr'If _ _ _ _)) _ =
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "'if' expressions" sp) >> -- TODO
+    return Nothing
+
+lower_expr (Located sp (AST.DExpr'While _ _)) _ =
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "'while' expressions" sp) >> -- TODO
+    return Nothing
+
+lower_expr (Located sp (AST.DExpr'Assign _ _ _)) _ =
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "assignment expressions" sp) >> -- TODO
+    return Nothing
+
+lower_expr (Located sp (AST.DExpr'ShortCircuit _ _ _)) _ =
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "short-circuiting binary expressions" sp) >> -- TODO
+    return Nothing
+
+lower_expr (Located sp (AST.DExpr'Binary _ _ _)) _ =
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "binary expressions" sp) >> -- TODO
+    return Nothing
+
+lower_expr (Located sp (AST.DExpr'Cast _ _)) _ =
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "cast expression" sp) >> -- TODO
+    return Nothing
+
+lower_expr (Located sp (AST.DExpr'Unary _ _)) _ =
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "unary expressions" sp) >> -- TODO
+    return Nothing
+
+lower_expr (Located sp (AST.DExpr'Ref _ _ _)) _ =
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "reference (address-of) expressions" sp) >> -- TODO
+    return Nothing
+
+lower_expr (Located sp (AST.DExpr'Call _ _ _)) _ =
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "call expressions" sp) >> -- TODO
+    return Nothing
+
+lower_expr (Located sp (AST.DExpr'Field _ _ _)) _ =
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "field access expressions" sp) >> -- TODO
+    return Nothing
+
+lower_expr (Located sp (AST.DExpr'Method _ _ _ _ _)) _ =
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "method call expressions" sp) >> -- TODO
+    return Nothing
+
+lower_expr (Located _ (AST.DExpr'Bool b)) _ = return $ Just $ FVConstBool b
+lower_expr (Located _ (AST.DExpr'Float d)) _ = return $ Just $ FVConstFloat d
+lower_expr (Located _ (AST.DExpr'Int i)) _ = return $ Just $ FVConstInt i
+lower_expr (Located _ (AST.DExpr'Char c)) _ = return $ Just $ FVConstChar c
+
+lower_expr (Located sp (AST.DExpr'String _)) _ =
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "string literal expressions" sp) >> -- TODO
+    return Nothing
+
+lower_expr (Located sp AST.DExpr'This) _ =
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "'this' expressions" sp) >> -- TODO
+    return Nothing
+
+lower_expr (Located sp (AST.DExpr'Path _)) _ =
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "path expressions" sp) >> -- TODO
     return Nothing
 
 lower_block_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
