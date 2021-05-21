@@ -309,7 +309,6 @@ add_br_s br =
 
 add_basic_block_s :: String -> State.State (IRBuilder, FunctionCG, Function) BlockIdx
 add_basic_block_s name = apply_fun_to_funcgtup_s (State.state $ add_basic_block name)
-
 -- triplecgtup applications helpers {{{3
 apply_irb_to_funcgtup_s :: State.State IRBuilder r -> State.State (IRBuilder, FunctionCG, Function) r
 apply_irb_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
