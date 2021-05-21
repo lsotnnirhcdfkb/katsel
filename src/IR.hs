@@ -293,6 +293,38 @@ get_local name (FunctionCG _ locals _) = find (\ (Local n _ _) -> n == name) loc
 change_cur_block_s :: BlockIdx -> State.State FunctionCG ()
 change_cur_block_s block_idx = State.state $ \ (FunctionCG scope_idx locals _) ->
     ((), FunctionCG scope_idx locals block_idx)
+-- helpers {{{3
+get_cur_block :: State.State (IRBuilder, FunctionCG, Function) BlockIdx
+get_cur_block = State.state $ \ tcgt@(_, FunctionCG _ _ cur_block_idx, _) -> (cur_block_idx, tcgt)
+
+add_instruction_s :: Instruction -> State.State (IRBuilder, FunctionCG, Function) InstructionIdx
+add_instruction_s instr =
+    get_cur_block >>= \ cur_block ->
+    apply_fun_to_funcgtup_s (State.state $ add_instruction instr cur_block)
+
+add_br_s :: Br -> State.State (IRBuilder, FunctionCG, Function) ()
+add_br_s br =
+    get_cur_block >>= \ cur_block ->
+    apply_fun_to_funcgtup_s (State.state $ (,) () . add_br br cur_block)
+
+add_basic_block_s :: String -> State.State (IRBuilder, FunctionCG, Function) BlockIdx
+add_basic_block_s name = apply_fun_to_funcgtup_s (State.state $ add_basic_block name)
+
+-- triplecgtup applications helpers {{{3
+apply_irb_to_funcgtup_s :: State.State IRBuilder r -> State.State (IRBuilder, FunctionCG, Function) r
+apply_irb_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
+    let (r, irb') = State.runState st irb
+    in (r, (irb', fcg, fun))
+
+apply_fcg_to_funcgtup_s :: State.State FunctionCG r -> State.State (IRBuilder, FunctionCG, Function) r
+apply_fcg_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
+    let (r, fcg') = State.runState st fcg
+    in (r, (irb, fcg', fun))
+
+apply_fun_to_funcgtup_s :: State.State Function r -> State.State (IRBuilder, FunctionCG, Function) r
+apply_fun_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
+    let (r, fun') = State.runState st fun
+    in (r, (irb, fcg, fun'))
 -- lower function body {{{3
 lower_fun_body :: Parent p Value String => AST.SFunDecl -> Module -> Function -> p -> State.State IRBuilder p
 lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
@@ -316,24 +348,6 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
     in State.put ir_builder' >>
     add_replace_s name (Value fun') parent >>=
     return
--- triplecgtup applications helpers {{{3
-apply_irb_to_funcgtup_s :: State.State IRBuilder r -> State.State (IRBuilder, FunctionCG, Function) r
-apply_irb_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
-    let (r, irb') = State.runState st irb
-    in (r, (irb', fcg, fun))
-
-apply_fcg_to_funcgtup_s :: State.State FunctionCG r -> State.State (IRBuilder, FunctionCG, Function) r
-apply_fcg_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
-    let (r, fcg') = State.runState st fcg
-    in (r, (irb, fcg', fun))
-
-apply_fun_to_funcgtup_s :: State.State Function r -> State.State (IRBuilder, FunctionCG, Function) r
-apply_fun_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
-    let (r, fun') = State.runState st fun
-    in (r, (irb, fcg, fun'))
--- triplecgtup helpers {{{3
-get_cur_block :: State.State (IRBuilder, FunctionCG, Function) BlockIdx
-get_cur_block = State.state $ \ tcgt@(_, FunctionCG _ _ cur_block_idx, _) -> (cur_block_idx, tcgt)
 -- lowering things {{{3
 lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) ()
 lower_body_expr body root =
@@ -383,8 +397,7 @@ lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) roo
         Nothing -> return ()
         Just expr ->
             lower_expr expr root >>=? (return ()) $ \ expr_val ->
-            get_cur_block >>= \ cur_block ->
-            apply_fun_to_funcgtup_s (State.state $ add_instruction (Copy reg_idx expr_val) cur_block) >>
+            add_instruction_s (Copy reg_idx expr_val) >>
             return ()
     ) >>
     return ()
@@ -393,11 +406,10 @@ lower_stmt (Located _ (AST.DStmt'Ret expr)) root =
     lower_expr expr root  >>=? (return ()) $ \ ret_val ->
 
     State.get >>= \ (_, _, fun) ->
-    get_cur_block >>= \ cur_block ->
 
-    apply_fun_to_funcgtup_s (State.state $ add_instruction (Copy (get_ret_reg fun) ret_val) cur_block) >>
-    apply_fun_to_funcgtup_s (State.state $ (,) () . add_br (BrGoto (get_exit_block fun)) cur_block) >>
-    apply_fun_to_funcgtup_s (State.state $ add_basic_block "after_return") >>= \ after_return_idx ->
+    add_instruction_s (Copy (get_ret_reg fun) ret_val) >>
+    add_br_s (BrGoto $ get_exit_block fun) >>
+    add_basic_block_s "after_return" >>= \ after_return_idx ->
     apply_fcg_to_funcgtup_s (change_cur_block_s after_return_idx) >>
 
     return ()
