@@ -141,7 +141,7 @@ pprint_stmt_s (AST.DStmt'Var ty mutability name maybeinitializer) =
     put "var " >> if_mutable_put "mut " mutability >> put (unlocate name) >>
     pprint_type_annotation_s (unlocate ty) >>
     (case maybeinitializer of
-        Just (_, init_expr) -> put " = " >> pprint_expr_s (unlocate init_expr)
+        Just init_expr -> put " = " >> pprint_expr_s (unlocate init_expr)
         Nothing -> return ()) >>
     putnl
 

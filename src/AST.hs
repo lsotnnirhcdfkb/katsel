@@ -154,7 +154,7 @@ newtype DImplEntity
 
 type LDStmt = Located DStmt
 data DStmt
-    = DStmt'Var LDType Mutability LocStr (Maybe (Span, LDExpr))
+    = DStmt'Var LDType Mutability LocStr (Maybe LDExpr)
     | DStmt'Expr LDExpr
     | DStmt'Ret LDExpr
 
@@ -938,13 +938,9 @@ var_stmt =
     consume_tok_u Tokens.Mut (XIsMissingYAfterZFound "variable statement" "'mut'" "'let'") >>= \ mmut ->
     consume_iden (XIsMissingYFound "variable statement" "variable name") `seqparser` \ name ->
     type_annotation `seqparser` \ ty ->
-    (
-        consume_tok_s Tokens.Equal (XIsMissingYAfterZFound "variable initialization" "'='" "variable name") `seqparser` \ eqsp ->
-        parse_expr `seqparser` \ initializer ->
-        return $ Just (eqsp, initializer)
-    ) >>= \ minit ->
+    (consume_tok_s Tokens.Equal (XIsMissingYAfterZFound "variable initialization" "'='" "variable name") `seqparser` \ _ -> parse_expr) >>= \ initializer ->
     lnend "variable statement" `seqparser` \ endlsp ->
-    return $ Just $ Located (varsp `join_span` endlsp) $ AST.DStmt'Var ty (maybe_to_mutability mmut) name minit
+    return $ Just $ Located (varsp `join_span` endlsp) $ AST.DStmt'Var ty (maybe_to_mutability mmut) name initializer
 
 ret_stmt =
     consume_tok_s Tokens.Return (XIsMissingYFound "return statement" "introductory 'return'") `seqparser` \ retsp ->

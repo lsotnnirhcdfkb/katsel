@@ -377,7 +377,7 @@ lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) roo
     ) >>
     (case m_init of
         Nothing -> return ()
-        Just (_, expr) ->
+        Just expr ->
             lower_expr expr root >>=? (return ()) $ \ expr_val ->
             get_cur_block >>= \ cur_block ->
             apply_fun_to_funcgtup_s (State.state $ add_instruction (Copy reg_idx expr_val) cur_block) >>
