@@ -62,7 +62,7 @@ data IRBuilder = IRBuilder IRCtx [IRBuildError]
 data IRBuildError
     = DuplicateValue String Value Value
     | DuplicateLocal Function Local RegisterIdx String
-    | Unsupported String Span
+    | Unimplemented String Span
     | NotAType Span DeclSymbol
     | PathDoesntExist Span -- TODO: change to 'no entity called x in y'
 
@@ -94,10 +94,10 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
             new = get_register fun new_reg_idx
         in duplicate_msg "local" "redecl-local" name (decl_span irctx old, describe irctx old) (decl_span irctx new, describe irctx new)
 
-    to_diagnostic (Unsupported name sp, _) =
+    to_diagnostic (Unimplemented name sp, _) =
         Message.SimpleDiag Message.Warning (Just sp) Nothing Nothing
             [ Message.Underlines $ MsgUnds.UnderlinesSection
-                [ MsgUnds.Message sp MsgUnds.Warning MsgUnds.Primary $ name ++ " are currently unsupported"
+                [ MsgUnds.Message sp MsgUnds.Warning MsgUnds.Primary $ name ++ " are currently unimplemented"
                 ]
             ]
 
@@ -207,7 +207,7 @@ resolve_ty_s (Located _ (AST.DType'Pointer muty pointee)) root =
     return . Just
 
 resolve_ty_s (Located sp AST.DType'This) _ =
-    add_error_s (Unsupported "'this' types" sp) >> -- TODO
+    add_error_s (Unimplemented "'this' types" sp) >> -- TODO
     return Nothing
 
 get_ty_s :: Type -> State.State IRBuilder TyIdx
@@ -329,7 +329,7 @@ lower_body_expr body =
 lower_expr :: AST.LDExpr -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
 
 lower_expr (Located sp _) =
-    apply_irb_to_funcgtup_s (add_error_s $ Unsupported "expressions" sp) >> -- TODO
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "expressions" sp) >> -- TODO
     return (error "not implemented yet")
 
 lower_block_expr :: AST.LSBlockExpr -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
@@ -355,17 +355,17 @@ lower_stmt :: AST.LDStmt -> State.State (IRBuilder, FunctionCG, Function) (Maybe
 lower_stmt (Located _ (AST.DStmt'Expr ex)) = lower_expr ex >> return (Just ())
 
 lower_stmt (Located sp (AST.DStmt'Var _ _ _ _)) =
-    apply_irb_to_funcgtup_s (add_error_s $ Unsupported "variable statements" sp) >> -- TODO
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "variable statements" sp) >> -- TODO
     return Nothing
 
 lower_stmt (Located sp (AST.DStmt'Ret _)) =
-    apply_irb_to_funcgtup_s (add_error_s $ Unsupported "return statements" sp) >> -- TODO
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "return statements" sp) >> -- TODO
     return Nothing
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) root parent ir_builder = ddeclare sf root parent ir_builder
     ddeclare (Located sp (AST.DDecl'Impl _ _)) _ parent ir_builder =
-        let warn = Unsupported "'impl' blocks" sp -- TODO
+        let warn = Unimplemented "'impl' blocks" sp -- TODO
         in (parent, add_error warn ir_builder)
 
     ddefine (Located _ (AST.DDecl'Fun sf)) root = ddefine sf root
