@@ -341,7 +341,7 @@ lower_expr :: AST.LDExpr -> Module -> State.State (IRBuilder, FunctionCG, Functi
 
 lower_expr (Located sp _) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "expressions" sp) >> -- TODO
-    return (error "not implemented yet")
+    return Nothing
 
 lower_block_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
 lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
