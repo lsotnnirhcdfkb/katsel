@@ -122,9 +122,7 @@ function_not_defined = (2==) . length . get_blocks -- a function starts out with
 add_basic_block :: String -> Function -> (BlockIdx, Function)
 add_basic_block name fun =
     ( new_block_idx
-    , fun
-      { get_blocks = blocks ++ [new_block]
-      }
+    , fun { get_blocks = blocks ++ [new_block] }
     )
     where
         blocks = get_blocks fun
@@ -134,9 +132,7 @@ add_basic_block name fun =
 add_instruction :: Instruction -> BlockIdx -> Function -> (InstructionIdx, Function)
 add_instruction instr block_idx@(BlockIdx block_idx') fun =
     ( instr_idx
-    , fun
-      { get_blocks = new_blocks
-      }
+    , fun { get_blocks = new_blocks }
     )
     where
         blocks = get_blocks fun
