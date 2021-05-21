@@ -383,7 +383,6 @@ lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) roo
             apply_fun_to_funcgtup_s (State.state $ add_instruction (Copy reg_idx expr_val) cur_block) >>
             return ()
     ) >>
-    -- apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "variable statements" _) >> -- TODO
     return Nothing
 
 lower_stmt (Located sp (AST.DStmt'Ret _)) _ =
