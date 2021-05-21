@@ -3,8 +3,8 @@ module IR.Function
     , BasicBlock
     , Register
     , FValue(..)
-    , Instruction
-    , Br
+    , Instruction(..)
+    , Br(..)
 
     , BlockIdx
     , RegisterIdx
@@ -17,10 +17,16 @@ module IR.Function
     , get_register
 
     , function_not_defined
+
+    , add_basic_block
+    , add_instruction
+    , add_br
     ) where
 
 import IR.Type
 import IR.Value
+
+import IR.ID
 
 import IR.IRCtx
 
@@ -53,9 +59,9 @@ data InstructionIdx = InstructionIdx BlockIdx Int
 data BasicBlock = BasicBlock String [Instruction] (Maybe Br)
 data Register = Register TyIdx Mutability Span
 data Instruction
-    = Copy Register FValue
-    | Call Function [FValue]
-    | Addrof Register Mutability
+    = Copy RegisterIdx FValue
+    | Call (VIRId Function) [FValue]
+    | Addrof RegisterIdx Mutability
     | DerefPtr FValue
 
 data FValue
@@ -70,8 +76,8 @@ data FValue
 
 data Br
     = BrRet
-    | BrGoto BasicBlock
-    | BrCond FValue BasicBlock BasicBlock
+    | BrGoto BlockIdx
+    | BrCond FValue BlockIdx BlockIdx
 
 instance DeclSpan Register where
     decl_span _ (Register _ _ sp) = Just sp
@@ -112,3 +118,45 @@ get_register fun (RegisterIdx idx) = get_registers fun !! idx
 
 function_not_defined :: Function -> Bool
 function_not_defined = (2==) . length . get_blocks -- a function starts out with 2 blocks, and it only goes up from there; blocks cannot be removed
+
+add_basic_block :: String -> Function -> (BlockIdx, Function)
+add_basic_block name fun =
+    ( new_block_idx
+    , fun
+      { get_blocks = blocks ++ [new_block]
+      }
+    )
+    where
+        blocks = get_blocks fun
+        new_block_idx = BlockIdx $ length blocks + 1
+        new_block = BasicBlock name [] Nothing
+
+add_instruction :: Instruction -> BlockIdx -> Function -> (InstructionIdx, Function)
+add_instruction instr block_idx@(BlockIdx block_idx') fun =
+    ( instr_idx
+    , fun
+      { get_blocks = new_blocks
+      }
+    )
+    where
+        blocks = get_blocks fun
+
+        (BasicBlock block_name block_instrs block_br) = blocks !! block_idx'
+
+        new_block = BasicBlock block_name (block_instrs ++ [instr]) block_br
+
+        new_blocks = replace_block blocks block_idx new_block
+        instr_idx = InstructionIdx block_idx (length block_instrs + 1)
+
+add_br :: Br -> BlockIdx -> Function -> Function
+add_br br block_idx@(BlockIdx block_idx') fun = fun { get_blocks = new_blocks }
+    where
+        blocks = get_blocks fun
+        (BasicBlock block_name block_instrs _) = blocks !! block_idx'
+        new_block = BasicBlock block_name block_instrs (Just br)
+        new_blocks = replace_block blocks block_idx new_block
+
+replace_block :: [BasicBlock] -> BlockIdx -> BasicBlock -> [BasicBlock]
+replace_block blocks (BlockIdx idx) block =
+    let (keep, _:keep2) = splitAt idx blocks
+    in keep ++ block : keep2
