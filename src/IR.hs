@@ -273,7 +273,7 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
 data Local = Local String RegisterIdx Integer
 data FunctionCG = FunctionCG Integer [Local] BlockIdx
 
--- helper functions {{{3
+-- FunctionCG functions {{{3
 add_local :: String -> RegisterIdx -> FunctionCG -> Either Local FunctionCG
 add_local name reg_idx fcg@(FunctionCG scope_idx locals current_block) =
     case get_local name fcg of
@@ -289,6 +289,10 @@ add_local_s name reg_idx = State.state $ \ fcg ->
 
 get_local :: String -> FunctionCG -> Maybe Local
 get_local name (FunctionCG _ locals _) = find (\ (Local n _ _) -> n == name) locals
+
+change_cur_block_s :: BlockIdx -> State.State FunctionCG ()
+change_cur_block_s block_idx = State.state $ \ (FunctionCG scope_idx locals _) ->
+    ((), FunctionCG scope_idx locals block_idx)
 -- lower function body {{{3
 lower_fun_body :: Parent p Value String => AST.SFunDecl -> Module -> Function -> p -> State.State IRBuilder p
 lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
@@ -385,8 +389,17 @@ lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) roo
     ) >>
     return ()
 
-lower_stmt (Located sp (AST.DStmt'Ret _)) _ =
-    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "return statements" sp) >> -- TODO
+lower_stmt (Located _ (AST.DStmt'Ret expr)) root =
+    lower_expr expr root  >>=? (return ()) $ \ ret_val ->
+
+    State.get >>= \ (_, _, fun) ->
+    get_cur_block >>= \ cur_block ->
+
+    apply_fun_to_funcgtup_s (State.state $ add_instruction (Copy (get_ret_reg fun) ret_val) cur_block) >>
+    apply_fun_to_funcgtup_s (State.state $ (,) () . add_br (BrGoto (get_exit_block fun)) cur_block) >>
+    apply_fun_to_funcgtup_s (State.state $ add_basic_block "after_return") >>= \ after_return_idx ->
+    apply_fcg_to_funcgtup_s (change_cur_block_s after_return_idx) >>
+
     return ()
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where

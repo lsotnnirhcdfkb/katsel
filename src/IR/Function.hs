@@ -13,6 +13,8 @@ module IR.Function
     , new_function
 
     , get_entry_block
+    , get_exit_block
+    , get_ret_reg
     , get_param_regs
     , get_register
 
