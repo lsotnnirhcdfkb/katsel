@@ -18,6 +18,7 @@ module IR.Function
 
     , function_not_defined
 
+    , add_register
     , add_basic_block
     , add_instruction
     , add_br
@@ -113,6 +114,17 @@ new_function ret_type param_tys sp name irctx =
 
     in (Function blocks (BlockIdx 0) (BlockIdx 1) registers (RegisterIdx 0) param_reg_idxs function_type_idx sp name, irctx')
 
+add_register :: TyIdx -> Mutability -> Span -> Function -> (RegisterIdx, Function)
+add_register tyidx muty sp fun = (reg_idx, fun')
+    where
+        reg = Register tyidx muty sp
+
+        registers = get_registers fun
+        fun' = fun
+               { get_registers = registers ++ [reg]
+               }
+        reg_idx = RegisterIdx $ length registers
+
 get_register :: Function -> RegisterIdx -> Register
 get_register fun (RegisterIdx idx) = get_registers fun !! idx
 
@@ -126,7 +138,7 @@ add_basic_block name fun =
     )
     where
         blocks = get_blocks fun
-        new_block_idx = BlockIdx $ length blocks + 1
+        new_block_idx = BlockIdx $ length blocks
         new_block = BasicBlock name [] Nothing
 
 add_instruction :: Instruction -> BlockIdx -> Function -> (InstructionIdx, Function)
@@ -142,7 +154,7 @@ add_instruction instr block_idx@(BlockIdx block_idx') fun =
         new_block = BasicBlock block_name (block_instrs ++ [instr]) block_br
 
         new_blocks = replace_block blocks block_idx new_block
-        instr_idx = InstructionIdx block_idx (length block_instrs + 1)
+        instr_idx = InstructionIdx block_idx $ length block_instrs
 
 add_br :: Br -> BlockIdx -> Function -> Function
 add_br br block_idx@(BlockIdx block_idx') fun = fun { get_blocks = new_blocks }

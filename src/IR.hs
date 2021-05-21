@@ -273,15 +273,23 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
 data Local = Local String RegisterIdx Integer
 data FunctionCG = FunctionCG Integer [Local] BlockIdx
 
+-- helper functions {{{3
 add_local :: String -> RegisterIdx -> FunctionCG -> Either Local FunctionCG
 add_local name reg_idx fcg@(FunctionCG scope_idx locals current_block) =
     case get_local name fcg of
         Just old -> Left old
         Nothing -> Right $ FunctionCG scope_idx (Local name reg_idx scope_idx : locals) current_block
 
+add_local_s :: String -> RegisterIdx -> State.State FunctionCG (Either Local ())
+add_local_s name reg_idx = State.state $ \ fcg ->
+    let elfcg = add_local name reg_idx fcg
+    in case elfcg of
+        Right fcg' -> (Right (), fcg')
+        Left old -> (Left old, fcg)
+
 get_local :: String -> FunctionCG -> Maybe Local
 get_local name (FunctionCG _ locals _) = find (\ (Local n _ _) -> n == name) locals
-
+-- lower function body {{{3
 lower_fun_body :: Parent p Value String => AST.SFunDecl -> Module -> Function -> p -> State.State IRBuilder p
 lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
     let function_valid = if function_not_defined fun then Just () else Nothing
@@ -304,7 +312,7 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
     in State.put ir_builder' >>
     add_replace_s name (Value fun') parent >>=
     return
-
+-- triplecgtup applications helpers {{{3
 apply_irb_to_funcgtup_s :: State.State IRBuilder r -> State.State (IRBuilder, FunctionCG, Function) r
 apply_irb_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
     let (r, irb') = State.runState st irb
@@ -319,7 +327,10 @@ apply_fun_to_funcgtup_s :: State.State Function r -> State.State (IRBuilder, Fun
 apply_fun_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
     let (r, fun') = State.runState st fun
     in (r, (irb, fcg, fun'))
-
+-- triplecgtup helpers {{{3
+get_cur_block :: State.State (IRBuilder, FunctionCG, Function) BlockIdx
+get_cur_block = State.state $ \ tcgt@(_, FunctionCG _ _ cur_block_idx, _) -> (cur_block_idx, tcgt)
+-- lowering things {{{3
 lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) ()
 lower_body_expr body root =
     lower_block_expr body root >>= \ res ->
@@ -354,8 +365,25 @@ lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
 lower_stmt :: AST.LDStmt -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe ())
 lower_stmt (Located _ (AST.DStmt'Expr ex)) root = lower_expr ex root >> return (Just ())
 
-lower_stmt (Located sp (AST.DStmt'Var _ _ _ _)) _ =
-    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "variable statements" sp) >> -- TODO
+lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) root =
+    apply_irb_to_funcgtup_s (resolve_ty_s ty root) >>=? (return Nothing) $ \ var_ty_idx ->
+    apply_fun_to_funcgtup_s (State.state $ add_register var_ty_idx (ast_muty_to_ir_muty muty) name_sp) >>= \ reg_idx ->
+    apply_fcg_to_funcgtup_s (add_local_s name reg_idx) >>= \ m_old ->
+    (case m_old of
+        Left old ->
+            State.get >>= \ (_, _, fun) ->
+            apply_irb_to_funcgtup_s $ add_error_s $ DuplicateLocal fun old reg_idx name
+        Right () -> return ()
+    ) >>
+    (case m_init of
+        Nothing -> return ()
+        Just (_, expr) ->
+            lower_expr expr root >>=? (return ()) $ \ expr_val ->
+            get_cur_block >>= \ cur_block ->
+            apply_fun_to_funcgtup_s (State.state $ add_instruction (Copy reg_idx expr_val) cur_block) >>
+            return ()
+    ) >>
+    -- apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "variable statements" _) >> -- TODO
     return Nothing
 
 lower_stmt (Located sp (AST.DStmt'Ret _)) _ =
