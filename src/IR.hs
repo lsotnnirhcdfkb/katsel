@@ -36,7 +36,7 @@ import qualified Data.Map as Map
 import Data.List(foldl', find)
 import Data.Maybe(catMaybes)
 
-import qualified Control.Monad.State.Lazy as State(State, state, runState, get, put)
+import qualified Control.Monad.State.Lazy as State(State, state, execState, runState, get, put)
 
 -- build_ir {{{1
 build_ir :: AST.LDModule -> (Module, IRCtx, [IRBuildError])
@@ -300,13 +300,9 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) fun parent =
     in foldl' (>>=) start_function_cg add_locals_for_params >>= \ function_cg ->
 
     State.get >>= \ ir_builder ->
-    let (res, (ir_builder', _, fun')) = State.runState (lower_body_expr body) (ir_builder, function_cg, fun)
-    in (case res of
-        Just _ ->
-            State.put ir_builder' >>
-            add_replace_s name (Value fun') parent
-        Nothing ->
-            return parent) >>=
+    let (ir_builder', _, fun') = State.execState (lower_body_expr body) (ir_builder, function_cg, fun)
+    in State.put ir_builder' >>
+    add_replace_s name (Value fun') parent >>=
     return
 
 apply_irb_to_funcgtup_s :: State.State IRBuilder r -> State.State (IRBuilder, FunctionCG, Function) r
@@ -324,11 +320,11 @@ apply_fun_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
     let (r, fun') = State.runState st fun
     in (r, (irb, fcg, fun'))
 
-lower_body_expr :: AST.LSBlockExpr -> State.State (IRBuilder, FunctionCG, Function) (Maybe ())
+lower_body_expr :: AST.LSBlockExpr -> State.State (IRBuilder, FunctionCG, Function) ()
 lower_body_expr body =
     lower_block_expr body >>= \ res ->
     -- TODO: return res
-    return (Just ())
+    return ()
 
 lower_expr :: AST.LDExpr -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
 
@@ -344,15 +340,15 @@ lower_block_expr (Located _ (AST.SBlockExpr' stmts)) =
         safe_init [] = []
         safe_init l = init l
 
-        (stmts', ret_expr_sp, ret_expr) = case safe_last stmts of
-            Just (Located retexprsp (AST.DStmt'Expr ret)) -> (safe_init stmts, Just retexprsp, Just ret)
-            _ -> (stmts, Nothing, Nothing)
+        (stmts', m_ret_expr) = case safe_last stmts of
+            Just (Located _ (AST.DStmt'Expr ret)) -> (safe_init stmts, Just ret)
+            _ -> (stmts, Nothing)
 
-    in sequence <$> sequence (map lower_stmt stmts') >>=? (return Nothing) $ \ _ ->
-    (case ret_expr_sp of
-        Just resp -> apply_irb_to_funcgtup_s (add_error_s $ Unsupported "block returns" resp)
-        Nothing -> return ()) >> -- TODO
-    return (error "not implemented yet")
+    in sequence <$> sequence (map lower_stmt stmts') >>
+    (case m_ret_expr of
+        Just ret_expr -> lower_expr ret_expr
+        Nothing -> return $ Just FVVoid) >>= \ ret ->
+    return ret
 
 lower_stmt :: AST.LDStmt -> State.State (IRBuilder, FunctionCG, Function) (Maybe ())
 lower_stmt (Located _ (AST.DStmt'Expr ex)) = lower_expr ex >> return (Just ())

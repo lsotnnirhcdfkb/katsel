@@ -2,7 +2,7 @@ module IR.Function
     ( Function
     , BasicBlock
     , Register
-    , FValue
+    , FValue(..)
     , Instruction
     , Br
 
