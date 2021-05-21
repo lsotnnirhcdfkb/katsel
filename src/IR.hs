@@ -350,8 +350,15 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
 -- lowering things {{{3
 lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) ()
 lower_body_expr body root =
-    lower_block_expr body root >>= \ res ->
-    -- TODO: return res
+    lower_block_expr body root >>=? (return ()) $ \ res ->
+
+    State.get >>= \ (_, _, fun) ->
+
+    add_instruction_s (Copy (get_ret_reg fun) res) >>
+    add_br_s (BrGoto $ get_exit_block fun) >>
+    apply_fcg_to_funcgtup_s (change_cur_block_s $ get_exit_block fun) >>
+    add_br_s BrRet >>
+
     return ()
 
 lower_expr :: AST.LDExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
