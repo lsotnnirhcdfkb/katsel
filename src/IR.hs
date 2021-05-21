@@ -345,10 +345,11 @@ lower_block_expr (Located _ (AST.SBlockExpr' stmts)) =
             _ -> (stmts, Nothing)
 
     in sequence <$> sequence (map lower_stmt stmts') >>
+
     (case m_ret_expr of
         Just ret_expr -> lower_expr ret_expr
-        Nothing -> return $ Just FVVoid) >>= \ ret ->
-    return ret
+        Nothing -> return $ Just FVVoid) >>=
+    return
 
 lower_stmt :: AST.LDStmt -> State.State (IRBuilder, FunctionCG, Function) (Maybe ())
 lower_stmt (Located _ (AST.DStmt'Expr ex)) = lower_expr ex >> return (Just ())
