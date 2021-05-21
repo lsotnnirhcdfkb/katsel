@@ -355,18 +355,18 @@ lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
             Just (Located _ (AST.DStmt'Expr ret)) -> (safe_init stmts, Just ret)
             _ -> (stmts, Nothing)
 
-    in sequence <$> sequence (map (flip lower_stmt root) stmts') >>
+    in sequence (map (flip lower_stmt root) stmts') >>
 
     (case m_ret_expr of
         Just ret_expr -> lower_expr ret_expr root
         Nothing -> return $ Just FVVoid) >>=
     return
 
-lower_stmt :: AST.LDStmt -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe ())
-lower_stmt (Located _ (AST.DStmt'Expr ex)) root = lower_expr ex root >> return (Just ())
+lower_stmt :: AST.LDStmt -> Module -> State.State (IRBuilder, FunctionCG, Function) ()
+lower_stmt (Located _ (AST.DStmt'Expr ex)) root = lower_expr ex root >> return ()
 
 lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) root =
-    apply_irb_to_funcgtup_s (resolve_ty_s ty root) >>=? (return Nothing) $ \ var_ty_idx ->
+    apply_irb_to_funcgtup_s (resolve_ty_s ty root) >>=? (return ()) $ \ var_ty_idx ->
     apply_fun_to_funcgtup_s (State.state $ add_register var_ty_idx (ast_muty_to_ir_muty muty) name_sp) >>= \ reg_idx ->
     apply_fcg_to_funcgtup_s (add_local_s name reg_idx) >>= \ m_old ->
     (case m_old of
@@ -383,11 +383,11 @@ lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) roo
             apply_fun_to_funcgtup_s (State.state $ add_instruction (Copy reg_idx expr_val) cur_block) >>
             return ()
     ) >>
-    return Nothing
+    return ()
 
 lower_stmt (Located sp (AST.DStmt'Ret _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "return statements" sp) >> -- TODO
-    return Nothing
+    return ()
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) root parent ir_builder = ddeclare sf root parent ir_builder
