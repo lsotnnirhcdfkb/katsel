@@ -337,9 +337,21 @@ lower_expr (Located sp _) =
     return (error "not implemented yet")
 
 lower_block_expr :: AST.LSBlockExpr -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
-lower_block_expr (Located sp (AST.SBlockExpr' stmts)) =
-    sequence <$> sequence (map lower_stmt stmts) >>= \ reses ->
-    apply_irb_to_funcgtup_s (add_error_s $ Unsupported "block expressions" sp) >> -- TODO
+lower_block_expr (Located _ (AST.SBlockExpr' stmts)) =
+    let safe_last [] = Nothing
+        safe_last x = Just $ last x
+
+        safe_init [] = []
+        safe_init l = init l
+
+        (stmts', ret_expr_sp, ret_expr) = case safe_last stmts of
+            Just (Located retexprsp (AST.DStmt'Expr ret)) -> (safe_init stmts, Just retexprsp, Just ret)
+            _ -> (stmts, Nothing, Nothing)
+
+    in sequence <$> sequence (map lower_stmt stmts') >>= \ reses ->
+    (case ret_expr_sp of
+        Just resp -> apply_irb_to_funcgtup_s (add_error_s $ Unsupported "block returns" resp)
+        Nothing -> return ()) >> -- TODO
     return (error "not implemented yet")
 
 lower_stmt :: AST.LDStmt -> State.State (IRBuilder, FunctionCG, Function) (Maybe ())

@@ -61,9 +61,8 @@ stringify_segments segments = stringify $ process segments
         process [] = []
 
 safe_last :: [a] -> Maybe a
-safe_last [a] = Just a
-safe_last (_:more) = safe_last more
 safe_last [] = Nothing
+safe_last l = Just $ last l
 
 add_to_acc :: String -> IndentAmt -> String -> String
 add_to_acc acc (IndentAmt indamt) adding =
