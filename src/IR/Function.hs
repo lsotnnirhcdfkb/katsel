@@ -68,7 +68,7 @@ data Instruction
     | DerefPtr FValue
 
 data FValue
-    = FVGlobalValue Value
+    = FVGlobalValue (VIRId Value)
     | FVRegister RegisterIdx
     | FVConstInt Integer
     | FVConstFloat Double

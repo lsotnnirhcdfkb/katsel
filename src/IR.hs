@@ -422,9 +422,23 @@ lower_expr (Located sp AST.DExpr'This) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "'this' expressions" sp) >> -- TODO
     return Nothing
 
-lower_expr (Located sp (AST.DExpr'Path _)) _ =
-    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "path expressions" sp) >> -- TODO
-    return Nothing
+lower_expr (Located _ (AST.DExpr'Path path)) root =
+    (case path of
+        (Located _ (AST.DPath' [Located _ iden])) ->
+            State.get >>= \ (_, fcg, _) ->
+            let reg_idx = 
+                    case get_local iden fcg of
+                        Just (Local _ r _) -> Just r
+                        Nothing -> Nothing
+            in return (FVRegister <$> reg_idx)
+
+        _ -> return Nothing
+    ) >>= \ reg ->
+    case reg of
+        Just reg_fv -> return $ Just reg_fv
+        Nothing ->
+            apply_irb_to_funcgtup_s (State.state $ resolve_path_v path root) >>=? (return Nothing) $ \ (_, vid) ->
+            return (Just $ FVGlobalValue vid)
 
 lower_block_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
 lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
