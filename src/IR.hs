@@ -260,7 +260,7 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
                 return parent
             Right added -> return added
 
-    vdefine (Located _ sf@(AST.SFunDecl' _ (Located _ name) _ _)) _ parent = State.runState $
+    vdefine (Located _ sf@(AST.SFunDecl' _ (Located _ name) _ _)) root parent = State.runState $
         get_s name parent >>= \ m_val ->
         let m_fun = m_val >>= value_cast :: Maybe Function
         in case m_fun of
@@ -268,7 +268,7 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
             -- that made a value of the same name that is not a function, which should already be reported as a duplicate value error
             Nothing -> return parent
 
-            Just old_fun -> lower_fun_body sf old_fun parent
+            Just old_fun -> lower_fun_body sf root old_fun parent
 -- lowering function bodies {{{2
 data Local = Local String RegisterIdx Integer
 data FunctionCG = FunctionCG Integer [Local] BlockIdx
@@ -282,8 +282,8 @@ add_local name reg_idx fcg@(FunctionCG scope_idx locals current_block) =
 get_local :: String -> FunctionCG -> Maybe Local
 get_local name (FunctionCG _ locals _) = find (\ (Local n _ _) -> n == name) locals
 
-lower_fun_body :: Parent p Value String => AST.SFunDecl -> Function -> p -> State.State IRBuilder p
-lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) fun parent =
+lower_fun_body :: Parent p Value String => AST.SFunDecl -> Module -> Function -> p -> State.State IRBuilder p
+lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
     let function_valid = if function_not_defined fun then Just () else Nothing
     in return function_valid >>=? (return parent) $ \ _ ->
     let param_to_local (Located _ (AST.DParam'Normal _ _ (Located _ param_name)), reg_idx) function_cg =
@@ -300,7 +300,7 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) fun parent =
     in foldl' (>>=) start_function_cg add_locals_for_params >>= \ function_cg ->
 
     State.get >>= \ ir_builder ->
-    let (ir_builder', _, fun') = State.execState (lower_body_expr body) (ir_builder, function_cg, fun)
+    let (ir_builder', _, fun') = State.execState (lower_body_expr body root) (ir_builder, function_cg, fun)
     in State.put ir_builder' >>
     add_replace_s name (Value fun') parent >>=
     return
@@ -320,20 +320,20 @@ apply_fun_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
     let (r, fun') = State.runState st fun
     in (r, (irb, fcg, fun'))
 
-lower_body_expr :: AST.LSBlockExpr -> State.State (IRBuilder, FunctionCG, Function) ()
-lower_body_expr body =
-    lower_block_expr body >>= \ res ->
+lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) ()
+lower_body_expr body root =
+    lower_block_expr body root >>= \ res ->
     -- TODO: return res
     return ()
 
-lower_expr :: AST.LDExpr -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
+lower_expr :: AST.LDExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
 
-lower_expr (Located sp _) =
+lower_expr (Located sp _) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "expressions" sp) >> -- TODO
     return (error "not implemented yet")
 
-lower_block_expr :: AST.LSBlockExpr -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
-lower_block_expr (Located _ (AST.SBlockExpr' stmts)) =
+lower_block_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
+lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
     let safe_last [] = Nothing
         safe_last x = Just $ last x
 
@@ -344,21 +344,21 @@ lower_block_expr (Located _ (AST.SBlockExpr' stmts)) =
             Just (Located _ (AST.DStmt'Expr ret)) -> (safe_init stmts, Just ret)
             _ -> (stmts, Nothing)
 
-    in sequence <$> sequence (map lower_stmt stmts') >>
+    in sequence <$> sequence (map (flip lower_stmt root) stmts') >>
 
     (case m_ret_expr of
-        Just ret_expr -> lower_expr ret_expr
+        Just ret_expr -> lower_expr ret_expr root
         Nothing -> return $ Just FVVoid) >>=
     return
 
-lower_stmt :: AST.LDStmt -> State.State (IRBuilder, FunctionCG, Function) (Maybe ())
-lower_stmt (Located _ (AST.DStmt'Expr ex)) = lower_expr ex >> return (Just ())
+lower_stmt :: AST.LDStmt -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe ())
+lower_stmt (Located _ (AST.DStmt'Expr ex)) root = lower_expr ex root >> return (Just ())
 
-lower_stmt (Located sp (AST.DStmt'Var _ _ _ _)) =
+lower_stmt (Located sp (AST.DStmt'Var _ _ _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "variable statements" sp) >> -- TODO
     return Nothing
 
-lower_stmt (Located sp (AST.DStmt'Ret _)) =
+lower_stmt (Located sp (AST.DStmt'Ret _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "return statements" sp) >> -- TODO
     return Nothing
 -- lowering declarations {{{1
