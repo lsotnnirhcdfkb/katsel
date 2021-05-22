@@ -137,6 +137,10 @@ ast_muty_to_ir_muty AST.Mutable = Mutable
         Nothing -> r
 infixl 1 >>=?
 
+(|>>=?) :: Monad m => Maybe a -> m b -> (a -> m b) -> m b
+(|>>=?) m = (return m >>=?)
+infixl 1 |>>=?
+
 add_error :: IRBuildError -> IRBuilder -> IRBuilder
 add_error err (IRBuilder irctx errs) = IRBuilder irctx (errs ++ [err])
 
@@ -271,14 +275,14 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
             Just old_fun -> lower_fun_body sf root old_fun parent
 -- lowering function bodies {{{2
 data Local = Local String RegisterIdx Integer
-data FunctionCG = FunctionCG Integer [Local] BlockIdx
+data FunctionCG = FunctionCG Integer [Local]
 
 -- FunctionCG functions {{{3
 add_local :: String -> RegisterIdx -> FunctionCG -> Either Local FunctionCG
-add_local name reg_idx fcg@(FunctionCG scope_idx locals current_block) =
+add_local name reg_idx fcg@(FunctionCG scope_idx locals) =
     case get_local name fcg of
         Just old -> Left old
-        Nothing -> Right $ FunctionCG scope_idx (Local name reg_idx scope_idx : locals) current_block
+        Nothing -> Right $ FunctionCG scope_idx (Local name reg_idx scope_idx : locals)
 
 add_local_s :: String -> RegisterIdx -> State.State FunctionCG (Either Local ())
 add_local_s name reg_idx = State.state $ \ fcg ->
@@ -288,24 +292,13 @@ add_local_s name reg_idx = State.state $ \ fcg ->
         Left old -> (Left old, fcg)
 
 get_local :: String -> FunctionCG -> Maybe Local
-get_local name (FunctionCG _ locals _) = find (\ (Local n _ _) -> n == name) locals
-
-change_cur_block_s :: BlockIdx -> State.State FunctionCG ()
-change_cur_block_s block_idx = State.state $ \ (FunctionCG scope_idx locals _) ->
-    ((), FunctionCG scope_idx locals block_idx)
+get_local name (FunctionCG _ locals) = find (\ (Local n _ _) -> n == name) locals
 -- helpers {{{3
-get_cur_block :: State.State (IRBuilder, FunctionCG, Function) BlockIdx
-get_cur_block = State.state $ \ tcgt@(_, FunctionCG _ _ cur_block_idx, _) -> (cur_block_idx, tcgt)
+add_instruction_s :: Instruction -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) InstructionIdx
+add_instruction_s instr block_idx = apply_fun_to_funcgtup_s (State.state $ add_instruction instr block_idx)
 
-add_instruction_s :: Instruction -> State.State (IRBuilder, FunctionCG, Function) InstructionIdx
-add_instruction_s instr =
-    get_cur_block >>= \ cur_block ->
-    apply_fun_to_funcgtup_s (State.state $ add_instruction instr cur_block)
-
-add_br_s :: Br -> State.State (IRBuilder, FunctionCG, Function) ()
-add_br_s br =
-    get_cur_block >>= \ cur_block ->
-    apply_fun_to_funcgtup_s (State.state $ (,) () . add_br br cur_block)
+add_br_s :: Br -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) ()
+add_br_s br block_idx = apply_fun_to_funcgtup_s (State.state $ (,) () . add_br br block_idx)
 
 add_basic_block_s :: String -> State.State (IRBuilder, FunctionCG, Function) BlockIdx
 add_basic_block_s name = apply_fun_to_funcgtup_s (State.state $ add_basic_block name)
@@ -338,7 +331,7 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
                     return function_cg
         add_locals_for_params = map param_to_local $ zip params $ get_param_regs fun
 
-        start_function_cg = return $ FunctionCG 0 [] (get_entry_block fun)
+        start_function_cg = return $ FunctionCG 0 []
 
     in foldl' (>>=) start_function_cg add_locals_for_params >>= \ function_cg ->
 
@@ -350,98 +343,97 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
 -- lowering things {{{3
 lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) ()
 lower_body_expr body root =
-    lower_block_expr body root >>=? (return ()) $ \ res ->
-
     State.get >>= \ (_, _, fun) ->
 
-    add_instruction_s (Copy (get_ret_reg fun) res) >>
-    add_br_s (BrGoto $ get_exit_block fun) >>
-    apply_fcg_to_funcgtup_s (change_cur_block_s $ get_exit_block fun) >>
-    add_br_s BrRet >>
+    lower_block_expr body root (get_entry_block fun) >>= \ (end_block, m_res) -> m_res |>>=? (return ()) $ \ res ->
+
+    add_instruction_s (Copy (get_ret_reg fun) res) end_block >>
+    add_br_s (BrGoto $ get_exit_block fun) end_block >>
+    add_br_s BrRet (get_exit_block fun) >>
 
     return ()
 
-lower_expr :: AST.LDExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
+lower_expr :: AST.LDExpr -> Module -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) (BlockIdx, Maybe FValue)
 
-lower_expr (Located _ (AST.DExpr'Block block)) root = lower_block_expr block root
+lower_expr (Located _ (AST.DExpr'Block block)) root cur_block = lower_block_expr block root cur_block
 
-lower_expr (Located sp (AST.DExpr'If _ _ _ _)) _ =
+lower_expr (Located sp (AST.DExpr'If _ _ _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "'if' expressions" sp) >> -- TODO
-    return Nothing
+    return (cur_block, Nothing)
 
-lower_expr (Located sp (AST.DExpr'While _ _)) _ =
+lower_expr (Located sp (AST.DExpr'While _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "'while' expressions" sp) >> -- TODO
-    return Nothing
+    return (cur_block, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Assign _ _ _)) _ =
+lower_expr (Located sp (AST.DExpr'Assign _ _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "assignment expressions" sp) >> -- TODO
-    return Nothing
+    return (cur_block, Nothing)
 
-lower_expr (Located sp (AST.DExpr'ShortCircuit _ _ _)) _ =
+lower_expr (Located sp (AST.DExpr'ShortCircuit _ _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "short-circuiting binary expressions" sp) >> -- TODO
-    return Nothing
+    return (cur_block, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Binary _ _ _)) _ =
+lower_expr (Located sp (AST.DExpr'Binary _ _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "binary expressions" sp) >> -- TODO
-    return Nothing
+    return (cur_block, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Cast _ _)) _ =
+lower_expr (Located sp (AST.DExpr'Cast _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "cast expression" sp) >> -- TODO
-    return Nothing
+    return (cur_block, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Unary _ _)) _ =
+lower_expr (Located sp (AST.DExpr'Unary _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "unary expressions" sp) >> -- TODO
-    return Nothing
+    return (cur_block, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Ref _ _ _)) _ =
+lower_expr (Located sp (AST.DExpr'Ref _ _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "reference (address-of) expressions" sp) >> -- TODO
-    return Nothing
+    return (cur_block, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Call _ _ _)) _ =
+lower_expr (Located sp (AST.DExpr'Call _ _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "call expressions" sp) >> -- TODO
-    return Nothing
+    return (cur_block, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Field _ _ _)) _ =
+lower_expr (Located sp (AST.DExpr'Field _ _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "field access expressions" sp) >> -- TODO
-    return Nothing
+    return (cur_block, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Method _ _ _ _ _)) _ =
+lower_expr (Located sp (AST.DExpr'Method _ _ _ _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "method call expressions" sp) >> -- TODO
-    return Nothing
+    return (cur_block, Nothing)
 
-lower_expr (Located _ (AST.DExpr'Bool b)) _ = return $ Just $ FVConstBool b
-lower_expr (Located _ (AST.DExpr'Float d)) _ = return $ Just $ FVConstFloat d
-lower_expr (Located _ (AST.DExpr'Int i)) _ = return $ Just $ FVConstInt i
-lower_expr (Located _ (AST.DExpr'Char c)) _ = return $ Just $ FVConstChar c
+lower_expr (Located _ (AST.DExpr'Bool b)) _ cur_block = return (cur_block, Just $ FVConstBool b)
+lower_expr (Located _ (AST.DExpr'Float d)) _ cur_block = return (cur_block, Just $ FVConstFloat d)
+lower_expr (Located _ (AST.DExpr'Int i)) _ cur_block = return (cur_block, Just $ FVConstInt i)
+lower_expr (Located _ (AST.DExpr'Char c)) _ cur_block = return (cur_block, Just $ FVConstChar c)
 
-lower_expr (Located sp (AST.DExpr'String _)) _ =
+lower_expr (Located sp (AST.DExpr'String _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "string literal expressions" sp) >> -- TODO
-    return Nothing
+    return (cur_block, Nothing)
 
-lower_expr (Located sp AST.DExpr'This) _ =
+lower_expr (Located sp AST.DExpr'This) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "'this' expressions" sp) >> -- TODO
-    return Nothing
+    return (cur_block, Nothing)
 
-lower_expr (Located _ (AST.DExpr'Path path)) root =
+lower_expr (Located _ (AST.DExpr'Path path)) root cur_block =
     (case path of
         (Located _ (AST.DPath' [Located _ iden])) ->
             State.get >>= \ (_, fcg, _) ->
-            let reg_idx = 
+            let reg_idx =
                     case get_local iden fcg of
                         Just (Local _ r _) -> Just r
                         Nothing -> Nothing
-            in return (FVRegister <$> reg_idx)
+            in return $ FVRegister <$> reg_idx
 
         _ -> return Nothing
     ) >>= \ reg ->
     case reg of
-        Just reg_fv -> return $ Just reg_fv
+        Just reg_fv -> return (cur_block, Just reg_fv)
         Nothing ->
-            apply_irb_to_funcgtup_s (State.state $ resolve_path_v path root) >>=? (return Nothing) $ \ (_, vid) ->
-            return (Just $ FVGlobalValue vid)
+            apply_irb_to_funcgtup_s (State.state $ resolve_path_v path root) >>=? (return (cur_block, Nothing)) $ \ (_, vid) ->
+            return (cur_block, Just $ FVGlobalValue vid)
 
-lower_block_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe FValue)
-lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
+lower_block_expr :: AST.LSBlockExpr -> Module -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) (BlockIdx, Maybe FValue)
+lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root cur_block =
     let safe_last [] = Nothing
         safe_last x = Just $ last x
 
@@ -452,18 +444,19 @@ lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
             Just (Located _ (AST.DStmt'Expr ret)) -> (safe_init stmts, Just ret)
             _ -> (stmts, Nothing)
 
-    in sequence (map (flip lower_stmt root) stmts') >>
+    in foldl' (>>=) (return cur_block) (map (flip lower_stmt root) stmts') >>= \ end_block ->
 
     (case m_ret_expr of
-        Just ret_expr -> lower_expr ret_expr root
-        Nothing -> return $ Just FVVoid) >>=
+        Just ret_expr -> lower_expr ret_expr root end_block
+        Nothing -> return (end_block, Just FVVoid)
+    ) >>=
     return
 
-lower_stmt :: AST.LDStmt -> Module -> State.State (IRBuilder, FunctionCG, Function) ()
-lower_stmt (Located _ (AST.DStmt'Expr ex)) root = lower_expr ex root >> return ()
+lower_stmt :: AST.LDStmt -> Module -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) BlockIdx
+lower_stmt (Located _ (AST.DStmt'Expr ex)) root cur_block = lower_expr ex root cur_block >>= return . fst
 
-lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) root =
-    apply_irb_to_funcgtup_s (resolve_ty_s ty root) >>=? (return ()) $ \ var_ty_idx ->
+lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) root cur_block =
+    apply_irb_to_funcgtup_s (resolve_ty_s ty root) >>=? (return cur_block) $ \ var_ty_idx ->
     apply_fun_to_funcgtup_s (State.state $ add_register var_ty_idx (ast_muty_to_ir_muty muty) name_sp) >>= \ reg_idx ->
     apply_fcg_to_funcgtup_s (add_local_s name reg_idx) >>= \ m_old ->
     (case m_old of
@@ -473,25 +466,24 @@ lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) roo
         Right () -> return ()
     ) >>
     (case m_init of
-        Nothing -> return ()
+        Nothing -> return cur_block
         Just expr ->
-            lower_expr expr root >>=? (return ()) $ \ expr_val ->
-            add_instruction_s (Copy reg_idx expr_val) >>
-            return ()
-    ) >>
-    return ()
+            lower_expr expr root cur_block >>= \ (after_expr, m_expr_val) -> m_expr_val |>>=? (return after_expr) $ \ expr_val ->
+            add_instruction_s (Copy reg_idx expr_val) after_expr >>
+            return after_expr
+    ) >>= return
 
-lower_stmt (Located _ (AST.DStmt'Ret expr)) root =
-    lower_expr expr root  >>=? (return ()) $ \ ret_val ->
+lower_stmt (Located _ (AST.DStmt'Ret expr)) root cur_block =
+    add_basic_block_s "after_return" >>= \ after_return_idx ->
+
+    lower_expr expr root cur_block >>= \ (after_expr_idx, m_ret_val) -> m_ret_val |>>=? (return after_return_idx) $ \ ret_val ->
 
     State.get >>= \ (_, _, fun) ->
 
-    add_instruction_s (Copy (get_ret_reg fun) ret_val) >>
-    add_br_s (BrGoto $ get_exit_block fun) >>
-    add_basic_block_s "after_return" >>= \ after_return_idx ->
-    apply_fcg_to_funcgtup_s (change_cur_block_s after_return_idx) >>
+    add_instruction_s (Copy (get_ret_reg fun) ret_val) after_expr_idx >>
+    add_br_s (BrGoto $ get_exit_block fun) after_expr_idx >>
 
-    return ()
+    return after_return_idx
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) root parent ir_builder = ddeclare sf root parent ir_builder
