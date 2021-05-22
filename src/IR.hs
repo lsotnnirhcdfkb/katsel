@@ -392,7 +392,7 @@ lower_expr (Located sp (AST.DExpr'If _ cond trueb m_falseb)) root start_block =
             return (Just ())
     ) >>=? (return (if_after_block, Nothing)) $ \ _ ->
 
-    return (if_after_block, Nothing)
+    return (if_after_block, Just $ FVRegister ret_reg)
 
 lower_expr (Located sp (AST.DExpr'While _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "'while' expressions" sp) >> -- TODO
