@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module IR.Function
     ( Function
     , BasicBlock
@@ -29,12 +31,15 @@ module IR.Function
 import IR.Type
 import IR.Value
 
+import IR.Module
+
 import IR.ID
 
 import IR.IRCtx
 
 import IR.DeclSpan
 import IR.Describe
+import IR.Typed
 
 import Location
 
@@ -94,10 +99,15 @@ instance Describe Register where
 
         in muty_str ++ " register of type '" ++ ty_str ++ "'"
 
+instance Typed (Module, Function, FValue) where
+    type_of irctx (root, _, FVGlobalValue vid) = type_of irctx $ resolve_vid irctx root vid
+
 instance DeclSpan Function where
     decl_span _ f = Just $ get_span f
 instance Describe Function where
     describe _ f = "function named '" ++ get_name f ++ "'"
+instance Typed Function  where
+    type_of _ = get_type
 
 new_function :: TyIdx -> [(Mutability, TyIdx, Span)] -> Span -> String -> IRCtx -> (Function, IRCtx)
 new_function ret_type param_tys sp name irctx =

@@ -16,7 +16,7 @@ data IRCtx = IRCtx TypeInterner
 data Signedness = Signed | Unsigned deriving Eq
 data Mutability = Mutable | Immutable deriving Eq
 newtype TypeInterner = TypeInterner [Type]
-newtype TyIdx = TyIdx { untyidx :: Int } deriving Eq
+data TyIdx = TyIdx { untyidx :: Int } deriving Eq
 data Type
     = FloatType DSMap Int
     | IntType DSMap Int Signedness

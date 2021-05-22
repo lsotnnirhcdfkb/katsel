@@ -32,8 +32,9 @@ executable katsel
                      , IR.TyIdx
                      , IR.Type
                      , IR.TypeInterner
-                     , IR.Value
                      , IR.TypeStuffAndIRCtx.Stuff
+                     , IR.Typed
+                     , IR.Value
 
                        -- utility things
                      , Location
