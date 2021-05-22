@@ -21,6 +21,7 @@ import IR.ID
 import IR.Parent
 import IR.Describe
 import IR.DeclSpan
+import IR.Typed
 
 import IR.IRCtx
 
@@ -58,6 +59,9 @@ build_ir mod_ast@(Located mod_sp _) = (lowered_mod, lowered_irctx, errors)
             initial_cgtup
 -- IRBuilder {{{1
 data IRBuilder = IRBuilder IRCtx [IRBuildError]
+
+get_irctx :: IRBuilder -> IRCtx
+get_irctx (IRBuilder c _) = c
 -- IRBuildError {{{1
 data IRBuildError
     = DuplicateValue String Value Value
@@ -357,9 +361,38 @@ lower_expr :: AST.LDExpr -> Module -> BlockIdx -> State.State (IRBuilder, Functi
 
 lower_expr (Located _ (AST.DExpr'Block block)) root cur_block = lower_block_expr block root cur_block
 
-lower_expr (Located sp (AST.DExpr'If _ _ _ _)) _ cur_block =
-    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "'if' expressions" sp) >> -- TODO
-    return (cur_block, Nothing)
+lower_expr (Located sp (AST.DExpr'If _ cond trueb m_falseb)) root start_block =
+    lower_expr cond root start_block >>= \ (after_cond, m_cond_val) -> m_cond_val |>>=? (return (after_cond, Nothing)) $ \ cond_val ->
+
+    add_basic_block_s "if_after_branch" >>= \ if_after_block ->
+
+    add_basic_block_s "if_true_branch" >>= \ if_true_start_block ->
+    lower_expr trueb root if_true_start_block >>= \ (if_true_end_block, m_truev) -> m_truev |>>=? (return (if_after_block, Nothing)) $ \ truev ->
+
+    State.get >>= \ (irb, _, fun) ->
+    let irctx = get_irctx irb
+    in apply_fun_to_funcgtup_s (State.state $ add_register (type_of irctx (root, fun, truev)) Immutable sp) >>= \ ret_reg ->
+
+    add_instruction_s (Copy ret_reg truev) if_true_end_block >>
+    add_br_s (BrGoto if_after_block) if_true_end_block >>
+
+    (case m_falseb of
+        Nothing ->
+            add_br_s (BrCond cond_val if_true_start_block if_after_block) after_cond >>
+            return (Just ())
+
+        Just (_, falseb) ->
+            add_basic_block_s "if_false_branch" >>= \ if_false_start_block ->
+            lower_expr falseb root if_false_start_block >>= \ (if_false_end_block, m_falsev) -> m_falsev |>>=? (return Nothing) $ \ falsev ->
+
+            add_instruction_s (Copy ret_reg falsev) if_false_end_block >>
+            add_br_s (BrGoto if_after_block) if_false_end_block >>
+
+            add_br_s (BrCond cond_val if_true_start_block if_false_start_block) after_cond >>
+            return (Just ())
+    ) >>=? (return (if_after_block, Nothing)) $ \ _ ->
+
+    return (if_after_block, Nothing)
 
 lower_expr (Located sp (AST.DExpr'While _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "'while' expressions" sp) >> -- TODO
