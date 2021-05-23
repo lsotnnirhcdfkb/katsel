@@ -5,6 +5,7 @@ module IR.Function
     , BasicBlock
     , Register
     , FValue(..)
+    , LValue(..)
     , Instruction(..)
     , Br(..)
 
@@ -67,14 +68,17 @@ data InstructionIdx = InstructionIdx BlockIdx Int
 data BasicBlock = BasicBlock String [Instruction] (Maybe Br)
 data Register = Register TyIdx Mutability Span
 data Instruction
-    = Copy RegisterIdx FValue
+    = Copy LValue FValue
     | Call (VIRId Function) [FValue]
     | Addrof RegisterIdx Mutability
     | DerefPtr FValue
 
+data LValue
+    = LVRegister RegisterIdx
 data FValue
     = FVGlobalValue (VIRId Value)
-    | FVRegister RegisterIdx
+    | FVNLVRegister RegisterIdx
+    | FVLValue LValue
     | FVConstInt Integer
     | FVConstFloat Double
     | FVConstBool Bool
@@ -98,9 +102,8 @@ instance Describe Register where
             ty_str = stringify_tyidx irctx ty_idx
 
         in muty_str ++ " register of type '" ++ ty_str ++ "'"
-
-instance Typed (Module, Function, FValue) where
-    type_of irctx (root, _, FVGlobalValue vid) = type_of irctx $ resolve_vid irctx root vid
+instance Typed Register where
+    type_of _ (Register ty _ _) = ty
 
 instance DeclSpan Function where
     decl_span _ f = Just $ get_span f
@@ -108,6 +111,16 @@ instance Describe Function where
     describe _ f = "function named '" ++ get_name f ++ "'"
 instance Typed Function  where
     type_of _ = get_type
+
+instance DeclSpan (Function, LValue) where
+    decl_span irctx (f, (LVRegister reg)) = decl_span irctx $ get_register f reg
+instance Describe (Function, LValue) where
+    describe irctx (f, (LVRegister reg)) = describe irctx $ get_register f reg
+instance Typed (Function, LValue) where
+    type_of irctx (f, (LVRegister reg)) = type_of irctx $ get_register f reg
+
+instance Typed (Module, Function, FValue) where
+    type_of irctx (root, _, FVGlobalValue vid) = type_of irctx $ resolve_vid irctx root vid
 
 new_function :: TyIdx -> [(Mutability, TyIdx, Span)] -> Span -> String -> IRCtx -> (Function, IRCtx)
 new_function ret_type param_tys sp name irctx =

@@ -65,7 +65,7 @@ get_irctx (IRBuilder c _) = c
 -- IRBuildError {{{1
 data IRBuildError
     = DuplicateValue String Value Value
-    | DuplicateLocal Function Local RegisterIdx String
+    | DuplicateLocal Function Local LValue
     | Unimplemented String Span
     | NotAType Span DeclSymbol
     | PathDoesntExist Span -- TODO: change to 'no entity called x in y'
@@ -94,10 +94,8 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
     to_diagnostic (DuplicateValue name old new, irctx) =
         duplicate_msg "value" "redecl-val" name (decl_span irctx old, describe irctx old) (decl_span irctx new, describe irctx new)
 
-    to_diagnostic (DuplicateLocal fun (Local _ old_reg_idx _) new_reg_idx name, irctx) =
-        let old = get_register fun old_reg_idx
-            new = get_register fun new_reg_idx
-        in duplicate_msg "local" "redecl-local" name (decl_span irctx old, describe irctx old) (decl_span irctx new, describe irctx new)
+    to_diagnostic (DuplicateLocal fun (Local name old_lvalue _) new_lvalue, irctx) =
+        duplicate_msg "local" "redecl-local" name (decl_span irctx (fun, old_lvalue), describe irctx (fun, old_lvalue)) (decl_span irctx (fun, new_lvalue), describe irctx (fun, new_lvalue))
 
     to_diagnostic (Unimplemented name sp, _) =
         Message.SimpleDiag Message.Warning (Just sp) Nothing Nothing
@@ -286,19 +284,19 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
 
             Just old_fun -> lower_fun_body sf root old_fun parent
 -- lowering function bodies {{{2
-data Local = Local String RegisterIdx Integer
+data Local = Local String LValue Integer
 data FunctionCG = FunctionCG Integer [Local]
 
 -- FunctionCG functions {{{3
-add_local :: String -> RegisterIdx -> FunctionCG -> Either Local FunctionCG
-add_local name reg_idx fcg@(FunctionCG scope_idx locals) =
+add_local :: String -> LValue -> FunctionCG -> Either Local FunctionCG
+add_local name lvalue fcg@(FunctionCG scope_idx locals) =
     case get_local name fcg of
         Just old -> Left old
-        Nothing -> Right $ FunctionCG scope_idx (Local name reg_idx scope_idx : locals)
+        Nothing -> Right $ FunctionCG scope_idx (Local name lvalue scope_idx : locals)
 
-add_local_s :: String -> RegisterIdx -> State.State FunctionCG (Either Local ())
-add_local_s name reg_idx = State.state $ \ fcg ->
-    let elfcg = add_local name reg_idx fcg
+add_local_s :: String -> LValue -> State.State FunctionCG (Either Local ())
+add_local_s name lvalue = State.state $ \ fcg ->
+    let elfcg = add_local name lvalue fcg
     in case elfcg of
         Right fcg' -> (Right (), fcg')
         Left old -> (Left old, fcg)
@@ -335,11 +333,11 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
     let function_valid = if function_not_defined fun then Just () else Nothing
     in return function_valid >>=? (return parent) $ \ _ ->
     let param_to_local (Located _ (AST.DParam'Normal _ _ (Located _ param_name)), reg_idx) function_cg =
-            let m_function_cg' = add_local param_name reg_idx function_cg
+            let m_function_cg' = add_local param_name (LVRegister reg_idx) function_cg
             in case m_function_cg' of
                 Right function_cg' -> return function_cg'
                 Left old_local ->
-                    add_error_s (DuplicateLocal fun old_local reg_idx param_name) >>
+                    add_error_s (DuplicateLocal fun old_local (LVRegister reg_idx)) >>
                     return function_cg
         add_locals_for_params = map param_to_local $ zip params $ get_param_regs fun
 
@@ -359,7 +357,7 @@ lower_body_expr body root =
 
     lower_block_expr body root (get_entry_block fun) >>= \ (end_block, m_res) -> m_res |>>=? (return ()) $ \ res ->
 
-    add_instruction_s (Copy (get_ret_reg fun) res) end_block >>
+    add_instruction_s (Copy (LVRegister $ get_ret_reg fun) res) end_block >>
     add_br_s (BrGoto $ get_exit_block fun) end_block >>
     add_br_s BrRet (get_exit_block fun) >>
 
@@ -381,7 +379,7 @@ lower_expr (Located sp (AST.DExpr'If cond trueb m_falseb)) root start_block =
     let irctx = get_irctx irb
     in apply_fun_to_funcgtup_s (State.state $ add_register (type_of irctx (root, fun, truev)) Immutable sp) >>= \ ret_reg ->
 
-    add_instruction_s (Copy ret_reg truev) if_true_end_block >>
+    add_instruction_s (Copy (LVRegister ret_reg) truev) if_true_end_block >>
     add_br_s (BrGoto if_after_block) if_true_end_block >>
 
     (case m_falseb of
@@ -393,14 +391,14 @@ lower_expr (Located sp (AST.DExpr'If cond trueb m_falseb)) root start_block =
             add_basic_block_s "if_false_branch" >>= \ if_false_start_block ->
             lower_expr falseb root if_false_start_block >>= \ (if_false_end_block, m_falsev) -> m_falsev |>>=? (return Nothing) $ \ falsev ->
 
-            add_instruction_s (Copy ret_reg falsev) if_false_end_block >>
+            add_instruction_s (Copy (LVRegister ret_reg) falsev) if_false_end_block >>
             add_br_s (BrGoto if_after_block) if_false_end_block >>
 
             add_br_s (BrCond cond_val if_true_start_block if_false_start_block) after_cond >>
             return (Just ())
     ) >>=? (return (if_after_block, Nothing)) $ \ _ ->
 
-    return (if_after_block, Just $ FVRegister ret_reg)
+    return (if_after_block, Just $ FVNLVRegister ret_reg)
 
 lower_expr (Located _ (AST.DExpr'While cond body)) root start_block =
     add_basic_block_s "while_check_condition" >>= \ while_check_condition ->
@@ -419,9 +417,9 @@ lower_expr (Located _ (AST.DExpr'While cond body)) root start_block =
 lower_expr (Located _ (AST.DExpr'Assign target@(Located target_sp _) (Located op_sp AST.Equal) expr)) root start_block =
     lower_expr target root start_block >>= \ (target_end, m_target) -> m_target |>>=? (return (start_block, Nothing)) $ \ target_value ->
     case target_value of
-        FVRegister reg_idx ->
+        FVLValue lv ->
             lower_expr expr root target_end >>= \ (expr_end, m_expr) -> m_expr |>>=? (return (start_block, Nothing)) $ \ expr_value ->
-            add_instruction_s (Copy reg_idx expr_value) expr_end >>
+            add_instruction_s (Copy lv expr_value) expr_end >>
             return (expr_end, Just expr_value)
         _ ->
             apply_irb_to_funcgtup_s (add_error_s $ InvalidAssign target_sp op_sp) >>
@@ -476,11 +474,11 @@ lower_expr (Located _ (AST.DExpr'Path path)) root cur_block =
     (case path of
         (Located _ (AST.DPath' [Located _ iden])) ->
             State.get >>= \ (_, fcg, _) ->
-            let reg_idx =
+            let lvalue =
                     case get_local iden fcg of
-                        Just (Local _ r _) -> Just r
+                        Just (Local _ l _) -> Just l
                         Nothing -> Nothing
-            in return $ FVRegister <$> reg_idx
+            in return $ FVLValue <$> lvalue
 
         _ -> return Nothing
     ) >>= \ reg ->
@@ -516,18 +514,18 @@ lower_stmt (Located _ (AST.DStmt'Expr ex)) root cur_block = lower_expr ex root c
 lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) root cur_block =
     apply_irb_to_funcgtup_s (resolve_ty_s ty root) >>=? (return cur_block) $ \ var_ty_idx ->
     apply_fun_to_funcgtup_s (State.state $ add_register var_ty_idx (ast_muty_to_ir_muty muty) name_sp) >>= \ reg_idx ->
-    apply_fcg_to_funcgtup_s (add_local_s name reg_idx) >>= \ m_old ->
+    apply_fcg_to_funcgtup_s (add_local_s name (LVRegister reg_idx)) >>= \ m_old ->
     (case m_old of
         Left old ->
             State.get >>= \ (_, _, fun) ->
-            apply_irb_to_funcgtup_s $ add_error_s $ DuplicateLocal fun old reg_idx name
+            apply_irb_to_funcgtup_s $ add_error_s $ DuplicateLocal fun old (LVRegister reg_idx)
         Right () -> return ()
     ) >>
     (case m_init of
         Nothing -> return cur_block
         Just expr ->
             lower_expr expr root cur_block >>= \ (after_expr, m_expr_val) -> m_expr_val |>>=? (return after_expr) $ \ expr_val ->
-            add_instruction_s (Copy reg_idx expr_val) after_expr >>
+            add_instruction_s (Copy (LVRegister reg_idx) expr_val) after_expr >>
             return after_expr
     ) >>= return
 
@@ -538,7 +536,7 @@ lower_stmt (Located _ (AST.DStmt'Ret expr)) root cur_block =
 
     State.get >>= \ (_, _, fun) ->
 
-    add_instruction_s (Copy (get_ret_reg fun) ret_val) after_expr_idx >>
+    add_instruction_s (Copy (LVRegister $ get_ret_reg fun) ret_val) after_expr_idx >>
     add_br_s (BrGoto $ get_exit_block fun) after_expr_idx >>
 
     return after_return_idx
