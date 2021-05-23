@@ -94,7 +94,7 @@ compile num max_num filename =
         then
             putStr ", " >>
             put_counts diagnostics
-        else return ()
+        else putStrLn ""
     ) >>
     hPutStr stderr (concatMap Message.report diagnostics)
 -- compile helpers {{{1
