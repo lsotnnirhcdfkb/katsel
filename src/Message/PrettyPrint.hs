@@ -149,7 +149,7 @@ pprint_stmt_s (AST.DStmt'Ret expr) = put "return " >> pprint_expr_s (unlocate ex
 pprint_stmt_s (AST.DStmt'Expr expr) =
     let neednl = case unlocate expr of
             AST.DExpr'Block _ -> False
-            AST.DExpr'If _ _ _ _ -> False
+            AST.DExpr'If _ _ _ -> False
             AST.DExpr'While _ _ -> False
             _ -> True
     in pprint_expr_s (unlocate expr) >> if neednl then putnl else return ()
@@ -158,17 +158,17 @@ pprint_stmt_s (AST.DStmt'Expr expr) =
 -- precedence things {{{
 expr_requires_prec :: AST.DExpr -> AST.ExprPrec
 expr_requires_prec (AST.DExpr'Block _) = AST.PrecBlockLevel
-expr_requires_prec (AST.DExpr'If _ _ _ _) = AST.PrecBlockLevel
+expr_requires_prec (AST.DExpr'If _ _ _) = AST.PrecBlockLevel
 expr_requires_prec (AST.DExpr'While _ _) = AST.PrecBlockLevel
 expr_requires_prec (AST.DExpr'Assign _ _ _) = AST.PrecAssign
 expr_requires_prec (AST.DExpr'ShortCircuit _ op _) = AST.prec_of_short_op $ unlocate op
 expr_requires_prec (AST.DExpr'Binary _ op _) = AST.prec_of_bin_op $ unlocate op
 expr_requires_prec (AST.DExpr'Cast _ _) = AST.PrecCast
 expr_requires_prec (AST.DExpr'Unary _ _) = AST.PrecUnary
-expr_requires_prec (AST.DExpr'Ref _ _ _) = AST.PrecUnary
-expr_requires_prec (AST.DExpr'Call _ _ _) = AST.PrecCall
-expr_requires_prec (AST.DExpr'Field _ _ _) = AST.PrecCall
-expr_requires_prec (AST.DExpr'Method _ _ _ _ _) = AST.PrecCall
+expr_requires_prec (AST.DExpr'Ref _ _) = AST.PrecUnary
+expr_requires_prec (AST.DExpr'Call _ _) = AST.PrecCall
+expr_requires_prec (AST.DExpr'Field _ _) = AST.PrecCall
+expr_requires_prec (AST.DExpr'Method _ _ _) = AST.PrecCall
 expr_requires_prec (AST.DExpr'Bool _) = AST.PrecPrimary
 expr_requires_prec (AST.DExpr'Float _) = AST.PrecPrimary
 expr_requires_prec (AST.DExpr'Int _) = AST.PrecPrimary
@@ -188,10 +188,10 @@ pprint_expr_s' :: AST.DExpr -> State [PPrintSegment] ()
 
 pprint_expr_s' (AST.DExpr'Block bl) = pprint_block_expr_s $ unlocate bl
 
-pprint_expr_s' (AST.DExpr'If _ cond trueb mfalseb) =
+pprint_expr_s' (AST.DExpr'If cond trueb mfalseb) =
     put "if " >> pprint_expr_s (unlocate cond) >> pprint_expr_s (unlocate trueb) >>
     case mfalseb of
-        Just (_, falseb) -> put "else " >> pprint_expr_s (unlocate falseb)
+        Just falseb -> put "else " >> pprint_expr_s (unlocate falseb)
         Nothing -> return ()
 
 pprint_expr_s' (AST.DExpr'While cond body) = put "while " >> pprint_expr_s (unlocate cond) >> pprint_expr_s (unlocate body)
@@ -262,19 +262,19 @@ pprint_expr_s' (AST.DExpr'Unary op expr) =
             AST.UnMinus -> "-"
             AST.UnStar -> "*"
     in put opstr >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
-pprint_expr_s' (AST.DExpr'Ref _ mutability expr) = put "&" >> if_mutable_put "mut " mutability >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
+pprint_expr_s' (AST.DExpr'Ref mutability expr) = put "&" >> if_mutable_put "mut " mutability >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
 
-pprint_expr_s' (AST.DExpr'Call expr _ args) =
+pprint_expr_s' (AST.DExpr'Call expr args) =
     (let callee_is_field = case unlocate expr of
-            AST.DExpr'Field _ _ _ -> True
+            AST.DExpr'Field _ _ -> True
             _ -> False
     in if callee_is_field
     then put "(" >> pprint_expr_s (unlocate expr) >> put ")"
     else pprint_expr_with_prec_s AST.PrecCall (unlocate expr)) >>
     put "(" >> pprint_list_delim (pprint_expr_s . unlocate) (put ", ") args >> put ")"
 
-pprint_expr_s' (AST.DExpr'Field expr _ field) = pprint_expr_with_prec_s AST.PrecCall (unlocate expr) >> put "." >> put (unlocate field)
-pprint_expr_s' (AST.DExpr'Method expr _ method _ args) =
+pprint_expr_s' (AST.DExpr'Field expr field) = pprint_expr_with_prec_s AST.PrecCall (unlocate expr) >> put "." >> put (unlocate field)
+pprint_expr_s' (AST.DExpr'Method expr method args) =
     pprint_expr_with_prec_s AST.PrecCall (unlocate expr) >> put "." >> put (unlocate method) >>
     put "(" >> pprint_list_delim (pprint_expr_s . unlocate) (put ", ") args >> put ")"
 

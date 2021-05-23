@@ -161,17 +161,17 @@ data DStmt
 type LDExpr = Located DExpr
 data DExpr
     = DExpr'Block LSBlockExpr
-    | DExpr'If Span LDExpr LDExpr (Maybe (Span, LDExpr))
+    | DExpr'If LDExpr LDExpr (Maybe LDExpr)
     | DExpr'While LDExpr LDExpr
     | DExpr'Assign LDExpr LAssignOp LDExpr
     | DExpr'ShortCircuit LDExpr LShortOp LDExpr
     | DExpr'Binary LDExpr LBinOp LDExpr
     | DExpr'Cast LDType LDExpr
     | DExpr'Unary LUnaryOp LDExpr
-    | DExpr'Ref Span Mutability LDExpr
-    | DExpr'Call LDExpr Span [LDExpr]
-    | DExpr'Field LDExpr Span LocStr
-    | DExpr'Method LDExpr Span LocStr Span [LDExpr]
+    | DExpr'Ref Mutability LDExpr
+    | DExpr'Call LDExpr [LDExpr]
+    | DExpr'Field LDExpr LocStr
+    | DExpr'Method LDExpr LocStr [LDExpr]
     | DExpr'Bool Bool
     | DExpr'Float Double
     | DExpr'Int Integer
@@ -693,20 +693,20 @@ if_expr =
     parse_expr `seqparser` \ cond ->
     block_expr `seqparser` \ trueb@(Located truebsp _) ->
     (
-        consume_tok_s Tokens.Else (XIsMissingYFound "'else' branch of 'if' expression" "'else'") `seqparser` \ elsesp ->
+        consume_tok_s Tokens.Else (XIsMissingYFound "'else' branch of 'if' expression" "'else'") `seqparser` \ _ ->
         choice
             [ block_expr `seqparser` \ block@(Located blocksp _) ->
               return $ Just $ Located blocksp $ AST.DExpr'Block block
             , if_expr
             ] `seqparser` \ falseb@(Located falsebsp _) ->
-        return $ Just (falsebsp, (elsesp, falseb))
+        return $ Just (falsebsp, falseb)
     ) >>= \ melsebandspan ->
     let startsp = ifsp
         endsp = maybe truebsp fst melsebandspan
         melseb = snd <$> melsebandspan
 
         loctrueb = Located truebsp $ AST.DExpr'Block trueb
-    in return $ Just $ Located (startsp `join_span` endsp) $ AST.DExpr'If ifsp cond loctrueb melseb
+    in return $ Just $ Located (startsp `join_span` endsp) $ AST.DExpr'If cond loctrueb melseb
 
 while_expr =
     consume_tok_s Tokens.While (XIsMissingYFound "'while' expression" "'while'") `seqparser` \ whilesp ->
@@ -857,7 +857,7 @@ unary_expr =
             consume_tok_s Tokens.Amper (XIsMissingYFound "reference expression" "operator '&'") `seqparser` \ ampersp ->
             consume_tok_u Tokens.Mut (XIsMissingYFound "mutable reference expression" "'mut'") >>= \ mmut ->
             unary_expr `seqparser` \ operand@(Located operandsp _) ->
-            return $ Just $ Located (ampersp `join_span` operandsp) $ AST.DExpr'Ref ampersp (maybe_to_mutability mmut) operand
+            return $ Just $ Located (ampersp `join_span` operandsp) $ AST.DExpr'Ref (maybe_to_mutability mmut) operand
 
         punop =
             consume (\ (Located sp tok) ->
@@ -886,25 +886,25 @@ call_expr =
             consume_tok_s Tokens.Period (XIsMissingYAfterZFound expr_name "'.'" operand_name)
 
         field lhs@(Located lhssp _) =
-            consume_dot "field access expression" "expression with fields" `seqparser` \ dot ->
+            consume_dot "field access expression" "expression with fields" `seqparser` \ _ ->
             consume_iden (XIsMissingYAfterZFound "field access expression" "field name" "'.'") `seqparser` \ fieldname@(Located fieldsp _) ->
-            return $ Just $ Located (lhssp `join_span` fieldsp) $ AST.DExpr'Field lhs dot fieldname
+            return $ Just $ Located (lhssp `join_span` fieldsp) $ AST.DExpr'Field lhs fieldname
 
         method lhs@(Located lhssp _) =
-            consume_dot "method call expression" "expression with methods" `seqparser` \ dot ->
+            consume_dot "method call expression" "expression with methods" `seqparser` \ _ ->
             consume_iden (XIsMissingYAfterZFound "method call expression" "method name" "'.'") `seqparser` \ methodname ->
             consume_tok_s Tokens.OParen (XIsMissingYAfterZFound "method call expression" "'('" "method name") `seqparser` \ oparensp ->
             arg_list >>= \ marglist ->
             consume_tok_s Tokens.CParen (Unclosed "method call expression" "'('" oparensp) `seqparser` \ cparensp ->
             let arglist = fromMaybe [] marglist
-            in return $ Just $ Located (lhssp `join_span` cparensp) $ AST.DExpr'Method lhs dot methodname oparensp arglist
+            in return $ Just $ Located (lhssp `join_span` cparensp) $ AST.DExpr'Method lhs methodname arglist
 
         call lhs@(Located lhssp _) =
             consume_tok_s Tokens.OParen (XIsMissingYAfterZFound "call expression" "'('" "callee") `seqparser` \ oparensp ->
             arg_list >>= \ marglist ->
             consume_tok_s Tokens.CParen (Unclosed "call expression" "'('" oparensp) `seqparser` \ cparensp ->
             let arglist = fromMaybe [] marglist
-            in return $ Just $ Located (lhssp `join_span` cparensp) $ AST.DExpr'Call lhs oparensp arglist
+            in return $ Just $ Located (lhssp `join_span` cparensp) $ AST.DExpr'Call lhs arglist
 
 primary_expr = choice [tok_expr, paren_expr, path_expr]
     where

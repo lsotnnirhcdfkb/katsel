@@ -361,7 +361,7 @@ lower_expr :: AST.LDExpr -> Module -> BlockIdx -> State.State (IRBuilder, Functi
 
 lower_expr (Located _ (AST.DExpr'Block block)) root cur_block = lower_block_expr block root cur_block
 
-lower_expr (Located sp (AST.DExpr'If _ cond trueb m_falseb)) root start_block =
+lower_expr (Located sp (AST.DExpr'If cond trueb m_falseb)) root start_block =
     lower_expr cond root start_block >>= \ (after_cond, m_cond_val) -> m_cond_val |>>=? (return (after_cond, Nothing)) $ \ cond_val ->
 
     add_basic_block_s "if_after_branch" >>= \ if_after_block ->
@@ -381,7 +381,7 @@ lower_expr (Located sp (AST.DExpr'If _ cond trueb m_falseb)) root start_block =
             add_br_s (BrCond cond_val if_true_start_block if_after_block) after_cond >>
             return (Just ())
 
-        Just (_, falseb) ->
+        Just falseb ->
             add_basic_block_s "if_false_branch" >>= \ if_false_start_block ->
             lower_expr falseb root if_false_start_block >>= \ (if_false_end_block, m_falsev) -> m_falsev |>>=? (return Nothing) $ \ falsev ->
 
@@ -428,19 +428,19 @@ lower_expr (Located sp (AST.DExpr'Unary _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "unary expressions" sp) >> -- TODO
     return (cur_block, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Ref _ _ _)) _ cur_block =
+lower_expr (Located sp (AST.DExpr'Ref _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "reference (address-of) expressions" sp) >> -- TODO
     return (cur_block, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Call _ _ _)) _ cur_block =
+lower_expr (Located sp (AST.DExpr'Call _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "call expressions" sp) >> -- TODO
     return (cur_block, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Field _ _ _)) _ cur_block =
+lower_expr (Located sp (AST.DExpr'Field _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "field access expressions" sp) >> -- TODO
     return (cur_block, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Method _ _ _ _ _)) _ cur_block =
+lower_expr (Located sp (AST.DExpr'Method _ _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "method call expressions" sp) >> -- TODO
     return (cur_block, Nothing)
 
