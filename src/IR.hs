@@ -69,6 +69,7 @@ data IRBuildError
     | Unimplemented String Span
     | NotAType Span DeclSymbol
     | PathDoesntExist Span -- TODO: change to 'no entity called x in y'
+    | InvalidAssign Span Span
 
 duplicate_msg :: String -> String -> String -> (Maybe Span, String) -> (Maybe Span, String) -> Message.SimpleDiag
 duplicate_msg entity_kind diag_name name (old_sp, old_desc) (new_sp, new_desc) =
@@ -117,6 +118,13 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
         Message.SimpleDiag Message.Error (Just path_sp) Nothing (Just "path-doesnt-exist")
             [ Message.Underlines $ MsgUnds.UnderlinesSection
                 [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary "entity referred to by path doesn't exist"
+                ]
+            ]
+
+    to_diagnostic (InvalidAssign target_sp op_sp, _) =
+        Message.SimpleDiag Message.Error (Just op_sp) Nothing (Just "invalid-assign")
+            [ Message.Underlines $ MsgUnds.UnderlinesSection
+                [ MsgUnds.Message target_sp MsgUnds.Error MsgUnds.Primary "cannot assign to non-lvalue"
                 ]
             ]
 -- helper functions {{{1
@@ -408,9 +416,16 @@ lower_expr (Located _ (AST.DExpr'While cond body)) root start_block =
 
     return (while_after, Just FVVoid)
 
-lower_expr (Located sp (AST.DExpr'Assign _ _ _)) _ cur_block =
-    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "assignment expressions" sp) >> -- TODO
-    return (cur_block, Nothing)
+lower_expr (Located _ (AST.DExpr'Assign target@(Located target_sp _) (Located op_sp AST.Equal) expr)) root start_block =
+    lower_expr target root start_block >>= \ (target_end, m_target) -> m_target |>>=? (return (start_block, Nothing)) $ \ target_value ->
+    case target_value of
+        FVRegister reg_idx ->
+            lower_expr expr root target_end >>= \ (expr_end, m_expr) -> m_expr |>>=? (return (start_block, Nothing)) $ \ expr_value ->
+            add_instruction_s (Copy reg_idx expr_value) expr_end >>
+            return (expr_end, Just expr_value)
+        _ ->
+            apply_irb_to_funcgtup_s (add_error_s $ InvalidAssign target_sp op_sp) >>
+            return (start_block, Nothing)
 
 lower_expr (Located sp (AST.DExpr'ShortCircuit _ _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "short-circuiting binary expressions" sp) >> -- TODO
