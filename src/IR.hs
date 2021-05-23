@@ -394,9 +394,19 @@ lower_expr (Located sp (AST.DExpr'If _ cond trueb m_falseb)) root start_block =
 
     return (if_after_block, Just $ FVRegister ret_reg)
 
-lower_expr (Located sp (AST.DExpr'While _ _)) _ cur_block =
-    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "'while' expressions" sp) >> -- TODO
-    return (cur_block, Nothing)
+lower_expr (Located _ (AST.DExpr'While cond body)) root start_block =
+    add_basic_block_s "while_check_condition" >>= \ while_check_condition ->
+    add_basic_block_s "while_body" >>= \ while_body ->
+    add_basic_block_s "while_after" >>= \ while_after ->
+
+    add_br_s (BrGoto while_check_condition) start_block >>
+    lower_expr cond root while_check_condition >>= \ (while_check_condition_end, m_cond_val) -> m_cond_val |>>=? (return (while_after, Nothing)) $ \ cond_val ->
+    add_br_s (BrCond cond_val while_body while_after) while_check_condition_end >>
+
+    lower_expr body root while_body >>= \ (while_body_end, m_body_val) -> m_body_val |>>=? (return (while_after, Nothing)) $ \ _ ->
+    add_br_s (BrGoto while_check_condition) while_body_end >>
+
+    return (while_after, Just FVVoid)
 
 lower_expr (Located sp (AST.DExpr'Assign _ _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "assignment expressions" sp) >> -- TODO
