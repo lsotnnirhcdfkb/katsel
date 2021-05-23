@@ -220,9 +220,11 @@ resolve_ty_s (Located _ (AST.DType'Pointer muty pointee)) root =
     in get_ty_s pointer_ty >>=
     return . Just
 
+{-
 resolve_ty_s (Located sp AST.DType'This) _ =
     add_error_s (Unimplemented "'this' types" sp) >> -- TODO
     return Nothing
+-}
 
 get_ty_s :: Type -> State.State IRBuilder TyIdx
 get_ty_s ty = State.state $ \ (IRBuilder ctx errs) ->
@@ -449,6 +451,7 @@ lower_expr (Located sp (AST.DExpr'Call _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "call expressions" sp) >> -- TODO
     return (cur_block, Nothing)
 
+{-
 lower_expr (Located sp (AST.DExpr'Field _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "field access expressions" sp) >> -- TODO
     return (cur_block, Nothing)
@@ -456,6 +459,7 @@ lower_expr (Located sp (AST.DExpr'Field _ _)) _ cur_block =
 lower_expr (Located sp (AST.DExpr'Method _ _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "method call expressions" sp) >> -- TODO
     return (cur_block, Nothing)
+-}
 
 lower_expr (Located _ (AST.DExpr'Bool b)) _ cur_block = return (cur_block, Just $ FVConstBool b)
 lower_expr (Located _ (AST.DExpr'Float d)) _ cur_block = return (cur_block, Just $ FVConstFloat d)
@@ -466,9 +470,11 @@ lower_expr (Located sp (AST.DExpr'String _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "string literal expressions" sp) >> -- TODO
     return (cur_block, Nothing)
 
+{-
 lower_expr (Located sp AST.DExpr'This) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "'this' expressions" sp) >> -- TODO
     return (cur_block, Nothing)
+-}
 
 lower_expr (Located _ (AST.DExpr'Path path)) root cur_block =
     (case path of
@@ -543,15 +549,17 @@ lower_stmt (Located _ (AST.DStmt'Ret expr)) root cur_block =
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) root parent ir_builder = ddeclare sf root parent ir_builder
+    {-
     ddeclare (Located sp (AST.DDecl'Impl _ _)) _ parent ir_builder =
         let warn = Unimplemented "'impl' blocks" sp -- TODO
         in (parent, add_error warn ir_builder)
+    -}
 
     ddefine (Located _ (AST.DDecl'Fun sf)) root = ddefine sf root
-    ddefine (Located _ (AST.DDecl'Impl _ _)) _ = (,)
+    -- ddefine (Located _ (AST.DDecl'Impl _ _)) _ = (,)
 
     vdeclare (Located _ (AST.DDecl'Fun sf)) root = vdeclare sf root
-    vdeclare (Located _ (AST.DDecl'Impl _ _)) _ = (,)
+    -- vdeclare (Located _ (AST.DDecl'Impl _ _)) _ = (,)
 
     vdefine (Located _ (AST.DDecl'Fun sf)) root = vdefine sf root
-    vdefine (Located _ (AST.DDecl'Impl _ _)) _ = (,)
+    -- vdefine (Located _ (AST.DDecl'Impl _ _)) _ = (,)

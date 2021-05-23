@@ -1,22 +1,23 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Message.PrettyPrint
-    ( pprint_lmod
-    , pprint_mod
-    , pprint_ldecl
+    ( pprint_mod
     , pprint_decl
-    , pprint_limpl_entity
-    , pprint_impl_entity
-    , pprint_lstmt
-    , pprint_stmt
-    , pprint_lexpr
     , pprint_expr
-    , pprint_lparam
     , pprint_param
-    , pprint_ltype
-    , pprint_type
-    , pprint_lpath
     , pprint_path
+    , pprint_stmt
+    , pprint_type
+    -- , pprint_impl_entity
+
+    , pprint_ldecl
+    , pprint_lexpr
+    , pprint_lmod
+    , pprint_lparam
+    , pprint_lpath
+    , pprint_lstmt
+    , pprint_ltype
+    -- , pprint_limpl_entity
     ) where
 
 import Control.Monad.State.Lazy(State, state, execState)
@@ -127,13 +128,17 @@ pprint_mod_s (AST.DModule' decls) = pprint_list (pprint_decl_s . unlocate) decls
 -- AST.DDecl {{{1
 pprint_decl_s :: AST.DDecl -> State [PPrintSegment] ()
 pprint_decl_s (AST.DDecl'Fun sf) = pprint_fun_decl_s $ unlocate sf
+{-
 pprint_decl_s (AST.DDecl'Impl ty entities) =
     put "impl " >> pprint_type_s (unlocate ty) >> indent >>
     pprint_list (pprint_impl_entity_s . unlocate) entities >>
     dedent
+-}
 -- AST.DImplEntity {{{1
+{-
 pprint_impl_entity_s :: AST.DImplEntity -> State [PPrintSegment] ()
 pprint_impl_entity_s (AST.DImplEntity'Fun sf) = pprint_fun_decl_s $ unlocate sf
+-}
 -- AST.DStmt {{{1
 pprint_stmt_s :: AST.DStmt -> State [PPrintSegment] ()
 
@@ -167,14 +172,14 @@ expr_requires_prec (AST.DExpr'Cast _ _) = AST.PrecCast
 expr_requires_prec (AST.DExpr'Unary _ _) = AST.PrecUnary
 expr_requires_prec (AST.DExpr'Ref _ _) = AST.PrecUnary
 expr_requires_prec (AST.DExpr'Call _ _) = AST.PrecCall
-expr_requires_prec (AST.DExpr'Field _ _) = AST.PrecCall
-expr_requires_prec (AST.DExpr'Method _ _ _) = AST.PrecCall
+-- expr_requires_prec (AST.DExpr'Field _ _) = AST.PrecCall
+-- expr_requires_prec (AST.DExpr'Method _ _ _) = AST.PrecCall
 expr_requires_prec (AST.DExpr'Bool _) = AST.PrecPrimary
 expr_requires_prec (AST.DExpr'Float _) = AST.PrecPrimary
 expr_requires_prec (AST.DExpr'Int _) = AST.PrecPrimary
 expr_requires_prec (AST.DExpr'Char _) = AST.PrecPrimary
 expr_requires_prec (AST.DExpr'String _) = AST.PrecPrimary
-expr_requires_prec (AST.DExpr'This) = AST.PrecPrimary
+-- expr_requires_prec (AST.DExpr'This) = AST.PrecPrimary
 expr_requires_prec (AST.DExpr'Path _) = AST.PrecPrimary
 
 pprint_expr_with_prec_s :: AST.ExprPrec -> AST.DExpr -> State [PPrintSegment] ()
@@ -266,17 +271,19 @@ pprint_expr_s' (AST.DExpr'Ref mutability expr) = put "&" >> if_mutable_put "mut 
 
 pprint_expr_s' (AST.DExpr'Call expr args) =
     (let callee_is_field = case unlocate expr of
-            AST.DExpr'Field _ _ -> True
+            -- AST.DExpr'Field _ _ -> True
             _ -> False
     in if callee_is_field
     then put "(" >> pprint_expr_s (unlocate expr) >> put ")"
     else pprint_expr_with_prec_s AST.PrecCall (unlocate expr)) >>
     put "(" >> pprint_list_delim (pprint_expr_s . unlocate) (put ", ") args >> put ")"
 
+{-
 pprint_expr_s' (AST.DExpr'Field expr field) = pprint_expr_with_prec_s AST.PrecCall (unlocate expr) >> put "." >> put (unlocate field)
 pprint_expr_s' (AST.DExpr'Method expr method args) =
     pprint_expr_with_prec_s AST.PrecCall (unlocate expr) >> put "." >> put (unlocate method) >>
     put "(" >> pprint_list_delim (pprint_expr_s . unlocate) (put ", ") args >> put ")"
+-}
 
 pprint_expr_s' (AST.DExpr'Bool val) = put $ if val then "true" else "false"
 pprint_expr_s' (AST.DExpr'Float val) = put $ show val
@@ -284,7 +291,7 @@ pprint_expr_s' (AST.DExpr'Int val) = put $ show val
 pprint_expr_s' (AST.DExpr'Char val) = put $ show val
 -- TODO: escape things and properly print multiline strings
 pprint_expr_s' (AST.DExpr'String val) = put $ show val
-pprint_expr_s' (AST.DExpr'This) = put "this"
+-- pprint_expr_s' (AST.DExpr'This) = put "this"
 pprint_expr_s' (AST.DExpr'Path path) = pprint_path_s $ unlocate path
 -- }}}
 pprint_expr_s :: AST.DExpr -> State [PPrintSegment] ()
@@ -297,6 +304,7 @@ pprint_block_expr_s (AST.SBlockExpr' stmts) =
     dedent
 -- AST.DParam {{{1
 pprint_param_s :: AST.DParam -> State [PPrintSegment] ()
+{-
 pprint_param_s (AST.DParam'Normal AST.Immutable (
         (Located _ AST.DType'This)
     ) (Located _ "this")) = put "this"
@@ -307,6 +315,7 @@ pprint_param_s (AST.DParam'Normal AST.Immutable (
         (Located _ (AST.DType'Pointer AST.Mutable (Located _ AST.DType'This)))
     ) (Located _ "this")) = put "*mut this"
 pprint_param_s (AST.DParam'Normal _ _ (Located _ "this")) = error "pretty print malformed 'this' parameter"
+-}
 pprint_param_s (AST.DParam'Normal mutability lty lname) =
     if_mutable_put "mut " mutability >>
     put (unlocate lname) >>
@@ -318,7 +327,7 @@ pprint_type_s (AST.DType'Pointer mutability lty) =
     put "*" >>
     if_mutable_put "mut " mutability >>
     pprint_type_s (unlocate lty)
-pprint_type_s (AST.DType'This) = put "this"
+-- pprint_type_s (AST.DType'This) = put "this"
 -- AST.DPath {{{1
 pprint_path_s :: AST.DPath -> State [PPrintSegment] ()
 pprint_path_s (AST.DPath' segments) = pprint_list_delim (put . unlocate) (put "::") segments
@@ -335,7 +344,7 @@ pprint_type_annotation_s ty = put ": " >> pprint_type_s ty
 -- splices {{{1
 $(make_print_variants "mod")
 $(make_print_variants "decl")
-$(make_print_variants "impl_entity")
+-- $(make_print_variants "impl_entity")
 $(make_print_variants "stmt")
 $(make_print_variants "expr")
 $(make_print_variants "param")

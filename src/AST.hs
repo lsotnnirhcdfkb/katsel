@@ -18,7 +18,7 @@ module AST
 
     , DModule(..)
     , DDecl(..)
-    , DImplEntity(..)
+    -- , DImplEntity(..)
     , DStmt(..)
     , DExpr(..)
     , DParam(..)
@@ -30,7 +30,7 @@ module AST
 
     , LDModule
     , LDDecl
-    , LDImplEntity
+    -- , LDImplEntity
     , LDStmt
     , LDExpr
     , LDParam
@@ -146,11 +146,13 @@ newtype DModule = DModule' [LDDecl]
 type LDDecl = Located DDecl
 data DDecl
     = DDecl'Fun LSFunDecl
-    | DDecl'Impl LDType [LDImplEntity]
+    {- | DDecl'Impl LDType [LDImplEntity] -}
 
+{-
 type LDImplEntity = Located DImplEntity
 newtype DImplEntity
     = DImplEntity'Fun LSFunDecl
+-}
 
 type LDStmt = Located DStmt
 data DStmt
@@ -170,14 +172,16 @@ data DExpr
     | DExpr'Unary LUnaryOp LDExpr
     | DExpr'Ref Mutability LDExpr
     | DExpr'Call LDExpr [LDExpr]
+{-
     | DExpr'Field LDExpr LocStr
     | DExpr'Method LDExpr LocStr [LDExpr]
+-}
     | DExpr'Bool Bool
     | DExpr'Float Double
     | DExpr'Int Integer
     | DExpr'Char Char
     | DExpr'String String
-    | DExpr'This
+    {- | DExpr'This -}
     | DExpr'Path LDPath
 
 type LDParam = Located DParam
@@ -188,7 +192,7 @@ type LDType = Located DType
 data DType
     = DType'Path LDPath
     | DType'Pointer Mutability LDType
-    | DType'This
+    {- | DType'This -}
 
 type LDPath = Located DPath
 newtype DPath = DPath' [LocStr]
@@ -564,8 +568,8 @@ indented what ex =
 parse_decl :: ParseFunM AST.LDDecl
 parse_decl =
     choice
-        [ impl_decl
-        , function_decl `seqparser` \ lsfd@(Located sp _) ->
+        [ {- impl_decl
+        , -} function_decl `seqparser` \ lsfd@(Located sp _) ->
           return $ Just $ Located sp $ AST.DDecl'Fun lsfd
         ]
 
@@ -587,6 +591,7 @@ function_decl =
 
     in return $ Just $ Located fdsp $ AST.SFunDecl' retty name params body)
 
+{-
 impl_decl :: ParseFunM AST.LDDecl
 impl_decl =
     consume_tok_s Tokens.Impl (XIsMissingYFound "implementation block" "introductory 'impl'") `seqparser` \ implsp ->
@@ -600,14 +605,15 @@ impl_decl =
                 [ function_decl `seqparser` \ lsfd@(Located sp _) ->
                   return $ Just $ Located sp $ AST.DImplEntity'Fun lsfd
                 ]
+-}
 -- types {{{2
 type_annotation :: ParseFunM AST.LDType
 type_annotation =
     consume_tok_u Tokens.Colon (XIsMissingYFound "type annotation" "introductory ':'") `seqparser` \ _ ->
     parse_type
 
-parse_type, pointer_type, this_type, path_type :: ParseFunM AST.LDType
-parse_type = choice [pointer_type, this_type, path_type]
+parse_type, pointer_type, {- this_type, -} path_type :: ParseFunM AST.LDType
+parse_type = choice [pointer_type, {- this_type, -} path_type]
 
 pointer_type =
     consume_tok_s Tokens.Star (XIsMissingYFound "pointer type" "introductory '*'") `seqparser` \ starsp ->
@@ -615,9 +621,11 @@ pointer_type =
     parse_type `seqparser` \ pointee_ty@(Located pointeesp _) ->
     return $ Just $ Located (join_span starsp pointeesp) $ AST.DType'Pointer (maybe_to_mutability mmut) pointee_ty
 
+{-
 this_type =
     consume_tok_s Tokens.This (XIsMissingYFound "'this' type" "'this'") `seqparser` \ thsp ->
     return $ Just $ Located thsp AST.DType'This
+-}
 
 path_type =
     parse_path `seqparser` \ path@(Located pathsp _) ->
@@ -632,8 +640,8 @@ parse_path =
     let totalsp = span_from_list (error "path should always have at least one element") list
     in return $ Just $ Located totalsp $ AST.DPath' list
 -- params {{{2
-parse_param, normal_param, this_param :: ParseFunM AST.LDParam
-parse_param = choice [normal_param, this_param]
+parse_param, normal_param {-, this_param -} :: ParseFunM AST.LDParam
+parse_param = choice [normal_param {-, this_param -}]
 
 normal_param =
     consume_tok_s Tokens.Mut (XIsMissingYFound "mutable parameter" "'mut'") >>= \ mmut ->
@@ -643,6 +651,7 @@ normal_param =
         endsp = tysp
     in return $ Just $ Located (join_span startsp endsp) $ AST.DParam'Normal (maybe_to_mutability mmut) ty name
 
+{-
 this_param =
     (
         consume_tok_s Tokens.Star (XIsMissingYFound "'this' reference parameter" "'*'") `seqparser` \ starsp ->
@@ -665,6 +674,7 @@ this_param =
         endsp = thissp
 
     in return $ Just $ Located (startsp `join_span` endsp) $ AST.DParam'Normal AST.Immutable ty (Located thissp "this")
+-}
 -- expr {{{2
 parse_expr, if_expr, while_expr :: ParseFunM AST.LDExpr
 parse_expr =
@@ -877,11 +887,12 @@ call_expr =
     parse_more lhs
     where
         parse_more lhs =
-            choice [method lhs, field lhs, call lhs] >>= \ mres ->
+            choice [{- method lhs, field lhs, -} call lhs] >>= \ mres ->
             case mres of
                 Just newlhs -> parse_more newlhs
                 Nothing -> return $ Just lhs
 
+        {-
         consume_dot expr_name operand_name =
             consume_tok_s Tokens.Period (XIsMissingYAfterZFound expr_name "'.'" operand_name)
 
@@ -898,6 +909,7 @@ call_expr =
             consume_tok_s Tokens.CParen (Unclosed "method call expression" "'('" oparensp) `seqparser` \ cparensp ->
             let arglist = fromMaybe [] marglist
             in return $ Just $ Located (lhssp `join_span` cparensp) $ AST.DExpr'Method lhs methodname arglist
+        -}
 
         call lhs@(Located lhssp _) =
             consume_tok_s Tokens.OParen (XIsMissingYAfterZFound "call expression" "'('" "callee") `seqparser` \ oparensp ->
@@ -916,7 +928,7 @@ primary_expr = choice [tok_expr, paren_expr, path_expr]
                             Tokens.IntLit _ i -> Just $ AST.DExpr'Int i
                             Tokens.CharLit c -> Just $ AST.DExpr'Char c
                             Tokens.StringLit s -> Just $ AST.DExpr'String s
-                            Tokens.This -> Just AST.DExpr'This
+                            {- Tokens.This -> Just AST.DExpr'This -}
                             _ -> Nothing
                     in Located sp <$> e
             ) (InvalidToken "primary expression" "token" ["a literal", "'this'"])
