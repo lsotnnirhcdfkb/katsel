@@ -187,6 +187,7 @@ format_token EOF = "end of file"
 data IndentFrame
     = IndentationSensitive Int
     | IndentationInsensitive
+    deriving Show
 
 data Lexer = Lexer
              { sourcefile :: File
@@ -242,7 +243,7 @@ instance Message.ToDiagnostic LexError where
                     ]
 
 lex :: File -> [Either LexError (Located Token)]
-lex f = lex' [] [] $ Lexer
+lex f = lex' [] [IndentationSensitive 0] $ Lexer
            { sourcefile = f
            , source_location = 0
            , remaining = source f
@@ -377,7 +378,7 @@ lex' prevtoks indent_stack lexer =
 
         (new_indent_stack, indentation_tokens) =
             if null prevtoks
-                then ([IndentationSensitive 0], [])
+                then (indent_stack, [])
                 else
                     let remain = remaining lexer
                     in
