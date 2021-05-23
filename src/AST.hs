@@ -948,7 +948,6 @@ ret_expr =
     parse_expr `seqparser` \ expr@(Located exprsp _) ->
     return $ Just $ Located (retsp `join_span` exprsp) $ AST.DExpr'Ret expr
 
-
 path_expr =
     parse_path `seqparser` \ path@(Located pathsp _) ->
     return $ Just $ Located pathsp $ AST.DExpr'Path path
