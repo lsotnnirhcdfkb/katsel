@@ -16,7 +16,7 @@ import qualified IR
 
 import qualified Colors
 
-import System.IO(hPutStr, hPutStrLn, stderr)
+import System.IO(hPutStr, hFlush, stdout, stderr)
 import Control.Exception(SomeException, try, evaluate, displayException)
 
 import Data.Maybe(catMaybes)
@@ -28,6 +28,7 @@ import qualified System.Console.ANSI as ANSI
 
 -- data OutputFormat = Lexed | Parsed | KatselIR | BackendCode Backend
 
+-- ErrorAccumulated {{{1
 data ErrorAccumulated r = ErrorAcc r [Message.SimpleDiag]
 
 instance Functor ErrorAccumulated where
@@ -48,7 +49,7 @@ instance Monad ErrorAccumulated where
 
 add_errors :: [Message.SimpleDiag] -> ErrorAccumulated ()
 add_errors = ErrorAcc ()
-
+-- stages {{{1
 lex_stage :: File -> ErrorAccumulated [Located Tokens.Token]
 lex_stage contents =
     let lexed = Tokens.lex contents
@@ -70,77 +71,90 @@ lower_ast_stage :: AST.LDModule -> ErrorAccumulated (IR.Module, IR.IRCtx)
 lower_ast_stage mod_ast =
     let (ir_mod, irctx, errs) = IR.build_ir mod_ast
     in add_errors (map (\err -> Message.to_diagnostic (err, irctx)) errs) >> return (ir_mod, irctx)
-
+-- compile {{{1
 compile :: Int -> Int -> String -> IO ()
-compile num maxnum filename =
-    putStr ("[" ++ show num ++ "/" ++ show maxnum ++ "] compiling ") >>
-    ANSI.setSGR Colors.file_path_sgr >>
-    putStrLn filename >>
-    ANSI.setSGR [] >>
+compile num max_num filename =
+    do_try $
+
+    put_status_start num max_num filename >> hFlush stdout >>
+
     open_file filename >>= \ file ->
-    let (ErrorAcc final_output final_errs) =
+    let (ErrorAcc result diagnostics) =
             lex_stage file >>=
             parse_stage >>= \ mast ->
             case mast of
                 Just ast -> Just <$> lower_ast_stage ast
                 Nothing -> return Nothing
 
-        put_errs = hPutStr stderr $ concatMap Message.report final_errs
+    in (if compilation_failed diagnostics
+        then put_failed
+        else put_success
+    ) >>
+    (if not $ null diagnostics
+        then
+            putStr ", " >>
+            put_counts diagnostics
+        else return ()
+    ) >>
+    hPutStr stderr (concatMap Message.report diagnostics)
+-- compile helpers {{{1
+amount_of_diag :: Message.SimpleDiagType -> [Message.SimpleDiag] -> Int
+amount_of_diag diag_ty errs =
+    let find_diag t (Message.SimpleDiag t' _ _ _ _) = t == t'
+    in length $ filter (find_diag diag_ty) errs
+compilation_failed :: [Message.SimpleDiag] -> Bool
+compilation_failed = (>0) . amount_of_diag Message.Error
 
-        find_diag diag_ty (Message.SimpleDiag ty _ _ _ _) = ty == diag_ty
-        amount_of_diag diag_ty = length $ filter (find_diag diag_ty) final_errs
+-- TODO: do not catch user interrupt
+do_try :: IO () -> IO ()
+do_try x = (try x :: IO (Either SomeException ())) >>= \ ei ->
+    case ei of
+        Right () -> return ()
+        Left err ->
+            hPutStr stderr ("\n" ++
+                Message.report (Message.SimpleDiag Message.InternalError Nothing Nothing Nothing
+                    [ Message.SimpleText "the compiler is broken! caught internal error:"
+                    , Message.SimpleMultilineText $ unlines $ map ("> " ++) $ lines $ displayException err
+                    ]
+            )) >>
+            evaluate (error "stop after catching internal error")
 
-        put_if_fail =
-            let err_amt = amount_of_diag Message.Error
-            in if err_amt > 0
-                then
-                    hPutStr stderr "compilation of " >>
-                    ANSI.hSetSGR stderr Colors.file_path_sgr >>
-                    hPutStr stderr filename >>
-                    ANSI.hSetSGR stderr [] >>
-                    hPutStr stderr " failed due to " >>
-                    ANSI.hSetSGR stderr Colors.error_sgr >>
-                    hPutStrLn stderr (show err_amt ++ " errors") >>
-                    ANSI.hSetSGR stderr []
-                else return ()
+put_status_start :: Int -> Int -> String -> IO ()
+put_status_start num max_num filename =
+    putStr ("[" ++ show num ++ "/" ++ show max_num ++ "] compiling ") >>
+    ANSI.setSGR Colors.file_path_sgr >>
+    putStr filename >>
+    ANSI.setSGR [] >>
+    putStr ": "
 
-        put_ending_line =
-            let make_msg diag_ty kind sgr =
-                    let amount = amount_of_diag diag_ty
-                    in if amount > 0
-                        then Just $
-                            ANSI.hSetSGR stderr sgr >>
-                            hPutStr stderr (show amount ++ " ") >>
-                            hPutStr stderr (kind ++ (if amount > 1 then "s" else "")) >>
-                            ANSI.hSetSGR stderr [] >>
-                            hPutStr stderr " emitted"
-                        else Nothing
+put_success, put_failed :: IO ()
+put_success =
+    ANSI.setSGR Colors.success_sgr >>
+    putStr "success" >>
+    ANSI.setSGR []
+put_failed =
+    ANSI.setSGR Colors.failure_sgr >>
+    putStr "failed" >>
+    ANSI.setSGR []
 
-                error_msg = make_msg Message.Error "error" Colors.error_sgr
-                warning_msg = make_msg Message.Warning "warning" Colors.warning_sgr
-                dbg_msg = make_msg Message.DebugMessage "debug message" Colors.dbgmsg_sgr
+put_counts :: [Message.SimpleDiag] -> IO ()
+put_counts diagnostics =
+    let make_msg diag_ty kind sgr =
+            let amount = amount_of_diag diag_ty diagnostics
+            in if amount > 0
+                then Just $
+                    ANSI.setSGR sgr >>
+                    putStr (show amount ++ " ") >>
+                    putStr (kind ++ (if amount > 1 then "s" else "")) >>
+                    ANSI.setSGR [] >>
+                    putStr " emitted"
+                else Nothing
 
-                msgs :: [IO ()]
-                msgs = catMaybes [error_msg, warning_msg, dbg_msg]
-            in if length msgs > 0
-                then sequence_ (intersperse (hPutStr stderr ", ") msgs) >> hPutStrLn stderr ""
-                else return ()
+        error_msg = make_msg Message.Error "error" Colors.error_sgr
+        warning_msg = make_msg Message.Warning "warning" Colors.warning_sgr
+        dbg_msg = make_msg Message.DebugMessage "debug message" Colors.dbgmsg_sgr
 
-        -- TODO: do not catch user interrupt
-        do_try x = (try x :: IO (Either SomeException ())) >>= \ ei ->
-            case ei of
-                Right () -> return ()
-                Left err ->
-                    hPutStr stderr ("\n" ++
-                        Message.report (Message.SimpleDiag Message.InternalError Nothing Nothing Nothing
-                            [ Message.SimpleText "the compiler is broken! caught internal error:"
-                            , Message.SimpleMultilineText $ unlines $ map ("> " ++) $ lines $ displayException err
-                            ]
-                    )) >>
-                    evaluate (error "stop after catching internal error")
-
-    in do_try (
-        seq final_output put_errs >>
-        put_ending_line >>
-        put_if_fail
-    )
+        msgs = catMaybes [error_msg, warning_msg, dbg_msg]
+    in if length msgs > 0
+        then sequence_ (intersperse (putStr ", ") msgs) >> putStrLn ""
+        else return ()
