@@ -150,7 +150,6 @@ pprint_stmt_s (AST.DStmt'Var ty mutability name maybeinitializer) =
         Nothing -> return ()) >>
     putnl
 
-pprint_stmt_s (AST.DStmt'Ret expr) = put "return " >> pprint_expr_s (unlocate expr) >> putnl
 pprint_stmt_s (AST.DStmt'Expr expr) =
     let neednl = case unlocate expr of
             AST.DExpr'Block _ -> False
@@ -162,9 +161,6 @@ pprint_stmt_s (AST.DStmt'Expr expr) =
 -- AST.DExpr {{{1
 -- precedence things {{{
 expr_requires_prec :: AST.DExpr -> AST.ExprPrec
-expr_requires_prec (AST.DExpr'Block _) = AST.PrecBlockLevel
-expr_requires_prec (AST.DExpr'If _ _ _) = AST.PrecBlockLevel
-expr_requires_prec (AST.DExpr'While _ _) = AST.PrecBlockLevel
 expr_requires_prec (AST.DExpr'Assign _ _ _) = AST.PrecAssign
 expr_requires_prec (AST.DExpr'ShortCircuit _ op _) = AST.prec_of_short_op $ unlocate op
 expr_requires_prec (AST.DExpr'Binary _ op _) = AST.prec_of_bin_op $ unlocate op
@@ -181,11 +177,15 @@ expr_requires_prec (AST.DExpr'Char _) = AST.PrecPrimary
 expr_requires_prec (AST.DExpr'String _) = AST.PrecPrimary
 -- expr_requires_prec (AST.DExpr'This) = AST.PrecPrimary
 expr_requires_prec (AST.DExpr'Path _) = AST.PrecPrimary
+expr_requires_prec (AST.DExpr'Block _) = AST.PrecPrimary
+expr_requires_prec (AST.DExpr'If _ _ _) = AST.PrecPrimary
+expr_requires_prec (AST.DExpr'While _ _) = AST.PrecPrimary
+expr_requires_prec (AST.DExpr'Ret _) = AST.PrecPrimary
 
 pprint_expr_with_prec_s :: AST.ExprPrec -> AST.DExpr -> State [PPrintSegment] ()
 pprint_expr_with_prec_s cur_prec ex =
     if expr_requires_prec ex < cur_prec
-    then put "(" >> pprint_expr_with_prec_s AST.PrecBlockLevel ex >> put ")"
+    then put "(" >> pprint_expr_with_prec_s AST.PrecAssign ex >> put ")"
     else pprint_expr_s' ex
 -- }}}
 -- printing different kinds of expressions {{{
@@ -293,9 +293,11 @@ pprint_expr_s' (AST.DExpr'Char val) = put $ show val
 pprint_expr_s' (AST.DExpr'String val) = put $ show val
 -- pprint_expr_s' (AST.DExpr'This) = put "this"
 pprint_expr_s' (AST.DExpr'Path path) = pprint_path_s $ unlocate path
+
+pprint_expr_s' (AST.DExpr'Ret expr) = put "return " >> pprint_expr_s (unlocate expr) >> putnl
 -- }}}
 pprint_expr_s :: AST.DExpr -> State [PPrintSegment] ()
-pprint_expr_s = pprint_expr_with_prec_s AST.PrecBlockLevel
+pprint_expr_s = pprint_expr_with_prec_s AST.PrecAssign
 
 pprint_block_expr_s :: AST.SBlockExpr -> State [PPrintSegment] ()
 pprint_block_expr_s (AST.SBlockExpr' stmts) =

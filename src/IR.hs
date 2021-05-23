@@ -494,6 +494,18 @@ lower_expr (Located _ (AST.DExpr'Path path)) root cur_block =
             apply_irb_to_funcgtup_s (State.state $ resolve_path_v path root) >>=? (return (cur_block, Nothing)) $ \ (_, vid) ->
             return (cur_block, Just $ FVGlobalValue vid)
 
+lower_expr (Located _ (AST.DExpr'Ret expr)) root cur_block =
+    add_basic_block_s "after_return" >>= \ after_return_idx ->
+
+    lower_expr expr root cur_block >>= \ (after_expr_idx, m_ret_val) -> m_ret_val |>>=? (return (after_return_idx, Just FVVoid)) $ \ ret_val ->
+
+    State.get >>= \ (_, _, fun) ->
+
+    add_instruction_s (Copy (LVRegister $ get_ret_reg fun) ret_val) after_expr_idx >>
+    add_br_s (BrGoto $ get_exit_block fun) after_expr_idx >>
+
+    return (after_return_idx, Just FVVoid)
+
 lower_block_expr :: AST.LSBlockExpr -> Module -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) (BlockIdx, Maybe FValue)
 lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root cur_block =
     let safe_last [] = Nothing
@@ -534,18 +546,6 @@ lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) roo
             add_instruction_s (Copy (LVRegister reg_idx) expr_val) after_expr >>
             return after_expr
     ) >>= return
-
-lower_stmt (Located _ (AST.DStmt'Ret expr)) root cur_block =
-    add_basic_block_s "after_return" >>= \ after_return_idx ->
-
-    lower_expr expr root cur_block >>= \ (after_expr_idx, m_ret_val) -> m_ret_val |>>=? (return after_return_idx) $ \ ret_val ->
-
-    State.get >>= \ (_, _, fun) ->
-
-    add_instruction_s (Copy (LVRegister $ get_ret_reg fun) ret_val) after_expr_idx >>
-    add_br_s (BrGoto $ get_exit_block fun) after_expr_idx >>
-
-    return after_return_idx
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) root parent ir_builder = ddeclare sf root parent ir_builder

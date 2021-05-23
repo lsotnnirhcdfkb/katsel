@@ -91,7 +91,7 @@ type LocStr = Located String
 data Mutability = Mutable | Immutable
 
 data ExprPrec
-    = PrecBlockLevel | PrecAssign | PrecBinOr | PrecBinAnd
+    = PrecAssign | PrecBinOr | PrecBinAnd
     | PrecCompEQ | PrecCompLGT | PrecBitXor | PrecBitOr
     | PrecBitAnd | PrecBitShift | PrecAdd | PrecMult
     | PrecCast | PrecUnary | PrecCall | PrecPrimary
@@ -158,7 +158,6 @@ type LDStmt = Located DStmt
 data DStmt
     = DStmt'Var LDType Mutability LocStr (Maybe LDExpr)
     | DStmt'Expr LDExpr
-    | DStmt'Ret LDExpr
 
 type LDExpr = Located DExpr
 data DExpr
@@ -183,6 +182,7 @@ data DExpr
     | DExpr'String String
     {- | DExpr'This -}
     | DExpr'Path LDPath
+    | DExpr'Ret LDExpr
 
 type LDParam = Located DParam
 data DParam
@@ -676,53 +676,8 @@ this_param =
     in return $ Just $ Located (startsp `join_span` endsp) $ AST.DParam'Normal AST.Immutable ty (Located thissp "this")
 -}
 -- expr {{{2
-parse_expr, if_expr, while_expr :: ParseFunM AST.LDExpr
-parse_expr =
-    choice
-        [ assign_expr
-        , if_expr
-        , while_expr
-        , block_expr `seqparser` \ bl@(Located blsp _) ->
-          return $ Just $ Located blsp $ AST.DExpr'Block bl
-        ]
-
-block_stmt_list :: ParseFunM (Span, [AST.LDStmt])
-block_stmt_list =
-    blocked "code block" (
-        stmt_list >>= \ sl ->
-        return $ fromMaybe [] sl
-    )
-
-block_expr :: ParseFunM AST.LSBlockExpr
-block_expr =
-    block_stmt_list `seqparser` \ (slsp, sl) ->
-    return $ Just $ Located slsp $ AST.SBlockExpr' sl
-
-if_expr =
-    consume_tok_s Tokens.If (XIsMissingYFound "'if' expression" "'if'") `seqparser` \ ifsp ->
-    parse_expr `seqparser` \ cond ->
-    block_expr `seqparser` \ trueb@(Located truebsp _) ->
-    (
-        consume_tok_s Tokens.Else (XIsMissingYFound "'else' branch of 'if' expression" "'else'") `seqparser` \ _ ->
-        choice
-            [ block_expr `seqparser` \ block@(Located blocksp _) ->
-              return $ Just $ Located blocksp $ AST.DExpr'Block block
-            , if_expr
-            ] `seqparser` \ falseb@(Located falsebsp _) ->
-        return $ Just (falsebsp, falseb)
-    ) >>= \ melsebandspan ->
-    let startsp = ifsp
-        endsp = maybe truebsp fst melsebandspan
-        melseb = snd <$> melsebandspan
-
-        loctrueb = Located truebsp $ AST.DExpr'Block trueb
-    in return $ Just $ Located (startsp `join_span` endsp) $ AST.DExpr'If cond loctrueb melseb
-
-while_expr =
-    consume_tok_s Tokens.While (XIsMissingYFound "'while' expression" "'while'") `seqparser` \ whilesp ->
-    parse_expr `seqparser` \ cond ->
-    block_expr `seqparser` \ block@(Located blocksp _) ->
-    return $ Just $ Located (whilesp `join_span` blocksp) $ AST.DExpr'While cond (Located blocksp $ AST.DExpr'Block block)
+parse_expr :: ParseFunM AST.LDExpr
+parse_expr = assign_expr
 
 mk_bin_expr :: ParseFunM AST.LDExpr -> ParseFunM a -> (AST.LDExpr -> a -> AST.LDExpr -> AST.DExpr) -> ParseFunM AST.LDExpr
 mk_bin_expr next operators constructor =
@@ -918,7 +873,17 @@ call_expr =
             let arglist = fromMaybe [] marglist
             in return $ Just $ Located (lhssp `join_span` cparensp) $ AST.DExpr'Call lhs arglist
 
-primary_expr = choice [tok_expr, paren_expr, path_expr]
+primary_expr =
+    choice
+    [ tok_expr
+    , paren_expr
+    , path_expr
+    , if_expr
+    , while_expr
+    , block_expr `seqparser` \ bl@(Located blsp _) ->
+      return $ Just $ Located blsp $ AST.DExpr'Block bl
+    , ret_expr
+    ]
     where
         tok_expr = consume (
                 \ (Located sp tok) ->
@@ -938,12 +903,58 @@ primary_expr = choice [tok_expr, paren_expr, path_expr]
             consume_tok_u Tokens.CParen (Unclosed "parenthesized expression" "'('" oparensp) `seqparser` \ _ ->
             return $ Just inside
 
+block_stmt_list :: ParseFunM (Span, [AST.LDStmt])
+block_stmt_list =
+    blocked "code block" (
+        stmt_list >>= \ sl ->
+        return $ fromMaybe [] sl
+    )
+
+block_expr :: ParseFunM AST.LSBlockExpr
+block_expr =
+    block_stmt_list `seqparser` \ (slsp, sl) ->
+    return $ Just $ Located slsp $ AST.SBlockExpr' sl
+
+if_expr, while_expr, ret_expr :: ParseFunM AST.LDExpr
+
+if_expr =
+    consume_tok_s Tokens.If (XIsMissingYFound "'if' expression" "'if'") `seqparser` \ ifsp ->
+    parse_expr `seqparser` \ cond ->
+    block_expr `seqparser` \ trueb@(Located truebsp _) ->
+    (
+        consume_tok_s Tokens.Else (XIsMissingYFound "'else' branch of 'if' expression" "'else'") `seqparser` \ _ ->
+        choice
+            [ block_expr `seqparser` \ block@(Located blocksp _) ->
+              return $ Just $ Located blocksp $ AST.DExpr'Block block
+            , if_expr
+            ] `seqparser` \ falseb@(Located falsebsp _) ->
+        return $ Just (falsebsp, falseb)
+    ) >>= \ melsebandspan ->
+    let startsp = ifsp
+        endsp = maybe truebsp fst melsebandspan
+        melseb = snd <$> melsebandspan
+
+        loctrueb = Located truebsp $ AST.DExpr'Block trueb
+    in return $ Just $ Located (startsp `join_span` endsp) $ AST.DExpr'If cond loctrueb melseb
+
+while_expr =
+    consume_tok_s Tokens.While (XIsMissingYFound "'while' expression" "'while'") `seqparser` \ whilesp ->
+    parse_expr `seqparser` \ cond ->
+    block_expr `seqparser` \ block@(Located blocksp _) ->
+    return $ Just $ Located (whilesp `join_span` blocksp) $ AST.DExpr'While cond (Located blocksp $ AST.DExpr'Block block)
+
+ret_expr =
+    consume_tok_s Tokens.Return (XIsMissingYFound "return expression" "introductory 'return'") `seqparser` \ retsp ->
+    parse_expr `seqparser` \ expr@(Located exprsp _) ->
+    return $ Just $ Located (retsp `join_span` exprsp) $ AST.DExpr'Ret expr
+
+
 path_expr =
     parse_path `seqparser` \ path@(Located pathsp _) ->
     return $ Just $ Located pathsp $ AST.DExpr'Path path
 -- stmt {{{2
-parse_stmt, var_stmt, ret_stmt, expr_stmt :: ParseFunM AST.LDStmt
-parse_stmt = choice [expr_stmt, var_stmt, ret_stmt]
+parse_stmt, var_stmt, expr_stmt :: ParseFunM AST.LDStmt
+parse_stmt = choice [expr_stmt, var_stmt]
 
 var_stmt =
     consume_tok_s Tokens.Let (XIsMissingYFound "variable statement" "introductory 'let'") `seqparser` \ varsp ->
@@ -953,12 +964,6 @@ var_stmt =
     (consume_tok_s Tokens.Equal (XIsMissingYAfterZFound "variable initialization" "'='" "variable name") `seqparser` \ _ -> parse_expr) >>= \ initializer ->
     lnend "variable statement" `seqparser` \ endlsp ->
     return $ Just $ Located (varsp `join_span` endlsp) $ AST.DStmt'Var ty (maybe_to_mutability mmut) name initializer
-
-ret_stmt =
-    consume_tok_s Tokens.Return (XIsMissingYFound "return statement" "introductory 'return'") `seqparser` \ retsp ->
-    parse_expr `seqparser` \ expr ->
-    lnend "return statement" `seqparser` \ endlsp ->
-    return $ Just $ Located (retsp `join_span` endlsp) $ AST.DStmt'Ret expr
 
 expr_stmt =
     parse_expr `seqparser` \ expr@(Located exprsp not_located_expr) ->
