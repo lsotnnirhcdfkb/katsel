@@ -187,7 +187,6 @@ format_token EOF = "end of file"
 data IndentFrame
     = IndentationSensitive Int
     | IndentationInsensitive
-    deriving Show
 
 data Lexer = Lexer
              { sourcefile :: File
@@ -345,9 +344,9 @@ lex' prevtoks indent_stack lexer =
         [] -> prevtoks ++ alldedents ++ [Right $ make_token 0 1 EOF]
             where
                 -- TODO: use the same span as other dedent tokens
-                alldedents =
-                    Right (make_token 0 1 Newline) :
-                    concatMap make_dedent (init indent_stack)
+                alldedents = case concatMap make_dedent (init indent_stack) of
+                    [] -> []
+                    dedents -> Right (make_token 0 1 Newline) : dedents
 
                 make_dedent (IndentationSensitive _) = [Right $ make_token 0 1 Dedent]
                 make_dedent IndentationInsensitive = [] -- the parser will handle these when it finds a dedent token instead of a matching '}'
@@ -370,8 +369,7 @@ lex' prevtoks indent_stack lexer =
 
         make_error start len err = err $ make_span_from_lexer start len
 
-        make_span_from_lexer start len =
-            Span (make_location file $ ind + start) (make_location file $ ind + start + len)
+        make_span_from_lexer start len = Span (make_location file $ ind + start) (make_location file $ ind + start + len)
             where
                 file = sourcefile lexer
                 ind = source_location lexer
