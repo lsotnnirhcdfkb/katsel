@@ -218,26 +218,22 @@ condition_to_sections :: ErrorConditionVariant -> ([MsgUnds.Message], [Message.S
 
 condition_to_sections (XIsMissingYFound x y sp (Located _ tok)) =
     (
-        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary [Message.Literal x, Message.Literal " is missing ", Message.Literal y]
-        , MsgUnds.Message sp MsgUnds.Note MsgUnds.Secondary [Message.Literal "found ", Message.Literal $ Tokens.format_token tok, Message.Literal " instead"]
+        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y ++ " (found " ++ Tokens.format_token tok ++ " instead)"
         ],
     [])
 condition_to_sections (XIsMissingYAfterZFound x y z sp (Located _ tok)) =
     (
-        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary [Message.Literal x, Message.Literal " is missing ", Message.Literal y, Message.Literal " after ", Message.Literal z]
-        , MsgUnds.Message sp MsgUnds.Note MsgUnds.Secondary [Message.Literal "found ", Message.Literal $ Tokens.format_token tok, Message.Literal " instead"]
+        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ x ++ " is missing " ++ y ++ " after " ++ z ++ " (found " ++ Tokens.format_token tok ++ " instead)"
         ],
     [])
 condition_to_sections (ExcessTokens sp (Located _ tok)) =
     (
-        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary [Message.Literal "extraneous tokens found in input"]
-        , MsgUnds.Message sp MsgUnds.Note MsgUnds.Secondary [Message.Literal "found ", Message.Literal $ Tokens.format_token tok]
+        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "extraneous tokens found in input (found " ++ Tokens.format_token tok ++ ")"
         ],
     [])
 condition_to_sections (InvalidToken construct thing possibilities sp (Located _ found)) =
     (
-        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary [Message.Literal "invalid ", Message.Literal thing, Message.Literal " for ", Message.Literal construct, Message.Literal "; must be ", Message.Literal $ format_possibilities possibilities]
-        , MsgUnds.Message sp MsgUnds.Note MsgUnds.Secondary [Message.Literal "found ", Message.Literal $ Tokens.format_token found, Message.Literal " instead"]
+        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "invalid " ++ thing ++ " for " ++ construct ++ "; must be " ++ format_possibilities possibilities ++ " (found " ++ Tokens.format_token found ++ " instead)"
         ],
     [])
     where
@@ -248,15 +244,13 @@ condition_to_sections (InvalidToken construct thing possibilities sp (Located _ 
         format_possibilities (x:xs) = x ++ ", " ++ format_possibilities xs
 condition_to_sections (Unclosed construct delimiter_name open_span sp (Located _ found)) =
     (
-        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary [Message.Literal construct, Message.Literal " has unclosed ", Message.Literal delimiter_name]
-        , MsgUnds.Message open_span MsgUnds.Note MsgUnds.Secondary [Message.Literal "opening ", Message.Literal delimiter_name, Message.Literal " is here"]
-        , MsgUnds.Message sp MsgUnds.Note MsgUnds.Secondary [Message.Literal "found ", Message.Literal $ Tokens.format_token found, Message.Literal " instead"]
+        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ construct ++ " has unclosed " ++ delimiter_name ++ " (found " ++ Tokens.format_token found ++ " instead)"
+        , MsgUnds.Message open_span MsgUnds.Note MsgUnds.Secondary $ "opening " ++ delimiter_name ++ " is here"
         ],
     [])
 condition_to_sections (IfContinuedNeeds listname delimiter item sp (Located _ found)) =
     (
-        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary [Message.Literal listname, Message.Literal ", if continued, needs ", Message.Literal delimiter, Message.Literal " after ", Message.Literal item]
-        , MsgUnds.Message sp MsgUnds.Note MsgUnds.Secondary [Message.Literal "found ", Message.Literal $ Tokens.format_token found, Message.Literal " instead"]
+        [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ listname ++ ", if continued, needs " ++ delimiter ++ " after " ++ item ++ " (found " ++ Tokens.format_token found ++ " instead)"
         ],
     [])
 
@@ -302,7 +296,7 @@ instance Message.ToDiagnostic UncondError where
     to_diagnostic (ThisParamMustBeFirst sp) =
         Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
             [ Message.Underlines $ MsgUnds.UnderlinesSection $
-                [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary [Message.Literal "'this' parameters must be the first parameter"]
+                [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary "'this' parameters must be the first parameter"
                 ]
             ]
 -- parser {{{1

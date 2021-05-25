@@ -71,15 +71,15 @@ data IRBuildError
     | PathDoesntExist Span -- TODO: change to 'no entity called x in y'
     | InvalidAssign Span Span
 
-duplicate_msg :: (DeclSpan d1, Describe d1, DeclSpan d2, Describe d2) => String -> String -> String -> IRCtx -> d1 -> d2 -> Message.SimpleDiag
-duplicate_msg entity_kind diag_name name irctx old new =
-    let if_span entity ty imp msg =
-            case decl_span irctx entity of
+duplicate_msg :: String -> String -> String -> (Maybe Span, String) -> (Maybe Span, String) -> Message.SimpleDiag
+duplicate_msg entity_kind diag_name name (old_sp, old_desc) (new_sp, new_desc) =
+    let if_span m_sp ty imp msg =
+            case m_sp of
                 Just sp -> Right $ MsgUnds.Message sp ty imp msg
                 Nothing -> Left $ Message.Note msg
 
-        oldmsg = if_span old MsgUnds.Note MsgUnds.Secondary [Message.Literal entity_kind, Message.Literal " ", Message.Name name, Message.Literal " already declared as ", Message.IRDescription irctx old]
-        newmsg = if_span new MsgUnds.Error MsgUnds.Primary [Message.Literal entity_kind, Message.Literal " ", Message.Name name, Message.Literal " redeclared as ", Message.IRDescription irctx new]
+        oldmsg = if_span old_sp MsgUnds.Note MsgUnds.Secondary $ entity_kind ++ " '" ++ name ++ "' already declared as " ++ old_desc
+        newmsg = if_span new_sp MsgUnds.Error MsgUnds.Primary $ entity_kind ++ " '" ++ name ++ "' redeclared as " ++ new_desc
         totalmsgs = [oldmsg, newmsg]
 
         underlines_section =
@@ -88,41 +88,41 @@ duplicate_msg entity_kind diag_name name irctx old new =
                 msgs -> Just $ Message.Underlines $ MsgUnds.UnderlinesSection msgs
         notes = [Just x | Left x <- totalmsgs]
         sections = catMaybes $ underlines_section : notes
-    in Message.SimpleDiag Message.Error (decl_span irctx new) Nothing (Just diag_name) sections
+    in Message.SimpleDiag Message.Error new_sp Nothing (Just diag_name) sections
 
 instance Message.ToDiagnostic (IRBuildError, IRCtx) where
     to_diagnostic (DuplicateValue name old new, irctx) =
-        duplicate_msg "value" "redecl-val" name irctx old new
+        duplicate_msg "value" "redecl-val" name (decl_span irctx old, describe irctx old) (decl_span irctx new, describe irctx new)
 
     to_diagnostic (DuplicateLocal fun (Local name old_lvalue _) new_lvalue, irctx) =
-        duplicate_msg "local" "redecl-local" name irctx (fun, old_lvalue) (fun, new_lvalue)
+        duplicate_msg "local" "redecl-local" name (decl_span irctx (fun, old_lvalue), describe irctx (fun, old_lvalue)) (decl_span irctx (fun, new_lvalue), describe irctx (fun, new_lvalue))
 
     to_diagnostic (Unimplemented name sp, _) =
         Message.SimpleDiag Message.Warning (Just sp) Nothing Nothing
             [ Message.Underlines $ MsgUnds.UnderlinesSection
-                [ MsgUnds.Message sp MsgUnds.Warning MsgUnds.Primary [Message.Literal name, Message.Literal " are currently unimplemented"]
+                [ MsgUnds.Message sp MsgUnds.Warning MsgUnds.Primary $ name ++ " are currently unimplemented"
                 ]
             ]
 
     to_diagnostic (NotAType path_sp ds, irctx) =
         Message.SimpleDiag Message.Error (Just path_sp) Nothing (Just "not-type")
             [ Message.Underlines $ MsgUnds.UnderlinesSection
-                [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary [Message.Literal "not a type"]
-                , MsgUnds.Message path_sp MsgUnds.Note MsgUnds.Secondary [Message.Literal "this path resolved to ", Message.IRDescription irctx ds]
+                [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary "not a type"
+                , MsgUnds.Message path_sp MsgUnds.Note MsgUnds.Secondary $ "this path resolved to " ++ describe irctx ds
                 ]
             ]
 
     to_diagnostic (PathDoesntExist path_sp, _) =
         Message.SimpleDiag Message.Error (Just path_sp) Nothing (Just "path-doesnt-exist")
             [ Message.Underlines $ MsgUnds.UnderlinesSection
-                [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary [Message.Literal "entity referred to by path doesn't exist"]
+                [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary "entity referred to by path doesn't exist"
                 ]
             ]
 
     to_diagnostic (InvalidAssign target_sp op_sp, _) =
         Message.SimpleDiag Message.Error (Just op_sp) Nothing (Just "invalid-assign")
             [ Message.Underlines $ MsgUnds.UnderlinesSection
-                [ MsgUnds.Message target_sp MsgUnds.Error MsgUnds.Primary [Message.Literal "cannot assign to non-lvalue"]
+                [ MsgUnds.Message target_sp MsgUnds.Error MsgUnds.Primary "cannot assign to non-lvalue"
                 ]
             ]
 -- helper functions {{{1

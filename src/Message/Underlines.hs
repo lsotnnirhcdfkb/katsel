@@ -11,7 +11,6 @@ import Location
 import File
 
 import Message.Utils
-import Message.MsgText
 
 import Data.List(nubBy, sortBy, partition, find)
 
@@ -24,7 +23,7 @@ import qualified System.Console.ANSI as ANSI
 import qualified Colors
 
 newtype UnderlinesSection = UnderlinesSection [Message]
-data Message = Message Span Type Importance MsgText
+data Message = Message Span Type Importance String
 data Importance = Primary | Secondary | Tertiary
 data Type = Error | Warning | Note | Hint
 
@@ -109,7 +108,7 @@ assign_messages messages = (firstrow, msglines)
 
                 cur_msg_end_col = end_col_of_msg cur_msg
                 col_of_assignment (_, Message (Span _ eloc) _ _ _) = col_minus_1 eloc
-                end_col_of_msg (Message (Span _ end) _ _ msg_text) = col_minus_1 end + length (render_msg_text msg_text) + 3
+                end_col_of_msg (Message (Span _ end) _ _ str) = col_minus_1 end + length str + 3
 
         assigned = assign (sortBy comparator messages) []
         comparator (Message (Span _ end1) _ _ _) (Message (Span _ end2) _ _ _) = col_minus_1 end2 `compare` col_minus_1 end1
@@ -119,7 +118,7 @@ assign_messages messages = (firstrow, msglines)
         msglines = map MessageLine $ takeWhile (not . null) $ map find_msgs_on_row [1..]
         find_msgs_on_row row = map (todmsg . snd) $ filter ((row==) . fst) assigned
 
-        todmsg (Message (Span _ end) ty _ msg_text) = DMessage (sgr_of_ty ty) (col_minus_1 end) (render_msg_text msg_text)
+        todmsg (Message (Span _ end) ty _ str) = DMessage (sgr_of_ty ty) (col_minus_1 end) str
 
 section_lines :: UnderlinesSection -> [SectionLine]
 section_lines (UnderlinesSection msgs) =
@@ -360,4 +359,4 @@ draw_section_line indent (MultilineMessageLines (Message (Span spstart spend) ty
 
         before_last_quote_line = transition_line mincol mincol maxcol lastcol
         last_quote_line = make_indent_with_divider '|' (show endlnn) indent ++ surround (getlnn endlnn) mincol lastcol ++ "\n"
-        after_last_quote_line = prefix '|' ++ topbottom mincol lastcol ++ colorify ("-- " ++ colorify (render_msg_text msg)) ++ "\n"
+        after_last_quote_line = prefix '|' ++ topbottom mincol lastcol ++ colorify ("-- " ++ colorify msg) ++ "\n"
