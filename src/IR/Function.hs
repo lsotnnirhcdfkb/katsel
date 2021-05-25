@@ -69,7 +69,7 @@ data BasicBlock = BasicBlock String [Instruction] (Maybe Br)
 data Register = Register TyIdx Mutability Span
 data Instruction
     = Copy LValue FValue
-    | Call (VIRId Function) [FValue]
+    | Call FValue [FValue]
     | Addrof RegisterIdx Mutability
     | DerefPtr FValue
 
