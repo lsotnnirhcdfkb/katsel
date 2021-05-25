@@ -210,31 +210,32 @@ data LexError
 instance Message.ToDiagnostic LexError where
     to_diagnostic err =
         case err of
-            BadChar ch sp -> simple sp "E0001" "bad-char" $ "bad character '" ++ [ch] ++ "'"
-            UntermMultilineComment sp -> simple sp "E0002" "unterm-multiln-cmt" "unterminated multiline comment"
-            UntermStr sp -> simple sp "E0003" "unterm-strlit" "string literal missing closing quote ('\"')"
-            UntermChar sp -> simple sp "E0004" "unterm-chrlit" "character literal missing closing quote (''')"
-            MulticharChar sp -> simple sp "E0005" "multichr-chrlit" "character literal must contain exactly one character"
+            BadChar ch sp -> simple sp "E0001" "bad-char" $ [Message.Literal "bad character ", Message.QuotedChar ch]
+            UntermMultilineComment sp -> simple sp "E0002" "unterm-multiln-cmt" [Message.Literal "unterminated multiline comment"]
+            UntermStr sp -> simple sp "E0003" "unterm-strlit" [Message.Literal "string literal missing closing quote ", Message.SampleChar '"']
+            UntermChar sp -> simple sp "E0004" "unterm-chrlit" [Message.Literal "character literal missing closing quote ", Message.SampleChar '\'']
+            MulticharChar sp -> simple sp "E0005" "multichr-chrlit" [Message.Literal "character literal must contain exactly one character"]
 
             InvalidBase basechr basechrsp _ ->
                 Message.SimpleDiag Message.Error (Just basechrsp) (Message.make_code "E0006") (Just "invalid-intlit-base")
                     [ Message.Underlines $ MsgUnds.UnderlinesSection
-                        [ MsgUnds.Message basechrsp MsgUnds.Error MsgUnds.Primary $ "invalid integer literal base '" ++ [basechr] ++ "' (must be 'x', 'o', or 'b' or omitted)"
+                        [ MsgUnds.Message basechrsp MsgUnds.Error MsgUnds.Primary [Message.Literal "invalid integer literal base ", Message.QuotedChar basechr]
+                        , MsgUnds.Message basechrsp MsgUnds.Note MsgUnds.Secondary [Message.Literal "base must be 'x', 'y', 'b', or omitted"]
                         ]
                     ]
 
             InvalidDigit digitchr digitsp litsp ->
                 Message.SimpleDiag Message.Error (Just digitsp) (Message.make_code "E0007") (Just "invalid-digit")
                     [ Message.Underlines $ MsgUnds.UnderlinesSection
-                        [ MsgUnds.Message digitsp MsgUnds.Error MsgUnds.Primary $ "invalid digit '" ++ [digitchr] ++ "'"
-                        , MsgUnds.Message litsp MsgUnds.Note MsgUnds.Secondary "in this integer literal"
+                        [ MsgUnds.Message digitsp MsgUnds.Error MsgUnds.Primary [Message.Literal "invalid digit ", Message.QuotedChar digitchr]
+                        , MsgUnds.Message litsp MsgUnds.Note MsgUnds.Secondary [Message.Literal "in this integer literal"]
                         ]
                     ]
 
-            NonDecimalFloat sp -> simple sp "E0008" "nondecimal-floatlit" "non-decimal floating point literals are not supported"
-            MissingDigits sp -> simple sp "E0009" "no-digits" "integer literal must have digits"
+            NonDecimalFloat sp -> simple sp "E0008" "nondecimal-floatlit" [Message.Literal "non-decimal floating point literals are not supported"]
+            MissingDigits sp -> simple sp "E0009" "no-digits" [Message.Literal "integer literal must have digits"]
 
-            BadDedent sp -> simple sp "E0010" "bad-dedent" "dedent to level that does not match any other indentation level"
+            BadDedent sp -> simple sp "E0010" "bad-dedent" [Message.Literal "dedent to level that does not match any other indentation level"]
 
         where
             simple sp code nm msg = Message.SimpleDiag Message.Error (Just sp) (Message.make_code code) (Just nm)

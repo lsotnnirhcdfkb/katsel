@@ -2,6 +2,8 @@ module Message
     ( Section(..)
     , SimpleDiagType(..)
     , SimpleDiag(..)
+    , MsgText
+    , MsgTextSection(..)
     , ToDiagnostic
     , to_diagnostic
     , report
@@ -15,6 +17,7 @@ import qualified System.Console.ANSI as ANSI
 
 import Message.Underlines(UnderlinesSection, show_underlines_section, indent_of_underlines_section)
 import Message.Utils
+import Message.MsgText
 
 import qualified Colors
 
@@ -22,7 +25,7 @@ data Section
     = SimpleText String
     | SimpleMultilineText String
     | Underlines UnderlinesSection
-    | Note String
+    | Note MsgText
 
 data SimpleDiagType
     = Error
@@ -99,7 +102,7 @@ show_section indent (SimpleText text) = make_indent_str indent ++ " " ++ text ++
 show_section indent (SimpleMultilineText text) = unlines $ map ((indent_str ++ " ")++) $ lines text
     where
         indent_str = make_indent_str indent
-show_section indent (Note text) = make_indent_with_divider '\\' "" indent ++ notesgr ++ "note" ++ resetsgr ++ ": " ++ notesgr ++ text ++ resetsgr ++ "\n"
+show_section indent (Note text) = make_indent_with_divider '\\' "" indent ++ notesgr ++ "note" ++ resetsgr ++ ": " ++ notesgr ++ render_msg_text text ++ resetsgr ++ "\n"
     where
         notesgr = ANSI.setSGRCode Colors.note_sgr
         resetsgr = ANSI.setSGRCode []

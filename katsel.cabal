@@ -42,10 +42,11 @@ executable katsel
 
                        -- message things (diagnostics)
                      , Message
-                     , Message.Underlines
-                     , Message.Utils
+                     , Message.MsgText
                      , Message.PrettyPrint
                      , Message.PrettyPrintTH
+                     , Message.Underlines
+                     , Message.Utils
 
                      -- ANSI colors
                      , Colors
