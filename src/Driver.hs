@@ -20,7 +20,7 @@ import System.IO(hPutStr, hFlush, stdout, stderr)
 import Control.Exception(SomeException, try, evaluate, displayException)
 
 import Data.Maybe(catMaybes)
-import Data.List(intersperse)
+import Data.List(intersperse, sortBy)
 
 import qualified System.Console.ANSI as ANSI
 
@@ -86,17 +86,22 @@ compile num max_num filename =
                 Just ast -> Just <$> lower_ast_stage ast
                 Nothing -> return Nothing
 
-    in (if compilation_failed diagnostics
+        sorted_diagnostics =
+            sortBy type_comparator diagnostics
+            where
+                type_comparator (Message.SimpleDiag ty1 _ _ _ _) (Message.SimpleDiag ty2 _ _ _ _) = ty1 `compare` ty2
+
+    in (if compilation_failed sorted_diagnostics
         then put_failed
         else put_success
     ) >>
-    (if not $ null diagnostics
+    (if not $ null sorted_diagnostics
         then
             putStr ", " >>
-            put_counts diagnostics
+            put_counts sorted_diagnostics
         else putStrLn ""
     ) >>
-    hPutStr stderr (concatMap Message.report diagnostics)
+    hPutStr stderr (concatMap Message.report sorted_diagnostics)
 -- compile helpers {{{1
 amount_of_diag :: Message.SimpleDiagType -> [Message.SimpleDiag] -> Int
 amount_of_diag diag_ty errs =
