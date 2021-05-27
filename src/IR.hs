@@ -288,7 +288,6 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
 -- lowering function bodies {{{2
 data Local = Local String LValue Integer
 data FunctionCG = FunctionCG Integer [Local]
-
 -- FunctionCG functions {{{3
 add_local :: String -> LValue -> FunctionCG -> Either Local FunctionCG
 add_local name lvalue fcg@(FunctionCG scope_idx locals) =
@@ -305,15 +304,6 @@ add_local_s name lvalue = State.state $ \ fcg ->
 
 get_local :: String -> FunctionCG -> Maybe Local
 get_local name (FunctionCG _ locals) = find (\ (Local n _ _) -> n == name) locals
--- helpers {{{3
-add_instruction_s :: Instruction -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) InstructionIdx
-add_instruction_s instr block_idx = apply_fun_to_funcgtup_s (State.state $ add_instruction instr block_idx)
-
-add_br_s :: Br -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) ()
-add_br_s br block_idx = apply_fun_to_funcgtup_s (State.state $ (,) () . add_br br block_idx)
-
-add_basic_block_s :: String -> State.State (IRBuilder, FunctionCG, Function) BlockIdx
-add_basic_block_s name = apply_fun_to_funcgtup_s (State.state $ add_basic_block name)
 -- triplecgtup applications helpers {{{3
 apply_irb_to_funcgtup_s :: State.State IRBuilder r -> State.State (IRBuilder, FunctionCG, Function) r
 apply_irb_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
@@ -355,77 +345,20 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
 -- lowering things {{{3
 lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) ()
 lower_body_expr body root =
-    State.get >>= \ (_, _, fun) ->
-
-    lower_block_expr body root (get_entry_block fun) >>= \ (end_block, m_res) -> m_res |>>=? (return ()) $ \ res ->
-
-    add_instruction_s (Copy (LVRegister $ get_ret_reg fun) res) end_block >>
-    add_br_s (BrGoto $ get_exit_block fun) end_block >>
-    add_br_s BrRet (get_exit_block fun) >>
-
-    return ()
+    undefined
 
 lower_expr :: AST.LDExpr -> Module -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) (BlockIdx, Maybe FValue)
 
 lower_expr (Located _ (AST.DExpr'Block block)) root cur_block = lower_block_expr block root cur_block
 
 lower_expr (Located sp (AST.DExpr'If cond trueb m_falseb)) root start_block =
-    lower_expr cond root start_block >>= \ (after_cond, m_cond_val) -> m_cond_val |>>=? (return (after_cond, Nothing)) $ \ cond_val ->
-
-    add_basic_block_s "if_after_branch" >>= \ if_after_block ->
-
-    add_basic_block_s "if_true_branch" >>= \ if_true_start_block ->
-    lower_expr trueb root if_true_start_block >>= \ (if_true_end_block, m_truev) -> m_truev |>>=? (return (if_after_block, Nothing)) $ \ truev ->
-
-    State.get >>= \ (irb, _, fun) ->
-    let irctx = get_irctx irb
-    in apply_fun_to_funcgtup_s (State.state $ add_register (type_of irctx (root, fun, truev)) Immutable sp) >>= \ ret_reg ->
-
-    add_instruction_s (Copy (LVRegister ret_reg) truev) if_true_end_block >>
-    add_br_s (BrGoto if_after_block) if_true_end_block >>
-
-    (case m_falseb of
-        Nothing ->
-            add_br_s (BrCond cond_val if_true_start_block if_after_block) after_cond >>
-            return (Just ())
-
-        Just falseb ->
-            add_basic_block_s "if_false_branch" >>= \ if_false_start_block ->
-            lower_expr falseb root if_false_start_block >>= \ (if_false_end_block, m_falsev) -> m_falsev |>>=? (return Nothing) $ \ falsev ->
-
-            add_instruction_s (Copy (LVRegister ret_reg) falsev) if_false_end_block >>
-            add_br_s (BrGoto if_after_block) if_false_end_block >>
-
-            add_br_s (BrCond cond_val if_true_start_block if_false_start_block) after_cond >>
-            return (Just ())
-    ) >>=? (return (if_after_block, Nothing)) $ \ _ ->
-
-    return (if_after_block, Just $ FVNLVRegister ret_reg)
+    undefined
 
 lower_expr (Located _ (AST.DExpr'While cond body)) root start_block =
-    add_basic_block_s "while_check_condition" >>= \ while_check_condition ->
-    add_basic_block_s "while_body" >>= \ while_body ->
-    add_basic_block_s "while_after" >>= \ while_after ->
-
-    add_br_s (BrGoto while_check_condition) start_block >>
-    lower_expr cond root while_check_condition >>= \ (while_check_condition_end, m_cond_val) -> m_cond_val |>>=? (return (while_after, Nothing)) $ \ cond_val ->
-    add_br_s (BrCond cond_val while_body while_after) while_check_condition_end >>
-
-    lower_expr body root while_body >>= \ (while_body_end, m_body_val) -> m_body_val |>>=? (return (while_after, Nothing)) $ \ _ ->
-    add_br_s (BrGoto while_check_condition) while_body_end >>
-
-    return (while_after, Just FVVoid)
+    undefined
 
 lower_expr (Located _ (AST.DExpr'Assign target@(Located target_sp _) (Located op_sp AST.Equal) expr)) root start_block =
-    lower_expr target root start_block >>= \ (target_end, m_target) -> m_target |>>=? (return (start_block, Nothing)) $ \ target_value ->
-    case target_value of
-        FVLValue lv ->
-            lower_expr expr root target_end >>= \ (expr_end, m_expr) -> m_expr |>>=? (return (start_block, Nothing)) $ \ expr_value ->
-            add_instruction_s (Copy lv expr_value) expr_end >>
-            return (expr_end, Just expr_value)
-        _ ->
-            apply_irb_to_funcgtup_s (add_error_s $ InvalidAssign target_sp op_sp) >>
-            return (start_block, Nothing)
+    undefined
 
 lower_expr (Located sp (AST.DExpr'ShortCircuit _ _ _)) _ cur_block =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "short-circuiting binary expressions" sp) >> -- TODO
@@ -495,57 +428,17 @@ lower_expr (Located _ (AST.DExpr'Path path)) root cur_block =
             return (cur_block, Just $ FVGlobalValue vid)
 
 lower_expr (Located _ (AST.DExpr'Ret expr)) root cur_block =
-    add_basic_block_s "after_return" >>= \ after_return_idx ->
-
-    lower_expr expr root cur_block >>= \ (after_expr_idx, m_ret_val) -> m_ret_val |>>=? (return (after_return_idx, Just FVVoid)) $ \ ret_val ->
-
-    State.get >>= \ (_, _, fun) ->
-
-    add_instruction_s (Copy (LVRegister $ get_ret_reg fun) ret_val) after_expr_idx >>
-    add_br_s (BrGoto $ get_exit_block fun) after_expr_idx >>
-
-    return (after_return_idx, Just FVVoid)
+    undefined
 
 lower_block_expr :: AST.LSBlockExpr -> Module -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) (BlockIdx, Maybe FValue)
 lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root cur_block =
-    let safe_last [] = Nothing
-        safe_last x = Just $ last x
-
-        safe_init [] = []
-        safe_init l = init l
-
-        (stmts', m_ret_expr) = case safe_last stmts of
-            Just (Located _ (AST.DStmt'Expr ret)) -> (safe_init stmts, Just ret)
-            _ -> (stmts, Nothing)
-
-    in foldl' (>>=) (return cur_block) (map (flip lower_stmt root) stmts') >>= \ end_block ->
-
-    (case m_ret_expr of
-        Just ret_expr -> lower_expr ret_expr root end_block
-        Nothing -> return (end_block, Just FVVoid)
-    ) >>=
-    return
+    undefined
 
 lower_stmt :: AST.LDStmt -> Module -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) BlockIdx
 lower_stmt (Located _ (AST.DStmt'Expr ex)) root cur_block = lower_expr ex root cur_block >>= return . fst
 
 lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) root cur_block =
-    apply_irb_to_funcgtup_s (resolve_ty_s ty root) >>=? (return cur_block) $ \ var_ty_idx ->
-    apply_fun_to_funcgtup_s (State.state $ add_register var_ty_idx (ast_muty_to_ir_muty muty) name_sp) >>= \ reg_idx ->
-    apply_fcg_to_funcgtup_s (add_local_s name (LVRegister reg_idx)) >>= \ m_old ->
-    (case m_old of
-        Left old ->
-            State.get >>= \ (_, _, fun) ->
-            apply_irb_to_funcgtup_s $ add_error_s $ DuplicateLocal fun old (LVRegister reg_idx)
-        Right () -> return ()
-    ) >>
-    (case m_init of
-        Nothing -> return cur_block
-        Just expr ->
-            lower_expr expr root cur_block >>= \ (after_expr, m_expr_val) -> m_expr_val |>>=? (return after_expr) $ \ expr_val ->
-            add_instruction_s (Copy (LVRegister reg_idx) expr_val) after_expr >>
-            return after_expr
-    ) >>= return
+    undefined
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) root parent ir_builder = ddeclare sf root parent ir_builder

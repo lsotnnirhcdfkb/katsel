@@ -24,9 +24,6 @@ module IR.Function
     , function_not_defined
 
     , add_register
-    , add_basic_block
-    , add_instruction
-    , add_br
     ) where
 
 import IR.Type
