@@ -9,7 +9,7 @@ import IR.Describe
 import IR.MapSynonyms
 import IR.Parent
 import IR.Value
-import IR.Print
+import IR.PrintClasses
 
 import Data.List(findIndex, intercalate)
 

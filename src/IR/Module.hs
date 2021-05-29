@@ -14,7 +14,7 @@ import IR.Type
 import IR.Value
 import IR.DeclSpan
 import IR.Describe
-import IR.Print
+import IR.PrintClasses
 
 import qualified Data.Map as Map
 

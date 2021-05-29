@@ -8,6 +8,7 @@ module IR
     ( build_ir
     , Module
     , IRCtx
+    , print_mod
     ) where
 
 import qualified AST
@@ -22,6 +23,7 @@ import IR.Parent
 import IR.Describe
 import IR.DeclSpan
 import IR.Typed
+import IR.PrintFunctions
 
 import IR.IRCtx
 

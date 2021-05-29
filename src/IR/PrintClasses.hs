@@ -1,4 +1,4 @@
-module IR.Print
+module IR.PrintClasses
     ( DSPrint(..)
     , VPrint(..)
     ) where

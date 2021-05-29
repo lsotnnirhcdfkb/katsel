@@ -13,7 +13,7 @@ import IR.DeclSpan
 import IR.Parent
 import IR.Value
 
-import IR.Print
+import IR.PrintClasses
 
 import Data.Typeable(Typeable, cast)
 

@@ -50,7 +50,7 @@ import IR.IRCtx
 import IR.DeclSpan
 import IR.Describe
 import IR.Typed
-import IR.Print
+import IR.PrintClasses
 
 import Location
 

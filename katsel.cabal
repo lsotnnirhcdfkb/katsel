@@ -29,7 +29,8 @@ executable katsel
                      , IR.MapSynonyms
                      , IR.Module
                      , IR.Parent
-                     , IR.Print
+                     , IR.PrintClasses
+                     , IR.PrintFunctions
                      , IR.TyIdx
                      , IR.Type
                      , IR.TypeInterner
