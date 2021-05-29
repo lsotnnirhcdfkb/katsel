@@ -230,7 +230,7 @@ new_function ret_type param_tys sp name irctx =
 
         blocks =
             [ BasicBlock "entry" [] Nothing
-            , BasicBlock "exit" [] Nothing
+            , BasicBlock "exit" [] (Just BrRet)
             ]
 
     in (Function blocks (BlockIdx 0) (BlockIdx 1) registers (RegisterIdx 0) param_reg_idxs function_type_idx sp name, irctx')

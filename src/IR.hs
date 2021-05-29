@@ -354,7 +354,7 @@ lower_body_expr body root =
     State.get >>= \ (_,  _, fun) ->
     let end_block = make_halfway_block "end_block"
             [Copy (LVRegister $ get_ret_reg fun) res]
-            (Just HBrRet)
+            (Just (HBrGoto make_halfway_exit))
         expr_hb' = set_end_br expr_hb (Just $ HBrGoto end_block)
 
     in return $ make_halfway_group [] expr_hb' end_block
