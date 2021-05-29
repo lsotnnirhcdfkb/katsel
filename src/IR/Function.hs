@@ -28,8 +28,11 @@ module IR.Function
     , HalfwayBr(..)
     , HalfwayBlock
     , HalfwayBFV
+
     , make_halfway_group
     , make_halfway_block
+    , make_halfway_exit
+
     , set_end_br
     , set_end_br'
     , apply_halfway
@@ -213,6 +216,7 @@ data HalfwayBr
 data HalfwayBlock
     = HBlockGroup [HalfwayBlock] Int Int
     | HBlock String [Instruction] (Maybe HalfwayBr)
+    | HExitBlock
     deriving Eq
 type HalfwayBFV = (HalfwayBlock, FValue)
 
@@ -220,6 +224,8 @@ make_halfway_group :: [HalfwayBlock] -> HalfwayBlock -> HalfwayBlock -> HalfwayB
 make_halfway_group blocks start end = HBlockGroup (start:end:blocks) 0 1
 make_halfway_block :: String -> [Instruction] -> Maybe HalfwayBr -> HalfwayBlock
 make_halfway_block = HBlock
+make_halfway_exit :: HalfwayBlock
+make_halfway_exit = HExitBlock
 
 set_end_br :: HalfwayBlock -> Maybe HalfwayBr -> HalfwayBlock
 set_end_br (HBlockGroup blocks start end) br = HBlockGroup blocks' start end

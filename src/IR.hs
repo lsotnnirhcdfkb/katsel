@@ -482,7 +482,13 @@ lower_expr (Located _ (AST.DExpr'Path path)) root =
             return $ Just (make_halfway_block "resolve_path_expr_as_global_value" [] Nothing, FVGlobalValue vid)
 
 lower_expr (Located _ (AST.DExpr'Ret expr)) root =
-    undefined
+    lower_expr expr root >>=? (return Nothing) $ \ (expr_ir, expr_val) ->
+
+    State.get >>= \ (_, _, fun) ->
+
+    let ret_block = make_halfway_block "return" [Copy (LVRegister $ get_ret_reg fun) expr_val] (Just $ HBrGoto make_halfway_exit)
+        after_block = make_halfway_block "after_return" [] Nothing
+    in return $ Just (make_halfway_group [ret_block] expr_ir after_block, FVVoid)
 
 lower_block_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe HalfwayBFV)
 lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
