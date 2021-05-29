@@ -55,7 +55,7 @@ import IR.PrintClasses
 import Location
 
 import qualified Data.Map as Map(empty)
-import Data.List(foldl')
+import Data.List(foldl', intercalate, findIndex)
 
 data Function
     = Function
@@ -126,12 +126,47 @@ instance Describe Function where
 instance Typed Function where
     type_of _ = get_type
 instance VPrint Function where
-    v_print irctx (Function blocks _ _ regs _ _ ty _ _) =
-        concat $ map (++"\n")
-            [ "fun {"
-            , "    <" ++ show (length regs) ++ " registers>" -- TODO
-            , "    <" ++ show (length blocks) ++ " blocks>" -- TODO
-            , "}"
+    v_print irctx (Function blocks (BlockIdx entry_block_idx) (BlockIdx exit_block_idx) regs (RegisterIdx ret_reg_idx) param_regs fun_ty _ _) =
+        let
+            make_comment tags = if null tags then "" else " // " ++ intercalate ", " tags
+
+            shown_registers = concatMap show_reg $ zip ([0..] :: [Int]) regs
+                where
+                    show_reg (reg_idx, Register reg_ty muty _) = "    " ++ muty_str ++ "#" ++ show reg_idx ++ ": " ++ stringify_tyidx irctx reg_ty ++ make_comment tags ++ "\n"
+                        where
+                            muty_str = case muty of
+                                Mutable -> "mut "
+                                Immutable -> ""
+
+                            tags = (
+                                    if ret_reg_idx == reg_idx
+                                        then ["return value register"]
+                                        else []
+                                ) ++ (
+                                    case findIndex (\ (RegisterIdx i) -> i == reg_idx) param_regs of
+                                        Just i -> ["register for param " ++ show i]
+                                        Nothing -> []
+                                )
+
+            shown_blocks = concatMap show_block $ zip ([0..] :: [Int]) blocks
+                where
+                    show_block (block_n, BasicBlock block_name _ _) = "    "  ++ block_name ++ "(" ++ show block_n ++ "): { ... }" ++ make_comment tags ++ "\n"
+                        where
+                            tags = (
+                                    if block_n == entry_block_idx
+                                        then ["entry block"]
+                                        else []
+                                ) ++ (
+                                    if block_n == exit_block_idx
+                                        then ["exit block"]
+                                        else []
+                                )
+
+        in concat
+            [ "fun {\n"
+            , shown_registers
+            , shown_blocks
+            , "}\n"
             ]
 
 instance DeclSpan (Function, LValue) where
