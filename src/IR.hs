@@ -362,7 +362,35 @@ lower_expr :: AST.LDExpr -> Module -> State.State (IRBuilder, FunctionCG, Functi
 lower_expr (Located _ (AST.DExpr'Block block)) root = lower_block_expr block root
 
 lower_expr (Located sp (AST.DExpr'If cond trueb m_falseb)) root =
-    undefined
+    lower_expr cond root >>=? (return Nothing) $ \ (cond_ir, cond_val) ->
+    lower_expr trueb root >>=? (return Nothing) $ \ (trueb_ir, trueb_val) ->
+    sequence (flip lower_expr root <$> m_falseb) >>=? (return Nothing) $ \ m_falseb_ir ->
+
+    State.get >>= \ (irb, _, fun) ->
+    let irctx = get_irctx irb
+    in apply_fun_to_funcgtup_s (State.state $ add_register (type_of irctx (root, fun, trueb_val)) Immutable sp) >>= \ ret_reg ->
+
+    let blocks =
+            let put_in_ret_reg_block name val = make_halfway_block ("if_put_" ++ name ++ "_value_in_ret_reg") [Copy (LVRegister ret_reg) val] (Just $ HBrGoto end_block)
+
+                put_true_val_in_ret_reg = put_in_ret_reg_block "true" trueb_val
+                trueb_ir' = trueb_ir `set_end_br` (Just $ HBrGoto put_true_val_in_ret_reg)
+
+                end_block = make_halfway_block "if_after" [] Nothing
+
+            in case m_falseb_ir of
+                Just (falseb_ir, falseb_val) ->
+                    let cond_ir' = cond_ir `set_end_br` (Just $ HBrCond cond_val trueb_ir' falseb_ir')
+                        falseb_ir' = falseb_ir `set_end_br` (Just $ HBrGoto put_false_val_in_ret_reg)
+                        put_false_val_in_ret_reg = put_in_ret_reg_block "false" falseb_val
+
+                        blocks = make_halfway_group [trueb_ir', put_true_val_in_ret_reg, falseb_ir', put_false_val_in_ret_reg] cond_ir' end_block
+                    in blocks
+                Nothing ->
+                    let cond_ir' = cond_ir `set_end_br` (Just $ HBrCond cond_val trueb_ir' end_block)
+                        blocks = make_halfway_group [trueb_ir', put_true_val_in_ret_reg] cond_ir' end_block
+                    in blocks
+    in return (Just (blocks, FVNLVRegister ret_reg))
 
 lower_expr (Located _ (AST.DExpr'While cond body)) root =
     undefined
