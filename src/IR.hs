@@ -343,73 +343,73 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
     add_replace_s name (Value fun') parent >>=
     return
 -- lowering things {{{3
-lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) ()
+lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) HalfwayBlock
 lower_body_expr body root =
     undefined
 
-lower_expr :: AST.LDExpr -> Module -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) (BlockIdx, Maybe FValue)
+lower_expr :: AST.LDExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) HalfwayBMFV
 
-lower_expr (Located _ (AST.DExpr'Block block)) root cur_block = lower_block_expr block root cur_block
+lower_expr (Located _ (AST.DExpr'Block block)) root = lower_block_expr block root
 
-lower_expr (Located sp (AST.DExpr'If cond trueb m_falseb)) root start_block =
+lower_expr (Located sp (AST.DExpr'If cond trueb m_falseb)) root =
     undefined
 
-lower_expr (Located _ (AST.DExpr'While cond body)) root start_block =
+lower_expr (Located _ (AST.DExpr'While cond body)) root =
     undefined
 
-lower_expr (Located _ (AST.DExpr'Assign target@(Located target_sp _) (Located op_sp AST.Equal) expr)) root start_block =
+lower_expr (Located _ (AST.DExpr'Assign target@(Located target_sp _) (Located op_sp AST.Equal) expr)) root =
     undefined
 
-lower_expr (Located sp (AST.DExpr'ShortCircuit _ _ _)) _ cur_block =
+lower_expr (Located sp (AST.DExpr'ShortCircuit _ _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "short-circuiting binary expressions" sp) >> -- TODO
-    return (cur_block, Nothing)
+    return (make_halfway_block "unsupported_shortciruit_expr" [] Nothing, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Binary _ _ _)) _ cur_block =
+lower_expr (Located sp (AST.DExpr'Binary _ _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "binary expressions" sp) >> -- TODO
-    return (cur_block, Nothing)
+    return (make_halfway_block "unsupported_binary_expr" [] Nothing, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Cast _ _)) _ cur_block =
+lower_expr (Located sp (AST.DExpr'Cast _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "cast expression" sp) >> -- TODO
-    return (cur_block, Nothing)
+    return (make_halfway_block "unsupported_cast_expr" [] Nothing, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Unary _ _)) _ cur_block =
+lower_expr (Located sp (AST.DExpr'Unary _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "unary expressions" sp) >> -- TODO
-    return (cur_block, Nothing)
+    return (make_halfway_block "unsupported_unary_expr" [] Nothing, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Ref _ _)) _ cur_block =
+lower_expr (Located sp (AST.DExpr'Ref _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "reference (address-of) expressions" sp) >> -- TODO
-    return (cur_block, Nothing)
+    return (make_halfway_block "unsupported_ref_expr" [] Nothing, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Call _ _)) _ cur_block =
+lower_expr (Located sp (AST.DExpr'Call _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "call expressions" sp) >> -- TODO
-    return (cur_block, Nothing)
+    return (make_halfway_block "unsupported_call_expr" [] Nothing, Nothing)
 
 {-
-lower_expr (Located sp (AST.DExpr'Field _ _)) _ cur_block =
+lower_expr (Located sp (AST.DExpr'Field _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "field access expressions" sp) >> -- TODO
-    return (cur_block, Nothing)
+    return (make_halfway_block _ [] Nothing, Nothing)
 
-lower_expr (Located sp (AST.DExpr'Method _ _ _)) _ cur_block =
+lower_expr (Located sp (AST.DExpr'Method _ _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "method call expressions" sp) >> -- TODO
-    return (cur_block, Nothing)
+    return (make_halfway_block _ [] Nothing, Nothing)
 -}
 
-lower_expr (Located _ (AST.DExpr'Bool b)) _ cur_block = return (cur_block, Just $ FVConstBool b)
-lower_expr (Located _ (AST.DExpr'Float d)) _ cur_block = return (cur_block, Just $ FVConstFloat d)
-lower_expr (Located _ (AST.DExpr'Int i)) _ cur_block = return (cur_block, Just $ FVConstInt i)
-lower_expr (Located _ (AST.DExpr'Char c)) _ cur_block = return (cur_block, Just $ FVConstChar c)
+lower_expr (Located _ (AST.DExpr'Bool b)) _ = return (make_halfway_block "literal_bool_expr" [] Nothing, Just $ FVConstBool b)
+lower_expr (Located _ (AST.DExpr'Float d)) _ = return (make_halfway_block "literal_float_expr" [] Nothing, Just $ FVConstFloat d)
+lower_expr (Located _ (AST.DExpr'Int i)) _ = return (make_halfway_block "literal_int_expr" [] Nothing, Just $ FVConstInt i)
+lower_expr (Located _ (AST.DExpr'Char c)) _ = return (make_halfway_block "literal_char_expr" [] Nothing, Just $ FVConstChar c)
 
-lower_expr (Located sp (AST.DExpr'String _)) _ cur_block =
+lower_expr (Located sp (AST.DExpr'String _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "string literal expressions" sp) >> -- TODO
-    return (cur_block, Nothing)
+    return (make_halfway_block "unsupported_literal_string_expr" [] Nothing, Nothing)
 
 {-
-lower_expr (Located sp AST.DExpr'This) _ cur_block =
+lower_expr (Located sp AST.DExpr'This) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "'this' expressions" sp) >> -- TODO
-    return (cur_block, Nothing)
+    return (make_halfway_block _ [] Nothing, Nothing)
 -}
 
-lower_expr (Located _ (AST.DExpr'Path path)) root cur_block =
+lower_expr (Located _ (AST.DExpr'Path path)) root =
     (case path of
         (Located _ (AST.DPath' [Located _ iden])) ->
             State.get >>= \ (_, fcg, _) ->
@@ -422,22 +422,22 @@ lower_expr (Located _ (AST.DExpr'Path path)) root cur_block =
         _ -> return Nothing
     ) >>= \ reg ->
     case reg of
-        Just reg_fv -> return (cur_block, Just reg_fv)
+        Just reg_fv -> return (make_halfway_block "resolve_path_expr_as_reg" [] Nothing, Just reg_fv)
         Nothing ->
-            apply_irb_to_funcgtup_s (State.state $ resolve_path_v path root) >>=? (return (cur_block, Nothing)) $ \ (_, vid) ->
-            return (cur_block, Just $ FVGlobalValue vid)
+            apply_irb_to_funcgtup_s (State.state $ resolve_path_v path root) >>=? (return (make_halfway_block "resolve_path_expr_failed" [] Nothing, Nothing)) $ \ (_, vid) ->
+            return (make_halfway_block "resolve_path_expr_as_global_value" [] Nothing, Just $ FVGlobalValue vid)
 
-lower_expr (Located _ (AST.DExpr'Ret expr)) root cur_block =
+lower_expr (Located _ (AST.DExpr'Ret expr)) root =
     undefined
 
-lower_block_expr :: AST.LSBlockExpr -> Module -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) (BlockIdx, Maybe FValue)
-lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root cur_block =
+lower_block_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) HalfwayBMFV
+lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
     undefined
 
-lower_stmt :: AST.LDStmt -> Module -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) BlockIdx
-lower_stmt (Located _ (AST.DStmt'Expr ex)) root cur_block = lower_expr ex root cur_block >>= return . fst
+lower_stmt :: AST.LDStmt -> Module -> State.State (IRBuilder, FunctionCG, Function) HalfwayBlock
+lower_stmt (Located _ (AST.DStmt'Expr ex)) root = lower_expr ex root >>= return . fst
 
-lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) root cur_block =
+lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) root =
     undefined
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
