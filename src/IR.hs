@@ -37,7 +37,7 @@ import qualified Data.Map as Map
 import Data.List(foldl', find)
 import Data.Maybe(catMaybes)
 
-import qualified Control.Monad.State.Lazy as State(State, state, execState, runState, get, put)
+import qualified Control.Monad.State.Lazy as State(State, state, runState, get, put)
 
 -- build_ir {{{1
 build_ir :: AST.LDModule -> (Module, IRCtx, [IRBuildError])
@@ -339,8 +339,10 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
 
     State.get >>= \ ir_builder ->
     let (halfway_body, (ir_builder', _, fun')) = State.runState (lower_body_expr body root) (ir_builder, function_cg, fun)
+        (_, fun'') = apply_halfway halfway_body (get_entry_block fun') fun'
     in State.put ir_builder' >>
-    add_replace_s name (Value fun') parent >>=
+    
+    add_replace_s name (Value fun'') parent >>=
     return
 -- lowering things {{{3
 lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) HalfwayBlock
