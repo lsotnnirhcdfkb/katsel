@@ -234,6 +234,7 @@ set_end_br (HBlockGroup blocks start end) br = HBlockGroup blocks' start end
         end_block' = set_end_br end_block br
         blocks' = replace_block blocks end end_block'
 set_end_br (HBlock name instrs _) br = HBlock name instrs br
+set_end_br HExitBlock _ = HExitBlock -- exit blocks always have a return br, so this is a no-op
 
 set_end_br' :: HalfwayBFV -> Maybe HalfwayBr -> HalfwayBFV
 set_end_br' (hb, fv) br = (set_end_br hb br, fv)
@@ -243,6 +244,7 @@ flatten_hb hb = (block_list, start_block_idx, end_block_idx)
     where
         make_block_list b@(HBlock _ _ _) = [hb_tuplify b]
         make_block_list (HBlockGroup blocks _ _) = concatMap make_block_list blocks
+        make_block_list HExitBlock = [] -- exit blocks do not have a tuple form, and also should not be created
 
         block_list = make_block_list hb
         start_block = get_start_block hb
@@ -252,8 +254,10 @@ flatten_hb hb = (block_list, start_block_idx, end_block_idx)
 
         get_start_block b@(HBlock _ _ _) = b
         get_start_block (HBlockGroup blocks i _) = get_start_block $ blocks !! i
+        get_start_block HExitBlock = HExitBlock
         get_end_block b@(HBlock _ _ _) = b
         get_end_block (HBlockGroup blocks _ i) = get_end_block $ blocks !! i
+        get_end_block HExitBlock = HExitBlock
 
         search_block_list b = unwrap_maybe $ findIndex (b==) block_list
 
@@ -264,6 +268,7 @@ unwrap_maybe Nothing = error "unwrap_maybe got Nothing"
 hb_tuplify :: HalfwayBlock -> (String, [Instruction], Maybe HalfwayBr)
 hb_tuplify (HBlock name instrs br) = (name, instrs, br)
 hb_tuplify (HBlockGroup _ _ _) = error "cannot tuplify block group"
+hb_tuplify HExitBlock = error "cannot tuplify exit block"
 
 apply_halfway :: HalfwayBlock -> BlockIdx -> Function -> (BlockIdx, Function)
 apply_halfway hb start_block fun =
