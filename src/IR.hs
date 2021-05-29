@@ -401,7 +401,18 @@ lower_expr (Located _ (AST.DExpr'While cond body)) root =
     in return $ Just (make_halfway_group [body_ir'] cond_ir' end_block, FVVoid)
 
 lower_expr (Located _ (AST.DExpr'Assign target@(Located target_sp _) (Located op_sp AST.Equal) expr)) root =
-    undefined
+    lower_expr target root >>=? (return Nothing) $ \ (target_ir, target_val) ->
+    case target_val of
+        FVLValue lv ->
+            lower_expr expr root >>=? (return Nothing) $ \ (expr_ir, expr_val) ->
+
+            let target_ir' = target_ir `set_end_br` (Just $ HBrGoto expr_ir')
+                expr_ir' = expr_ir `set_end_br` (Just $ HBrGoto assign_block)
+                assign_block = make_halfway_block "assign_block" [Copy lv expr_val] Nothing
+            in return $ Just (make_halfway_group [expr_ir'] target_ir' assign_block, FVVoid)
+        _ ->
+            apply_irb_to_funcgtup_s (add_error_s $ InvalidAssign target_sp op_sp) >>
+            return Nothing
 
 lower_expr (Located sp (AST.DExpr'ShortCircuit _ _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "short-circuiting binary expressions" sp) >> -- TODO
