@@ -158,7 +158,6 @@ instance VPrint Function where
                     show_block (block_n, BasicBlock block_name instructions m_br) =
                         "    "  ++ block_name_num block_name block_n ++ ": {" ++ make_comment tags ++ "\n" ++
                         concatMap (("        "++) . (++"\n") . show_instruction) instructions ++
-                        (if null instructions then "" else "\n") ++
 
                         "        =>: " ++ (
                             case m_br of
@@ -166,7 +165,7 @@ instance VPrint Function where
                                 Nothing -> "<no br>"
                         ) ++ "\n" ++
 
-                        "    }\n\n"
+                        "    }\n"
                         where
                             tags = (
                                     if block_n == entry_block_idx
