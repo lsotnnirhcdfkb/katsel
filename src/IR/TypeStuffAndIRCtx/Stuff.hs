@@ -12,6 +12,7 @@ import IR.Value
 import IR.PrintClasses
 
 import Data.List(findIndex, intercalate)
+import qualified Data.Map as Map
 
 data IRCtx = IRCtx TypeInterner
 data Signedness = Signed | Unsigned deriving Eq
@@ -166,3 +167,4 @@ instance Parent Type DeclSymbol String where
     get_child_map ((PointerType dsmap _ _), _) = dsmap
 
 instance Parent Type Value String where
+    get_child_map _ = Map.empty
