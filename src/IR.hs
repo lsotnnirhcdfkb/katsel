@@ -393,7 +393,7 @@ lower_expr (Located sp (AST.DExpr'If cond trueb m_falseb)) root =
 
 lower_expr (Located _ (AST.DExpr'While cond body)) root =
     lower_expr cond root >>=? (return Nothing) $ \ (cond_ir, cond_val) ->
-    lower_expr body root >>=? (return Nothing) $ \ (body_ir, body_val) ->
+    lower_expr body root >>=? (return Nothing) $ \ (body_ir, _) ->
 
     let end_block = make_halfway_block "while_after" [] Nothing
         cond_ir' = cond_ir `set_end_br` (Just $ HBrCond cond_val body_ir' end_block)
