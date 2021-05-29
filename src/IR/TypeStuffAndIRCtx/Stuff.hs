@@ -131,7 +131,7 @@ stringify_ty _ (BoolType _) = "bool"
 stringify_ty irctx (FunctionType _ ret_idx params) =
     let ret_str = stringify_tyidx irctx ret_idx
         param_strs = map (stringify_tyidx irctx . snd) params
-    in "fun (" ++ intercalate ", " param_strs ++ "): " ++ ret_str
+    in "fun(" ++ intercalate ", " param_strs ++ "): " ++ ret_str
 stringify_ty _ (VoidType _) = "void"
 stringify_ty irctx (PointerType _ muty pointee) =
     let muty_str = case muty of
@@ -192,7 +192,7 @@ instance DSPrint Type where
     ds_print _ GenericIntType = "generic int type"
     ds_print _ (CharType _) = "primitive char type"
     ds_print _ (BoolType _) = "primitive bool type"
-    ds_print irctx (FunctionType _ ret_ty params) = "function type fun (" ++ intercalate ", " (map (stringify_tyidx irctx . snd) params) ++ "): " ++ stringify_tyidx irctx ret_ty
+    ds_print irctx (FunctionType _ ret_ty params) = "function type fun(" ++ intercalate ", " (map (stringify_tyidx irctx . snd) params) ++ "): " ++ stringify_tyidx irctx ret_ty
     ds_print _ (VoidType _) = "primitive void type"
     ds_print irctx (PointerType _ muty ty) = "pointer type *" ++ muty_str ++ stringify_tyidx irctx ty
         where
