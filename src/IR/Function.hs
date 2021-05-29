@@ -7,13 +7,19 @@ module IR.Function
     , FValue(..)
     , LValue(..)
     , Instruction
-      ( Copy
-      )
-    , Br(..)
 
     , BlockIdx
     , RegisterIdx
     , InstructionIdx
+
+    , TypeError
+    , make_copy
+    , make_call
+    , make_addrof
+    , make_derefptr
+    , make_br_ret
+    , make_br_goto
+    , make_br_cond
 
     , new_function
 
@@ -27,7 +33,7 @@ module IR.Function
 
     , add_register
 
-    , HalfwayBr(..)
+    , HalfwayBr
     , HalfwayBlock
     , HalfwayBFV
 
@@ -100,12 +106,12 @@ data FValue
     | FVInstruction InstructionIdx
     deriving Eq
 
+-- these branches don't need type checking because they are only created by applying halfway branches, which are already type-checked
 data Br
     = BrRet
     | BrGoto BlockIdx
     | BrCond FValue BlockIdx BlockIdx
 
--- TODO: remove all instances of Typed because function instructions should be completely untyped until typechecked
 instance DeclSpan Register where
     decl_span _ (Register _ _ sp) = Just sp
 instance Describe Register where
@@ -268,6 +274,29 @@ get_instruction (Function blocks _ _ _ _ _ _ _ _) (InstructionIdx (BlockIdx bidx
 function_not_defined :: Function -> Bool
 function_not_defined = (2==) . length . get_blocks -- a function starts out with 2 blocks, and it only goes up from there; blocks cannot be removed
 
+-- making instructions and branches for typechecking {{{1
+-- TypeError datatype {{{2
+data TypeError = TypeError [TypeErrorClause]
+data TypeErrorClause
+    = ThingsTypeIs String TyIdx Reason
+    | ThingsTypeShouldBe String TyIdx Reason
+data Reason = Because String | NoReason
+-- instructions {{{2
+make_copy :: LValue -> FValue -> Either TypeError Instruction
+make_copy lv fv = error "not implemented yet"
+make_call :: FValue -> [FValue] -> Either TypeError Instruction
+make_call fun args = error "not implemented yet"
+make_addrof :: LValue -> Mutability -> Either TypeError Instruction
+make_addrof lv muty = error "not implemented yet"
+make_derefptr :: FValue -> Either TypeError Instruction
+make_derefptr fv = error "not implemented yet"
+-- branches {{{2
+make_br_ret :: HalfwayBr
+make_br_ret = HBrRet
+make_br_goto :: HalfwayBlock -> HalfwayBr
+make_br_goto = HBrGoto
+make_br_cond :: FValue -> HalfwayBlock -> HalfwayBlock -> Either TypeError HalfwayBr
+make_br_cond = error "not implemented yet"
 -- replace_block {{{1
 replace_block :: [b] -> Int -> b -> [b]
 replace_block blocks idx block =
@@ -312,13 +341,14 @@ data HalfwayBr
     | HBrGoto HalfwayBlock
     | HBrCond FValue HalfwayBlock HalfwayBlock
     deriving Eq
+
 data HalfwayBlock
     = HBlockGroup [HalfwayBlock] Int Int
     | HBlock String [Instruction] HalfwayBr
     | HExitBlock
     deriving Eq
 type HalfwayBFV = (HalfwayBlock, FValue)
-
+-- making blocks {{{2
 make_halfway_group :: [HalfwayBlock] -> HalfwayBlock -> HalfwayBlock -> HalfwayBlock
 make_halfway_group roots start end = HBlockGroup (start:end:discovered) 0 1
     where
@@ -335,7 +365,7 @@ make_halfway_block = HBlock
 
 make_halfway_exit :: HalfwayBlock
 make_halfway_exit = HExitBlock
-
+-- applying halfway blocks {{{2
 add_all_hb_blocks :: HalfwayBlock -> Function -> (Function, [((String, [Instruction], HalfwayBr), BlockIdx)], BlockIdx, BlockIdx)
 add_all_hb_blocks hb fun =
     let make_block_list (HBlock name instrs br) = [(name, instrs, br)]
