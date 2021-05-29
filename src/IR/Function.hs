@@ -220,6 +220,9 @@ instance Typed (Module, Function, FValue) where
     type_of irctx (_, fun, FVLValue lv) = type_of irctx (fun, lv)
     type_of _ (_, _, FVConstInt _ ty) = ty
     type_of _ (_, _, FVConstFloat _ ty) = ty
+    type_of irctx (_, _, FVConstBool _) = resolve_bool irctx
+    type_of irctx (_, _, FVConstChar _) = resolve_char irctx
+    type_of irctx (_, _, FVVoid) = resolve_void irctx
     type_of irctx (_, fun, FVInstruction idx) = type_of irctx $ get_instruction fun idx
 
 instance Typed Instruction where

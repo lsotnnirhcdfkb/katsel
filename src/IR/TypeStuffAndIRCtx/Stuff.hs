@@ -34,7 +34,40 @@ new_irctx :: IRCtx
 new_irctx = IRCtx new_type_interner
 
 new_type_interner :: TypeInterner
-new_type_interner = TypeInterner []
+new_type_interner = TypeInterner
+    [ FloatType Map.empty 32
+    , FloatType Map.empty 64
+    , IntType Map.empty  8 Unsigned
+    , IntType Map.empty 16 Unsigned
+    , IntType Map.empty 32 Unsigned
+    , IntType Map.empty 64 Unsigned
+    , IntType Map.empty  8 Signed
+    , IntType Map.empty 16 Signed
+    , IntType Map.empty 32 Signed
+    , IntType Map.empty 64 Signed
+    , GenericFloatType
+    , GenericIntType
+    , CharType Map.empty
+    , BoolType Map.empty
+    , VoidType Map.empty
+    ]
+
+resolve_float32, resolve_float64, resolve_uint8, resolve_uint16, resolve_uint32, resolve_uint64, resolve_sint8, resolve_sint16, resolve_sint32, resolve_sint64, resolve_generic_float, resolve_generic_int, resolve_char, resolve_bool, resolve_void :: IRCtx -> TyIdx
+resolve_float32 = fst . (get_ty_irctx $ FloatType Map.empty 32)
+resolve_float64 = fst . (get_ty_irctx $ FloatType Map.empty 64)
+resolve_uint8 = fst . (get_ty_irctx $ IntType Map.empty  8 Unsigned)
+resolve_uint16 = fst . (get_ty_irctx $ IntType Map.empty 16 Unsigned)
+resolve_uint32 = fst . (get_ty_irctx $ IntType Map.empty 32 Unsigned)
+resolve_uint64 = fst . (get_ty_irctx $ IntType Map.empty 64 Unsigned)
+resolve_sint8 = fst . (get_ty_irctx $ IntType Map.empty  8 Signed)
+resolve_sint16 = fst . (get_ty_irctx $ IntType Map.empty 16 Signed)
+resolve_sint32 = fst . (get_ty_irctx $ IntType Map.empty 32 Signed)
+resolve_sint64 = fst . (get_ty_irctx $ IntType Map.empty 64 Signed)
+resolve_generic_float = fst . (get_ty_irctx $ GenericFloatType)
+resolve_generic_int = fst . (get_ty_irctx $ GenericIntType)
+resolve_char = fst . (get_ty_irctx $ CharType Map.empty)
+resolve_bool = fst . (get_ty_irctx $ BoolType Map.empty)
+resolve_void = fst . (get_ty_irctx $ VoidType Map.empty)
 
 get_ty_irctx :: Type -> IRCtx -> (TyIdx, IRCtx)
 get_ty_irctx ty (IRCtx interner) =
