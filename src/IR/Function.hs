@@ -81,7 +81,7 @@ data Register = Register TyIdx Mutability Span
 data Instruction
     = Copy LValue FValue
     | Call FValue [FValue]
-    | Addrof RegisterIdx Mutability
+    | Addrof LValue Mutability
     | DerefPtr FValue
     deriving Eq
 
@@ -150,7 +150,23 @@ instance VPrint Function where
 
             shown_blocks = concatMap show_block $ zip ([0..] :: [Int]) blocks
                 where
-                    show_block (block_n, BasicBlock block_name _ _) = "    "  ++ block_name ++ "(" ++ show block_n ++ "): { ... }" ++ make_comment tags ++ "\n"
+                    show_block_from_idx (BlockIdx idx) =
+                        let (BasicBlock n _ _) = blocks !! idx
+                        in block_name_num n idx
+                    block_name_num name num = name ++ "(" ++ show num ++ ")"
+
+                    show_block (block_n, BasicBlock block_name instructions m_br) =
+                        "    "  ++ block_name_num block_name block_n ++ ": {" ++ make_comment tags ++ "\n" ++
+                        concatMap (("        "++) . (++"\n") . show_instruction) instructions ++
+                        (if null instructions then "" else "\n") ++
+
+                        "        =>: " ++ (
+                            case m_br of
+                                Just br -> show_br br
+                                Nothing -> "<no br>"
+                        ) ++ "\n" ++
+
+                        "    }\n\n"
                         where
                             tags = (
                                     if block_n == entry_block_idx
@@ -162,9 +178,31 @@ instance VPrint Function where
                                         else []
                                 )
 
+                    show_fv (FVGlobalValue vid) = intercalate "::" $ vid_segments vid
+                    show_fv (FVNLVRegister (RegisterIdx i)) = "#" ++ show i
+                    show_fv (FVLValue lv) = show_lv lv
+                    show_fv (FVConstInt i) = show i
+                    show_fv (FVConstFloat d) = show d
+                    show_fv (FVConstBool b) = if b then "true" else "false"
+                    show_fv (FVConstChar c) = ['\'', c, '\'']
+                    show_fv FVVoid = "void"
+                    show_fv (FVInstruction (InstructionIdx bidx iidx)) = show_block_from_idx bidx ++ "." ++ show iidx
+
+                    show_lv (LVRegister (RegisterIdx i)) = "#" ++ show i
+
+                    show_instruction (Copy lv fv) = "copy " ++ show_fv fv ++ " -> " ++ show_lv lv
+                    show_instruction (Call fv args) = "call " ++ show_fv fv ++ " [" ++ intercalate ", " (map show_fv args) ++ "]"
+                    show_instruction (Addrof lv muty) = "addrof " ++ case muty of { Mutable -> "mut"; Immutable -> ""} ++ " " ++ show_lv lv
+                    show_instruction (DerefPtr fv) = "derefptr " ++ show_fv fv
+
+                    show_br BrRet = "ret"
+                    show_br (BrGoto b) = "goto " ++ show_block_from_idx b
+                    show_br (BrCond fv t f) = "cond " ++ show_fv fv ++ " " ++ show_block_from_idx t ++ " " ++ show_block_from_idx f
+
         in concat
             [ "fun {\n"
             , shown_registers
+            , "\n"
             , shown_blocks
             , "}\n"
             ]

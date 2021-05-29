@@ -7,6 +7,8 @@ module IR.ID
     , new_vid
     , resolve_dsid
     , resolve_vid
+    , dsid_segments
+    , vid_segments
     ) where
 
 import IR.Parent
@@ -52,3 +54,9 @@ resolve_vid irctx root vid =
     case m_resolve_vid irctx root vid of
         Just x -> x
         Nothing -> error "VIRId does not resolve correctly"
+
+dsid_segments :: DSIRId d -> [String]
+dsid_segments (DSIRId s) = s
+
+vid_segments :: VIRId d -> [String]
+vid_segments (VIRId dsid l) = dsid_segments dsid ++ [l]
