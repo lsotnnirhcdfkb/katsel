@@ -371,25 +371,26 @@ lower_expr (Located sp (AST.DExpr'If cond trueb m_falseb)) root =
     in apply_fun_to_funcgtup_s (State.state $ add_register (type_of irctx (root, fun, trueb_val)) Immutable sp) >>= \ ret_reg ->
 
     let blocks =
-            let put_in_ret_reg_block name val = make_halfway_block ("if_put_" ++ name ++ "_value_in_ret_reg") [Copy (LVRegister ret_reg) val] (Just $ HBrGoto end_block)
+            let block_and_ret_reg name ir val =
+                    let put_block = make_halfway_block ("if_put_" ++ name ++ "_value_to_ret_reg") [Copy (LVRegister ret_reg) val] (Just $ HBrGoto end_block)
+                    in (ir `set_end_br` (Just $ HBrGoto put_block), put_block)
 
-                put_true_val_in_ret_reg = put_in_ret_reg_block "true" trueb_val
-                trueb_ir' = trueb_ir `set_end_br` (Just $ HBrGoto put_true_val_in_ret_reg)
+                (trueb_ir', put_true_val) = block_and_ret_reg "true" trueb_ir trueb_val
 
                 end_block = make_halfway_block "if_after" [] Nothing
 
+                cond_br = Just . HBrCond cond_val trueb_ir'
+
             in case m_falseb_ir of
                 Just (falseb_ir, falseb_val) ->
-                    let cond_ir' = cond_ir `set_end_br` (Just $ HBrCond cond_val trueb_ir' falseb_ir')
-                        falseb_ir' = falseb_ir `set_end_br` (Just $ HBrGoto put_false_val_in_ret_reg)
-                        put_false_val_in_ret_reg = put_in_ret_reg_block "false" falseb_val
+                    let cond_ir' = cond_ir `set_end_br` (cond_br falseb_ir')
+                        (falseb_ir', put_false_val) = block_and_ret_reg "false" falseb_ir falseb_val
+                    in make_halfway_group [trueb_ir', put_true_val, falseb_ir', put_false_val] cond_ir' end_block
 
-                        blocks = make_halfway_group [trueb_ir', put_true_val_in_ret_reg, falseb_ir', put_false_val_in_ret_reg] cond_ir' end_block
-                    in blocks
                 Nothing ->
-                    let cond_ir' = cond_ir `set_end_br` (Just $ HBrCond cond_val trueb_ir' end_block)
-                        blocks = make_halfway_group [trueb_ir', put_true_val_in_ret_reg] cond_ir' end_block
-                    in blocks
+                    let cond_ir' = cond_ir `set_end_br` (cond_br end_block)
+                    in make_halfway_group [trueb_ir', put_true_val] cond_ir' end_block
+
     in return (Just (blocks, FVNLVRegister ret_reg))
 
 lower_expr (Located _ (AST.DExpr'While cond body)) root =
