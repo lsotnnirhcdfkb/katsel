@@ -19,8 +19,8 @@ import Data.Typeable(Typeable, cast)
 
 import Data.List(foldl')
 
-data DSIRId resolve = DSIRId [String]
-data VIRId resolve = VIRId (DSIRId DeclSymbol) String
+data DSIRId resolve = DSIRId [String] deriving Eq
+data VIRId resolve = VIRId (DSIRId DeclSymbol) String deriving Eq
 
 m_resolve_dsid :: Typeable r => IRCtx -> Module -> DSIRId r -> Maybe r
 m_resolve_dsid irctx root (DSIRId segments) = foldl' next (Just $ DeclSymbol root) segments >>= cast
