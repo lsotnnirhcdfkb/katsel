@@ -492,7 +492,52 @@ lower_expr (Located _ (AST.DExpr'Ret expr)) root =
 
 lower_block_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe HalfwayBFV)
 lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
-    undefined
+    let safe_last [] = Nothing
+        safe_last x = Just $ last x
+
+        safe_init [] = []
+        safe_init l = init l
+
+        (stmts', m_ret_expr) = case safe_last stmts of
+            Just (Located _ (AST.DStmt'Expr ret)) -> (safe_init stmts, Just ret)
+            _ -> (stmts, Nothing)
+
+    in sequence (map (flip lower_stmt root) stmts') >>= \ stmts_m_ir ->
+    let
+        m_stmts_ir = sequence stmts_m_ir
+    in m_stmts_ir |>>=? (return Nothing) $ \ stmts_ir ->
+
+    (case m_ret_expr of
+        Just ret_expr ->
+            lower_expr ret_expr root >>=? (return (Nothing, Nothing)) $ \ (ir, val) ->
+            return (Just ir, Just val)
+        Nothing -> return (Nothing, Nothing)
+    ) >>= \ (m_ret_ir, m_ret_val) ->
+
+    let total_irs =
+            case m_ret_ir of
+                Just ret_ir -> stmts_ir ++ [ret_ir]
+                Nothing -> stmts_ir
+
+        set_brs [] = []
+        set_brs [single] = [single]
+        set_brs (current : more@(next:_)) = current `set_end_br` (Just $ HBrGoto next) : set_brs more
+
+        total_irs_brs = set_brs total_irs
+
+        res_val = case m_ret_val of
+            Just ret_val -> ret_val
+            Nothing -> FVVoid
+
+        block_group = case total_irs_brs of
+            [] -> make_halfway_block "empty_block_expr" [] Nothing
+            [single] -> single
+            first_ir:more ->
+                let last_ir = last more
+                    middle = init more
+                in make_halfway_group middle first_ir last_ir
+
+    in return $ Just (block_group, res_val)
 
 lower_stmt :: AST.LDStmt -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe HalfwayBlock)
 lower_stmt (Located _ (AST.DStmt'Expr ex)) root = lower_expr ex root >>= return . (fst <$>)
