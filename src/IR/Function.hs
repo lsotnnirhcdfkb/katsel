@@ -57,7 +57,7 @@ import IR.PrintClasses
 import Location
 
 import qualified Data.Map as Map(empty)
-import Data.List(foldl', intercalate, findIndex)
+import Data.List(foldl', intercalate, findIndex, nub)
 
 data Function
     = Function
@@ -322,7 +322,16 @@ data HalfwayBlock
 type HalfwayBFV = (HalfwayBlock, FValue)
 
 make_halfway_group :: [HalfwayBlock] -> HalfwayBlock -> HalfwayBlock -> HalfwayBlock
-make_halfway_group blocks start end = HBlockGroup (start:end:blocks) 0 1
+make_halfway_group roots start end = HBlockGroup (start:end:discovered) 0 1
+    where
+        discovered = filter (\ b -> b /= start && b /= end) $ nub $ roots ++ concatMap discover (start:roots)
+
+        discover (HBlock _ _ (Just (HBrGoto b))) = b : discover b
+        discover (HBlock _ _ (Just (HBrCond _ t f))) = [t, f] ++ discover t ++ discover f
+        discover (HBlock _ _ _) = []
+        discover (HBlockGroup b _ _) = concatMap discover b
+        discover HExitBlock = []
+
 make_halfway_block :: String -> [Instruction] -> Maybe HalfwayBr -> HalfwayBlock
 make_halfway_block = HBlock
 make_halfway_exit :: HalfwayBlock

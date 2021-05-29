@@ -385,11 +385,11 @@ lower_expr (Located sp (AST.DExpr'If cond trueb m_falseb)) root =
                 Just (falseb_ir, falseb_val) ->
                     let cond_ir' = cond_ir `set_end_br` (cond_br falseb_ir')
                         (falseb_ir', put_false_val) = block_and_ret_reg "false" falseb_ir falseb_val
-                    in make_halfway_group [trueb_ir', put_true_val, falseb_ir', put_false_val] cond_ir' end_block
+                    in make_halfway_group [] cond_ir' end_block
 
                 Nothing ->
                     let cond_ir' = cond_ir `set_end_br` (cond_br end_block)
-                    in make_halfway_group [trueb_ir', put_true_val] cond_ir' end_block
+                    in make_halfway_group [] cond_ir' end_block
 
     in return $ Just (blocks, FVNLVRegister ret_reg)
 
@@ -400,7 +400,7 @@ lower_expr (Located _ (AST.DExpr'While cond body)) root =
     let end_block = make_halfway_block "while_after" [] Nothing
         cond_ir' = cond_ir `set_end_br` (Just $ HBrCond cond_val body_ir' end_block)
         body_ir' = body_ir `set_end_br` (Just $ HBrGoto cond_ir')
-    in return $ Just (make_halfway_group [body_ir'] cond_ir' end_block, FVVoid)
+    in return $ Just (make_halfway_group [] cond_ir' end_block, FVVoid)
 
 lower_expr (Located _ (AST.DExpr'Assign target@(Located target_sp _) (Located op_sp AST.Equal) expr)) root =
     lower_expr target root >>=? (return Nothing) $ \ (target_ir, target_val) ->
@@ -411,7 +411,7 @@ lower_expr (Located _ (AST.DExpr'Assign target@(Located target_sp _) (Located op
             let target_ir' = target_ir `set_end_br` (Just $ HBrGoto expr_ir')
                 expr_ir' = expr_ir `set_end_br` (Just $ HBrGoto assign_block)
                 assign_block = make_halfway_block "assign_block" [Copy lv expr_val] Nothing
-            in return $ Just (make_halfway_group [expr_ir'] target_ir' assign_block, FVVoid)
+            in return $ Just (make_halfway_group [] target_ir' assign_block, FVVoid)
         _ ->
             apply_irb_to_funcgtup_s (add_error_s $ InvalidAssign target_sp op_sp) >>
             return Nothing
@@ -492,9 +492,12 @@ lower_expr (Located _ (AST.DExpr'Ret expr)) root =
 
     State.get >>= \ (_, _, fun) ->
 
-    let ret_block = make_halfway_block "return" [Copy (LVRegister $ get_ret_reg fun) expr_val] (Just $ HBrGoto make_halfway_exit)
+    let
+        expr_ir' = expr_ir `set_end_br` (Just $ HBrGoto put_block)
+        put_block = make_halfway_block "put_ret_val" [Copy (LVRegister $ get_ret_reg fun) expr_val] (Just $ HBrGoto make_halfway_exit)
         after_block = make_halfway_block "after_return" [] Nothing
-    in return $ Just (make_halfway_group [ret_block] expr_ir after_block, FVVoid)
+
+    in return $ Just (make_halfway_group [after_block] expr_ir' after_block, FVVoid)
 
 lower_block_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe HalfwayBFV)
 lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
@@ -541,7 +544,7 @@ lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
             first_ir:more ->
                 let last_ir = last more
                     middle = init more
-                in make_halfway_group middle first_ir last_ir
+                in make_halfway_group [] first_ir last_ir
 
     in return $ Just (block_group, res_val)
 
