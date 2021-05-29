@@ -22,27 +22,26 @@ import Location
 
 data Module = Module DSMap VMap Span
 new_module :: Span -> IRCtx -> (Module, IRCtx)
-new_module sp irctx = (Module dsmap Map.empty sp, irctx')
+new_module sp irctx = (Module dsmap Map.empty sp, irctx)
     where
-        make_list name ty (tys, ctx) =
-            let (idx, ctx') = get_ty_irctx ty ctx
-            in (tys ++ [(name, DeclSymbol idx)], ctx')
+        r :: (IRCtx -> TyIdx) -> DeclSymbol
+        r f = DeclSymbol $ f irctx
 
-        dsmap = Map.fromList dsmap_list
-        (dsmap_list, irctx') =
-            make_list "void" (VoidType Map.empty) .
-            make_list "float" (FloatType Map.empty 32) .
-            make_list "double" (FloatType Map.empty 64) .
-            make_list "bool" (BoolType Map.empty) .
-            make_list "char" (CharType Map.empty) .
-            make_list "uint8" (IntType Map.empty 8 Unsigned) .
-            make_list "uint16" (IntType Map.empty 16 Unsigned) .
-            make_list "uint32" (IntType Map.empty 32 Unsigned) .
-            make_list "uint64" (IntType Map.empty 64 Unsigned) .
-            make_list "sint8" (IntType Map.empty 8 Signed) .
-            make_list "sint16" (IntType Map.empty 16 Signed) .
-            make_list "sint32" (IntType Map.empty 32 Signed) .
-            make_list "sint64" (IntType Map.empty 64 Signed) $ ([], irctx)
+        dsmap = Map.fromList
+            [ ("void", r resolve_void)
+            , ("float", r resolve_float32)
+            , ("double", r resolve_float64)
+            , ("bool", r resolve_bool)
+            , ("char", r resolve_char)
+            , ("uint8", r resolve_uint8)
+            , ("uint16", r resolve_uint16)
+            , ("uint32", r resolve_uint32)
+            , ("uint64", r resolve_uint64)
+            , ("sint8", r resolve_sint8)
+            , ("sint16", r resolve_sint16)
+            , ("sint32", r resolve_sint32)
+            , ("sint64", r resolve_sint64)
+            ]
 
 instance Parent Module DeclSymbol String where
     get_child_map ((Module dsmap _ _), _) = dsmap
