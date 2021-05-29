@@ -349,7 +349,7 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
 -- lowering things {{{3
 lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) HalfwayBlock
 lower_body_expr body root =
-    lower_block_expr body root >>=? (return $ make_halfway_block "failed_body_lowering" [] HBrRet) $ \ (expr_hb, res) ->
+    lower_block_expr body root >>=? (return $ make_halfway_block "failed_body_lowering" [] (HBrGoto make_halfway_exit)) $ \ (expr_hb, res) ->
 
     State.get >>= \ (_,  _, fun) ->
     let end_block = make_halfway_block "end_block"
