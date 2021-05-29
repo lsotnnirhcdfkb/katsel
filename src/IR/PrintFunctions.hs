@@ -26,8 +26,8 @@ print_ds irctx d = ds_print irctx d ++ " " ++ body_with_braces
                 then "{}\n"
                 else "{\n" ++ body ++ "}\n"
         body = indent 4 $
-            (concatMap (print_ds_binding irctx) (Map.toAscList $ get_child_map (d, irctx))) ++
-            (concatMap (print_v_binding irctx) (Map.toAscList $ get_child_map (d, irctx)))
+            (concatMap ((++"\n") . print_ds_binding irctx) (Map.toAscList $ get_child_map (d, irctx))) ++
+            (concatMap ((++"\n") . print_v_binding irctx) (Map.toAscList $ get_child_map (d, irctx)))
 
 print_ds_binding :: IRCtx -> (String, DeclSymbol) -> String
 print_ds_binding irctx (name, ds) =
