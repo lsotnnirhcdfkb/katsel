@@ -543,7 +543,25 @@ lower_stmt :: AST.LDStmt -> Module -> State.State (IRBuilder, FunctionCG, Functi
 lower_stmt (Located _ (AST.DStmt'Expr ex)) root = lower_expr ex root >>= return . (fst <$>)
 
 lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) root =
-    undefined
+    apply_irb_to_funcgtup_s (resolve_ty_s ty root) >>=? (return Nothing) $ \ var_ty_idx ->
+    apply_fun_to_funcgtup_s (State.state $ add_register var_ty_idx (ast_muty_to_ir_muty muty) name_sp) >>= \ reg_idx ->
+    apply_fcg_to_funcgtup_s (add_local_s name (LVRegister reg_idx)) >>= \ m_old ->
+    (case m_old of
+        Left old ->
+            State.get >>= \ (_, _, fun) ->
+            apply_irb_to_funcgtup_s (add_error_s $ DuplicateLocal fun old (LVRegister reg_idx)) >>
+            return Nothing
+
+        Right () -> return $ Just ()
+    ) >>=? (return Nothing) $ \ _ ->
+    case m_init of
+        Nothing -> return $ Just $ make_halfway_block "new_var" [] Nothing
+        Just init_expr ->
+            lower_expr init_expr root >>=? (return Nothing) $ \ (init_expr_ir, init_expr_val) ->
+            let
+                init_expr_ir' = init_expr_ir `set_end_br` (Just $ HBrGoto assign_block)
+                assign_block = make_halfway_block "init_var" [Copy (LVRegister reg_idx) init_expr_val] Nothing
+            in return $ Just $ make_halfway_group [] init_expr_ir' assign_block
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) root parent ir_builder = ddeclare sf root parent ir_builder
