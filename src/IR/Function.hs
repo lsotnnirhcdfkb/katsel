@@ -50,6 +50,7 @@ import IR.IRCtx
 import IR.DeclSpan
 import IR.Describe
 import IR.Typed
+import IR.Print
 
 import Location
 
@@ -124,6 +125,7 @@ instance Describe Function where
     describe _ f = "function named '" ++ get_name f ++ "'"
 instance Typed Function  where
     type_of _ = get_type
+instance VPrint Function  where
 
 instance DeclSpan (Function, LValue) where
     decl_span irctx (f, (LVRegister reg)) = decl_span irctx $ get_register f reg

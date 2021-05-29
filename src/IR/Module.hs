@@ -14,6 +14,7 @@ import IR.Type
 import IR.Value
 import IR.DeclSpan
 import IR.Describe
+import IR.Print
 
 import qualified Data.Map as Map
 
@@ -61,3 +62,5 @@ instance DeclSpan Module where
     decl_span _ (Module _ _ sp) = Just sp
 instance Describe Module where
     describe _ _ = "module being compiled"
+instance DSPrint Module where
+    ds_print _ _ = "mod"

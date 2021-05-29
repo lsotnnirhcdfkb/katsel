@@ -8,11 +8,12 @@ module IR.Value
 import IR.DeclSpan
 import IR.Describe
 import IR.Typed
+import IR.Print
 
 import Data.Typeable(Typeable, cast)
 
 data Value where
-    Value :: (Typeable v, DeclSpan v, Describe v, Typed v) => v -> Value
+    Value :: (Typeable v, VPrint v, DeclSpan v, Describe v, Typed v) => v -> Value
 
 instance DeclSpan Value where
     decl_span irctx (Value v) = decl_span irctx v

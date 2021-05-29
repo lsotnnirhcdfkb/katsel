@@ -9,6 +9,7 @@ import IR.Describe
 import IR.MapSynonyms
 import IR.Parent
 import IR.Value
+import IR.Print
 
 import Data.List(findIndex, intercalate)
 
@@ -105,6 +106,8 @@ instance DeclSpan TyIdx where
     decl_span irctx idx = decl_span irctx $ resolve_tyidx_irctx irctx idx
 instance Describe TyIdx where
     describe irctx idx = describe irctx $ resolve_tyidx_irctx irctx idx
+instance DSPrint TyIdx where
+    ds_print irctx idx = ds_print irctx $ resolve_tyidx_irctx irctx idx
 instance Parent TyIdx DeclSymbol String where
     get_child_map (idx, irctx) = get_child_map (resolve_tyidx_irctx irctx idx, irctx)
     add i child (tyidx, irctx) =
@@ -136,6 +139,22 @@ instance Describe Type where
     describe _ (FunctionType _ _ _) = "function type" -- TODO: put argument types and return type here?
     describe _ (VoidType _) = "primitive void type"
     describe _ (PointerType _ _ _) = "pointer type" -- TODO: put pointee type here?
+instance DSPrint Type where
+    ds_print _ (FloatType _ size) = "primitive float type " ++ show size
+    ds_print _ (IntType _ size signedness) = "primitive " ++ signedness_str ++ " int type " ++ show size
+        where
+            signedness_str = case signedness of
+                Unsigned -> "unsigned"
+                Signed -> "signed"
+    ds_print _ (CharType _) = "primitive char type"
+    ds_print _ (BoolType _) = "primitive bool type"
+    ds_print irctx (FunctionType _ ret_ty params) = "function type fun (" ++ intercalate ", " (map (stringify_tyidx irctx . snd) params) ++ "): " ++ stringify_tyidx irctx ret_ty
+    ds_print _ (VoidType _) = "primitive void type"
+    ds_print irctx (PointerType _ muty ty) = "pointer type *" ++ muty_str ++ stringify_tyidx irctx ty
+        where
+            muty_str = case muty of
+                Mutable -> "mut "
+                Immutable -> ""
 
 instance Parent Type DeclSymbol String where
     get_child_map ((FloatType dsmap _), _) = dsmap
