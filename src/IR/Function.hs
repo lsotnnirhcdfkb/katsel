@@ -286,6 +286,7 @@ apply_halfway hb start_block fun =
 
         f_with_brs = foldl' fill_brs f_with_instrs $ zip hb_idx_in_f flat_blocks
             where
+                -- TODO: this actually doesn't work properly
                 lookup_fbidx h = unwrap_maybe $ lookup (hb_tuplify h) $ zip flat_blocks hb_idx_in_f
 
                 convert_hbr HBrRet = BrRet
