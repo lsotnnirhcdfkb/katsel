@@ -101,7 +101,10 @@ compile num max_num filename =
             put_counts sorted_diagnostics
         else putStrLn ""
     ) >>
-    hPutStr stderr (concatMap Message.report sorted_diagnostics)
+    hPutStr stderr (concatMap Message.report sorted_diagnostics) >>
+    case result of
+        Just (ir, ctx) -> putStr $ IR.print_mod ctx ir
+        Nothing -> return ()
 -- compile helpers {{{1
 amount_of_diag :: Message.SimpleDiagType -> [Message.SimpleDiag] -> Int
 amount_of_diag diag_ty errs =
