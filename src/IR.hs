@@ -374,12 +374,10 @@ lower_expr (Located sp (AST.DExpr'If cond trueb m_falseb)) root =
             let block_and_ret_reg name ir val =
                     let put_block = make_halfway_block ("if_put_" ++ name ++ "_value_to_ret_reg") [Copy (LVRegister ret_reg) val] (Just $ HBrGoto end_block)
                     in (ir `set_end_br` (Just $ HBrGoto put_block), put_block)
+                cond_br = Just . HBrCond cond_val trueb_ir'
 
                 (trueb_ir', put_true_val) = block_and_ret_reg "true" trueb_ir trueb_val
-
                 end_block = make_halfway_block "if_after" [] Nothing
-
-                cond_br = Just . HBrCond cond_val trueb_ir'
 
             in case m_falseb_ir of
                 Just (falseb_ir, falseb_val) ->
