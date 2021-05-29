@@ -123,9 +123,16 @@ instance DeclSpan Function where
     decl_span _ f = Just $ get_span f
 instance Describe Function where
     describe _ f = "function named '" ++ get_name f ++ "'"
-instance Typed Function  where
+instance Typed Function where
     type_of _ = get_type
-instance VPrint Function  where
+instance VPrint Function where
+    v_print irctx (Function blocks _ _ regs _ _ ty _ _) =
+        concat $ map (++"\n")
+            [ "fun {"
+            , "    <" ++ show (length regs) ++ " registers>" -- TODO
+            , "    <" ++ show (length blocks) ++ " blocks>" -- TODO
+            , "}"
+            ]
 
 instance DeclSpan (Function, LValue) where
     decl_span irctx (f, (LVRegister reg)) = decl_span irctx $ get_register f reg

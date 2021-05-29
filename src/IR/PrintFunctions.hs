@@ -3,7 +3,7 @@
 module IR.PrintFunctions
     ( print_mod
     ) where
-    
+
 import IR.Module
 import IR.PrintClasses
 import IR.IRCtx
