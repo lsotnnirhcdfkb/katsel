@@ -27,7 +27,7 @@ module IR.Function
 
     , HalfwayBr(..)
     , HalfwayBlock
-    , HalfwayBMFV
+    , HalfwayBFV
     , make_halfway_group
     , make_halfway_block
     , set_end_br
@@ -214,7 +214,7 @@ data HalfwayBlock
     = HBlockGroup [HalfwayBlock] Int Int
     | HBlock String [Instruction] (Maybe HalfwayBr)
     deriving Eq
-type HalfwayBMFV = (HalfwayBlock, Maybe FValue)
+type HalfwayBFV = (HalfwayBlock, FValue)
 
 make_halfway_group :: [HalfwayBlock] -> HalfwayBlock -> HalfwayBlock -> HalfwayBlock
 make_halfway_group blocks start end = HBlockGroup (start:end:blocks) 0 1
@@ -229,7 +229,7 @@ set_end_br (HBlockGroup blocks start end) br = HBlockGroup blocks' start end
         blocks' = replace_block blocks end end_block'
 set_end_br (HBlock name instrs _) br = HBlock name instrs br
 
-set_end_br' :: HalfwayBMFV -> Maybe HalfwayBr -> HalfwayBMFV
+set_end_br' :: HalfwayBFV -> Maybe HalfwayBr -> HalfwayBFV
 set_end_br' (hb, fv) br = (set_end_br hb br, fv)
 
 flatten_hb :: HalfwayBlock -> ([(String, [Instruction], Maybe HalfwayBr)], Int, Int)
