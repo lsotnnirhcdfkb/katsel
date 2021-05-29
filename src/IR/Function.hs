@@ -92,8 +92,8 @@ data FValue
     = FVGlobalValue (VIRId Value)
     | FVNLVRegister RegisterIdx
     | FVLValue LValue
-    | FVConstInt Integer
-    | FVConstFloat Double
+    | FVConstInt Integer TyIdx
+    | FVConstFloat Double TyIdx
     | FVConstBool Bool
     | FVConstChar Char
     | FVVoid
@@ -126,7 +126,7 @@ instance Describe Function where
 instance Typed Function where
     type_of _ = get_type
 instance VPrint Function where
-    v_print irctx (Function blocks (BlockIdx entry_block_idx) (BlockIdx exit_block_idx) regs (RegisterIdx ret_reg_idx) param_regs fun_ty _ _) =
+    v_print irctx (Function blocks (BlockIdx entry_block_idx) (BlockIdx exit_block_idx) regs (RegisterIdx ret_reg_idx) param_regs _ _ _) =
         let
             make_comment tags = if null tags then "" else " // " ++ intercalate ", " tags
 
@@ -158,8 +158,7 @@ instance VPrint Function where
                     show_block (block_n, BasicBlock block_name instructions m_br) =
                         "    "  ++ block_name_num block_name block_n ++ ": {" ++ make_comment tags ++ "\n" ++
 
-                        -- TODO: show type of instruction
-                        concatMap (\ (idx, instr) -> "        %" ++ show idx ++ " = " ++ show_instruction instr ++ ";\n") (zip ([0..] :: [Int]) instructions) ++
+                        concatMap (\ (idx, instr) -> "        (%" ++ show idx ++ ": " ++ stringify_tyidx irctx (type_of irctx instr) ++ ") = " ++ show_instruction instr ++ ";\n") (zip ([0..] :: [Int]) instructions) ++
 
                         "        =>: " ++ (
                             case m_br of
@@ -182,8 +181,8 @@ instance VPrint Function where
                     show_fv (FVGlobalValue vid) = intercalate "::" $ vid_segments vid
                     show_fv (FVNLVRegister (RegisterIdx i)) = "#" ++ show i
                     show_fv (FVLValue lv) = show_lv lv
-                    show_fv (FVConstInt i) = show i
-                    show_fv (FVConstFloat d) = show d
+                    show_fv (FVConstInt i ty) = "(" ++ show i ++ " of " ++ stringify_tyidx irctx ty ++ ")"
+                    show_fv (FVConstFloat d ty) = "(" ++ show d ++ " of " ++ stringify_tyidx irctx ty ++ ")"
                     show_fv (FVConstBool b) = if b then "true" else "false"
                     show_fv (FVConstChar c) = ['\'', c, '\'']
                     show_fv FVVoid = "void"
@@ -217,6 +216,13 @@ instance Typed (Function, LValue) where
 
 instance Typed (Module, Function, FValue) where
     type_of irctx (root, _, FVGlobalValue vid) = type_of irctx $ resolve_vid irctx root vid
+    type_of irctx (_, fun, FVNLVRegister regidx) = type_of irctx $ get_register fun regidx
+    type_of irctx (_, fun, FVLValue lv) = type_of irctx (fun, lv)
+    type_of _ (_, _, FVConstInt _ ty) = ty
+    type_of _ (_, _, FVConstFloat _ ty) = ty
+    type_of irctx (_, fun, FVInstruction idx) = type_of irctx $ get_instruction fun idx
+
+instance Typed Instruction where
 
 new_function :: TyIdx -> [(Mutability, TyIdx, Span)] -> Span -> String -> IRCtx -> (Function, IRCtx)
 new_function ret_type param_tys sp name irctx =
@@ -248,6 +254,11 @@ add_register tyidx muty sp fun = (reg_idx, fun')
 
 get_register :: Function -> RegisterIdx -> Register
 get_register fun (RegisterIdx idx) = get_registers fun !! idx
+
+get_instruction :: Function -> InstructionIdx -> Instruction
+get_instruction (Function blocks _ _ _ _ _ _ _ _) (InstructionIdx (BlockIdx bidx) iidx) =
+    let (BasicBlock _ instrs _) = blocks !! bidx
+    in instrs !! iidx
 
 function_not_defined :: Function -> Bool
 function_not_defined = (2==) . length . get_blocks -- a function starts out with 2 blocks, and it only goes up from there; blocks cannot be removed

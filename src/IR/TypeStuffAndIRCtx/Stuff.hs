@@ -22,6 +22,8 @@ data TyIdx = TyIdx { untyidx :: Int } deriving Eq
 data Type
     = FloatType DSMap Int
     | IntType DSMap Int Signedness
+    | GenericFloatType
+    | GenericIntType
     | CharType DSMap
     | BoolType DSMap
     | FunctionType DSMap TyIdx [(Mutability, TyIdx)]
@@ -75,6 +77,8 @@ ty_eq (PointerType _ muty_a pointee_a) (PointerType _ muty_b pointee_b)
 ty_eq (CharType _) (CharType _) = True
 ty_eq (BoolType _) (BoolType _) = True
 ty_eq (VoidType _) (VoidType _) = True
+ty_eq GenericIntType GenericIntType = True
+ty_eq GenericFloatType GenericFloatType = True
 
 ty_eq _ _ = False
 
@@ -87,6 +91,8 @@ stringify_ty _ (IntType _ size signedness) =
             Unsigned -> "u"
             Signed -> "s"
     in signedness_str ++ "int" ++ show size
+stringify_ty _ GenericIntType = "<int>"
+stringify_ty _ GenericFloatType = "<float>"
 stringify_ty _ (CharType _) = "char"
 stringify_ty _ (BoolType _) = "bool"
 stringify_ty irctx (FunctionType _ ret_idx params) =
@@ -135,6 +141,8 @@ instance Describe Type where
                 Unsigned -> "unsigned"
                 Signed -> "signed"
         in "primitive " ++ show size ++ "-bit " ++ signedness_str ++ " integer type"
+    describe _ GenericFloatType = "generic float type"
+    describe _ GenericIntType = "generic integer type"
     describe _ (CharType _) = "primitive character type"
     describe _ (BoolType _) = "primitive bool type"
     describe _ (FunctionType _ _ _) = "function type" -- TODO: put argument types and return type here?
@@ -147,6 +155,8 @@ instance DSPrint Type where
             signedness_str = case signedness of
                 Unsigned -> "unsigned"
                 Signed -> "signed"
+    ds_print _ GenericFloatType = "generic float type"
+    ds_print _ GenericIntType = "generic int type"
     ds_print _ (CharType _) = "primitive char type"
     ds_print _ (BoolType _) = "primitive bool type"
     ds_print irctx (FunctionType _ ret_ty params) = "function type fun (" ++ intercalate ", " (map (stringify_tyidx irctx . snd) params) ++ "): " ++ stringify_tyidx irctx ret_ty
@@ -160,6 +170,8 @@ instance DSPrint Type where
 instance Parent Type DeclSymbol String where
     get_child_map ((FloatType dsmap _), _) = dsmap
     get_child_map ((IntType dsmap _ _), _) = dsmap
+    get_child_map (GenericFloatType, _) = Map.empty
+    get_child_map (GenericIntType, _) = Map.empty
     get_child_map ((CharType dsmap), _) = dsmap
     get_child_map ((BoolType dsmap), _) = dsmap
     get_child_map ((FunctionType dsmap _ _), _) = dsmap

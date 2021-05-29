@@ -450,9 +450,13 @@ lower_expr (Located sp (AST.DExpr'Method _ _ _)) _ =
     return (make_halfway_block _ [] Nothing, Nothing)
 -}
 
+lower_expr (Located _ (AST.DExpr'Int i)) _ =
+    apply_irb_to_funcgtup_s (get_ty_s GenericIntType) >>= \ ty ->
+    return $ Just (make_halfway_block "literal_int_expr" [] Nothing, FVConstInt i ty)
+lower_expr (Located _ (AST.DExpr'Float d)) _ =
+    apply_irb_to_funcgtup_s (get_ty_s GenericFloatType) >>= \ ty ->
+    return $ Just (make_halfway_block "literal_float_expr" [] Nothing, FVConstFloat d ty)
 lower_expr (Located _ (AST.DExpr'Bool b)) _ = return $ Just (make_halfway_block "literal_bool_expr" [] Nothing, FVConstBool b)
-lower_expr (Located _ (AST.DExpr'Float d)) _ = return $ Just (make_halfway_block "literal_float_expr" [] Nothing, FVConstFloat d)
-lower_expr (Located _ (AST.DExpr'Int i)) _ = return $ Just (make_halfway_block "literal_int_expr" [] Nothing, FVConstInt i)
 lower_expr (Located _ (AST.DExpr'Char c)) _ = return $ Just (make_halfway_block "literal_char_expr" [] Nothing, FVConstChar c)
 
 lower_expr (Located sp (AST.DExpr'String _)) _ =
