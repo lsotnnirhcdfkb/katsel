@@ -54,7 +54,7 @@ import IR.Typed
 import Location
 
 import qualified Data.Map as Map(empty)
-import Data.List(findIndex, foldl')
+import Data.List(foldl')
 
 data Function
     = Function
@@ -239,64 +239,61 @@ set_end_br HExitBlock _ = HExitBlock -- exit blocks always have a return br, so 
 set_end_br' :: HalfwayBFV -> Maybe HalfwayBr -> HalfwayBFV
 set_end_br' (hb, fv) br = (set_end_br hb br, fv)
 
-flatten_hb :: HalfwayBlock -> ([(String, [Instruction], Maybe HalfwayBr)], Int, Int)
-flatten_hb hb = (block_list, start_block_idx, end_block_idx)
-    where
-        make_block_list b@(HBlock _ _ _) = [hb_tuplify b]
+add_all_hb_blocks :: HalfwayBlock -> Function -> (Function, [((String, [Instruction], Maybe HalfwayBr), BlockIdx)], BlockIdx, BlockIdx)
+add_all_hb_blocks hb fun =
+    let make_block_list (HBlock name instrs br) = [(name, instrs, br)]
         make_block_list (HBlockGroup blocks _ _) = concatMap make_block_list blocks
         make_block_list HExitBlock = [] -- exit blocks do not have a tuple form, and also should not be created
 
         block_list = make_block_list hb
-        start_block = get_start_block hb
-        end_block = get_end_block hb
-        start_block_idx = search_block_list $ hb_tuplify start_block
-        end_block_idx = search_block_list $ hb_tuplify end_block
 
-        get_start_block b@(HBlock _ _ _) = b
+        (fun_with_blocks, block_map) =
+            foldl' add_block (fun, []) block_list
+            where
+                add_block (f, m) btup@(name, _, _) =
+                    let (idx, f') = add_basic_block name f
+                    in (f', (btup, idx):m)
+
+        start_block_idx = get_start_block hb
+        end_block_idx = get_end_block hb
+
+        get_start_block (HBlock name instrs br) = unwrap_maybe $ lookup (name, instrs, br) block_map
         get_start_block (HBlockGroup blocks i _) = get_start_block $ blocks !! i
-        get_start_block HExitBlock = HExitBlock
-        get_end_block b@(HBlock _ _ _) = b
-        get_end_block (HBlockGroup blocks _ i) = get_end_block $ blocks !! i
-        get_end_block HExitBlock = HExitBlock
+        get_start_block HExitBlock = get_exit_block fun
 
-        search_block_list b = unwrap_maybe $ findIndex (b==) block_list
+        get_end_block (HBlock name instrs br) = unwrap_maybe $ lookup (name, instrs, br) block_map
+        get_end_block (HBlockGroup blocks _ i) = get_end_block $ blocks !! i
+        get_end_block HExitBlock = get_exit_block fun
+
+    in (fun_with_blocks, block_map, start_block_idx, end_block_idx)
 
 unwrap_maybe :: Maybe a -> a
 unwrap_maybe (Just x) = x
 unwrap_maybe Nothing = error "unwrap_maybe got Nothing"
 
-hb_tuplify :: HalfwayBlock -> (String, [Instruction], Maybe HalfwayBr)
-hb_tuplify (HBlock name instrs br) = (name, instrs, br)
-hb_tuplify (HBlockGroup _ _ _) = error "cannot tuplify block group"
-hb_tuplify HExitBlock = error "cannot tuplify exit block"
-
 apply_halfway :: HalfwayBlock -> BlockIdx -> Function -> (BlockIdx, Function)
 apply_halfway hb start_block fun =
-    let (flat_blocks, flat_start, flat_end) = flatten_hb hb
+    let (f_with_blocks, block_map, start_idx, end_idx) = add_all_hb_blocks hb fun
 
-        (hb_idx_in_f, f_with_all_blocks) = foldl' add_block ([], fun) flat_blocks
+        f_with_instrs = foldl' fill_instrs f_with_blocks block_map
             where
-                add_block (block_idxs, f) (name, _, _) =
-                    let (idx, f') = add_basic_block name f
-                    in (block_idxs ++ [idx], f')
+                fill_instrs f ((_, instrs, _), f_bidx) = foldl' (\ f' instr -> snd $ add_instruction instr f_bidx f') f instrs
 
-        f_with_instrs = foldl' fill_instrs f_with_all_blocks $ zip hb_idx_in_f flat_blocks
+        f_with_brs = foldl' fill_brs f_with_instrs block_map
             where
-                fill_instrs f (f_bidx, (_, instrs, _)) = foldl' (\ f' instr -> snd $ add_instruction instr f_bidx f') f instrs
-
-        f_with_brs = foldl' fill_brs f_with_instrs $ zip hb_idx_in_f flat_blocks
-            where
-                -- TODO: this actually doesn't work properly
-                lookup_fbidx h = unwrap_maybe $ lookup (hb_tuplify h) $ zip flat_blocks hb_idx_in_f
+                convert_hb :: HalfwayBlock -> BlockIdx
+                convert_hb (HBlock name instrs br) = unwrap_maybe $ lookup (name, instrs, br) block_map
+                convert_hb (HBlockGroup blocks start _) = convert_hb $ blocks !! start
+                convert_hb HExitBlock = get_exit_block fun
 
                 convert_hbr HBrRet = BrRet
-                convert_hbr (HBrGoto dest) = BrGoto $ lookup_fbidx dest
-                convert_hbr (HBrCond c t f) = BrCond c (lookup_fbidx t) (lookup_fbidx f)
+                convert_hbr (HBrGoto dest) = BrGoto $ convert_hb dest
+                convert_hbr (HBrCond c t f) = BrCond c (convert_hb t) (convert_hb f)
 
-                fill_brs f (f_bidx, (_, _, m_br)) =
+                fill_brs f ((_, _, m_br), f_bidx) =
                     case m_br of
                         Nothing -> f
                         Just br -> add_br (convert_hbr br) f_bidx f
 
-        f_with_first_br = add_br (BrGoto $ hb_idx_in_f !! flat_start) start_block f_with_brs
-    in (hb_idx_in_f !! flat_end, f_with_first_br)
+        f_with_first_br = add_br (BrGoto start_idx) start_block f_with_brs
+    in (end_idx, f_with_first_br)
