@@ -338,14 +338,22 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
     in foldl' (>>=) start_function_cg add_locals_for_params >>= \ function_cg ->
 
     State.get >>= \ ir_builder ->
-    let (ir_builder', _, fun') = State.execState (lower_body_expr body root) (ir_builder, function_cg, fun)
+    let (halfway_body, (ir_builder', _, fun')) = State.runState (lower_body_expr body root) (ir_builder, function_cg, fun)
     in State.put ir_builder' >>
     add_replace_s name (Value fun') parent >>=
     return
 -- lowering things {{{3
 lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) HalfwayBlock
 lower_body_expr body root =
-    undefined
+    lower_block_expr body root >>= \ (expr_hb, m_res) -> m_res |>>=? (return $ make_halfway_block "failed_body_lowering" [] $ Just HBrRet) $ \ res ->
+
+    State.get >>= \ (_,  _, fun) ->
+    let end_block = make_halfway_block "end_block"
+            [Copy (LVRegister $ get_ret_reg fun) res]
+            (Just HBrRet)
+        expr_hb' = set_end_br expr_hb (Just $ HBrGoto end_block)
+
+    in return $ make_halfway_group [] expr_hb' end_block
 
 lower_expr :: AST.LDExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) HalfwayBMFV
 
