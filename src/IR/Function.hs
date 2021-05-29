@@ -157,13 +157,15 @@ instance VPrint Function where
 
                     show_block (block_n, BasicBlock block_name instructions m_br) =
                         "    "  ++ block_name_num block_name block_n ++ ": {" ++ make_comment tags ++ "\n" ++
-                        concatMap (("        "++) . (++"\n") . show_instruction) instructions ++
+
+                        -- TODO: show type of instruction
+                        concatMap (\ (idx, instr) -> "        %" ++ show idx ++ " = " ++ show_instruction instr ++ ";\n") (zip ([0..] :: [Int]) instructions) ++
 
                         "        =>: " ++ (
                             case m_br of
                                 Just br -> show_br br
                                 Nothing -> "<no br>"
-                        ) ++ "\n" ++
+                        ) ++ ";\n" ++
 
                         "    }\n"
                         where
@@ -185,7 +187,7 @@ instance VPrint Function where
                     show_fv (FVConstBool b) = if b then "true" else "false"
                     show_fv (FVConstChar c) = ['\'', c, '\'']
                     show_fv FVVoid = "void"
-                    show_fv (FVInstruction (InstructionIdx bidx iidx)) = show_block_from_idx bidx ++ "." ++ show iidx
+                    show_fv (FVInstruction (InstructionIdx bidx iidx)) = "%" ++ show_block_from_idx bidx ++ "." ++ show iidx
 
                     show_lv (LVRegister (RegisterIdx i)) = "#" ++ show i
 
