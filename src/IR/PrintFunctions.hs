@@ -10,6 +10,8 @@ import IR.IRCtx
 import IR.Parent
 import IR.DeclSymbol
 import IR.Value
+import IR.Typed
+import IR.Type
 
 import qualified Data.Map as Map
 
@@ -31,7 +33,7 @@ print_v_binding :: IRCtx -> (String, Value) -> String
 print_v_binding irctx (name, v) =
     let v_str = v_print irctx v
         num_lines = length $ lines v_str
-    in "[value] " ++ name ++ " =" ++ (
+    in "[value] " ++ name ++ ": " ++ stringify_tyidx irctx (type_of irctx v) ++ " =" ++ (
             if num_lines > 1
                 then "\n" ++ indent 4 v_str
                 else " " ++ v_str
