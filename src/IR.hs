@@ -349,17 +349,17 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
 -- lowering things {{{3
 lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) HalfwayBlock
 lower_body_expr body root =
-    lower_block_expr body root >>=? (return $ make_halfway_block "failed_body_lowering" [] $ Just HBrRet) $ \ (expr_hb, res) ->
+    lower_block_expr body root >>=? (return $ make_halfway_block "failed_body_lowering" [] HBrRet) $ \ (expr_hb, res) ->
 
     State.get >>= \ (_,  _, fun) ->
     let end_block = make_halfway_block "end_block"
             [Copy (LVRegister $ get_ret_reg fun) res]
-            (Just (HBrGoto make_halfway_exit))
-        expr_hb' = set_end_br expr_hb (Just $ HBrGoto end_block)
+            (HBrGoto make_halfway_exit)
+        expr_hb' = expr_hb (HBrGoto end_block)
 
     in return $ make_halfway_group [] expr_hb' end_block
 
-lower_expr :: AST.LDExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe HalfwayBFV)
+lower_expr :: AST.LDExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe (HalfwayBr -> HalfwayBlock, FValue))
 
 lower_expr (Located _ (AST.DExpr'Block block)) root = lower_block_expr block root
 
@@ -373,22 +373,23 @@ lower_expr (Located sp (AST.DExpr'If cond trueb m_falseb)) root =
     in apply_fun_to_funcgtup_s (State.state $ add_register (type_of irctx (root, fun, trueb_val)) Immutable sp) >>= \ ret_reg ->
 
     let blocks =
+            \ after_br ->
             let block_and_ret_reg name ir val =
-                    let put_block = make_halfway_block ("if_put_" ++ name ++ "_value_to_ret_reg") [Copy (LVRegister ret_reg) val] (Just $ HBrGoto end_block)
-                    in (ir `set_end_br` (Just $ HBrGoto put_block), put_block)
-                cond_br = Just . HBrCond cond_val trueb_ir'
+                    let put_block = make_halfway_block ("if_put_" ++ name ++ "_value_to_ret_reg") [Copy (LVRegister ret_reg) val] (HBrGoto end_block)
+                    in (ir (HBrGoto put_block), put_block)
+                cond_br = HBrCond cond_val trueb_ir'
 
-                (trueb_ir', put_true_val) = block_and_ret_reg "true" trueb_ir trueb_val
-                end_block = make_halfway_block "if_after" [] Nothing
+                (trueb_ir', _) = block_and_ret_reg "true" trueb_ir trueb_val
+                end_block = make_halfway_block "if_after" [] after_br
 
             in case m_falseb_ir of
                 Just (falseb_ir, falseb_val) ->
-                    let cond_ir' = cond_ir `set_end_br` (cond_br falseb_ir')
-                        (falseb_ir', put_false_val) = block_and_ret_reg "false" falseb_ir falseb_val
+                    let cond_ir' = cond_ir (cond_br falseb_ir')
+                        (falseb_ir', _) = block_and_ret_reg "false" falseb_ir falseb_val
                     in make_halfway_group [] cond_ir' end_block
 
                 Nothing ->
-                    let cond_ir' = cond_ir `set_end_br` (cond_br end_block)
+                    let cond_ir' = cond_ir (cond_br end_block)
                     in make_halfway_group [] cond_ir' end_block
 
     in return $ Just (blocks, FVNLVRegister ret_reg)
@@ -397,21 +398,27 @@ lower_expr (Located _ (AST.DExpr'While cond body)) root =
     lower_expr cond root >>=? (return Nothing) $ \ (cond_ir, cond_val) ->
     lower_expr body root >>=? (return Nothing) $ \ (body_ir, _) ->
 
-    let end_block = make_halfway_block "while_after" [] Nothing
-        cond_ir' = cond_ir `set_end_br` (Just $ HBrCond cond_val body_ir' end_block)
-        body_ir' = body_ir `set_end_br` (Just $ HBrGoto cond_ir')
-    in return $ Just (make_halfway_group [] cond_ir' end_block, FVVoid)
+    return $ Just
+        ( \ after_br ->
+            let end_block = make_halfway_block "while_after" [] after_br
+                cond_ir' = cond_ir (HBrCond cond_val body_ir' end_block)
+                body_ir' = body_ir (HBrGoto cond_ir')
+            in make_halfway_group [] cond_ir' end_block
+        , FVVoid)
 
 lower_expr (Located _ (AST.DExpr'Assign target@(Located target_sp _) (Located op_sp AST.Equal) expr)) root =
     lower_expr target root >>=? (return Nothing) $ \ (target_ir, target_val) ->
     case target_val of
         FVLValue lv ->
             lower_expr expr root >>=? (return Nothing) $ \ (expr_ir, expr_val) ->
-
-            let target_ir' = target_ir `set_end_br` (Just $ HBrGoto expr_ir')
-                expr_ir' = expr_ir `set_end_br` (Just $ HBrGoto assign_block)
-                assign_block = make_halfway_block "assign_block" [Copy lv expr_val] Nothing
-            in return $ Just (make_halfway_group [] target_ir' assign_block, FVVoid)
+            return $ Just
+                ( \ after_br ->
+                    let target_ir' = target_ir (HBrGoto expr_ir')
+                        expr_ir' = expr_ir (HBrGoto assign_block)
+                        assign_block = make_halfway_block "assign_block" [Copy lv expr_val] after_br
+                    in make_halfway_group [] target_ir' assign_block
+                , FVVoid
+                )
         _ ->
             apply_irb_to_funcgtup_s (add_error_s $ InvalidAssign target_sp op_sp) >>
             return Nothing
@@ -452,12 +459,12 @@ lower_expr (Located sp (AST.DExpr'Method _ _ _)) _ =
 
 lower_expr (Located _ (AST.DExpr'Int i)) _ =
     apply_irb_to_funcgtup_s (get_ty_s GenericIntType) >>= \ ty ->
-    return $ Just (make_halfway_block "literal_int_expr" [] Nothing, FVConstInt i ty)
+    return $ Just (make_halfway_block "literal_int_expr" [], FVConstInt i ty)
 lower_expr (Located _ (AST.DExpr'Float d)) _ =
     apply_irb_to_funcgtup_s (get_ty_s GenericFloatType) >>= \ ty ->
-    return $ Just (make_halfway_block "literal_float_expr" [] Nothing, FVConstFloat d ty)
-lower_expr (Located _ (AST.DExpr'Bool b)) _ = return $ Just (make_halfway_block "literal_bool_expr" [] Nothing, FVConstBool b)
-lower_expr (Located _ (AST.DExpr'Char c)) _ = return $ Just (make_halfway_block "literal_char_expr" [] Nothing, FVConstChar c)
+    return $ Just (make_halfway_block "literal_float_expr" [], FVConstFloat d ty)
+lower_expr (Located _ (AST.DExpr'Bool b)) _ = return $ Just (make_halfway_block "literal_bool_expr" [], FVConstBool b)
+lower_expr (Located _ (AST.DExpr'Char c)) _ = return $ Just (make_halfway_block "literal_char_expr" [], FVConstChar c)
 
 lower_expr (Located sp (AST.DExpr'String _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "string literal expressions" sp) >> -- TODO
@@ -482,24 +489,28 @@ lower_expr (Located _ (AST.DExpr'Path path)) root =
         _ -> return Nothing
     ) >>= \ reg ->
     case reg of
-        Just reg_fv -> return $ Just (make_halfway_block "resolve_path_expr_as_reg" [] Nothing, reg_fv)
+        Just reg_fv -> return $ Just (make_halfway_block "resolve_path_expr_as_reg" [], reg_fv)
         Nothing ->
             apply_irb_to_funcgtup_s (State.state $ resolve_path_v path root) >>=? (return Nothing) $ \ (_, vid) ->
-            return $ Just (make_halfway_block "resolve_path_expr_as_global_value" [] Nothing, FVGlobalValue vid)
+            return $ Just (make_halfway_block "resolve_path_expr_as_global_value" [], FVGlobalValue vid)
 
 lower_expr (Located _ (AST.DExpr'Ret expr)) root =
     lower_expr expr root >>=? (return Nothing) $ \ (expr_ir, expr_val) ->
 
     State.get >>= \ (_, _, fun) ->
 
-    let
-        expr_ir' = expr_ir `set_end_br` (Just $ HBrGoto put_block)
-        put_block = make_halfway_block "put_ret_val" [Copy (LVRegister $ get_ret_reg fun) expr_val] (Just $ HBrGoto make_halfway_exit)
-        after_block = make_halfway_block "after_return" [] Nothing
+    return $ Just
+        ( \ after_br ->
+            let expr_ir' = expr_ir (HBrGoto put_block)
+                put_block = make_halfway_block "put_ret_val" [Copy (LVRegister $ get_ret_reg fun) expr_val] (HBrGoto make_halfway_exit)
+                after_block = make_halfway_block "after_return" [] after_br
 
-    in return $ Just (make_halfway_group [after_block] expr_ir' after_block, FVVoid)
+            in make_halfway_group [after_block] expr_ir' after_block
+        , FVVoid
+        )
 
-lower_block_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe HalfwayBFV)
+
+lower_block_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe (HalfwayBr -> HalfwayBlock, FValue))
 lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
     let safe_last [] = Nothing
         safe_last x = Just $ last x
@@ -528,9 +539,11 @@ lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
                 Just ret_ir -> stmts_ir ++ [ret_ir]
                 Nothing -> stmts_ir
 
-        set_brs [] = []
-        set_brs [single] = [single]
-        set_brs (current : more@(next:_)) = current `set_end_br` (Just $ HBrGoto next) : set_brs more
+        set_brs [] _ = []
+        set_brs [single] after = [single after]
+        set_brs (current : more) after =
+            let next:more' = set_brs more after
+            in current (HBrGoto next) : more'
 
         total_irs_brs = set_brs total_irs
 
@@ -538,17 +551,16 @@ lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
             Just ret_val -> ret_val
             Nothing -> FVVoid
 
-        block_group = case total_irs_brs of
-            [] -> make_halfway_block "empty_block_expr" [] Nothing
+        block_group = \ after_br -> case total_irs_brs after_br of
+            [] -> make_halfway_block "empty_block_expr" [] after_br
             [single] -> single
             first_ir:more ->
                 let last_ir = last more
-                    middle = init more
                 in make_halfway_group [] first_ir last_ir
 
     in return $ Just (block_group, res_val)
 
-lower_stmt :: AST.LDStmt -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe HalfwayBlock)
+lower_stmt :: AST.LDStmt -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe (HalfwayBr -> HalfwayBlock))
 lower_stmt (Located _ (AST.DStmt'Expr ex)) root = lower_expr ex root >>= return . (fst <$>)
 
 lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) root =
@@ -564,13 +576,15 @@ lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) roo
         Right () -> return $ Just ()
     ) >>=? (return Nothing) $ \ _ ->
     case m_init of
-        Nothing -> return $ Just $ make_halfway_block "new_var" [] Nothing
+        Nothing -> return $ Just $ make_halfway_block "new_var" []
         Just init_expr ->
             lower_expr init_expr root >>=? (return Nothing) $ \ (init_expr_ir, init_expr_val) ->
             let
-                init_expr_ir' = init_expr_ir `set_end_br` (Just $ HBrGoto assign_block)
-                assign_block = make_halfway_block "init_var" [Copy (LVRegister reg_idx) init_expr_val] Nothing
-            in return $ Just $ make_halfway_group [] init_expr_ir' assign_block
+                group = \ after_br ->
+                    let init_expr_ir' = init_expr_ir (HBrGoto assign_block)
+                        assign_block = make_halfway_block "init_var" [Copy (LVRegister reg_idx) init_expr_val] after_br
+                    in make_halfway_group [] init_expr_ir' assign_block
+            in return $ Just group
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
     ddeclare (Located _ (AST.DDecl'Fun sf)) root parent ir_builder = ddeclare sf root parent ir_builder
