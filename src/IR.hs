@@ -389,10 +389,16 @@ lower_expr (Located sp (AST.DExpr'If cond trueb m_falseb)) root =
                     let cond_ir' = cond_ir `set_end_br` (cond_br end_block)
                     in make_halfway_group [trueb_ir', put_true_val] cond_ir' end_block
 
-    in return (Just (blocks, FVNLVRegister ret_reg))
+    in return $ Just (blocks, FVNLVRegister ret_reg)
 
 lower_expr (Located _ (AST.DExpr'While cond body)) root =
-    undefined
+    lower_expr cond root >>=? (return Nothing) $ \ (cond_ir, cond_val) ->
+    lower_expr body root >>=? (return Nothing) $ \ (body_ir, body_val) ->
+
+    let end_block = make_halfway_block "while_after" [] Nothing
+        cond_ir' = cond_ir `set_end_br` (Just $ HBrCond cond_val body_ir' end_block)
+        body_ir' = body_ir `set_end_br` (Just $ HBrGoto cond_ir')
+    in return $ Just (make_halfway_group [body_ir'] cond_ir' end_block, FVVoid)
 
 lower_expr (Located _ (AST.DExpr'Assign target@(Located target_sp _) (Located op_sp AST.Equal) expr)) root =
     undefined
