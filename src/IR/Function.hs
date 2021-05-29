@@ -6,7 +6,9 @@ module IR.Function
     , Register
     , FValue(..)
     , LValue(..)
-    , Instruction(..)
+    , Instruction
+      ( Copy
+      )
     , Br(..)
 
     , BlockIdx
@@ -105,6 +107,7 @@ data Br
     | BrGoto BlockIdx
     | BrCond FValue BlockIdx BlockIdx
 
+-- TODO: remove all instances of Typed because function instructions should be completely untyped until typechecked
 instance DeclSpan Register where
     decl_span _ (Register _ _ sp) = Just sp
 instance Describe Register where
@@ -226,6 +229,7 @@ instance Typed (Module, Function, FValue) where
     type_of irctx (_, fun, FVInstruction idx) = type_of irctx $ get_instruction fun idx
 
 instance Typed Instruction where
+    type_of irctx (Copy _ _) = resolve_void irctx
 
 new_function :: TyIdx -> [(Mutability, TyIdx, Span)] -> Span -> String -> IRCtx -> (Function, IRCtx)
 new_function ret_type param_tys sp name irctx =
