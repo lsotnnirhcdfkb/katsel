@@ -19,8 +19,12 @@ print_mod :: IRCtx -> Module -> String
 print_mod = print_ds
 
 print_ds :: (Parent d DeclSymbol String, Parent d Value String, DSPrint d) => IRCtx -> d -> String
-print_ds irctx d = ds_print irctx d ++ " {\n" ++ body ++ "}\n"
+print_ds irctx d = ds_print irctx d ++ " " ++ body_with_braces
     where
+        body_with_braces =
+            if null body
+                then "{}\n"
+                else "{\n" ++ body ++ "}\n"
         body = indent 4 $
             (concatMap (print_ds_binding irctx) (Map.toAscList $ get_child_map (d, irctx))) ++
             (concatMap (print_v_binding irctx) (Map.toAscList $ get_child_map (d, irctx)))
