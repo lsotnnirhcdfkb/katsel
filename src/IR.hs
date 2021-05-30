@@ -103,7 +103,7 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
     to_diagnostic (Unimplemented name sp, _) =
         Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
             [ Message.Underlines $ MsgUnds.UnderlinesSection
-                [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ name ++ " are currently unimplemented; it is an error to use them"
+                [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "use of unimplemented feature: " ++ name
                 ]
             ]
 
