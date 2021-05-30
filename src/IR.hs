@@ -341,8 +341,8 @@ make_instr_s :: (IRCtx -> Function -> Module -> a) -> (a -> Either TypeError r) 
 make_instr_s make_fun appl root =
     State.get >>= \ (irb, _, fun) -> return (appl $ make_fun (get_irctx irb) fun root)
 
-make_copy_s :: Module -> LValue -> FValue -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
-make_copy_s root lv fv = make_instr_s make_copy (\ a -> a lv fv) root
+make_copy_s :: Module -> LValue -> String -> FValue -> String -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
+make_copy_s root lv lvn fv fvn = make_instr_s make_copy (\ a -> a lv lvn fv fvn) root
 
 make_call_s :: Module -> FValue -> [FValue] -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
 make_call_s root fv args = make_instr_s make_call (\ a -> a fv args) root
@@ -387,7 +387,7 @@ lower_body_expr body root =
     in lower_block_expr body root >>=? fail_block $ \ (expr_hb, res) ->
 
     State.get >>= \ (_,  _, fun) ->
-    make_copy_s root (LVRegister $ get_ret_reg fun) res >>=<> ((>>fail_block) . report_type_error) $ \ copy_instr ->
+    make_copy_s root (LVRegister $ get_ret_reg fun) "function's return type" res "return value's type" >>=<> ((>>fail_block) . report_type_error) $ \ copy_instr ->
     let end_block = make_halfway_block "end_block" [copy_instr] (Just $ make_br_goto make_halfway_exit)
         expr_hb' = expr_hb `set_end_br` (Just $ make_br_goto end_block)
 
@@ -406,19 +406,19 @@ lower_expr (Located sp (AST.DExpr'If cond trueb m_falseb)) root =
     let irctx = get_irctx irb
     in apply_fun_to_funcgtup_s (State.state $ add_register (type_of irctx (root, fun, trueb_val)) Immutable sp) >>= \ ret_reg ->
 
-    let block_and_ret_reg name ir val =
-            make_copy_s root (LVRegister ret_reg) val >>=<> (return . Left) $ \ copy_instr ->
+    let block_and_ret_reg name ir val val_name =
+            make_copy_s root (LVRegister ret_reg) "true block's type" val val_name >>=<> (return . Left) $ \ copy_instr ->
             let put_block = make_halfway_block ("if_put_" ++ name ++ "_value_to_ret_reg") [copy_instr] (Just $ make_br_goto end_block)
             in return $ Right $ ir `set_end_br` (Just $ make_br_goto put_block)
 
         end_block = make_halfway_block "if_after" [] Nothing
 
-    in block_and_ret_reg "true" trueb_ir trueb_val >>=<> ((>>return Nothing) . report_type_error) $ \ trueb_ir' ->
+    in block_and_ret_reg "true" trueb_ir trueb_val (error "true block result doesn't match type of result register") >>=<> ((>>return Nothing) . report_type_error) $ \ trueb_ir' ->
     let cond_br = make_br_cond_s root cond_val trueb_ir'
     in (
         case m_falseb_ir of
             Just (falseb_ir, falseb_val) ->
-                block_and_ret_reg "false" falseb_ir falseb_val >>=<> ((>>return Nothing) . report_type_error) $ \ falseb_ir' ->
+                block_and_ret_reg "false" falseb_ir falseb_val "false branch's result type" >>=<> ((>>return Nothing) . report_type_error) $ \ falseb_ir' ->
                 cond_br falseb_ir' >>=<> ((>>return Nothing) . report_type_error) $ \ br ->
                 let cond_ir' = cond_ir `set_end_br` (Just br)
                 in return $ Just $ make_halfway_group [] cond_ir' end_block
@@ -472,7 +472,7 @@ lower_expr (Located _ (AST.DExpr'Assign target@(Located target_sp _) (Located op
     case target_val of
         FVLValue lv ->
             lower_expr expr root >>=? (return Nothing) $ \ (expr_ir, expr_val) ->
-            make_copy_s root lv expr_val >>=<> ((>>return Nothing) . report_type_error) $ \ copy_instr ->
+            make_copy_s root lv "assignment target's type" expr_val "expression's type" >>=<> ((>>return Nothing) . report_type_error) $ \ copy_instr ->
             let target_ir' = target_ir `set_end_br` (Just $ make_br_goto expr_ir')
                 expr_ir' = expr_ir `set_end_br` (Just $ make_br_goto assign_block)
                 assign_block = make_halfway_block "assign_block" [copy_instr] Nothing
@@ -560,7 +560,7 @@ lower_expr (Located _ (AST.DExpr'Ret expr)) root =
 
     State.get >>= \ (_, _, fun) ->
 
-    make_copy_s root (LVRegister $ get_ret_reg fun) expr_val >>=<> ((>>return Nothing) . report_type_error) $ \ copy_instr ->
+    make_copy_s root (LVRegister $ get_ret_reg fun) "function's return type" expr_val "return value's type" >>=<> ((>>return Nothing) . report_type_error) $ \ copy_instr ->
     let expr_ir' = expr_ir `set_end_br` (Just $ make_br_goto put_block)
         put_block = make_halfway_block "put_ret_val" [copy_instr] (Just $ make_br_goto make_halfway_exit)
         after_block = make_halfway_block "after_return" [] Nothing
@@ -636,7 +636,7 @@ lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) roo
         Just init_expr ->
             lower_expr init_expr root >>=? (return Nothing) $ \ (init_expr_ir, init_expr_val) ->
 
-            make_copy_s root (LVRegister reg_idx) init_expr_val >>=<> ((>>return Nothing) . report_type_error) $ \ copy_instr ->
+            make_copy_s root (LVRegister reg_idx) "variable's type" init_expr_val "initializer's type" >>=<> ((>>return Nothing) . report_type_error) $ \ copy_instr ->
             let init_expr_ir' = init_expr_ir `set_end_br` (Just $ make_br_goto assign_block)
                 assign_block = make_halfway_block "init_var" [copy_instr] Nothing
             in return $ Just $ make_halfway_group [] init_expr_ir' assign_block

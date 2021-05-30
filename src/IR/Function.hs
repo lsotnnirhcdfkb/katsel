@@ -284,8 +284,8 @@ function_not_defined = (2==) . length . get_blocks -- a function starts out with
 -- TypeError datatype {{{2
 data TypeError = TypeError [TypeErrorClause]
 data TypeErrorClause
-    = ThingsTypeIs String TyIdx Reason
-    | ThingsTypeShouldBe String TyIdx Reason
+    = ThingIs String TyIdx Reason
+    | ThingShouldBe String TyIdx Reason
 data Reason = Because String | NoReason
 
 instance Message.ToDiagnostic (TypeError, IRCtx) where
@@ -296,19 +296,22 @@ instance Message.ToDiagnostic (TypeError, IRCtx) where
         where
             clauses_text = map str_clause clauses
 
-            str_clause (ThingsTypeIs thing ty reason) = "the " ++ thing ++ "'s type is " ++ stringify_tyidx irctx ty ++ str_reason reason
-            str_clause (ThingsTypeShouldBe thing ty reason) = "the " ++ thing ++ "'s type should be " ++ stringify_tyidx irctx ty ++ str_reason reason
+            str_clause (ThingIs thing ty reason) = "the " ++ thing ++ " is " ++ stringify_tyidx irctx ty ++ str_reason reason
+            str_clause (ThingShouldBe thing ty reason) = "the " ++ thing ++ " should be " ++ stringify_tyidx irctx ty ++ str_reason reason
 
             str_reason (Because reason) = " because " ++ reason
             str_reason NoReason = ""
 -- instructions {{{2
-make_copy :: IRCtx -> Function -> Module -> LValue -> FValue -> Either TypeError Instruction
-make_copy irctx fun root lv fv =
+make_copy :: IRCtx -> Function -> Module -> LValue -> String -> FValue -> String -> Either TypeError Instruction
+make_copy irctx fun root lv lv_name fv fv_name =
     let lvty = type_of irctx (fun, lv)
         fvty = type_of irctx (root, fun, fv)
     in if ty_match' irctx lvty fvty
         then Right $ Copy lv fv
-        else Left $ TypeError [error "not implemented yet"]
+        else Left $ TypeError
+                [ ThingIs lv_name lvty NoReason
+                , ThingIs fv_name fvty NoReason
+                ]
 make_call :: IRCtx -> Function -> Module -> FValue -> [FValue] -> Either TypeError Instruction
 make_call fun args = error "not implemented yet"
 make_addrof :: IRCtx -> Function -> Module -> LValue -> Mutability -> Either TypeError Instruction
@@ -325,9 +328,13 @@ make_br_goto = HBrGoto
 make_br_cond :: IRCtx -> Function -> Module -> FValue -> HalfwayBlock -> HalfwayBlock -> Either TypeError HalfwayBr
 make_br_cond irctx fun root cond t f =
     let cond_ty = type_of irctx (root, fun, cond)
-    in if ty_match' irctx cond_ty (resolve_bool irctx)
+        bool_ty = resolve_bool irctx
+    in if ty_match' irctx cond_ty bool_ty
         then Right $ HBrCond cond t f
-        else Left $ TypeError [error "not implemented yet"]
+        else Left $ TypeError
+                [ ThingIs "branch condition's type" cond_ty NoReason
+                , ThingShouldBe "branch condition's type" bool_ty NoReason
+                ]
 -- replace_block {{{1
 replace_block :: [b] -> Int -> b -> [b]
 replace_block blocks idx block =
