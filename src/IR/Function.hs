@@ -146,7 +146,7 @@ instance VPrint Function where
 
             shown_registers = concatMap show_reg $ zip ([0..] :: [Int]) regs
                 where
-                    show_reg (reg_idx, Register reg_ty muty _) = "    " ++ muty_str ++ "#" ++ show reg_idx ++ ": " ++ stringify_tyidx irctx reg_ty ++ make_comment tags ++ "\n"
+                    show_reg (reg_idx, Register reg_ty muty _) = "    " ++ muty_str ++ "#" ++ show reg_idx ++ ": " ++ stringify_tyidx irctx reg_ty ++ ";" ++ make_comment tags ++ "\n"
                         where
                             muty_str = case muty of
                                 Mutable -> "mut "
