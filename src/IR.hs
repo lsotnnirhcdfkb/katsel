@@ -128,6 +128,9 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
                 [ MsgUnds.Message target_sp MsgUnds.Error MsgUnds.Primary "cannot assign to non-lvalue"
                 ]
             ]
+
+    to_diagnostic (TypeError te, irctx) = Message.to_diagnostic (te, irctx)
+
 -- helper functions {{{1
 lower_all_in_list :: Lowerable l p => [l] -> (l -> Module -> p -> IRBuilder -> (p, IRBuilder)) -> Module -> p -> IRBuilder -> (p, IRBuilder)
 lower_all_in_list things fun root start irb = (foldl' (flip (.)) id funs) (start, irb)

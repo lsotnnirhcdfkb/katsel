@@ -64,6 +64,8 @@ import IR.PrintClasses
 
 import Location
 
+import qualified Message
+
 import qualified Data.Map as Map(empty)
 import Data.List(foldl', intercalate, findIndex, nub)
 
@@ -285,6 +287,20 @@ data TypeErrorClause
     = ThingsTypeIs String TyIdx Reason
     | ThingsTypeShouldBe String TyIdx Reason
 data Reason = Because String | NoReason
+
+instance Message.ToDiagnostic (TypeError, IRCtx) where
+    to_diagnostic (TypeError clauses, irctx) =
+        -- TODO: spans
+        Message.SimpleDiag Message.Error Nothing Nothing Nothing
+            $ map Message.Note clauses_text
+        where
+            clauses_text = map str_clause clauses
+
+            str_clause (ThingsTypeIs thing ty reason) = "the " ++ thing ++ "'s type is " ++ stringify_tyidx irctx ty ++ str_reason reason
+            str_clause (ThingsTypeShouldBe thing ty reason) = "the " ++ thing ++ "'s type should be " ++ stringify_tyidx irctx ty ++ str_reason reason
+
+            str_reason (Because reason) = " because " ++ reason
+            str_reason NoReason = ""
 -- instructions {{{2
 make_copy :: IRCtx -> Function -> Module -> LValue -> FValue -> Either TypeError Instruction
 make_copy irctx fun root lv fv =
