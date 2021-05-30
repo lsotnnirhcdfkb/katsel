@@ -119,6 +119,9 @@ ty_eq _ _ = False
 ty_match :: Type -> Type -> Bool
 ty_match = ty_eq
 
+ty_match' :: IRCtx -> TyIdx -> TyIdx -> Bool
+ty_match' irctx a b = ty_match (resolve_tyidx_irctx irctx a) (resolve_tyidx_irctx irctx b)
+
 stringify_ty :: IRCtx -> Type -> String
 stringify_ty _ (FloatType _ 32) = "float"
 stringify_ty _ (FloatType _ 64) = "double"

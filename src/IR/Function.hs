@@ -47,6 +47,7 @@ module IR.Function
     , apply_halfway
     ) where
 
+import IR.TyIdx
 import IR.Type
 import IR.Value
 
@@ -286,7 +287,12 @@ data TypeErrorClause
 data Reason = Because String | NoReason
 -- instructions {{{2
 make_copy :: IRCtx -> Function -> Module -> LValue -> FValue -> Either TypeError Instruction
-make_copy irctx fun mod lv fv = error "not implemented yet"
+make_copy irctx fun root lv fv =
+    let lvty = type_of irctx (fun, lv)
+        fvty = type_of irctx (root, fun, fv)
+    in if ty_match' irctx lvty fvty
+        then Right $ Copy lv fv
+        else Left $ TypeError [error "not implemented yet"]
 make_call :: IRCtx -> Function -> Module -> FValue -> [FValue] -> Either TypeError Instruction
 make_call fun args = error "not implemented yet"
 make_addrof :: IRCtx -> Function -> Module -> LValue -> Mutability -> Either TypeError Instruction
@@ -300,8 +306,12 @@ make_br_ret = HBrRet
 make_br_goto :: HalfwayBlock -> HalfwayBr
 make_br_goto = HBrGoto
 
-make_br_cond :: FValue -> HalfwayBlock -> HalfwayBlock -> Either TypeError HalfwayBr
-make_br_cond = error "not implemented yet"
+make_br_cond :: IRCtx -> Function -> Module -> FValue -> HalfwayBlock -> HalfwayBlock -> Either TypeError HalfwayBr
+make_br_cond irctx fun root cond t f =
+    let cond_ty = type_of irctx (root, fun, cond)
+    in if ty_match' irctx cond_ty (resolve_bool irctx)
+        then Right $ HBrCond cond t f
+        else Left $ TypeError [error "not implemented yet"]
 -- replace_block {{{1
 replace_block :: [b] -> Int -> b -> [b]
 replace_block blocks idx block =
