@@ -188,11 +188,15 @@ data IndentFrame
     = IndentationSensitive Int
     | IndentationInsensitive
 
-data Lexer = Lexer
-             { sourcefile :: File
-             , source_location :: Int
-             , remaining :: String
-             }
+data Lexer
+    = Lexer
+     { sourcefile :: File
+     , source_location :: Int
+     , remaining :: String
+     , str_before_lexer :: String
+     , linen :: Int
+     , coln :: Int
+     }
 
 data LexError
     = BadChar Char Span
@@ -246,6 +250,9 @@ lex f = lex' [] [IndentationSensitive 0] $ Lexer
            { sourcefile = f
            , source_location = 0
            , remaining = source f
+           , str_before_lexer = ""
+           , linen = 1
+           , coln = 1
            }
 
 lex' :: [Either LexError (Located Token)] -> [IndentFrame] -> Lexer -> [Either LexError (Located Token)]
@@ -369,10 +376,14 @@ lex' prevtoks indent_stack lexer =
 
         make_error start len err = err $ make_span_from_lexer start len
 
-        make_span_from_lexer start len = Span (make_location file $ ind + start) (make_location file $ ind + start + len)
+        make_span_from_lexer start len = Span (make_loc_from_lexer start_lexer) (make_loc_from_lexer end_lexer)
             where
                 file = sourcefile lexer
-                ind = source_location lexer
+
+                make_loc_from_lexer l = make_location file (source_location l) (linen l) (coln l)
+
+                start_lexer = advance lexer start
+                end_lexer = advance start_lexer len
 
         (new_indent_stack, indentation_tokens) =
             if null prevtoks
@@ -388,9 +399,9 @@ lex' prevtoks indent_stack lexer =
                         process_indent cur_indent last_indent $ (indent_stack, [])
 
             where
-                cur_indent = foldl' count_indent (Just 0) str_before_lexer
+                cur_indent = foldl' count_indent (Just 0) str_before_lexer'
                     where
-                        str_before_lexer = takeWhile (/='\n') $ reverse $ take (source_location lexer) $ source $ sourcefile lexer
+                        str_before_lexer' = takeWhile (/='\n') $ reverse $ str_before_lexer lexer
 
                         count_indent (Just acc) ' ' = Just $ acc + 1
                         count_indent (Just acc) '\t' = Just $ (acc `div` 8 + 1) * 8
@@ -690,7 +701,20 @@ lex' prevtoks indent_stack lexer =
         -- }}}
 
 advance :: Lexer -> Int -> Lexer
-advance lexer n = lexer
-                  { source_location = source_location lexer + n
-                  , remaining = drop n $ remaining lexer
-                  }
+advance l 0 = l
+advance (Lexer sf loc (ch:more) before l c) 1 =
+    Lexer
+    { sourcefile = sf
+    , source_location = loc + 1
+    , remaining = more
+    , str_before_lexer = before ++ [ch]
+    , linen = if pastnl then l + 1 else l
+    , coln =  if pastnl then 1 else c + 1
+    }
+    where
+        pastnl = if ch == '\n'
+            then True
+            else False
+
+advance l@(Lexer { remaining = [] }) 1 = l
+advance l n = advance (advance l $ n - 1) 1

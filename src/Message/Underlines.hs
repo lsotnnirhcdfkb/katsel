@@ -28,7 +28,16 @@ data Importance = Primary | Secondary | Tertiary
 data Type = Error | Warning | Note | Hint
 
 loc_minus_1 :: Location -> Location
-loc_minus_1 loc = make_location (file_of_loc loc) (ind_of_loc loc - 1)
+loc_minus_1 loc = make_location (file_of_loc loc) ind_minus lnnr colnr
+    where
+        ind_orig = ind_of_loc loc
+        ind_minus = ind_orig - 1
+
+        sourcebefore = reverse $ take ind_orig $ source $ file_of_loc loc
+        pastnl = head sourcebefore == '\n'
+
+        lnnr = if pastnl then lnn_of_loc loc - 1 else lnn_of_loc loc
+        colnr = if pastnl then 1 + length (takeWhile (/='\n') sourcebefore) else coln_of_loc loc - 1
 line_minus_1 :: Location -> Int
 line_minus_1 loc = lnn_of_loc $ loc_minus_1 loc
 col_minus_1 :: Location -> Int

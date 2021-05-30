@@ -4,7 +4,9 @@ data File = File
             { name :: String
             , source :: String
             }
-            deriving Eq
+
+instance Eq File where
+    (==) f1 f2 = name f1 == name f2
 
 open_file :: String -> IO File
 open_file filename =

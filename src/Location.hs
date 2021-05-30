@@ -40,7 +40,7 @@ join_span :: Span -> Span -> Span
 join_span (Span s1 e1) (Span s2 e2) =
     if all (==(file_of_loc s1)) $ map file_of_loc all_locs
     then Span minsp maxsp
-    else error "join two spans where some locations are different to others"
+    else error "join two spans where some locations have different files"
     where
         all_locs = [s1, e1, s2, e2]
         minsp = minimumBy (compare `on` ind_of_loc) all_locs
@@ -53,14 +53,5 @@ data Located a
       }
     deriving Eq
 
-make_location :: File -> Int -> Location
-make_location file srci =
-    if srci < 0
-    then error "boo"
-    else Location file srci (getlnn file srci) (getcoln file srci)
-
-getlnn :: File -> Int -> Int
-getlnn file ind = 1 + length (filter ('\n'==) (take ind $ source file))
-
-getcoln :: File -> Int -> Int
-getcoln file ind = 1 + length (takeWhile (/='\n') $ reverse $ take ind $ source file)
+make_location :: File -> Int -> Int -> Int -> Location
+make_location = Location
