@@ -31,6 +31,7 @@ module IR.Function
     , get_ret_reg
     , get_param_regs
     , get_register
+    , get_span
 
     , function_not_defined
 
@@ -65,6 +66,7 @@ import IR.PrintClasses
 import Location
 
 import qualified Message
+import qualified Message.Underlines as MsgUnds
 
 import qualified Data.Map as Map(empty)
 import Data.List(foldl', intercalate, findIndex, nub)
@@ -284,34 +286,35 @@ function_not_defined = (2==) . length . get_blocks -- a function starts out with
 -- TypeError datatype {{{2
 data TypeError = TypeError [TypeErrorClause]
 data TypeErrorClause
-    = ThingIs String TyIdx Reason
-    | ThingShouldBe String TyIdx Reason
+    = ThingIs String Span TyIdx Reason
+    | ThingShouldBe String Span TyIdx Reason
 data Reason = Because String | NoReason
 
 instance Message.ToDiagnostic (TypeError, IRCtx) where
     to_diagnostic (TypeError clauses, irctx) =
         -- TODO: spans
         Message.SimpleDiag Message.Error Nothing Nothing Nothing
-            $ map Message.Note clauses_text
+            [ Message.Underlines $ MsgUnds.UnderlinesSection $ map msg_clause clauses
+            ]
         where
-            clauses_text = map str_clause clauses
-
-            str_clause (ThingIs thing ty reason) = "the " ++ thing ++ " is " ++ stringify_tyidx irctx ty ++ str_reason reason
-            str_clause (ThingShouldBe thing ty reason) = "the " ++ thing ++ " should be " ++ stringify_tyidx irctx ty ++ str_reason reason
+            msg_clause (ThingIs thing thingsp ty reason) =
+                MsgUnds.Message thingsp MsgUnds.Note MsgUnds.Secondary $ "the " ++ thing ++ " is " ++ stringify_tyidx irctx ty ++ str_reason reason
+            msg_clause (ThingShouldBe thing thingsp ty reason) =
+                MsgUnds.Message thingsp MsgUnds.Note MsgUnds.Secondary $ "the " ++ thing ++ " should be " ++ stringify_tyidx irctx ty ++ str_reason reason
 
             str_reason (Because reason) = " because " ++ reason
             str_reason NoReason = ""
 -- instructions {{{2
 -- TODO: allow caller to supply their own type error
-make_copy :: IRCtx -> Function -> Module -> LValue -> String -> FValue -> String -> Either TypeError Instruction
-make_copy irctx fun root lv lv_name fv fv_name =
+make_copy :: IRCtx -> Function -> Module -> Located LValue -> String -> Located FValue -> String -> Either TypeError Instruction
+make_copy irctx fun root (Located lvsp lv) lv_name (Located fvsp fv) fv_name =
     let lvty = type_of irctx (fun, lv)
         fvty = type_of irctx (root, fun, fv)
     in if ty_match' irctx lvty fvty
         then Right $ Copy lv fv
         else Left $ TypeError
-                [ ThingIs lv_name lvty NoReason
-                , ThingIs fv_name fvty NoReason
+                [ ThingIs lv_name lvsp lvty NoReason
+                , ThingIs fv_name fvsp fvty NoReason
                 ]
 make_call :: IRCtx -> Function -> Module -> FValue -> [FValue] -> Either TypeError Instruction
 make_call fun args = error "not implemented yet"
@@ -326,15 +329,15 @@ make_br_ret = HBrRet
 make_br_goto :: HalfwayBlock -> HalfwayBr
 make_br_goto = HBrGoto
 
-make_br_cond :: IRCtx -> Function -> Module -> FValue -> HalfwayBlock -> HalfwayBlock -> Either TypeError HalfwayBr
-make_br_cond irctx fun root cond t f =
+make_br_cond :: IRCtx -> Function -> Module -> Located FValue -> HalfwayBlock -> HalfwayBlock -> Either TypeError HalfwayBr
+make_br_cond irctx fun root (Located condsp cond) t f =
     let cond_ty = type_of irctx (root, fun, cond)
         bool_ty = resolve_bool irctx
     in if ty_match' irctx cond_ty bool_ty
         then Right $ HBrCond cond t f
         else Left $ TypeError
-                [ ThingIs "branch condition's type" cond_ty NoReason
-                , ThingShouldBe "branch condition's type" bool_ty NoReason
+                [ ThingIs "branch condition's type" condsp cond_ty NoReason
+                , ThingShouldBe "branch condition's type" condsp bool_ty NoReason
                 ]
 -- replace_block {{{1
 replace_block :: [b] -> Int -> b -> [b]

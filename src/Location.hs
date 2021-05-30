@@ -46,7 +46,11 @@ join_span (Span s1 e1) (Span s2 e2) =
         minsp = minimumBy (compare `on` ind_of_loc) all_locs
         maxsp = maximumBy (compare `on` ind_of_loc) all_locs
 
-data Located a = Located Span a
+data Located a
+    = Located
+      { just_span :: Span
+      , unlocate :: a
+      }
     deriving Eq
 
 make_location :: File -> Int -> Location

@@ -99,9 +99,6 @@ dedent = state $ \ segments -> ((), segments ++ [Dedent])
 putnl :: State [PPrintSegment] ()
 putnl = state $ \ segments -> ((), segments ++ [Newline])
 -- helper functions {{{1
-unlocate :: Located a -> a
-unlocate (Located _ a) = a
-
 maybe_do :: (a -> State [PPrintSegment] ()) -> Maybe a -> State [PPrintSegment] ()
 maybe_do st m =
     case m of
