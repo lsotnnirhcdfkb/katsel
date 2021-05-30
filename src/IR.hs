@@ -73,6 +73,7 @@ data IRBuildError
     | PathDoesntExist Span -- TODO: change to 'no entity called x in y'
     | InvalidAssign Span Span
     | TypeError TypeError
+    | AddrofNotLValue Span
 
 duplicate_msg :: String -> String -> String -> (Maybe Span, String) -> (Maybe Span, String) -> Message.SimpleDiag
 duplicate_msg entity_kind diag_name name (old_sp, old_desc) (new_sp, new_desc) =
@@ -130,6 +131,13 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
             ]
 
     to_diagnostic (TypeError te, irctx) = Message.to_diagnostic (te, irctx)
+
+    to_diagnostic (AddrofNotLValue sp, _) =
+        Message.SimpleDiag Message.Error (Just sp) Nothing (Just "bad-ref")
+            [ Message.Underlines $ MsgUnds.UnderlinesSection
+                [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary "cannot take pointer to non-lvalue"
+                ]
+            ]
 
 -- helper functions {{{1
 lower_all_in_list :: Lowerable l p => [l] -> (l -> Module -> p -> IRBuilder -> (p, IRBuilder)) -> Module -> p -> IRBuilder -> (p, IRBuilder)
@@ -513,7 +521,9 @@ lower_expr (Located sp (AST.DExpr'Ref muty expr)) root =
 
             in return $ Just (make_halfway_group [] expr_ir' ref_block, Located sp $ FVNLVRegister result_reg)
 
-        _ -> return Nothing
+        _ ->
+            apply_irb_to_funcgtup_s (add_error_s $ AddrofNotLValue sp) >>
+            return Nothing
 
 lower_expr (Located sp (AST.DExpr'Call _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "call expressions" sp) >> -- TODO
