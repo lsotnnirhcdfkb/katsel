@@ -21,6 +21,9 @@ module IR.Function
     , make_br_goto
     , make_br_cond
 
+    , set_end_br
+    , set_end_br'
+
     , new_function
 
     , get_entry_block
@@ -293,8 +296,10 @@ make_derefptr fv = error "not implemented yet"
 -- branches {{{2
 make_br_ret :: HalfwayBr
 make_br_ret = HBrRet
+
 make_br_goto :: HalfwayBlock -> HalfwayBr
 make_br_goto = HBrGoto
+
 make_br_cond :: FValue -> HalfwayBlock -> HalfwayBlock -> Either TypeError HalfwayBr
 make_br_cond = error "not implemented yet"
 -- replace_block {{{1
@@ -344,7 +349,7 @@ data HalfwayBr
 
 data HalfwayBlock
     = HBlockGroup [HalfwayBlock] Int Int
-    | HBlock String [Instruction] HalfwayBr
+    | HBlock String [Instruction] (Maybe HalfwayBr)
     | HExitBlock
     deriving Eq
 type HalfwayBFV = (HalfwayBlock, FValue)
@@ -354,19 +359,31 @@ make_halfway_group roots start end = HBlockGroup (start:end:discovered) 0 1
     where
         discovered = filter (\ b -> b /= start && b /= end) $ nub $ roots ++ concatMap discover (start:roots)
 
-        discover (HBlock _ _ (HBrGoto b)) = b : discover b
-        discover (HBlock _ _ (HBrCond _ t f)) = [t, f] ++ discover t ++ discover f
+        discover (HBlock _ _ (Just (HBrGoto b))) = b : discover b
+        discover (HBlock _ _ (Just (HBrCond _ t f))) = [t, f] ++ discover t ++ discover f
         discover (HBlock _ _ _) = []
         discover (HBlockGroup b _ _) = concatMap discover b
         discover HExitBlock = []
 
-make_halfway_block :: String -> [Instruction] -> HalfwayBr -> HalfwayBlock
+make_halfway_block :: String -> [Instruction] -> Maybe HalfwayBr -> HalfwayBlock
 make_halfway_block = HBlock
 
 make_halfway_exit :: HalfwayBlock
 make_halfway_exit = HExitBlock
+-- set_end_br {{{2
+set_end_br :: HalfwayBlock -> Maybe HalfwayBr -> HalfwayBlock
+set_end_br (HBlockGroup blocks start end) br = HBlockGroup blocks' start end
+    where
+        end_block = blocks !! end
+        end_block' = set_end_br end_block br
+        blocks' = replace_block blocks end end_block'
+set_end_br (HBlock name instrs _) br = HBlock name instrs br
+set_end_br HExitBlock _ = HExitBlock -- exit blocks always have a return br, so this is a no-op
+
+set_end_br' :: HalfwayBFV -> Maybe HalfwayBr -> HalfwayBFV
+set_end_br' (hb, fv) br = (set_end_br hb br, fv)
 -- applying halfway blocks {{{2
-add_all_hb_blocks :: HalfwayBlock -> Function -> (Function, [((String, [Instruction], HalfwayBr), BlockIdx)], BlockIdx, BlockIdx)
+add_all_hb_blocks :: HalfwayBlock -> Function -> (Function, [((String, [Instruction], Maybe HalfwayBr), BlockIdx)], BlockIdx, BlockIdx)
 add_all_hb_blocks hb fun =
     let make_block_list (HBlock name instrs br) = [(name, instrs, br)]
         make_block_list (HBlockGroup blocks _ _) = concatMap make_block_list blocks
@@ -408,7 +425,6 @@ apply_halfway hb start_block fun =
 
         f_with_brs = foldl' fill_brs f_with_instrs block_map
             where
-                convert_hb :: HalfwayBlock -> BlockIdx
                 convert_hb (HBlock name instrs br) = unwrap_maybe $ lookup (name, instrs, br) block_map
                 convert_hb (HBlockGroup blocks start _) = convert_hb $ blocks !! start
                 convert_hb HExitBlock = get_exit_block fun
@@ -417,7 +433,8 @@ apply_halfway hb start_block fun =
                 convert_hbr (HBrGoto dest) = BrGoto $ convert_hb dest
                 convert_hbr (HBrCond c t f) = BrCond c (convert_hb t) (convert_hb f)
 
-                fill_brs f ((_, _, br), f_bidx) = add_br (convert_hbr br) f_bidx f
+                fill_brs f ((_, _, (Just br)), f_bidx) = add_br (convert_hbr br) f_bidx f
+                fill_brs f ((_, _, Nothing), _) = f
 
         f_with_first_br = add_br (BrGoto start_idx) start_block f_with_brs
     in (end_idx, f_with_first_br)
