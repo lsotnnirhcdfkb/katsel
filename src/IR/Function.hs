@@ -285,13 +285,13 @@ data TypeErrorClause
     | ThingsTypeShouldBe String TyIdx Reason
 data Reason = Because String | NoReason
 -- instructions {{{2
-make_copy :: LValue -> FValue -> Either TypeError Instruction
-make_copy lv fv = error "not implemented yet"
-make_call :: FValue -> [FValue] -> Either TypeError Instruction
+make_copy :: IRCtx -> Function -> Module -> LValue -> FValue -> Either TypeError Instruction
+make_copy irctx fun mod lv fv = error "not implemented yet"
+make_call :: IRCtx -> Function -> Module -> FValue -> [FValue] -> Either TypeError Instruction
 make_call fun args = error "not implemented yet"
-make_addrof :: LValue -> Mutability -> Either TypeError Instruction
+make_addrof :: IRCtx -> Function -> Module -> LValue -> Mutability -> Either TypeError Instruction
 make_addrof lv muty = error "not implemented yet"
-make_derefptr :: FValue -> Either TypeError Instruction
+make_derefptr :: IRCtx -> Function -> Module -> FValue -> Either TypeError Instruction
 make_derefptr fv = error "not implemented yet"
 -- branches {{{2
 make_br_ret :: HalfwayBr
@@ -352,6 +352,7 @@ data HalfwayBlock
     | HBlock String [Instruction] (Maybe HalfwayBr)
     | HExitBlock
     deriving Eq
+
 type HalfwayBFV = (HalfwayBlock, FValue)
 -- making blocks {{{2
 make_halfway_group :: [HalfwayBlock] -> HalfwayBlock -> HalfwayBlock -> HalfwayBlock
