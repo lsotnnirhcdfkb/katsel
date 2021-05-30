@@ -10,7 +10,6 @@ module IR.Function
 
     , BlockIdx
     , RegisterIdx
-    , InstructionIdx
 
     , TypeError
     , make_copy
@@ -88,7 +87,6 @@ data Function
       }
 newtype BlockIdx = BlockIdx Int deriving Eq
 newtype RegisterIdx = RegisterIdx Int deriving Eq
-data InstructionIdx = InstructionIdx BlockIdx Int deriving Eq
 
 data BasicBlock = BasicBlock String [Instruction] (Maybe Br)
 data Register = Register TyIdx Mutability Span
@@ -348,20 +346,15 @@ add_basic_block name fun =
         new_block_idx = BlockIdx $ length blocks
         new_block = BasicBlock name [] Nothing
 
-add_instruction :: Instruction -> BlockIdx -> Function -> (InstructionIdx, Function)
-add_instruction instr block_idx@(BlockIdx block_idx') fun =
-    ( instr_idx
-    , fun { get_blocks = new_blocks }
-    )
+add_instruction :: Instruction -> BlockIdx -> Function -> Function
+add_instruction instr block_idx@(BlockIdx block_idx') fun = fun { get_blocks = new_blocks }
     where
         blocks = get_blocks fun
 
         (BasicBlock block_name block_instrs block_br) = blocks !! block_idx'
-
         new_block = BasicBlock block_name (block_instrs ++ [instr]) block_br
 
         new_blocks = replace_block blocks block_idx' new_block
-        instr_idx = InstructionIdx block_idx $ length block_instrs
 
 add_br :: Br -> BlockIdx -> Function -> Function
 add_br br (BlockIdx block_idx) fun = fun { get_blocks = new_blocks }
@@ -452,7 +445,7 @@ apply_halfway hb start_block fun =
 
         f_with_instrs = foldl' fill_instrs f_with_blocks block_map
             where
-                fill_instrs f ((_, instrs, _), f_bidx) = foldl' (\ f' instr -> snd $ add_instruction instr f_bidx f') f instrs
+                fill_instrs f ((_, instrs, _), f_bidx) = foldl' (\ f' instr -> add_instruction instr f_bidx f') f instrs
 
         f_with_brs = foldl' fill_brs f_with_instrs block_map
             where
