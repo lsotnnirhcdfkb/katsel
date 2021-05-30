@@ -309,8 +309,10 @@ make_copy irctx fun root (Located lvsp lv) lv_name (Located fvsp fv) fv_name =
                 ]
 make_call :: IRCtx -> Function -> Module -> FValue -> [FValue] -> Either TypeError Instruction
 make_call fun args = error "not implemented yet"
-make_addrof :: IRCtx -> Function -> Module -> LValue -> Mutability -> Either TypeError Instruction
-make_addrof lv muty = error "not implemented yet"
+make_addrof :: IRCtx -> Function -> Module -> RegisterIdx -> LValue -> Mutability -> Either TypeError Instruction
+make_addrof irctx fun root res lv muty =
+    -- TODO: check mutability of lv
+    Right $ Addrof res lv muty
 make_derefptr :: IRCtx -> Function -> Module -> FValue -> Either TypeError Instruction
 make_derefptr fv = error "not implemented yet"
 -- branches {{{2

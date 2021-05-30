@@ -341,8 +341,8 @@ make_copy_s root lv lvn fv fvn = make_instr_s make_copy (\ a -> a lv lvn fv fvn)
 make_call_s :: Module -> FValue -> [FValue] -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
 make_call_s root fv args = make_instr_s make_call (\ a -> a fv args) root
 
-make_addrof_s :: Module -> LValue -> Mutability -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
-make_addrof_s root lv muty = make_instr_s make_addrof (\ a -> a lv muty) root
+make_addrof_s :: Module -> RegisterIdx -> LValue -> Mutability -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
+make_addrof_s root res lv muty = make_instr_s make_addrof (\ a -> a res lv muty) root
 
 make_derefptr_s :: Module -> FValue -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
 make_derefptr_s root fv = make_instr_s make_derefptr ($fv) root
@@ -507,7 +507,7 @@ lower_expr (Located sp (AST.DExpr'Ref muty expr)) root =
             apply_irb_to_funcgtup_s (get_ty_s (PointerType Map.empty muty' lvty)) >>= \ reg_ty ->
             apply_fun_to_funcgtup_s (State.state $ add_register reg_ty Immutable sp) >>= \ result_reg ->
 
-            make_addrof_s root expr_lv muty' >>=<> ((>>return Nothing) . report_type_error) $ \ ref_instr ->
+            make_addrof_s root result_reg expr_lv muty' >>=<> ((>>return Nothing) . report_type_error) $ \ ref_instr ->
             let expr_ir' = expr_ir `set_end_br` (Just $ make_br_goto ref_block)
                 ref_block = make_halfway_block "ref_block" [ref_instr] Nothing
 
