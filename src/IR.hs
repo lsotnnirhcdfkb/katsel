@@ -101,9 +101,9 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
         duplicate_msg "local" "redecl-local" name (decl_span irctx (fun, old_lvalue), describe irctx (fun, old_lvalue)) (decl_span irctx (fun, new_lvalue), describe irctx (fun, new_lvalue))
 
     to_diagnostic (Unimplemented name sp, _) =
-        Message.SimpleDiag Message.Warning (Just sp) Nothing Nothing
+        Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
             [ Message.Underlines $ MsgUnds.UnderlinesSection
-                [ MsgUnds.Message sp MsgUnds.Warning MsgUnds.Primary $ name ++ " are currently unimplemented"
+                [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ name ++ " are currently unimplemented; it is an error to use them"
                 ]
             ]
 
