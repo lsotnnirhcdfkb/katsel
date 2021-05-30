@@ -581,7 +581,8 @@ lower_block_expr (Located _ (AST.SBlockExpr' stmts)) root =
             _ -> (stmts, Nothing)
 
     in sequence (map (flip lower_stmt root) stmts') >>= \ stmts_m_ir ->
-    sequence stmts_m_ir |>>=? (return Nothing) $ \ stmts_ir ->
+    let stmts_ir = catMaybes stmts_m_ir
+    in 
 
     (case m_ret_expr of
         Just ret_expr ->
