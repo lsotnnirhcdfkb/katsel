@@ -115,6 +115,10 @@ ty_eq GenericFloatType GenericFloatType = True
 
 ty_eq _ _ = False
 
+-- TODO: type matching
+ty_match :: Type -> Type -> Bool
+ty_match = ty_eq
+
 stringify_ty :: IRCtx -> Type -> String
 stringify_ty _ (FloatType _ 32) = "float"
 stringify_ty _ (FloatType _ 64) = "double"
