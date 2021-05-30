@@ -162,11 +162,6 @@ infixl 1 |>>=?
         Right r -> onright r
 infixl 1 >>=<>
 
-(|>>=<>) :: Monad m => Either e r -> (e -> m f) -> (r -> m f) -> m f
-(|>>=<>) m = (return m >>=<>)
-infixl 1 |>>=<>
-
-
 add_error :: IRBuildError -> IRBuilder -> IRBuilder
 add_error err (IRBuilder irctx errs) = IRBuilder irctx (errs ++ [err])
 
@@ -339,9 +334,9 @@ apply_fun_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
 report_type_error :: TypeError -> State.State (IRBuilder, FunctionCG, Function) ()
 report_type_error = apply_irb_to_funcgtup_s . add_error_s . TypeError
 -- making instructions {{{3
-make_instr_s :: (IRCtx -> Function -> Module -> a) -> (a -> Either TypeError Instruction) -> Module -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
+make_instr_s :: (IRCtx -> Function -> Module -> a) -> (a -> Either TypeError r) -> Module -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError r)
 make_instr_s make_fun appl root =
-    State.get >>= \ (irb, _, fun) -> return ((appl $ make_fun (get_irctx irb) fun root) :: Either TypeError Instruction)
+    State.get >>= \ (irb, _, fun) -> return (appl $ make_fun (get_irctx irb) fun root)
 
 make_copy_s :: Module -> LValue -> FValue -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
 make_copy_s root lv fv = make_instr_s make_copy (\ a -> a lv fv) root
@@ -354,6 +349,9 @@ make_addrof_s root lv muty = make_instr_s make_addrof (\ a -> a lv muty) root
 
 make_derefptr_s :: Module -> FValue -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
 make_derefptr_s root fv = make_instr_s make_derefptr ($fv) root
+
+make_br_cond_s :: Module -> FValue -> HalfwayBlock -> HalfwayBlock -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError HalfwayBr)
+make_br_cond_s root fv t f = make_instr_s make_br_cond (\ a -> a fv t f) root
 -- lower function body {{{3
 lower_fun_body :: Parent p Value String => AST.SFunDecl -> Module -> Function -> p -> State.State IRBuilder p
 lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
@@ -413,17 +411,17 @@ lower_expr (Located sp (AST.DExpr'If cond trueb m_falseb)) root =
         end_block = make_halfway_block "if_after" [] Nothing
 
     in block_and_ret_reg "true" trueb_ir trueb_val >>=<> ((>>return Nothing) . report_type_error) $ \ trueb_ir' ->
-    let cond_br = make_br_cond cond_val trueb_ir'
+    let cond_br = make_br_cond_s root cond_val trueb_ir'
     in (
         case m_falseb_ir of
             Just (falseb_ir, falseb_val) ->
                 block_and_ret_reg "false" falseb_ir falseb_val >>=<> ((>>return Nothing) . report_type_error) $ \ falseb_ir' ->
-                cond_br falseb_ir' |>>=<> ((>>return Nothing) . report_type_error) $ \ br ->
+                cond_br falseb_ir' >>=<> ((>>return Nothing) . report_type_error) $ \ br ->
                 let cond_ir' = cond_ir `set_end_br` (Just br)
                 in return $ Just $ make_halfway_group [] cond_ir' end_block
 
             Nothing ->
-                cond_br end_block |>>=<> ((>>return Nothing) . report_type_error) $ \ br ->
+                cond_br end_block >>=<> ((>>return Nothing) . report_type_error) $ \ br ->
                 let cond_ir' = cond_ir `set_end_br` (Just br)
                 in return $ Just $ make_halfway_group [] cond_ir' end_block
     ) >>=? (return Nothing) $ \ blocks ->
@@ -436,20 +434,29 @@ lower_expr (Located _ (AST.DExpr'While cond body)) root =
     let end_block = make_halfway_block "while_after" [] Nothing
 
         cond_ir'_and_body_ir' =
-            let body_ir' = body_ir `set_end_br` (Just $ make_br_goto cond_ir')
-                (cond_err, cond_ir') =
-                    case make_br_cond cond_val body_ir' end_block of
-                        Right cond_br -> (Nothing, cond_ir `set_end_br` (Just cond_br))
-                        Left err -> (Just err, cond_ir)
-            in case cond_err of
-                Just err -> Left err
-                Nothing -> Right (cond_ir', body_ir')
-    in cond_ir'_and_body_ir' |>>=<> ((>>return Nothing) . report_type_error) $ \ (cond_ir', _) ->
+            -- i also dont really know what this is doing, but it seems to work
+            let body_ir'_s =
+                    err_cond_ir'_s >>= \ (_, cond_ir') ->
+                    return (body_ir `set_end_br` (Just $ make_br_goto cond_ir'))
+
+                err_cond_ir'_s =
+                    body_ir'_s >>= \ body_ir' ->
+                    make_br_cond_s root cond_val body_ir' end_block >>= \ ei_cond_br ->
+                    case ei_cond_br of
+                        Right cond_br -> return (Nothing, cond_ir `set_end_br` (Just cond_br))
+                        Left err -> return (Just err, cond_ir)
+            in err_cond_ir'_s >>= \ (cond_err, cond_ir') ->
+            case cond_err of
+                Just err -> return $ Left err
+                Nothing ->
+                    body_ir'_s >>= \ body_ir' ->
+                    return (Right (cond_ir', body_ir'))
+    in cond_ir'_and_body_ir' >>=<> ((>>return Nothing) . report_type_error) $ \ (cond_ir', _) ->
     return $ Just (make_halfway_group [] cond_ir' end_block, FVVoid)
 
     {-
     let end_block = make_halfway_block "while_after" []
-        ei_cond_ir' = cond_ir <$> (\ after_br -> make_br_cond cond_val body_ir' (end_block after_br))
+        ei_cond_ir' = cond_ir <$> (\ after_br -> make_br_cond_s root cond_val body_ir' (end_block after_br))
         body_ir' = body_ir (make_br_goto cond_ir')
     in
     ei_cond_ir' |>>=<> ((>>return Nothing) . report_type_error) $ \ cond_ir' ->
