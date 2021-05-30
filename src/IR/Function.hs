@@ -302,6 +302,7 @@ instance Message.ToDiagnostic (TypeError, IRCtx) where
             str_reason (Because reason) = " because " ++ reason
             str_reason NoReason = ""
 -- instructions {{{2
+-- TODO: allow caller to supply their own type error
 make_copy :: IRCtx -> Function -> Module -> LValue -> String -> FValue -> String -> Either TypeError Instruction
 make_copy irctx fun root lv lv_name fv fv_name =
     let lvty = type_of irctx (fun, lv)
