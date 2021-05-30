@@ -94,9 +94,9 @@ data BasicBlock = BasicBlock String [Instruction] (Maybe Br)
 data Register = Register TyIdx Mutability Span
 data Instruction
     = Copy LValue FValue
-    | Call FValue [FValue]
-    | Addrof LValue Mutability
-    | DerefPtr FValue
+    | Call RegisterIdx FValue [FValue]
+    | Addrof RegisterIdx LValue Mutability
+    | DerefPtr RegisterIdx FValue
     deriving Eq
 
 data LValue
@@ -111,7 +111,6 @@ data FValue
     | FVConstBool Bool
     | FVConstChar Char
     | FVVoid
-    | FVInstruction InstructionIdx
     deriving Eq
 
 -- these branches don't need type checking because they are only created by applying halfway branches, which are already type-checked
@@ -173,7 +172,7 @@ instance VPrint Function where
                     show_block (block_n, BasicBlock block_name instructions m_br) =
                         "    "  ++ block_name_num block_name block_n ++ ": {" ++ make_comment tags ++ "\n" ++
 
-                        concatMap (\ (idx, instr) -> "        (%" ++ show idx ++ ": " ++ stringify_tyidx irctx (type_of irctx instr) ++ ") = " ++ show_instruction instr ++ ";\n") (zip ([0..] :: [Int]) instructions) ++
+                        concatMap (("        "++) . (++";\n") . show_instruction) instructions ++
 
                         "        =>: " ++ (
                             case m_br of
@@ -193,22 +192,23 @@ instance VPrint Function where
                                         else []
                                 )
 
+                    show_reg (RegisterIdx i) = '#' : show i
+
                     show_fv (FVGlobalValue vid) = intercalate "::" $ vid_segments vid
-                    show_fv (FVNLVRegister (RegisterIdx i)) = "#" ++ show i
+                    show_fv (FVNLVRegister i) = show_reg i
                     show_fv (FVLValue lv) = show_lv lv
                     show_fv (FVConstInt i ty) = "(" ++ show i ++ " of " ++ stringify_tyidx irctx ty ++ ")"
                     show_fv (FVConstFloat d ty) = "(" ++ show d ++ " of " ++ stringify_tyidx irctx ty ++ ")"
                     show_fv (FVConstBool b) = if b then "true" else "false"
                     show_fv (FVConstChar c) = ['\'', c, '\'']
                     show_fv FVVoid = "void"
-                    show_fv (FVInstruction (InstructionIdx bidx iidx)) = "%" ++ show_block_from_idx bidx ++ "." ++ show iidx
 
-                    show_lv (LVRegister (RegisterIdx i)) = "#" ++ show i
+                    show_lv (LVRegister i) = show_reg i
 
                     show_instruction (Copy lv fv) = "copy " ++ show_fv fv ++ " -> " ++ show_lv lv
-                    show_instruction (Call fv args) = "call " ++ show_fv fv ++ " [" ++ intercalate ", " (map show_fv args) ++ "]"
-                    show_instruction (Addrof lv muty) = "addrof " ++ case muty of { Mutable -> "mut"; Immutable -> ""} ++ " " ++ show_lv lv
-                    show_instruction (DerefPtr fv) = "derefptr " ++ show_fv fv
+                    show_instruction (Call res fv args) = "call " ++ show_fv fv ++ " [" ++ intercalate ", " (map show_fv args) ++ "] -> " ++ show_reg res
+                    show_instruction (Addrof res lv muty) = "addrof " ++ case muty of { Mutable -> "mut"; Immutable -> ""} ++ " " ++ show_lv lv ++ " -> " ++ show_reg res
+                    show_instruction (DerefPtr res fv) = "derefptr " ++ show_fv fv ++ " -> " ++ show_reg res
 
                     show_br BrRet = "ret"
                     show_br (BrGoto b) = "goto " ++ show_block_from_idx b
@@ -238,10 +238,6 @@ instance Typed (Module, Function, FValue) where
     type_of irctx (_, _, FVConstBool _) = resolve_bool irctx
     type_of irctx (_, _, FVConstChar _) = resolve_char irctx
     type_of irctx (_, _, FVVoid) = resolve_void irctx
-    type_of irctx (_, fun, FVInstruction idx) = type_of irctx $ get_instruction fun idx
-
-instance Typed Instruction where
-    type_of irctx (Copy _ _) = resolve_void irctx
 
 new_function :: TyIdx -> [(Mutability, TyIdx, Span)] -> Span -> String -> IRCtx -> (Function, IRCtx)
 new_function ret_type param_tys sp name irctx =
@@ -273,11 +269,6 @@ add_register tyidx muty sp fun = (reg_idx, fun')
 
 get_register :: Function -> RegisterIdx -> Register
 get_register fun (RegisterIdx idx) = get_registers fun !! idx
-
-get_instruction :: Function -> InstructionIdx -> Instruction
-get_instruction (Function blocks _ _ _ _ _ _ _ _) (InstructionIdx (BlockIdx bidx) iidx) =
-    let (BasicBlock _ instrs _) = blocks !! bidx
-    in instrs !! iidx
 
 function_not_defined :: Function -> Bool
 function_not_defined = (2==) . length . get_blocks -- a function starts out with 2 blocks, and it only goes up from there; blocks cannot be removed

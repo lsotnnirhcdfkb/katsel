@@ -494,9 +494,26 @@ lower_expr (Located sp (AST.DExpr'Unary _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "unary expressions" sp) >> -- TODO
     return Nothing
 
-lower_expr (Located sp (AST.DExpr'Ref _ _)) _ =
-    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "reference (address-of) expressions" sp) >> -- TODO
-    return Nothing
+lower_expr (Located sp (AST.DExpr'Ref muty expr)) root =
+    lower_expr expr root >>=? (return Nothing) $ \ (expr_ir, expr_val) ->
+
+    case expr_val of
+        Located _ (FVLValue expr_lv) ->
+            State.get >>= \ (irb, _, fun) ->
+            let muty' = ast_muty_to_ir_muty muty
+                lvty = type_of (get_irctx irb) (fun, expr_lv)
+            in
+
+            apply_irb_to_funcgtup_s (get_ty_s (PointerType Map.empty muty' lvty)) >>= \ reg_ty ->
+            apply_fun_to_funcgtup_s (State.state $ add_register reg_ty Immutable sp) >>= \ result_reg ->
+
+            make_addrof_s root expr_lv muty' >>=<> ((>>return Nothing) . report_type_error) $ \ ref_instr ->
+            let expr_ir' = expr_ir `set_end_br` (Just $ make_br_goto ref_block)
+                ref_block = make_halfway_block "ref_block" [ref_instr] Nothing
+
+            in return $ Just (make_halfway_group [] expr_ir' ref_block, Located sp $ FVNLVRegister result_reg)
+
+        _ -> return Nothing
 
 lower_expr (Located sp (AST.DExpr'Call _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "call expressions" sp) >> -- TODO
@@ -576,7 +593,7 @@ lower_block_expr (Located blocksp (AST.SBlockExpr' stmts)) root =
 
     in sequence (map (flip lower_stmt root) stmts') >>= \ stmts_m_ir ->
     let stmts_ir = catMaybes stmts_m_ir
-    in 
+    in
 
     (case m_ret_expr of
         Just ret_expr ->
