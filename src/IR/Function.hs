@@ -131,7 +131,7 @@ instance Describe Function where
 instance Typed Function where
     type_of _ = get_type
 instance VPrint Function where
-    v_print irctx (Function blocks (BlockIdx entry_block_idx) (BlockIdx exit_block_idx) regs (RegisterIdx ret_reg_idx) param_regs _ _ _) =
+    v_print irctx (Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_regs _ _ _) =
         let
             make_comment tags = if null tags then "" else " // " ++ intercalate ", " tags
 
@@ -153,15 +153,17 @@ instance VPrint Function where
                                         Nothing -> []
                                 )
 
-            shown_blocks = concatMap show_block $ zip ([0..] :: [Int]) blocks
+            shown_blocks = concatMap show_block $ zip (map BlockIdx [0..]) blocks
                 where
+                    preds = find_preds blocks
+
                     show_block_from_idx (BlockIdx idx) =
                         let (BasicBlock n _ _) = blocks !! idx
                         in block_name_num n idx
                     block_name_num name num = name ++ "(" ++ show num ++ ")"
 
-                    show_block (block_n, BasicBlock block_name instructions m_br) =
-                        "    "  ++ block_name_num block_name block_n ++ " {" ++ make_comment tags ++ "\n" ++
+                    show_block (block_n@(BlockIdx block_n'), BasicBlock block_name instructions m_br) =
+                        "    "  ++ block_name_num block_name block_n' ++ " {" ++ make_comment tags ++ "\n" ++
 
                         concatMap (\ (idx, instr) -> "        (%" ++ show idx ++ ": " ++ stringify_tyidx irctx (type_of irctx instr) ++ ") = " ++ show_instruction instr ++ ";\n") (zip ([0..] :: [Int]) instructions) ++
 
@@ -169,15 +171,11 @@ instance VPrint Function where
 
                         "    }\n"
                         where
-                            tags = (
-                                    if block_n == entry_block_idx
-                                        then ["entry block"]
-                                        else []
-                                ) ++ (
-                                    if block_n == exit_block_idx
-                                        then ["exit block"]
-                                        else []
-                                )
+                            tags =
+                                case lookup block_n preds of
+                                    Just block_preds
+                                        | not $ null block_preds -> ["has predecessors: " ++ intercalate ", " (map show_block_from_idx block_preds)]
+                                    _ -> ["no predecessors"]
 
                     show_reg (RegisterIdx i) = '#' : show i
 
@@ -368,3 +366,24 @@ add_br br (BlockIdx block_idx) fun = fun { get_blocks = new_blocks }
         (BasicBlock block_name block_instrs _) = blocks !! block_idx
         new_block = BasicBlock block_name block_instrs (Just br)
         new_blocks = replace_block blocks block_idx new_block
+-- cfg analysis {{{1
+find_preds :: [BasicBlock] -> [(BlockIdx, [BlockIdx])]
+find_preds blocks = preds
+    where
+        numbered_blocks :: [(BlockIdx, BasicBlock)]
+        numbered_blocks = zip (map BlockIdx [0..]) blocks
+
+        preds :: [(BlockIdx, [BlockIdx])]
+        preds = map (\ (i, _) -> (i, preds_of i)) numbered_blocks
+
+        preds_of :: BlockIdx -> [BlockIdx]
+        preds_of b = map fst $ filter ((`is_pred_of` b) . snd) numbered_blocks
+
+        is_pred_of :: BasicBlock -> BlockIdx -> Bool
+        is_pred_of (BasicBlock _ _ (Just br)) dest = br `leads_to` dest
+        is_pred_of (BasicBlock _ _ Nothing) _ = False
+
+        leads_to :: Br -> BlockIdx -> Bool
+        leads_to BrRet _ = False
+        leads_to (BrGoto b) dest = b == dest
+        leads_to (BrCond _ t f) dest = t == dest || f == dest
