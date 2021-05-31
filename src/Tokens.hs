@@ -366,8 +366,8 @@ lex' prevtoks indent_stack lexer =
 
     where
         -- helpers {{{
-        continue_lex_with things advanceamt = lex' (prevtoks ++ indentation_tokens ++ things) new_indent_stack $ lexer `advance` advanceamt
-        continue_lex_with_nothing advanceamt = lex' prevtoks indent_stack $ lexer `advance` advanceamt
+        continue_lex_with things advanceamt = lex' (prevtoks ++ indentation_tokens ++ things) new_indent_stack $ lexer `seek_lexer` advanceamt
+        continue_lex_with_nothing advanceamt = lex' prevtoks indent_stack $ lexer `seek_lexer` advanceamt
 
         continue_lex_with_single_tok len tok = continue_lex_with [Right $ make_token 0 len tok] len
         continue_lex_with_single_err len err = continue_lex_with [Left $ make_error 0 len err] len
@@ -382,9 +382,9 @@ lex' prevtoks indent_stack lexer =
 
                 make_loc_from_lexer l = make_location file (source_location l) (linen l) (coln l)
 
-                start_lexer = advance lexer start
-                before_lexer = advance start_lexer (len - 1)
-                end_lexer = advance before_lexer 1
+                start_lexer = lexer `seek_lexer` start
+                before_lexer = start_lexer `seek_lexer` (len - 1)
+                end_lexer = before_lexer `seek_lexer` 1
 
         (new_indent_stack, indentation_tokens) =
             if null prevtoks
@@ -701,17 +701,34 @@ lex' prevtoks indent_stack lexer =
                     continue_lex_with_single_err total_len $ InvalidBase b $ make_span_from_lexer 1 1
         -- }}}
 
-advance :: Lexer -> Int -> Lexer
-advance l 0 = l
-advance (Lexer sf loc rem' before l c) n =
-    let (dropped, rem'') = splitAt n rem'
-        numnl = length $ elemIndices '\n' dropped
-        new_coln = 1 + length (takeWhile (/='\n') dropped)
+seek_lexer :: Lexer -> Int -> Lexer
+seek_lexer l 0 = l
+seek_lexer (Lexer sf loc remain before l c) n =
+    let (before', changed, remain')
+            | n > 0 =
+                let (into_before, r) = splitAt n remain
+                in (reverse into_before ++ before, into_before, r)
+
+            | otherwise =
+                let (into_remain, b) = splitAt (-n) before
+                in (b, reverse into_remain, reverse into_remain ++ remain)
+
+        numnl = length $ elemIndices '\n' changed
+
+        new_linen
+            | n > 0 = l + numnl
+            | otherwise = l - numnl
+
+        new_coln =
+            if numnl == 0
+                then c + n
+                else 1 + length (takeWhile (/='\n') (reverse changed))
+
     in Lexer
        { sourcefile = sf
        , source_location = loc + n
-       , remaining = rem''
-       , rev_str_before_lexer = reverse dropped ++ before
-       , linen = l + numnl
-       , coln = if numnl == 0 then c + n else new_coln
+       , remaining = remain'
+       , rev_str_before_lexer = before'
+       , linen = new_linen
+       , coln = new_coln
        }
