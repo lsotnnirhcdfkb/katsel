@@ -10,7 +10,7 @@ import File
 import Location
 
 import Data.Char(isDigit, isAlpha, isHexDigit, isOctDigit, digitToInt, isSpace)
-import Data.List(foldl', find, elemIndex)
+import Data.List(foldl', find, elemIndex, elemIndices)
 import Data.Either(isRight)
 
 import qualified Message
@@ -193,7 +193,7 @@ data Lexer
      { sourcefile :: File
      , source_location :: Int
      , remaining :: String
-     , str_before_lexer :: String
+     , rev_str_before_lexer :: String
      , linen :: Int
      , coln :: Int
      }
@@ -250,7 +250,7 @@ lex f = lex' [] [IndentationSensitive 0] $ Lexer
            { sourcefile = f
            , source_location = 0
            , remaining = source f
-           , str_before_lexer = ""
+           , rev_str_before_lexer = ""
            , linen = 1
            , coln = 1
            }
@@ -401,7 +401,7 @@ lex' prevtoks indent_stack lexer =
             where
                 cur_indent = foldl' count_indent (Just 0) str_before_lexer'
                     where
-                        str_before_lexer' = takeWhile (/='\n') $ reverse $ str_before_lexer lexer
+                        str_before_lexer' = takeWhile (/='\n') $ rev_str_before_lexer lexer
 
                         count_indent (Just acc) ' ' = Just $ acc + 1
                         count_indent (Just acc) '\t' = Just $ (acc `div` 8 + 1) * 8
@@ -702,19 +702,15 @@ lex' prevtoks indent_stack lexer =
 
 advance :: Lexer -> Int -> Lexer
 advance l 0 = l
-advance (Lexer sf loc (ch:more) before l c) 1 =
-    Lexer
-    { sourcefile = sf
-    , source_location = loc + 1
-    , remaining = more
-    , str_before_lexer = before ++ [ch]
-    , linen = if pastnl then l + 1 else l
-    , coln =  if pastnl then 1 else c + 1
-    }
-    where
-        pastnl = if ch == '\n'
-            then True
-            else False
-
-advance l@(Lexer { remaining = [] }) 1 = l
-advance l n = advance (advance l $ n - 1) 1
+advance (Lexer sf loc rem' before l c) n =
+    let (dropped, rem'') = splitAt n rem'
+        numnl = length $ elemIndices '\n' dropped
+        new_coln = 1 + length (takeWhile (/='\n') dropped)
+    in Lexer
+       { sourcefile = sf
+       , source_location = loc + n
+       , remaining = rem''
+       , rev_str_before_lexer = reverse dropped ++ before
+       , linen = l + numnl
+       , coln = if numnl == 0 then c + n else new_coln
+       }
