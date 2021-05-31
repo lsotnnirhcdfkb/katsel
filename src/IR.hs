@@ -389,22 +389,25 @@ type BlockGroup = (BlockIdx, BlockIdx)
 lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) ()
 lower_body_expr body root =
     let fail_block =
-            State.get >>= \ (_, _, fun) ->
-            add_basic_block_s "failed_body_lowering" >>= \ failed_body_lowering ->
-            add_br_s (make_br_goto $ get_exit_block fun) failed_body_lowering
-    in lower_block_expr body root >>=? fail_block $ \ (expr_blocks, res) ->
+            add_basic_block_s "failed_body_lowering" >>= \ bl ->
+            return (bl, bl)
+
+        link_block_to_function (start, end) =
+            State.get >>= \ (_,  _, fun) ->
+
+            add_br_s (make_br_goto start) (get_entry_block fun) >>
+            add_br_s (make_br_goto $ get_exit_block fun) end
+
+    in lower_block_expr body root >>=? (fail_block >>= link_block_to_function) $ \ (expr_blocks, res) ->
 
     State.get >>= \ (_,  _, fun) ->
 
     add_basic_block_s "end_block" >>= \ end_block ->
-
-    add_br_s (make_br_goto $ fst expr_blocks) (get_entry_block fun) >>
-
     add_br_s (make_br_goto end_block) (snd expr_blocks) >>
-
-    make_copy_s root (Located (get_span fun) (LVRegister $ get_ret_reg fun)) "function's return type" res "return value's type" >>=<> ((>>fail_block) . report_type_error) $ \ copy_instr ->
+    make_copy_s root (Located (get_span fun) (LVRegister $ get_ret_reg fun)) "function's return type" res "return value's type" >>=<> ((>> (fail_block >>= link_block_to_function)) . report_type_error) $ \ copy_instr ->
     add_instruction_s copy_instr end_block >>
-    add_br_s (make_br_goto $ get_exit_block fun) end_block
+
+    link_block_to_function (fst expr_blocks, end_block)
 
 lower_expr :: AST.LDExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe (BlockGroup, Located FValue))
 
