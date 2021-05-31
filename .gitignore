@@ -2,6 +2,10 @@
 # also the katsel scratch file that I use to mess around with
 _v/*
 
+# scripts to help me profile
+profile/
+profile/*
+
 # no DS_Store files please
 **/.DS_Store
 
