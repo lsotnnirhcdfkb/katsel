@@ -416,7 +416,6 @@ lower_expr (Located _ (AST.DExpr'Block block)) root = lower_block_expr block roo
 lower_expr (Located sp (AST.DExpr'If cond trueb@(Located truebsp _) m_falseb)) root =
     lower_expr cond root >>=? return Nothing $ \ (cond_ir, cond_val) ->
     lower_expr trueb root >>=? return Nothing $ \ (trueb_ir, trueb_val) ->
-    sequence (flip lower_expr root <$> m_falseb) >>=? return Nothing $ \ m_falseb_ir ->
 
     State.get >>= \ (irb, _, fun) ->
     let irctx = get_irctx irb
@@ -438,8 +437,10 @@ lower_expr (Located sp (AST.DExpr'If cond trueb@(Located truebsp _) m_falseb)) r
     in block_and_ret_reg "true" trueb_ir trueb_val (error "true block result doesn't match type of result register") >>=<> ((>>return Nothing) . report_type_error) $ \ trueb_ir' ->
     let cond_br = make_br_cond_s root cond_val (fst trueb_ir')
     in (
-        case m_falseb_ir of
-            Just (falseb_ir, falseb_val) ->
+        case m_falseb of
+            Just falseb ->
+                lower_expr falseb root >>=? return Nothing $ \ (falseb_ir, falseb_val) ->
+
                 block_and_ret_reg "false" falseb_ir falseb_val "false branch's result type" >>=<> ((>>return Nothing) . report_type_error) $ \ falseb_ir' ->
                 cond_br (fst falseb_ir') >>=<> ((>>return Nothing) . report_type_error) $ \ br ->
 
