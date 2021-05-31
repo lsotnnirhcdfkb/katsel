@@ -7,8 +7,10 @@ module IR.Function
     , FValue(..)
     , LValue(..)
     , Instruction
+    , Br
 
     , BlockIdx
+    , InstructionIdx
     , RegisterIdx
 
     , TypeError
@@ -19,9 +21,6 @@ module IR.Function
     , make_br_ret
     , make_br_goto
     , make_br_cond
-
-    , set_end_br
-    , set_end_br'
 
     , new_function
 
@@ -35,16 +34,9 @@ module IR.Function
     , function_not_defined
 
     , add_register
-
-    , HalfwayBr
-    , HalfwayBlock
-    , HalfwayBFV
-
-    , make_halfway_group
-    , make_halfway_block
-    , make_halfway_exit
-
-    , apply_halfway
+    , add_basic_block
+    , add_instruction
+    , add_br
     ) where
 
 import IR.TyIdx
@@ -68,7 +60,7 @@ import qualified Message
 import qualified Message.Underlines as MsgUnds
 
 import qualified Data.Map as Map(empty)
-import Data.List(foldl', intercalate, findIndex, nub)
+import Data.List(intercalate, findIndex)
 
 data Function
     = Function
@@ -86,15 +78,16 @@ data Function
       , get_name :: String
       }
 newtype BlockIdx = BlockIdx Int deriving Eq
+data InstructionIdx = InstructionIdx BlockIdx Int deriving Eq
 newtype RegisterIdx = RegisterIdx Int deriving Eq
 
 data BasicBlock = BasicBlock String [Instruction] (Maybe Br)
 data Register = Register TyIdx Mutability Span
 data Instruction
     = Copy LValue FValue
-    | Call RegisterIdx FValue [FValue]
-    | Addrof RegisterIdx LValue Mutability
-    | DerefPtr RegisterIdx FValue
+    | Call FValue [FValue]
+    | Addrof LValue Mutability
+    | DerefPtr FValue
     deriving Eq
 
 data LValue
@@ -109,6 +102,7 @@ data FValue
     | FVConstBool Bool
     | FVConstChar Char
     | FVVoid
+    | FVInstruction InstructionIdx
     deriving Eq
 
 -- these branches don't need type checking because they are only created by applying halfway branches, which are already type-checked
@@ -170,7 +164,7 @@ instance VPrint Function where
                     show_block (block_n, BasicBlock block_name instructions m_br) =
                         "    "  ++ block_name_num block_name block_n ++ " {" ++ make_comment tags ++ "\n" ++
 
-                        concatMap (("        "++) . (++";\n") . show_instruction) instructions ++
+                        concatMap (\ (idx, instr) -> "        (%" ++ show idx ++ ": " ++ stringify_tyidx irctx (type_of irctx instr) ++ ") = " ++ show_instruction instr ++ ";\n") (zip ([0..] :: [Int]) instructions) ++
 
                         "        =>: " ++ maybe "<no br>" show_br m_br ++ ";\n" ++
 
@@ -196,13 +190,14 @@ instance VPrint Function where
                     show_fv (FVConstBool b) = if b then "true" else "false"
                     show_fv (FVConstChar c) = ['\'', c, '\'']
                     show_fv FVVoid = "void"
+                    show_fv (FVInstruction (InstructionIdx bidx iidx)) = "%" ++ show_block_from_idx bidx ++ "." ++ show iidx
 
                     show_lv (LVRegister i) = show_reg i
 
                     show_instruction (Copy lv fv) = "copy " ++ show_fv fv ++ " -> " ++ show_lv lv
-                    show_instruction (Call res fv args) = "call " ++ show_fv fv ++ " [" ++ intercalate ", " (map show_fv args) ++ "] -> " ++ show_reg res
-                    show_instruction (Addrof res lv muty) = "addrof " ++ case muty of { Mutable -> "mut"; Immutable -> ""} ++ " " ++ show_lv lv ++ " -> " ++ show_reg res
-                    show_instruction (DerefPtr res fv) = "derefptr " ++ show_fv fv ++ " -> " ++ show_reg res
+                    show_instruction (Call fv args) = "call " ++ show_fv fv ++ " [" ++ intercalate ", " (map show_fv args) ++ "]"
+                    show_instruction (Addrof lv muty) = "addrof " ++ case muty of { Mutable -> "mut"; Immutable -> ""} ++ " " ++ show_lv lv
+                    show_instruction (DerefPtr fv) = "derefptr " ++ show_fv fv
 
                     show_br BrRet = "ret"
                     show_br (BrGoto b) = "goto " ++ show_block_from_idx b
@@ -232,6 +227,10 @@ instance Typed (Module, Function, FValue) where
     type_of irctx (_, _, FVConstBool _) = resolve_bool irctx
     type_of irctx (_, _, FVConstChar _) = resolve_char irctx
     type_of irctx (_, _, FVVoid) = resolve_void irctx
+    type_of irctx (_, fun, FVInstruction idx) = type_of irctx $ get_instruction fun idx
+
+instance Typed Instruction where
+    type_of irctx (Copy _ _) = resolve_void irctx
 
 new_function :: TyIdx -> [(Mutability, TyIdx, Span)] -> Span -> String -> IRCtx -> (Function, IRCtx)
 new_function ret_type param_tys sp name irctx =
@@ -263,6 +262,11 @@ add_register tyidx muty sp fun = (reg_idx, fun')
 
 get_register :: Function -> RegisterIdx -> Register
 get_register fun (RegisterIdx idx) = get_registers fun !! idx
+
+get_instruction :: Function -> InstructionIdx -> Instruction
+get_instruction (Function blocks _ _ _ _ _ _ _ _) (InstructionIdx (BlockIdx bidx) iidx) =
+    let (BasicBlock _ instrs _) = blocks !! bidx
+    in instrs !! iidx
 
 function_not_defined :: Function -> Bool
 function_not_defined = (2==) . length . get_blocks -- a function starts out with 2 blocks, and it only goes up from there; blocks cannot be removed
@@ -302,32 +306,32 @@ make_copy irctx fun root (Located lvsp lv) lv_name (Located fvsp fv) fv_name =
                 , ThingIs fv_name fvsp fvty NoReason
                 ]
 make_call :: IRCtx -> Function -> Module -> FValue -> [FValue] -> Either TypeError Instruction
-make_call fun args = error "not implemented yet"
-make_addrof :: IRCtx -> Function -> Module -> RegisterIdx -> LValue -> Mutability -> Either TypeError Instruction
-make_addrof irctx fun root res lv muty =
+make_call = error "not implemented yet"
+make_addrof :: IRCtx -> Function -> Module -> LValue -> Mutability -> Either TypeError Instruction
+make_addrof _ _ _ lv muty =
     -- TODO: check mutability of lv
-    Right $ Addrof res lv muty
+    Right $ Addrof lv muty
 make_derefptr :: IRCtx -> Function -> Module -> FValue -> Either TypeError Instruction
-make_derefptr fv = error "not implemented yet"
+make_derefptr = error "not implemented yet"
 -- branches {{{2
-make_br_ret :: HalfwayBr
-make_br_ret = HBrRet
+make_br_ret :: Br
+make_br_ret = BrRet
 
-make_br_goto :: HalfwayBlock -> HalfwayBr
-make_br_goto = HBrGoto
+make_br_goto :: BlockIdx -> Br
+make_br_goto = BrGoto
 
-make_br_cond :: IRCtx -> Function -> Module -> Located FValue -> HalfwayBlock -> HalfwayBlock -> Either TypeError HalfwayBr
+make_br_cond :: IRCtx -> Function -> Module -> Located FValue -> BlockIdx -> BlockIdx -> Either TypeError Br
 make_br_cond irctx fun root (Located condsp cond) t f =
     let cond_ty = type_of irctx (root, fun, cond)
         bool_ty = resolve_bool irctx
     in if ty_match' irctx cond_ty bool_ty
-        then Right $ HBrCond cond t f
+        then Right $ BrCond cond t f
         else Left $ TypeError
                 [ ThingIs "branch condition's type" condsp cond_ty NoReason
                 , ThingShouldBe "branch condition's type" condsp bool_ty NoReason
                 ]
 -- replace_block {{{1
-replace_block :: [b] -> Int -> b -> [b]
+replace_block :: [BasicBlock] -> Int -> BasicBlock -> [BasicBlock]
 replace_block blocks idx block =
     let (keep, _:keep2) = splitAt idx blocks
     in keep ++ block : keep2
@@ -341,16 +345,16 @@ add_basic_block name fun =
         blocks = get_blocks fun
         new_block_idx = BlockIdx $ length blocks
         new_block = BasicBlock name [] Nothing
-
-add_instruction :: Instruction -> BlockIdx -> Function -> Function
-add_instruction instr (BlockIdx block_idx) fun = fun { get_blocks = new_blocks }
+add_instruction :: Instruction -> BlockIdx -> Function -> (InstructionIdx, Function)
+add_instruction instr block_idx@(BlockIdx block_idx') fun = (instr_idx, fun { get_blocks = new_blocks })
     where
         blocks = get_blocks fun
 
-        (BasicBlock block_name block_instrs block_br) = blocks !! block_idx
+        (BasicBlock block_name block_instrs block_br) = blocks !! block_idx'
         new_block = BasicBlock block_name (block_instrs ++ [instr]) block_br
+        new_blocks = replace_block blocks block_idx' new_block
 
-        new_blocks = replace_block blocks block_idx new_block
+        instr_idx = InstructionIdx block_idx $ length block_instrs
 
 add_br :: Br -> BlockIdx -> Function -> Function
 add_br br (BlockIdx block_idx) fun = fun { get_blocks = new_blocks }
@@ -359,102 +363,3 @@ add_br br (BlockIdx block_idx) fun = fun { get_blocks = new_blocks }
         (BasicBlock block_name block_instrs _) = blocks !! block_idx
         new_block = BasicBlock block_name block_instrs (Just br)
         new_blocks = replace_block blocks block_idx new_block
--- halfway stuff {{{1
-data HalfwayBr
-    = HBrRet
-    | HBrGoto HalfwayBlock
-    | HBrCond FValue HalfwayBlock HalfwayBlock
-    deriving Eq
-
-data HalfwayBlock
-    = HBlockGroup [HalfwayBlock] Int Int
-    | HBlock String [Instruction] (Maybe HalfwayBr)
-    | HExitBlock
-    deriving Eq
-
-type HalfwayBFV = (HalfwayBlock, FValue)
--- making blocks {{{2
-make_halfway_group :: [HalfwayBlock] -> HalfwayBlock -> HalfwayBlock -> HalfwayBlock
-make_halfway_group roots start end = HBlockGroup (start:end:discovered) 0 1
-    where
-        discovered = filter (\ b -> b /= start && b /= end) $ nub $ roots ++ concatMap discover (start:roots)
-
-        discover (HBlock _ _ (Just (HBrGoto b))) = b : discover b
-        discover (HBlock _ _ (Just (HBrCond _ t f))) = [t, f] ++ discover t ++ discover f
-        discover (HBlock _ _ _) = []
-        discover (HBlockGroup b _ _) = concatMap discover b
-        discover HExitBlock = []
-
-make_halfway_block :: String -> [Instruction] -> Maybe HalfwayBr -> HalfwayBlock
-make_halfway_block = HBlock
-
-make_halfway_exit :: HalfwayBlock
-make_halfway_exit = HExitBlock
--- set_end_br {{{2
-set_end_br :: HalfwayBlock -> Maybe HalfwayBr -> HalfwayBlock
-set_end_br (HBlockGroup blocks start end) br = HBlockGroup blocks' start end
-    where
-        end_block = blocks !! end
-        end_block' = set_end_br end_block br
-        blocks' = replace_block blocks end end_block'
-set_end_br (HBlock name instrs _) br = HBlock name instrs br
-set_end_br HExitBlock _ = HExitBlock -- exit blocks always have a return br, so this is a no-op
-
-set_end_br' :: HalfwayBFV -> Maybe HalfwayBr -> HalfwayBFV
-set_end_br' (hb, fv) br = (set_end_br hb br, fv)
--- applying halfway blocks {{{2
-add_all_hb_blocks :: HalfwayBlock -> Function -> (Function, [((String, [Instruction], Maybe HalfwayBr), BlockIdx)], BlockIdx, BlockIdx)
-add_all_hb_blocks hb fun =
-    let make_block_list (HBlock name instrs br) = [(name, instrs, br)]
-        make_block_list (HBlockGroup blocks _ _) = concatMap make_block_list blocks
-        make_block_list HExitBlock = [] -- exit blocks do not have a tuple form, and also should not be created
-
-        block_list = make_block_list hb
-
-        (fun_with_blocks, block_map) =
-            foldl' add_block (fun, []) block_list
-            where
-                add_block (f, m) btup@(name, _, _) =
-                    let (idx, f') = add_basic_block name f
-                    in (f', (btup, idx):m)
-
-        start_block_idx = get_start_block hb
-        end_block_idx = get_end_block hb
-
-        get_start_block (HBlock name instrs br) = unwrap_maybe $ lookup (name, instrs, br) block_map
-        get_start_block (HBlockGroup blocks i _) = get_start_block $ blocks !! i
-        get_start_block HExitBlock = get_exit_block fun
-
-        get_end_block (HBlock name instrs br) = unwrap_maybe $ lookup (name, instrs, br) block_map
-        get_end_block (HBlockGroup blocks _ i) = get_end_block $ blocks !! i
-        get_end_block HExitBlock = get_exit_block fun
-
-    in (fun_with_blocks, block_map, start_block_idx, end_block_idx)
-
-unwrap_maybe :: Maybe a -> a
-unwrap_maybe (Just x) = x
-unwrap_maybe Nothing = error "unwrap_maybe got Nothing"
-
-apply_halfway :: HalfwayBlock -> BlockIdx -> Function -> (BlockIdx, Function)
-apply_halfway hb start_block fun =
-    let (f_with_blocks, block_map, start_idx, end_idx) = add_all_hb_blocks hb fun
-
-        f_with_instrs = foldl' fill_instrs f_with_blocks block_map
-            where
-                fill_instrs f ((_, instrs, _), f_bidx) = foldl' (\ f' instr -> add_instruction instr f_bidx f') f instrs
-
-        f_with_brs = foldl' fill_brs f_with_instrs block_map
-            where
-                convert_hb (HBlock name instrs br) = unwrap_maybe $ lookup (name, instrs, br) block_map
-                convert_hb (HBlockGroup blocks start _) = convert_hb $ blocks !! start
-                convert_hb HExitBlock = get_exit_block fun
-
-                convert_hbr HBrRet = BrRet
-                convert_hbr (HBrGoto dest) = BrGoto $ convert_hb dest
-                convert_hbr (HBrCond c t f) = BrCond c (convert_hb t) (convert_hb f)
-
-                fill_brs f ((_, _, Just br), f_bidx) = add_br (convert_hbr br) f_bidx f
-                fill_brs f ((_, _, Nothing), _) = f
-
-        f_with_first_br = add_br (BrGoto start_idx) start_block f_with_brs
-    in (end_idx, f_with_first_br)
