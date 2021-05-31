@@ -86,7 +86,7 @@ data Register = Register TyIdx Mutability Span
 data Instruction
     = Copy LValue FValue
     | Call FValue [FValue]
-    | Addrof LValue Mutability
+    | Addrof LValue Mutability TyIdx
     | DerefPtr FValue
     deriving Eq
 
@@ -105,7 +105,6 @@ data FValue
     | FVInstruction InstructionIdx
     deriving Eq
 
--- these branches don't need type checking because they are only created by applying halfway branches, which are already type-checked
 data Br
     = BrRet
     | BrGoto BlockIdx
@@ -196,7 +195,7 @@ instance VPrint Function where
 
                     show_instruction (Copy lv fv) = "copy " ++ show_fv fv ++ " -> " ++ show_lv lv
                     show_instruction (Call fv args) = "call " ++ show_fv fv ++ " [" ++ intercalate ", " (map show_fv args) ++ "]"
-                    show_instruction (Addrof lv muty) = "addrof " ++ case muty of { Mutable -> "mut"; Immutable -> ""} ++ " " ++ show_lv lv
+                    show_instruction (Addrof lv muty _) = "addrof " ++ case muty of { Mutable -> "mut"; Immutable -> ""} ++ " " ++ show_lv lv
                     show_instruction (DerefPtr fv) = "derefptr " ++ show_fv fv
 
                     show_br BrRet = "ret"
@@ -231,6 +230,7 @@ instance Typed (Module, Function, FValue) where
 
 instance Typed Instruction where
     type_of irctx (Copy _ _) = resolve_void irctx
+    type_of _ (Addrof _ _ ty) = ty
 
 new_function :: TyIdx -> [(Mutability, TyIdx, Span)] -> Span -> String -> IRCtx -> (Function, IRCtx)
 new_function ret_type param_tys sp name irctx =
@@ -295,23 +295,26 @@ instance Message.ToDiagnostic (TypeError, IRCtx) where
             str_reason NoReason = ""
 -- instructions {{{2
 -- TODO: allow caller to supply their own type error
-make_copy :: IRCtx -> Function -> Module -> Located LValue -> String -> Located FValue -> String -> Either TypeError Instruction
+make_copy :: IRCtx -> Function -> Module -> Located LValue -> String -> Located FValue -> String -> (Either TypeError Instruction, IRCtx)
 make_copy irctx fun root (Located lvsp lv) lv_name (Located fvsp fv) fv_name =
     let lvty = type_of irctx (fun, lv)
         fvty = type_of irctx (root, fun, fv)
-    in if ty_match' irctx lvty fvty
-        then Right $ Copy lv fv
-        else Left $ TypeError
-                [ ThingIs lv_name lvsp lvty NoReason
-                , ThingIs fv_name fvsp fvty NoReason
-                ]
-make_call :: IRCtx -> Function -> Module -> FValue -> [FValue] -> Either TypeError Instruction
+    in ( if ty_match' irctx lvty fvty
+             then Right $ Copy lv fv
+             else Left $ TypeError
+                         [ ThingIs lv_name lvsp lvty NoReason
+                         , ThingIs fv_name fvsp fvty NoReason
+                         ]
+       , irctx
+       )
+make_call :: IRCtx -> Function -> Module -> FValue -> [FValue] -> (Either TypeError Instruction, IRCtx)
 make_call = error "not implemented yet"
-make_addrof :: IRCtx -> Function -> Module -> LValue -> Mutability -> Either TypeError Instruction
-make_addrof _ _ _ lv muty =
-    -- TODO: check mutability of lv
-    Right $ Addrof lv muty
-make_derefptr :: IRCtx -> Function -> Module -> FValue -> Either TypeError Instruction
+make_addrof :: IRCtx -> Function -> Module -> LValue -> Mutability -> (Either TypeError Instruction, IRCtx)
+make_addrof irctx fun _ lv muty =
+    let lvty = type_of irctx (fun, lv)
+        (ty, irctx') = get_ty_irctx (PointerType Map.empty muty lvty) irctx
+    in (Right $ Addrof lv muty ty, irctx')
+make_derefptr :: IRCtx -> Function -> Module -> FValue -> (Either TypeError Instruction, IRCtx)
 make_derefptr = error "not implemented yet"
 -- branches {{{2
 make_br_ret :: Br
@@ -320,16 +323,18 @@ make_br_ret = BrRet
 make_br_goto :: BlockIdx -> Br
 make_br_goto = BrGoto
 
-make_br_cond :: IRCtx -> Function -> Module -> Located FValue -> BlockIdx -> BlockIdx -> Either TypeError Br
+make_br_cond :: IRCtx -> Function -> Module -> Located FValue -> BlockIdx -> BlockIdx -> (Either TypeError Br, IRCtx)
 make_br_cond irctx fun root (Located condsp cond) t f =
     let cond_ty = type_of irctx (root, fun, cond)
         bool_ty = resolve_bool irctx
-    in if ty_match' irctx cond_ty bool_ty
-        then Right $ BrCond cond t f
-        else Left $ TypeError
-                [ ThingIs "branch condition's type" condsp cond_ty NoReason
-                , ThingShouldBe "branch condition's type" condsp bool_ty NoReason
-                ]
+    in ( if ty_match' irctx cond_ty bool_ty
+          then Right $ BrCond cond t f
+          else Left $ TypeError
+                  [ ThingIs "branch condition's type" condsp cond_ty NoReason
+                  , ThingShouldBe "branch condition's type" condsp bool_ty NoReason
+                  ]
+       , irctx
+       )
 -- replace_block {{{1
 replace_block :: [BasicBlock] -> Int -> BasicBlock -> [BasicBlock]
 replace_block blocks idx block =

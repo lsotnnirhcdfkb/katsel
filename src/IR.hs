@@ -39,7 +39,7 @@ import qualified Data.Map as Map
 import Data.List(foldl', find)
 import Data.Maybe(catMaybes)
 
-import qualified Control.Monad.State.Lazy as State(State, state, runState, get, put)
+import qualified Control.Monad.State.Lazy as State(State, state, execState, runState, get, put)
 
 -- build_ir {{{1
 build_ir :: AST.LDModule -> (Module, IRCtx, [IRBuildError])
@@ -341,9 +341,11 @@ apply_fun_to_funcgtup_s st = State.state $ \ (irb, fcg, fun) ->
 report_type_error :: TypeError -> State.State (IRBuilder, FunctionCG, Function) ()
 report_type_error = apply_irb_to_funcgtup_s . add_error_s . TypeError
 -- making instructions {{{3
-make_instr_s :: (IRCtx -> Function -> Module -> a) -> (a -> Either TypeError r) -> Module -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError r)
-make_instr_s make_fun appl root =
-    State.get >>= \ (irb, _, fun) -> return (appl $ make_fun (get_irctx irb) fun root)
+make_instr_s :: (IRCtx -> Function -> Module -> a) -> (a -> (Either TypeError r, IRCtx)) -> Module -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError r)
+make_instr_s make_fun appl root = State.state $
+    \ (IRBuilder irctx errs, fcg, fun) ->
+    let (instr, irctx') = appl $ make_fun irctx fun root
+    in (instr, (IRBuilder irctx' errs, fcg, fun))
 
 make_copy_s :: Module -> Located LValue -> String -> Located FValue -> String -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
 make_copy_s root lv lvn fv fvn = make_instr_s make_copy (\ a -> a lv lvn fv fvn) root
@@ -378,7 +380,7 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
     in foldl' (>>=) start_function_cg add_locals_for_params >>= \ function_cg ->
 
     State.get >>= \ ir_builder ->
-    let (halfway_body, (ir_builder', _, fun')) = State.runState (lower_body_expr body root) (ir_builder, function_cg, fun)
+    let (ir_builder', _, fun') = State.execState (lower_body_expr body root) (ir_builder, function_cg, fun)
     in State.put ir_builder' >>
 
     add_replace_s name (Value fun') parent
@@ -505,12 +507,8 @@ lower_expr (Located sp (AST.DExpr'Ref muty expr)) root =
 
     case expr_val of
         Located _ (FVLValue expr_lv) ->
-            State.get >>= \ (irb, _, fun) ->
             let muty' = ast_muty_to_ir_muty muty
-                lvty = type_of (get_irctx irb) (fun, expr_lv)
             in
-
-            apply_irb_to_funcgtup_s (get_ty_s (PointerType Map.empty muty' lvty)) >>= \ reg_ty ->
 
             make_addrof_s root expr_lv muty' >>=<> ((>>return Nothing) . report_type_error) $ \ ref_instr ->
 
@@ -631,7 +629,7 @@ lower_block_expr (Located blocksp (AST.SBlockExpr' stmts)) root =
                 Nothing -> stmts_ir
 
         set_brs [] = return ()
-        set_brs [single] = return ()
+        set_brs [_] = return ()
         set_brs (current : more@(next:_)) =
             add_br_s (make_br_goto (fst next)) (snd current) >>
             set_brs more
