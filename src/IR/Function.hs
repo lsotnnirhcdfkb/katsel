@@ -195,7 +195,7 @@ instance VPrint Function where
 
                     show_instruction (Copy lv fv) = "copy " ++ show_fv fv ++ " -> " ++ show_lv lv
                     show_instruction (Call fv args) = "call " ++ show_fv fv ++ " [" ++ intercalate ", " (map show_fv args) ++ "]"
-                    show_instruction (Addrof lv muty _) = "addrof " ++ case muty of { Mutable -> "mut"; Immutable -> ""} ++ " " ++ show_lv lv
+                    show_instruction (Addrof lv muty _) = "addrof " ++ case muty of { Mutable -> "mut "; Immutable -> ""} ++ show_lv lv
                     show_instruction (DerefPtr fv) = "derefptr " ++ show_fv fv
 
                     show_br BrRet = "ret"
