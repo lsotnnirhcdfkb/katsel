@@ -376,14 +376,15 @@ lex' prevtoks indent_stack lexer =
 
         make_error start len err = err $ make_span_from_lexer start len
 
-        make_span_from_lexer start len = Span (make_loc_from_lexer start_lexer) (make_loc_from_lexer end_lexer)
+        make_span_from_lexer start len = Span (make_loc_from_lexer start_lexer) (make_loc_from_lexer before_lexer) (make_loc_from_lexer end_lexer)
             where
                 file = sourcefile lexer
 
                 make_loc_from_lexer l = make_location file (source_location l) (linen l) (coln l)
 
                 start_lexer = advance lexer start
-                end_lexer = advance start_lexer len
+                before_lexer = advance start_lexer (len - 1)
+                end_lexer = advance before_lexer 1
 
         (new_indent_stack, indentation_tokens) =
             if null prevtoks
@@ -491,7 +492,7 @@ lex' prevtoks indent_stack lexer =
                                         Nothing -> error "no newlines to make token at"
                             where
                                 from_last_tok =
-                                    find isRight (reverse prevtoks) >>= \ (Right (Located (Span _ endloc) _)) ->
+                                    find isRight (reverse prevtoks) >>= \ (Right (Located (Span _ _ endloc) _)) ->
                                     let endind = ind_of_loc endloc
                                     in elemIndex '\n' (drop endind $ source $ sourcefile lexer) >>= \ from_tok_ind ->
                                     Just $ from_tok_ind + endind - source_location lexer

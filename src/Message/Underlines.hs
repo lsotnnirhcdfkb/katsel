@@ -27,22 +27,6 @@ data Message = Message Span Type Importance String
 data Importance = Primary | Secondary | Tertiary
 data Type = Error | Warning | Note | Hint
 
-loc_minus_1 :: Location -> Location
-loc_minus_1 loc = make_location (file_of_loc loc) ind_minus lnnr colnr
-    where
-        ind_orig = ind_of_loc loc
-        ind_minus = ind_orig - 1
-
-        sourcebefore = reverse $ take ind_orig $ source $ file_of_loc loc
-        pastnl = head sourcebefore == '\n'
-
-        lnnr = if pastnl then lnn_of_loc loc - 1 else lnn_of_loc loc
-        colnr = if pastnl then 1 + length (takeWhile (/='\n') sourcebefore) else coln_of_loc loc - 1
-line_minus_1 :: Location -> Int
-line_minus_1 loc = lnn_of_loc $ loc_minus_1 loc
-col_minus_1 :: Location -> Int
-col_minus_1 loc = coln_of_loc $ loc_minus_1 loc
-
 data ShowLine = ShowLine File Int Dimness
 data Dimness = Dim | Normal
 
@@ -59,7 +43,7 @@ line_nrs_of_messages msgs = sortBy sort_comparator $ nubBy nub_comparator lines_
                     | otherwise = Nothing
 
         lines_without_dim = concatMap linenrsof msgs
-        linenrsof (Message (Span start end) _ _ _) = [ShowLine (file_of_loc start) (lnn_of_loc start) Normal, ShowLine (file_of_loc start) (line_minus_1 end) Normal]
+        linenrsof (Message (Span start before_end _) _ _ _) = [ShowLine (file_of_loc start) (lnn_of_loc start) Normal, ShowLine (file_of_loc start) (lnn_of_loc before_end) Normal]
 
         sort_comparator (ShowLine fl1 nr1 _) (ShowLine fl2 nr2 _) =
             if fl1 == fl2
@@ -116,18 +100,18 @@ assign_messages messages = (firstrow, msglines)
                 overlapping = any ((cur_msg_end_col>=) . col_of_assignment) on_cur_row
 
                 cur_msg_end_col = end_col_of_msg cur_msg
-                col_of_assignment (_, Message (Span _ eloc) _ _ _) = col_minus_1 eloc
-                end_col_of_msg (Message (Span _ end) _ _ str) = col_minus_1 end + length str + 3
+                col_of_assignment (_, Message (Span _ before_end _) _ _ _) = coln_of_loc before_end
+                end_col_of_msg (Message (Span _ before_end _) _ _ str) = coln_of_loc before_end + length str + 3
 
         assigned = assign (sortBy comparator messages) []
-        comparator (Message (Span _ end1) _ _ _) (Message (Span _ end2) _ _ _) = col_minus_1 end2 `compare` col_minus_1 end1
+        comparator (Message (Span _ before_end_1 _) _ _ _) (Message (Span _ before_end_2 _) _ _ _) = coln_of_loc before_end_2 `compare` coln_of_loc before_end_1
 
         firstrow = find_msgs_on_row 0
 
         msglines = map MessageLine $ takeWhile (not . null) $ map find_msgs_on_row [1..]
         find_msgs_on_row row = map (todmsg . snd) $ filter ((row==) . fst) assigned
 
-        todmsg (Message (Span _ end) ty _ str) = DMessage (sgr_of_ty ty) (col_minus_1 end) str
+        todmsg (Message (Span _ before_end _) ty _ str) = DMessage (sgr_of_ty ty) (coln_of_loc before_end) str
 
 section_lines :: UnderlinesSection -> [SectionLine]
 section_lines (UnderlinesSection msgs) =
@@ -137,7 +121,7 @@ section_lines (UnderlinesSection msgs) =
 
         multiline_msgs = filter is_multiline msgs
             where
-                is_multiline (Message (Span start end) _ _ _) = lnn_of_loc start /= line_minus_1 end
+                is_multiline (Message (Span start before_end _) _ _ _) = lnn_of_loc start /= lnn_of_loc before_end
 
         make_lines acc ((ShowLine curfl curnr curdimn, lastshln):more) =
             make_lines next_acc more
@@ -171,14 +155,14 @@ section_lines (UnderlinesSection msgs) =
 
                 (first_row_messages, message_lines) = assign_messages line_messages
 
-                is_single_line start end = lnn_of_loc start == line_minus_1 end
+                is_single_line (Span start before_end _) = lnn_of_loc start == lnn_of_loc before_end
 
                 line_messages = filter is_correct_line msgs
                     where
-                        is_correct_line (Message (Span undstart msgloc) _ _ _) = (file_of_loc msgloc, line_minus_1 msgloc) == (curfl, curnr) && is_single_line undstart msgloc
+                        is_correct_line (Message sp@(Span _ before_end _) _ _ _) = (file_of_loc before_end, lnn_of_loc before_end) == (curfl, curnr) && is_single_line sp
                 line_underlines = filter is_correct_line msgs
                     where
-                        is_correct_line (Message (Span start end) _ _ _) = curfl == file_of_loc start && lnn_of_loc start == curnr && is_single_line start end
+                        is_correct_line (Message sp@(Span start _ _) _ _ _) = curfl == file_of_loc start && lnn_of_loc start == curnr && is_single_line sp
 
         make_lines acc [] = acc
 
@@ -256,8 +240,8 @@ draw_section_line indent (UnderlineLine underlines messages) =
                     then helper (col+1) (acc ++ [current])
                     else acc
                     where
-                        any_underlines_left = any (\ (Message (Span _ end) _ _ _) -> col <= col_minus_1 end) underlines
-                        in_cur_col = find (\ (Message (Span start end) _ _ _) -> coln_of_loc start <= col && col <= col_minus_1 end) underlines
+                        any_underlines_left = any (\ (Message (Span _ before_end _) _ _ _) -> col <= coln_of_loc before_end) underlines
+                        in_cur_col = find (\ (Message (Span start before_end _) _ _ _) -> coln_of_loc start <= col && col <= coln_of_loc before_end) underlines
                         current = case in_cur_col of
                             Nothing -> Nothing
                             Just (Message _ ty imp _) -> Just (imp, ty)
@@ -280,7 +264,7 @@ draw_section_line indent (MessageLine msgs) =
         draw [] _ acc = acc
 
 -- TODO: this is really messy and has a lot of magic numbers, refactor this maybe
-draw_section_line indent (MultilineMessageLines (Message (Span spstart spend) ty imp msg)) =
+draw_section_line indent (MultilineMessageLines (Message (Span spstart sp_before_end _) ty imp msg)) =
     fileline ++
     before_first_quote_line ++
     first_quote_line ++
@@ -300,7 +284,7 @@ draw_section_line indent (MultilineMessageLines (Message (Span spstart spend) ty
         fileline = draw_section_line indent $ FileLine $ file_of_loc spstart
 
         startlnn = lnn_of_loc spstart
-        endlnn = line_minus_1 spend
+        endlnn = lnn_of_loc sp_before_end
         msglnns = [startlnn+1..endlnn-1]
 
         firstcol = coln_of_loc spstart
@@ -313,7 +297,7 @@ draw_section_line indent (MultilineMessageLines (Message (Span spstart spend) ty
                     where
                         ln = getlnn lnnr
         maxcol = 1 + maximum (map (length . getlnn) [startlnn..endlnn-1])
-        lastcol = col_minus_1 spend
+        lastcol = coln_of_loc sp_before_end
 
         getlnn n = case drop (n - 1) $ lines $ source $ file_of_loc spstart of
             x:_ -> x
