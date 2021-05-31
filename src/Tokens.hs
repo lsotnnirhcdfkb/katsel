@@ -498,7 +498,7 @@ lex' prevtoks indent_stack lexer =
                                     Just $ from_tok_ind + endind - source_location lexer
 
                                 from_cur_pos =
-                                    elemIndex '\n' (reverse $ take (source_location lexer) (source $ sourcefile lexer)) >>= \ x ->
+                                    elemIndex '\n' (rev_str_before_lexer lexer) >>= \ x ->
                                     Just $ -x - 1
 
                 make_tok_at_nl_before = make_tok_relative_to_nl_before 0 1
@@ -711,7 +711,7 @@ seek_lexer (Lexer sf loc remain before l c) n =
 
             | otherwise =
                 let (into_remain, b) = splitAt (-n) before
-                in (b, reverse into_remain, reverse into_remain ++ remain)
+                in (b, into_remain, reverse into_remain ++ remain)
 
         numnl = length $ elemIndices '\n' changed
 
@@ -719,10 +719,9 @@ seek_lexer (Lexer sf loc remain before l c) n =
             | n > 0 = l + numnl
             | otherwise = l - numnl
 
-        new_coln =
-            if numnl == 0
-                then c + n
-                else 1 + length (takeWhile (/='\n') (reverse changed))
+        new_coln
+            | numnl == 0 = c + n
+            | otherwise = 1 + length (takeWhile (/='\n') before')
 
     in Lexer
        { sourcefile = sf
