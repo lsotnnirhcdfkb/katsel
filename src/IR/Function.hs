@@ -168,7 +168,7 @@ instance VPrint Function where
                     block_name_num name num = name ++ "(" ++ show num ++ ")"
 
                     show_block (block_n, BasicBlock block_name instructions m_br) =
-                        "    "  ++ block_name_num block_name block_n ++ ": {" ++ make_comment tags ++ "\n" ++
+                        "    "  ++ block_name_num block_name block_n ++ " {" ++ make_comment tags ++ "\n" ++
 
                         concatMap (("        "++) . (++";\n") . show_instruction) instructions ++
 
