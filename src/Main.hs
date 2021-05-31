@@ -14,7 +14,7 @@ main =
         filenames ->
             let maxnum = length filenames
                 compile (num, filename) = Driver.compile num maxnum filename
-            in sequence_ $ map compile $ zip ([1..] :: [Int]) filenames
+            in mapM_ compile $ zip ([1..] :: [Int]) filenames
     where
         usage_message prog_name = hPutStrLn stderr $ "usage: " ++ prog_name ++ " FILENAMES..."
 

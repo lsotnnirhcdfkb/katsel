@@ -1,0 +1,11 @@
+- ignore: {name: Use camelCase}
+- ignore: {name: Use const, within: [AST]}
+- ignore: {name: Use when}
+- ignore: {name: Use record patterns}
+- ignore: {name: Use list comprehension}
+- ignore: {name: Use newtype instead of data}
+- ignore: {name: Redundant bracket, within: Message.PrettyPrint}
+
+
+- fixity: "infixl 1 >>=?"
+- fixity: "infixl 1 >>=<>"

@@ -138,10 +138,10 @@ type LSFunDecl = Located SFunDecl
 data SFunDecl = SFunDecl' (Maybe LDType) LocStr [LDParam] LSBlockExpr
 
 type LSBlockExpr = Located SBlockExpr
-newtype SBlockExpr = SBlockExpr' [LDStmt]
+data SBlockExpr = SBlockExpr' [LDStmt]
 
 type LDModule = Located DModule
-newtype DModule = DModule' [LDDecl]
+data DModule = DModule' [LDDecl]
 
 type LDDecl = Located DDecl
 data DDecl
@@ -150,7 +150,7 @@ data DDecl
 
 {-
 type LDImplEntity = Located DImplEntity
-newtype DImplEntity
+data DImplEntity
     = DImplEntity'Fun LSFunDecl
 -}
 
@@ -195,7 +195,7 @@ data DType
     {- | DType'This -}
 
 type LDPath = Located DPath
-newtype DPath = DPath' [LocStr]
+data DPath = DPath' [LocStr]
 
 -- TODO: boom tokens
 
@@ -295,7 +295,7 @@ instance Message.ToDiagnostic ParseError where
 instance Message.ToDiagnostic UncondError where
     to_diagnostic (ThisParamMustBeFirst sp) =
         Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
-            [ Message.Underlines $ MsgUnds.UnderlinesSection $
+            [ Message.Underlines $ MsgUnds.UnderlinesSection
                 [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary "'this' parameters must be the first parameter"
                 ]
             ]
@@ -386,8 +386,7 @@ consume_tok_s tok = consume (is_tt_s tok)
 
 consume_iden :: (Span -> Located Tokens.Token -> ErrorConditionVariant) -> ParseFunM (Located String)
 consume_iden = consume $
-    \ tok ->
-    case tok of
+    \case
         Located sp (Tokens.Identifier n) -> Just $ Located sp n
         _ -> Nothing
 -- }}}
@@ -396,11 +395,9 @@ consume_iden = consume $
 seqparser :: ParseFunM a -> (a -> ParseFunM b) -> ParseFunM b
 seqparser exa cont =
     save_location >>= \ saved ->
-    exa >>= \ mres ->
-    case mres of
+    exa >>= \case
         Just res ->
-            cont res >>= \ contres ->
-            case contres of
+            cont res >>= \case
                 jx@(Just _) -> return jx
                 Nothing ->
                     restore_location saved >>
@@ -416,8 +413,7 @@ choice choices =
     where
         try_choices (c:cs) original_location =
             restore_location original_location >>
-            c >>= \ res ->
-            case res of
+            c >>= \case
                 Just x -> return (Just x)
                 Nothing -> try_choices cs original_location
 
@@ -430,8 +426,7 @@ zeromore ex = fun
     where
         fun =
             save_location >>= \ saved ->
-            ex >>= \ mres ->
-            case mres of
+            ex >>= \case
                 Just res ->
                     fun >>= \ rest ->
                     return $ res:rest
@@ -445,8 +440,7 @@ onemore ex = fun []
     where
         fun acc =
             save_location >>= \ saved ->
-            ex >>= \ res ->
-            case res of
+            ex >>= \case
                 Just thing ->
                     fun $ acc ++ [thing]
 
@@ -523,7 +517,7 @@ decl_list = onemore parse_decl
 param_list :: ParseFunM [AST.LDParam]
 param_list =
     onemoredelim parse_param (consume_tok_u Tokens.Comma (IfContinuedNeeds "parameter list" "separator ','" "parameter")) `seqparser` \ params ->
-    (sequence $ map (
+    mapM (
         \ (p@(Located param_sp param), idx) ->
         case param of
             DParam'Normal _ _ (Located _ "this")
@@ -531,7 +525,7 @@ param_list =
                     new_uncond_err_s (ThisParamMustBeFirst param_sp) >>
                     return Nothing
             _ -> return $ Just p
-    ) $ zip params ([0..] :: [Integer])) >>= \ m_params ->
+    ) (zip params ([0..] :: [Integer])) >>= \ m_params ->
     return $ sequence m_params
 
 
@@ -543,8 +537,7 @@ arg_list = onemoredelim parse_expr (consume_tok_u Tokens.Comma (IfContinuedNeeds
 -- line endings {{{2
 lnend :: String -> ParseFunM Span
 lnend what = consume
-    (\ tok ->
-    case tok of
+    (\case
         Located sp Tokens.Newline -> Just sp
         Located sp Tokens.Semicolon -> Just sp
         _ -> Nothing
@@ -689,8 +682,7 @@ mk_bin_expr next operators constructor =
                 operators `seqparser` \ op ->
                 next `seqparser` \ rhs ->
                 return $ Just (op, rhs)
-            ) >>= \ mrhs ->
-            case mrhs of
+            ) >>= \case
                 Just (op, rhs@(Located rhssp _)) -> maybe_next_rep $ Located (lhssp `join_span` rhssp) $ constructor lhs op rhs
                 Nothing -> return $ Just lhs
 
@@ -810,8 +802,7 @@ cast_expr =
                 consume_tok_u Tokens.RightArrow (XIsMissingYAfterZFound "cast expression" "'->'" "expression to cast") `seqparser` \ _ ->
                 parse_type `seqparser` \ ty ->
                 return $ Just ty
-            ) >>= \ mty ->
-            case mty of
+            ) >>= \case
                 Just ty@(Located tysp _) -> parse_more $ Located (lhssp `join_span` tysp) $ AST.DExpr'Cast ty lhs
                 Nothing -> return $ Just lhs
 
@@ -842,8 +833,7 @@ call_expr =
     parse_more lhs
     where
         parse_more lhs =
-            choice [{- method lhs, field lhs, -} call lhs] >>= \ mres ->
-            case mres of
+            choice [{- method lhs, field lhs, -} call lhs] >>= \case
                 Just newlhs -> parse_more newlhs
                 Nothing -> return $ Just lhs
 
@@ -989,5 +979,5 @@ parse toks =
         uncond_errs_simple = map Message.to_diagnostic uncond_errs
     in case (res, uncond_errs) of
         (Just x, []) -> Right x
-        (Nothing, []) -> Left $ [Message.to_diagnostic (ParseError errs)]
+        (Nothing, []) -> Left [Message.to_diagnostic (ParseError errs)]
         (_, _:_) -> Left uncond_errs_simple

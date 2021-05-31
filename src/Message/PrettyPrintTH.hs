@@ -22,8 +22,8 @@ make_print_variants name =
             located_ast_ty = AppT (ConT $ mkName "Located") <$> ast_ty
 
             sigs = sequence
-                    [ SigD non_loc_fun <$> [t| $(ast_ty) -> String |]
-                    , SigD loc_fun <$> [t| $(located_ast_ty) -> String |]
+                    [ SigD non_loc_fun <$> [t| $ast_ty -> String |]
+                    , SigD loc_fun <$> [t| $located_ast_ty -> String |]
                     ]
 
             decls = [d|

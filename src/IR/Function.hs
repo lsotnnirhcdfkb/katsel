@@ -172,11 +172,7 @@ instance VPrint Function where
 
                         concatMap (("        "++) . (++";\n") . show_instruction) instructions ++
 
-                        "        =>: " ++ (
-                            case m_br of
-                                Just br -> show_br br
-                                Nothing -> "<no br>"
-                        ) ++ ";\n" ++
+                        "        =>: " ++ maybe "<no br>" show_br m_br ++ ";\n" ++
 
                         "    }\n"
                         where
@@ -221,11 +217,11 @@ instance VPrint Function where
             ]
 
 instance DeclSpan (Function, LValue) where
-    decl_span irctx (f, (LVRegister reg)) = decl_span irctx $ get_register f reg
+    decl_span irctx (f, LVRegister reg) = decl_span irctx $ get_register f reg
 instance Describe (Function, LValue) where
-    describe irctx (f, (LVRegister reg)) = describe irctx $ get_register f reg
+    describe irctx (f, LVRegister reg) = describe irctx $ get_register f reg
 instance Typed (Function, LValue) where
-    type_of irctx (f, (LVRegister reg)) = type_of irctx $ get_register f reg
+    type_of irctx (f, LVRegister reg) = type_of irctx $ get_register f reg
 
 instance Typed (Module, Function, FValue) where
     type_of irctx (root, _, FVGlobalValue vid) = type_of irctx $ resolve_vid irctx root vid
@@ -242,7 +238,7 @@ new_function ret_type param_tys sp name irctx =
     let param_regs = map (\ (muty, tyidx, param_sp) -> Register tyidx muty param_sp) param_tys
         param_reg_idxs = map RegisterIdx $ take (length param_tys) [1..]
 
-        registers = (Register ret_type Mutable sp) : param_regs
+        registers = Register ret_type Mutable sp : param_regs
 
         function_type = FunctionType Map.empty ret_type $ map (\ (a, b, _) -> (a, b)) param_tys
         (function_type_idx, irctx') = get_ty_irctx function_type irctx
@@ -457,7 +453,7 @@ apply_halfway hb start_block fun =
                 convert_hbr (HBrGoto dest) = BrGoto $ convert_hb dest
                 convert_hbr (HBrCond c t f) = BrCond c (convert_hb t) (convert_hb f)
 
-                fill_brs f ((_, _, (Just br)), f_bidx) = add_br (convert_hbr br) f_bidx f
+                fill_brs f ((_, _, Just br), f_bidx) = add_br (convert_hbr br) f_bidx f
                 fill_brs f ((_, _, Nothing), _) = f
 
         f_with_first_br = add_br (BrGoto start_idx) start_block f_with_brs

@@ -57,7 +57,7 @@ stringify_segments segments = stringify $ process segments
         stringify s = snd $ foldl' segment_to_str (IndentAmt 0, "") s
 
         process :: [PPrintSegment] -> [PPrintSegment]
-        process (x : (more@(y:_))) = process_two_segments x y ++ process more
+        process (x : more@(y:_)) = process_two_segments x y ++ process more
         process [x] = [x]
         process [] = []
 
@@ -100,10 +100,7 @@ putnl :: State [PPrintSegment] ()
 putnl = state $ \ segments -> ((), segments ++ [Newline])
 -- helper functions {{{1
 maybe_do :: (a -> State [PPrintSegment] ()) -> Maybe a -> State [PPrintSegment] ()
-maybe_do st m =
-    case m of
-        Just x -> st x
-        Nothing -> return ()
+maybe_do = maybe (return ())
 
 act_on_mutability :: State [PPrintSegment] () -> State [PPrintSegment] () -> AST.Mutability -> State [PPrintSegment] ()
 act_on_mutability if_mut if_immut mutability =
@@ -112,7 +109,7 @@ act_on_mutability if_mut if_immut mutability =
         AST.Immutable -> if_immut
 
 if_mutable_put :: String -> AST.Mutability -> State [PPrintSegment] ()
-if_mutable_put str mutability = act_on_mutability (put str) (return ()) mutability
+if_mutable_put str = act_on_mutability (put str) (return ())
 
 pprint_list :: (a -> State [PPrintSegment] ()) -> [a] -> State [PPrintSegment] ()
 pprint_list pprintfun things = foldl' (>>) (return ()) $ map pprintfun things
@@ -267,9 +264,12 @@ pprint_expr_s' (AST.DExpr'Unary op expr) =
 pprint_expr_s' (AST.DExpr'Ref mutability expr) = put "&" >> if_mutable_put "mut " mutability >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
 
 pprint_expr_s' (AST.DExpr'Call expr args) =
-    (let callee_is_field = case unlocate expr of
-            -- AST.DExpr'Field _ _ -> True
+    (let callee_is_field = False
+        {-
+        case unlocate expr of
+            AST.DExpr'Field _ _ -> True
             _ -> False
+        -}
     in if callee_is_field
     then put "(" >> pprint_expr_s (unlocate expr) >> put ")"
     else pprint_expr_with_prec_s AST.PrecCall (unlocate expr)) >>

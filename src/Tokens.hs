@@ -511,7 +511,7 @@ lex' prevtoks indent_stack lexer =
                     in if is_char_lit
                     then if length contents == 1
                         then continue_lex_with_single_tok tok_len $ CharLit $ head contents
-                        else continue_lex_with_single_err tok_len $ MulticharChar
+                        else continue_lex_with_single_err tok_len   MulticharChar
                     else continue_lex_with_single_tok tok_len $ StringLit contents
 
                 Left err_len ->

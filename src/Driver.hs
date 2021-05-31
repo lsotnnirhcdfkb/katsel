@@ -81,8 +81,7 @@ compile num max_num filename =
     open_file filename >>= \ file ->
     let (ErrorAcc result diagnostics) =
             lex_stage file >>=
-            parse_stage >>= \ mast ->
-            case mast of
+            parse_stage >>= \case
                 Just ast -> Just <$> lower_ast_stage ast
                 Nothing -> return Nothing
 
@@ -115,8 +114,7 @@ compilation_failed = (>0) . amount_of_diag Message.Error
 
 -- TODO: do not catch user interrupt
 do_try :: IO () -> IO ()
-do_try x = (try x :: IO (Either SomeException ())) >>= \ ei ->
-    case ei of
+do_try x = (try x :: IO (Either SomeException ())) >>= \case
         Right () -> return ()
         Left err ->
             hPutStr stderr ("\n" ++
@@ -163,6 +161,6 @@ put_counts diagnostics =
         dbg_msg = make_msg Message.DebugMessage "debug message" Colors.dbgmsg_sgr
 
         msgs = catMaybes [error_msg, warning_msg, dbg_msg]
-    in if length msgs > 0
+    in if not $ null msgs
         then sequence_ (intersperse (putStr ", ") msgs) >> putStrLn ""
         else return ()

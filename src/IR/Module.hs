@@ -44,14 +44,14 @@ new_module sp irctx = (Module dsmap Map.empty sp, irctx)
             ]
 
 instance Parent Module DeclSymbol String where
-    get_child_map ((Module dsmap _ _), _) = dsmap
+    get_child_map (Module dsmap _ _, _) = dsmap
     add name ds (Module dsmap vmap sp, irctx) =
         let old_val = Map.lookup name dsmap
             dsmap' = Map.insert name ds dsmap
         in (old_val, (Module dsmap' vmap sp, irctx))
 
 instance Parent Module Value String where
-    get_child_map ((Module _ vmap _), _) = vmap
+    get_child_map (Module _ vmap _, _) = vmap
     add name ds (Module dsmap vmap sp, irctx) =
         let old_val = Map.lookup name vmap
             vmap' = Map.insert name ds vmap

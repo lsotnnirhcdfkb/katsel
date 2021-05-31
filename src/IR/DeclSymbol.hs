@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE GADTs #-}
 
 module IR.DeclSymbol
@@ -21,14 +21,14 @@ data DeclSymbol where
     DeclSymbol :: (DSPrint d, Typeable d, DeclSpan d, Describe d, Parent d DeclSymbol String, Parent d Value String) => d -> DeclSymbol
 
 instance Parent DeclSymbol DeclSymbol String where
-    get_child_map ((DeclSymbol d), irctx) = get_child_map (d, irctx)
-    add name child ((DeclSymbol ds), irctx) =
+    get_child_map (DeclSymbol d, irctx) = get_child_map (d, irctx)
+    add name child (DeclSymbol ds, irctx) =
         let (replaced, (added, irctx')) = add name child (ds, irctx)
         in (replaced, (DeclSymbol added, irctx'))
 
 instance Parent DeclSymbol Value String where
-    get_child_map ((DeclSymbol d), irctx) = get_child_map (d, irctx)
-    add name child ((DeclSymbol ds), irctx) =
+    get_child_map (DeclSymbol d, irctx) = get_child_map (d, irctx)
+    add name child (DeclSymbol ds, irctx) =
         let (replaced, (added, irctx')) = add name child (ds, irctx)
         in (replaced, (DeclSymbol added, irctx'))
 

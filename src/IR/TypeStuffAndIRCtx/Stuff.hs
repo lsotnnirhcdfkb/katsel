@@ -17,7 +17,7 @@ import qualified Data.Map as Map
 data IRCtx = IRCtx TypeInterner
 data Signedness = Signed | Unsigned deriving Eq
 data Mutability = Mutable | Immutable deriving Eq
-newtype TypeInterner = TypeInterner [Type]
+data TypeInterner = TypeInterner [Type]
 data TyIdx = TyIdx { untyidx :: Int } deriving Eq
 data Type
     = FloatType DSMap Int
@@ -53,21 +53,21 @@ new_type_interner = TypeInterner
     ]
 
 resolve_float32, resolve_float64, resolve_uint8, resolve_uint16, resolve_uint32, resolve_uint64, resolve_sint8, resolve_sint16, resolve_sint32, resolve_sint64, resolve_generic_float, resolve_generic_int, resolve_char, resolve_bool, resolve_void :: IRCtx -> TyIdx
-resolve_float32 = fst . (get_ty_irctx $ FloatType Map.empty 32)
-resolve_float64 = fst . (get_ty_irctx $ FloatType Map.empty 64)
-resolve_uint8 = fst . (get_ty_irctx $ IntType Map.empty  8 Unsigned)
-resolve_uint16 = fst . (get_ty_irctx $ IntType Map.empty 16 Unsigned)
-resolve_uint32 = fst . (get_ty_irctx $ IntType Map.empty 32 Unsigned)
-resolve_uint64 = fst . (get_ty_irctx $ IntType Map.empty 64 Unsigned)
-resolve_sint8 = fst . (get_ty_irctx $ IntType Map.empty  8 Signed)
-resolve_sint16 = fst . (get_ty_irctx $ IntType Map.empty 16 Signed)
-resolve_sint32 = fst . (get_ty_irctx $ IntType Map.empty 32 Signed)
-resolve_sint64 = fst . (get_ty_irctx $ IntType Map.empty 64 Signed)
-resolve_generic_float = fst . (get_ty_irctx $ GenericFloatType)
-resolve_generic_int = fst . (get_ty_irctx $ GenericIntType)
-resolve_char = fst . (get_ty_irctx $ CharType Map.empty)
-resolve_bool = fst . (get_ty_irctx $ BoolType Map.empty)
-resolve_void = fst . (get_ty_irctx $ VoidType Map.empty)
+resolve_float32 = fst . get_ty_irctx (FloatType Map.empty 32)
+resolve_float64 = fst . get_ty_irctx (FloatType Map.empty 64)
+resolve_uint8 = fst . get_ty_irctx (IntType Map.empty  8 Unsigned)
+resolve_uint16 = fst . get_ty_irctx (IntType Map.empty 16 Unsigned)
+resolve_uint32 = fst . get_ty_irctx (IntType Map.empty 32 Unsigned)
+resolve_uint64 = fst . get_ty_irctx (IntType Map.empty 64 Unsigned)
+resolve_sint8 = fst . get_ty_irctx (IntType Map.empty  8 Signed)
+resolve_sint16 = fst . get_ty_irctx (IntType Map.empty 16 Signed)
+resolve_sint32 = fst . get_ty_irctx (IntType Map.empty 32 Signed)
+resolve_sint64 = fst . get_ty_irctx (IntType Map.empty 64 Signed)
+resolve_generic_float = fst . get_ty_irctx GenericFloatType
+resolve_generic_int = fst . get_ty_irctx GenericIntType
+resolve_char = fst . get_ty_irctx (CharType Map.empty)
+resolve_bool = fst . get_ty_irctx (BoolType Map.empty)
+resolve_void = fst . get_ty_irctx (VoidType Map.empty)
 
 get_ty_irctx :: Type -> IRCtx -> (TyIdx, IRCtx)
 get_ty_irctx ty (IRCtx interner) =
@@ -78,7 +78,7 @@ resolve_tyidx :: TypeInterner -> TyIdx -> Type
 resolve_tyidx (TypeInterner tys) (TyIdx idx) = tys !! idx
 
 resolve_tyidx_irctx :: IRCtx -> TyIdx -> Type
-resolve_tyidx_irctx (IRCtx interner) idx = resolve_tyidx interner idx
+resolve_tyidx_irctx (IRCtx interner) = resolve_tyidx interner
 
 replace_ty :: IRCtx -> TyIdx -> Type -> IRCtx
 replace_ty (IRCtx (TypeInterner tys)) (TyIdx tyidx) ty =
@@ -208,15 +208,15 @@ instance DSPrint Type where
                 Immutable -> ""
 
 instance Parent Type DeclSymbol String where
-    get_child_map ((FloatType dsmap _), _) = dsmap
-    get_child_map ((IntType dsmap _ _), _) = dsmap
+    get_child_map (FloatType dsmap _, _) = dsmap
+    get_child_map (IntType dsmap _ _, _) = dsmap
     get_child_map (GenericFloatType, _) = Map.empty
     get_child_map (GenericIntType, _) = Map.empty
-    get_child_map ((CharType dsmap), _) = dsmap
-    get_child_map ((BoolType dsmap), _) = dsmap
-    get_child_map ((FunctionType dsmap _ _), _) = dsmap
-    get_child_map ((VoidType dsmap), _) = dsmap
-    get_child_map ((PointerType dsmap _ _), _) = dsmap
+    get_child_map (CharType dsmap, _) = dsmap
+    get_child_map (BoolType dsmap, _) = dsmap
+    get_child_map (FunctionType dsmap _ _, _) = dsmap
+    get_child_map (VoidType dsmap, _) = dsmap
+    get_child_map (PointerType dsmap _ _, _) = dsmap
 
 instance Parent Type Value String where
     get_child_map _ = Map.empty

@@ -22,7 +22,7 @@ import qualified System.Console.ANSI as ANSI
 
 import qualified Colors
 
-newtype UnderlinesSection = UnderlinesSection [Message]
+data UnderlinesSection = UnderlinesSection [Message]
 data Message = Message Span Type Importance String
 data Importance = Primary | Secondary | Tertiary
 data Type = Error | Warning | Note | Hint
