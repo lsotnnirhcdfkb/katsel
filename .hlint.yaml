@@ -6,6 +6,5 @@
 - ignore: {name: Use newtype instead of data}
 - ignore: {name: Redundant bracket, within: Message.PrettyPrint}
 
-
 - fixity: "infixl 1 >>=?"
 - fixity: "infixl 1 >>=<>"
