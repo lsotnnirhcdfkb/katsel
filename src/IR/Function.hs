@@ -347,14 +347,14 @@ add_basic_block name fun =
         new_block = BasicBlock name [] Nothing
 
 add_instruction :: Instruction -> BlockIdx -> Function -> Function
-add_instruction instr block_idx@(BlockIdx block_idx') fun = fun { get_blocks = new_blocks }
+add_instruction instr (BlockIdx block_idx) fun = fun { get_blocks = new_blocks }
     where
         blocks = get_blocks fun
 
-        (BasicBlock block_name block_instrs block_br) = blocks !! block_idx'
+        (BasicBlock block_name block_instrs block_br) = blocks !! block_idx
         new_block = BasicBlock block_name (block_instrs ++ [instr]) block_br
 
-        new_blocks = replace_block blocks block_idx' new_block
+        new_blocks = replace_block blocks block_idx new_block
 
 add_br :: Br -> BlockIdx -> Function -> Function
 add_br br (BlockIdx block_idx) fun = fun { get_blocks = new_blocks }
