@@ -108,7 +108,7 @@ data BinOp
 type LShortOp = Located ShortOp
 data ShortOp = DoubleAmper | DoublePipe
 type LUnaryOp = Located UnaryOp
-data UnaryOp = UnBang | UnTilde | UnMinus | UnStar
+data UnaryOp = UnBang | UnTilde | UnMinus
 type LAssignOp = Located AssignOp
 data AssignOp = Equal
 
@@ -169,6 +169,7 @@ data DExpr
     | DExpr'Binary LDExpr LBinOp LDExpr
     | DExpr'Cast LDType LDExpr
     | DExpr'Unary LUnaryOp LDExpr
+    | DExpr'Deref LDExpr
     | DExpr'Ref Mutability LDExpr
     | DExpr'Call LDExpr [LDExpr]
 {-
@@ -807,7 +808,7 @@ cast_expr =
                 Nothing -> return $ Just lhs
 
 unary_expr =
-    choice [punop, amper_expr, call_expr]
+    choice [punop, deref_expr, amper_expr, call_expr]
     where
         amper_expr =
             consume_tok_s Tokens.Amper (XIsMissingYFound "reference expression" "operator '&'") `seqparser` \ ampersp ->
@@ -815,13 +816,17 @@ unary_expr =
             unary_expr `seqparser` \ operand@(Located operandsp _) ->
             return $ Just $ Located (ampersp `join_span` operandsp) $ AST.DExpr'Ref (maybe_to_mutability mmut) operand
 
+        deref_expr =
+            consume_tok_s Tokens.Star (XIsMissingYFound "dereference expression" "operator '*'") `seqparser` \ starsp ->
+            unary_expr `seqparser` \ operand@(Located operandsp _) ->
+            return $ Just $ Located (starsp `join_span` operandsp) $ AST.DExpr'Deref operand
+
         punop =
             consume (\ (Located sp tok) ->
                 let op = case tok of
                         Tokens.Tilde -> Just AST.UnTilde
                         Tokens.Minus -> Just AST.UnMinus
                         Tokens.Bang -> Just AST.UnBang
-                        Tokens.Star -> Just AST.UnStar
                         _ -> Nothing
                 in Located sp <$> op
             ) (InvalidToken "unary expression" "operator" ["'~'", "'-'", "'!'", "'*'"]) `seqparser` \ op@(Located opsp _) ->

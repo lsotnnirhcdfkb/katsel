@@ -161,6 +161,7 @@ expr_requires_prec (AST.DExpr'Binary _ op _) = AST.prec_of_bin_op $ unlocate op
 expr_requires_prec (AST.DExpr'Cast _ _) = AST.PrecCast
 expr_requires_prec (AST.DExpr'Unary _ _) = AST.PrecUnary
 expr_requires_prec (AST.DExpr'Ref _ _) = AST.PrecUnary
+expr_requires_prec (AST.DExpr'Deref _) = AST.PrecUnary
 expr_requires_prec (AST.DExpr'Call _ _) = AST.PrecCall
 -- expr_requires_prec (AST.DExpr'Field _ _) = AST.PrecCall
 -- expr_requires_prec (AST.DExpr'Method _ _ _) = AST.PrecCall
@@ -259,9 +260,9 @@ pprint_expr_s' (AST.DExpr'Unary op expr) =
             AST.UnBang -> "!"
             AST.UnTilde -> "~"
             AST.UnMinus -> "-"
-            AST.UnStar -> "*"
     in put opstr >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
 pprint_expr_s' (AST.DExpr'Ref mutability expr) = put "&" >> if_mutable_put "mut " mutability >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
+pprint_expr_s' (AST.DExpr'Deref expr) = put "*" >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
 
 pprint_expr_s' (AST.DExpr'Call expr args) =
     (let callee_is_field = False

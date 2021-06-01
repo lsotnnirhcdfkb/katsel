@@ -527,6 +527,10 @@ lower_expr (Located sp (AST.DExpr'Ref muty expr)) root =
             apply_irb_to_funcgtup_s (add_error_s $ AddrofNotLValue sp) >>
             return Nothing
 
+lower_expr (Located sp (AST.DExpr'Deref _)) _ =
+    apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "dereference expressions" sp) >> -- TODO
+    return Nothing
+
 lower_expr (Located sp (AST.DExpr'Call _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "call expressions" sp) >> -- TODO
     return Nothing
