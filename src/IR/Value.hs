@@ -2,6 +2,7 @@
 
 module IR.Value
     ( Value(..)
+    , IsValue
     , value_cast
     ) where
 
@@ -12,8 +13,10 @@ import IR.PrintClasses
 
 import Data.Typeable(Typeable, cast)
 
+class (Typeable v, VPrint v, DeclSpan v, Describe v, Typed v) => IsValue v where
+
 data Value where
-    Value :: (Typeable v, VPrint v, DeclSpan v, Describe v, Typed v) => v -> Value
+    Value :: IsValue v => v -> Value
 
 instance DeclSpan Value where
     decl_span irctx (Value v) = decl_span irctx v

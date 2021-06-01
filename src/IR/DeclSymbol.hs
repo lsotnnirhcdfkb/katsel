@@ -5,6 +5,7 @@
 
 module IR.DeclSymbol
     ( DeclSymbol(..)
+    , IsDeclSymbol
     , ds_cast
     ) where
 
@@ -17,8 +18,10 @@ import IR.PrintClasses
 
 import Data.Typeable(Typeable, cast)
 
+class (DSPrint d, Typeable d, DeclSpan d, Describe d, Parent d DeclSymbol String, Parent d Value String) => IsDeclSymbol d where
+
 data DeclSymbol where
-    DeclSymbol :: (DSPrint d, Typeable d, DeclSpan d, Describe d, Parent d DeclSymbol String, Parent d Value String) => d -> DeclSymbol
+    DeclSymbol :: (IsDeclSymbol d) => d -> DeclSymbol
 
 instance Parent DeclSymbol DeclSymbol String where
     get_child_map (DeclSymbol d, irctx) = get_child_map (d, irctx)

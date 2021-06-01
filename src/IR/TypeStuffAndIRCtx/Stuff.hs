@@ -170,6 +170,7 @@ instance Parent TyIdx Value String where
             (old_child, (resolved_ty', irctx')) = add i child (resolved_ty, irctx)
             irctx'' = replace_ty irctx' tyidx resolved_ty'
         in (old_child, (tyidx, irctx''))
+instance IsDeclSymbol TyIdx where
 
 instance DeclSpan Type where
     -- all the types currently implemented are primitive types or types that otherwise wouldn't have declaration spans anyway, so this is a constant Nothing

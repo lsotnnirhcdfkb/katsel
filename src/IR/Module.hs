@@ -63,3 +63,5 @@ instance Describe Module where
     describe _ _ = "module being compiled"
 instance DSPrint Module where
     ds_print _ _ = "mod"
+
+instance IsDeclSymbol Module where
