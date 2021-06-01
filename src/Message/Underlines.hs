@@ -112,7 +112,7 @@ assign_messages messages = (firstrow, msglines)
 
 section_lines :: UnderlinesSection -> [SectionLine]
 section_lines (UnderlinesSection msgs) =
-    make_lines [] (zip flnrs $ Nothing : map Just flnrs) ++ map MultilineMessageLines multiline_msgs
+    concatMap make_lines (zip flnrs (Nothing : map Just flnrs)) ++ map MultilineMessageLines multiline_msgs
     where
         flnrs = line_nrs_of_messages msgs
 
@@ -120,16 +120,9 @@ section_lines (UnderlinesSection msgs) =
             where
                 is_multiline (Message (Span start before_end _) _ _ _) = lnn_of_loc start /= lnn_of_loc before_end
 
-        make_lines acc ((ShowLine curfl curnr curdimn, lastshln):more) =
-            make_lines next_acc more
-            where
-                next_acc = acc ++ maybeToList file_line ++ maybeToList elipsis_line ++ content_lines
-                    where
-                        content_lines =
-                            case curdimn of
-                                Dim -> [DimQuote curfl curnr]
-                                Normal -> [quote_line] ++ maybeToList underline_line ++ message_lines
 
+        make_lines (ShowLine curfl curnr curdimn, lastshln) = maybeToList file_line ++ maybeToList elipsis_line ++ content_lines
+            where
                 file_line =
                     case lastshln of
                         Just (ShowLine lastfl _ _)
@@ -143,25 +136,25 @@ section_lines (UnderlinesSection msgs) =
                                 Just ElipsisLine
                         _ -> Nothing
 
-                quote_line = QuoteLine curfl curnr
-
-                underline_line =
-                    if null line_underlines
-                    then Nothing
-                    else Just $ UnderlineLine line_underlines first_row_messages
+                content_lines =
+                    case curdimn of
+                        Dim -> [DimQuote curfl curnr]
+                        Normal -> [QuoteLine curfl curnr] ++ maybeToList underline_line ++ message_lines
+                    where
+                        underline_line =
+                            if null line_underlines
+                            then Nothing
+                            else Just $ UnderlineLine line_underlines first_row_messages
 
                 (first_row_messages, message_lines) = assign_messages line_messages
 
                 is_single_line (Span start before_end _) = lnn_of_loc start == lnn_of_loc before_end
-
                 line_messages = filter is_correct_line msgs
                     where
                         is_correct_line (Message sp@(Span _ before_end _) _ _ _) = (file_of_loc before_end, lnn_of_loc before_end) == (curfl, curnr) && is_single_line sp
                 line_underlines = filter is_correct_line msgs
                     where
                         is_correct_line (Message sp@(Span start _ _) _ _ _) = curfl == file_of_loc start && lnn_of_loc start == curnr && is_single_line sp
-
-        make_lines acc [] = acc
 
 char_of_imp :: Importance -> Char
 char_of_imp Primary = '^'
