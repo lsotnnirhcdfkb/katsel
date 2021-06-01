@@ -12,7 +12,7 @@ import File
 
 import Message.Utils
 
-import Data.List(nubBy, sortBy, partition, find)
+import Data.List(nubBy, sortBy, partition, find, findIndex)
 
 import Data.Maybe(maybeToList, fromMaybe, mapMaybe)
 
@@ -85,31 +85,28 @@ data SectionLine
 assign_messages :: [Message] -> ([DrawableMessage], [SectionLine])
 assign_messages messages = (firstrow, msglines)
     where
-        assign [] already = already
-        assign (to_assign:rest) already =
-            let new_assignment = try_assign to_assign (0 :: Int) already
-            in assign rest $ new_assignment:already
+        coln_comparator (Message (Span _ before_end_1 _) _ _ _) (Message (Span _ before_end_2 _) _ _ _) = coln_of_loc before_end_2 `compare` coln_of_loc before_end_1
+        assignments = map (\ (i, m) -> (assign m i, m)) $ zip [0..] (sortBy coln_comparator messages)
 
-        try_assign cur_msg currow already =
-            if overlapping
-            then try_assign cur_msg (currow + 1) already
-            else (currow, cur_msg)
-            where
-                on_cur_row = filter ((currow==) . fst) already
+        assign :: Message -> Int -> Int
+        assign msg cur_idx =
+            let rows = [0..]
+                msgs_on_row r = map snd $ filter ((r==) . fst) (take cur_idx assignments)
 
-                overlapping = any ((cur_msg_end_col>=) . col_of_assignment) on_cur_row
+                col_of_msg (Message (Span _ before_end _) _ _ _) = coln_of_loc before_end
+                end_col_of_msg m@(Message _ _ _ str) = col_of_msg m + length str + 3
 
-                cur_msg_end_col = end_col_of_msg cur_msg
-                col_of_assignment (_, Message (Span _ before_end _) _ _ _) = coln_of_loc before_end
-                end_col_of_msg (Message (Span _ before_end _) _ _ str) = coln_of_loc before_end + length str + 3
+                msg_end_col = end_col_of_msg msg
+                overlapping = (msg_end_col >=) . col_of_msg
 
-        assigned = assign (sortBy comparator messages) []
-        comparator (Message (Span _ before_end_1 _) _ _ _) (Message (Span _ before_end_2 _) _ _ _) = coln_of_loc before_end_2 `compare` coln_of_loc before_end_1
+            in case findIndex (not . (any overlapping) . msgs_on_row) rows of
+                Just x -> x
+                Nothing -> error "unreachable"
 
-        firstrow = find_msgs_on_row 0
+        find_msgs_on_row row = map (todmsg . snd) $ filter ((row==) . fst) assignments
 
         msglines = map MessageLine $ takeWhile (not . null) $ map find_msgs_on_row [1..]
-        find_msgs_on_row row = map (todmsg . snd) $ filter ((row==) . fst) assigned
+        firstrow = find_msgs_on_row 0
 
         todmsg (Message (Span _ before_end _) ty _ str) = DMessage (sgr_of_ty ty) (coln_of_loc before_end) str
 
