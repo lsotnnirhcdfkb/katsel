@@ -27,7 +27,7 @@ data Type
     | CharType DSMap
     | BoolType DSMap
     | FunctionType DSMap TyIdx [(Mutability, TyIdx)]
-    | VoidType DSMap
+    | UnitType DSMap
     | PointerType DSMap Mutability TyIdx
 
 new_irctx :: IRCtx
@@ -49,10 +49,10 @@ new_type_interner = TypeInterner
     , GenericIntType
     , CharType Map.empty
     , BoolType Map.empty
-    , VoidType Map.empty
+    , UnitType Map.empty
     ]
 
-resolve_float32, resolve_float64, resolve_uint8, resolve_uint16, resolve_uint32, resolve_uint64, resolve_sint8, resolve_sint16, resolve_sint32, resolve_sint64, resolve_generic_float, resolve_generic_int, resolve_char, resolve_bool, resolve_void :: IRCtx -> TyIdx
+resolve_float32, resolve_float64, resolve_uint8, resolve_uint16, resolve_uint32, resolve_uint64, resolve_sint8, resolve_sint16, resolve_sint32, resolve_sint64, resolve_generic_float, resolve_generic_int, resolve_char, resolve_bool, resolve_unit :: IRCtx -> TyIdx
 resolve_float32 = fst . get_ty_irctx (FloatType Map.empty 32)
 resolve_float64 = fst . get_ty_irctx (FloatType Map.empty 64)
 resolve_uint8 = fst . get_ty_irctx (IntType Map.empty  8 Unsigned)
@@ -67,7 +67,7 @@ resolve_generic_float = fst . get_ty_irctx GenericFloatType
 resolve_generic_int = fst . get_ty_irctx GenericIntType
 resolve_char = fst . get_ty_irctx (CharType Map.empty)
 resolve_bool = fst . get_ty_irctx (BoolType Map.empty)
-resolve_void = fst . get_ty_irctx (VoidType Map.empty)
+resolve_unit = fst . get_ty_irctx (UnitType Map.empty)
 
 get_ty_irctx :: Type -> IRCtx -> (TyIdx, IRCtx)
 get_ty_irctx ty (IRCtx interner) =
@@ -109,7 +109,7 @@ ty_eq (PointerType _ muty_a pointee_a) (PointerType _ muty_b pointee_b)
 
 ty_eq (CharType _) (CharType _) = True
 ty_eq (BoolType _) (BoolType _) = True
-ty_eq (VoidType _) (VoidType _) = True
+ty_eq (UnitType _) (UnitType _) = True
 ty_eq GenericIntType GenericIntType = True
 ty_eq GenericFloatType GenericFloatType = True
 
@@ -139,7 +139,7 @@ stringify_ty irctx (FunctionType _ ret_idx params) =
     let ret_str = stringify_tyidx irctx ret_idx
         param_strs = map (stringify_tyidx irctx . snd) params
     in "fun(" ++ intercalate ", " param_strs ++ "): " ++ ret_str
-stringify_ty _ (VoidType _) = "void"
+stringify_ty _ (UnitType _) = "unit"
 stringify_ty irctx (PointerType _ muty pointee) =
     let muty_str = case muty of
             Mutable -> "mut "
@@ -187,7 +187,7 @@ instance Describe Type where
     describe _ (CharType _) = "primitive character type"
     describe _ (BoolType _) = "primitive bool type"
     describe _ (FunctionType _ _ _) = "function type" -- TODO: put argument types and return type here?
-    describe _ (VoidType _) = "primitive void type"
+    describe _ (UnitType _) = "primitive unit type"
     describe _ (PointerType _ _ _) = "pointer type" -- TODO: put pointee type here?
 instance DSPrint Type where
     ds_print _ (FloatType _ size) = "primitive float type " ++ show size
@@ -201,7 +201,7 @@ instance DSPrint Type where
     ds_print _ (CharType _) = "primitive char type"
     ds_print _ (BoolType _) = "primitive bool type"
     ds_print irctx (FunctionType _ ret_ty params) = "function type fun(" ++ intercalate ", " (map (stringify_tyidx irctx . snd) params) ++ "): " ++ stringify_tyidx irctx ret_ty
-    ds_print _ (VoidType _) = "primitive void type"
+    ds_print _ (UnitType _) = "primitive unit type"
     ds_print irctx (PointerType _ muty ty) = "pointer type *" ++ muty_str ++ stringify_tyidx irctx ty
         where
             muty_str = case muty of
@@ -216,7 +216,7 @@ instance Parent Type DeclSymbol String where
     get_child_map (CharType dsmap, _) = dsmap
     get_child_map (BoolType dsmap, _) = dsmap
     get_child_map (FunctionType dsmap _ _, _) = dsmap
-    get_child_map (VoidType dsmap, _) = dsmap
+    get_child_map (UnitType dsmap, _) = dsmap
     get_child_map (PointerType dsmap _ _, _) = dsmap
 
 instance Parent Type Value String where

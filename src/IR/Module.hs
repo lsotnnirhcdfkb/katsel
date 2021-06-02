@@ -28,7 +28,7 @@ new_module sp irctx = (Module dsmap Map.empty sp, irctx)
         r f = DeclSymbol $ f irctx
 
         dsmap = Map.fromList
-            [ ("void", r resolve_void)
+            [ ("unit", r resolve_unit)
             , ("float", r resolve_float32)
             , ("double", r resolve_float64)
             , ("bool", r resolve_bool)

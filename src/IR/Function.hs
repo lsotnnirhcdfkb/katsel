@@ -101,7 +101,7 @@ data FValue
     | FVConstFloat Double TyIdx
     | FVConstBool Bool
     | FVConstChar Char
-    | FVVoid
+    | FVUnit
     | FVInstruction InstructionIdx
     deriving Eq
 
@@ -186,7 +186,7 @@ instance VPrint Function where
                     show_fv (FVConstFloat d ty) = "(" ++ show d ++ " of " ++ stringify_tyidx irctx ty ++ ")"
                     show_fv (FVConstBool b) = if b then "true" else "false"
                     show_fv (FVConstChar c) = ['\'', c, '\'']
-                    show_fv FVVoid = "void"
+                    show_fv FVUnit = "unit"
                     show_fv (FVInstruction (InstructionIdx bidx iidx)) = "%" ++ show_block_from_idx bidx ++ "." ++ show iidx
 
                     show_lv (LVRegister i) = show_reg i
@@ -224,11 +224,11 @@ instance Typed (Module, Function, FValue) where
     type_of _ (_, _, FVConstFloat _ ty) = ty
     type_of irctx (_, _, FVConstBool _) = resolve_bool irctx
     type_of irctx (_, _, FVConstChar _) = resolve_char irctx
-    type_of irctx (_, _, FVVoid) = resolve_void irctx
+    type_of irctx (_, _, FVUnit) = resolve_unit irctx
     type_of irctx (_, fun, FVInstruction idx) = type_of irctx $ get_instruction fun idx
 
 instance Typed Instruction where
-    type_of irctx (Copy _ _) = resolve_void irctx
+    type_of irctx (Copy _ _) = resolve_unit irctx
     type_of _ (Addrof _ _ ty) = ty
 
 new_function :: TyIdx -> [(Mutability, TyIdx, Span)] -> Span -> String -> IRCtx -> (Function, IRCtx)

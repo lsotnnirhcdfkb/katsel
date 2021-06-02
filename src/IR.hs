@@ -270,7 +270,7 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
     vdeclare (Located fun_sp (AST.SFunDecl' mretty (Located _ name) params _)) root parent = State.runState $
         case mretty of
             Just retty -> resolve_ty_s retty root
-            Nothing -> Just <$> get_ty_s (VoidType Map.empty)
+            Nothing -> Just <$> get_ty_s (UnitType Map.empty)
          >>=? return parent $ \ retty' ->
         let make_param :: AST.LDParam -> State.State IRBuilder (Maybe (Mutability, TyIdx, Span))
             make_param (Located sp (AST.DParam'Normal mutability ty_ast _)) =
@@ -469,7 +469,7 @@ lower_expr (Located sp (AST.DExpr'While cond body)) root =
 
     add_br_s (make_br_goto while_after) (snd body_ir) >>
 
-    return (Just ((fst cond_ir, while_after), Located sp FVVoid))
+    return (Just ((fst cond_ir, while_after), Located sp FVUnit))
 
 lower_expr (Located sp (AST.DExpr'Assign target@(Located target_sp _) (Located op_sp AST.Equal) expr)) root =
     lower_expr target root >>=? return Nothing $ \ (target_ir, target_val) ->
@@ -484,7 +484,7 @@ lower_expr (Located sp (AST.DExpr'Assign target@(Located target_sp _) (Located o
             add_br_s (make_br_goto (fst expr_ir)) (snd target_ir) >>
             add_br_s (make_br_goto assign_block) (snd expr_ir) >>
 
-            return (Just ((fst target_ir, assign_block), Located sp FVVoid))
+            return (Just ((fst target_ir, assign_block), Located sp FVUnit))
 
         _ ->
             apply_irb_to_funcgtup_s (add_error_s $ InvalidAssign target_sp op_sp) >>
@@ -606,7 +606,7 @@ lower_expr (Located sp (AST.DExpr'Ret expr)) root =
     add_instruction_s copy_instr put_block >>
     add_br_s (make_br_goto $ get_exit_block fun) put_block >>
 
-    return (Just ((fst expr_ir, after_block), Located sp FVVoid))
+    return (Just ((fst expr_ir, after_block), Located sp FVUnit))
 
 lower_block_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe (BlockGroup, Located FValue))
 lower_block_expr (Located blocksp (AST.SBlockExpr' stmts)) root =
@@ -644,7 +644,7 @@ lower_block_expr (Located blocksp (AST.SBlockExpr' stmts)) root =
 
         res_val = case m_ret_val of
             Just ret_val -> ret_val
-            Nothing -> Located blocksp FVVoid
+            Nothing -> Located blocksp FVUnit
 
     in set_brs total_irs >>
     case total_irs of
