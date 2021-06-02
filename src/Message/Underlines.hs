@@ -22,6 +22,8 @@ import qualified System.Console.ANSI as ANSI
 
 import qualified Colors
 
+-- TODO: clean up all the messy code in this file
+
 data UnderlinesSection = UnderlinesSection [Message]
 data Message = Message Span Type Importance String
 data Importance = Primary | Secondary | Tertiary
