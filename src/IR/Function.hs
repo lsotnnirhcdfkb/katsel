@@ -207,7 +207,7 @@ instance VPrint Function where
             , shown_blocks
             , "}\n"
             ]
-instance IsValue Function where -- TODO: remove this, replace globally bound functions with globally bound function pointers
+instance IsValue Function -- TODO: remove this, replace globally bound functions with globally bound function pointers
 
 instance DeclSpan (Function, LValue) where
     decl_span irctx (f, LVRegister reg) = decl_span irctx $ get_register f reg

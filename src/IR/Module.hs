@@ -64,4 +64,4 @@ instance Describe Module where
 instance DSPrint Module where
     ds_print _ _ = "mod"
 
-instance IsDeclSymbol Module where
+instance IsDeclSymbol Module
