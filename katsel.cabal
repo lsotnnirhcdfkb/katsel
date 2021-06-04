@@ -37,6 +37,9 @@ executable katsel
                      , IR.Typed
                      , IR.Value
 
+                     -- c backend
+                     , CBackend
+
                        -- utility things
                      , Location
                      , File

@@ -13,6 +13,7 @@ import qualified Message
 import qualified Tokens
 import qualified AST
 import qualified IR
+import qualified CBackend
 
 import qualified Colors
 
@@ -71,6 +72,9 @@ lower_ast_stage :: AST.LDModule -> ErrorAccumulated (IR.Module, IR.IRCtx)
 lower_ast_stage mod_ast =
     let (ir_mod, irctx, errs) = IR.build_ir mod_ast
     in add_errors (map (\err -> Message.to_diagnostic (err, irctx)) errs) >> return (ir_mod, irctx)
+
+lower_to_c_stage :: IR.IRCtx -> IR.Module -> ErrorAccumulated String
+lower_to_c_stage irctx m = return $ CBackend.lower_mod_to_c irctx m
 -- compile {{{1
 compile :: Int -> Int -> String -> IO ()
 compile num max_num filename =
@@ -82,7 +86,10 @@ compile num max_num filename =
     let (ErrorAcc result diagnostics) =
             lex_stage file >>=
             parse_stage >>= \case
-                Just ast -> Just <$> lower_ast_stage ast
+                Just ast ->
+                    lower_ast_stage ast >>= \ ir'@(ir, irctx) ->
+                    lower_to_c_stage irctx ir >>= \ ccode ->
+                    return (Just $ (ir', ccode))
                 Nothing -> return Nothing
 
         sorted_diagnostics =
@@ -102,7 +109,9 @@ compile num max_num filename =
     ) >>
     hPutStr stderr (concatMap Message.report sorted_diagnostics) >>
     case result of
-        Just (ir, ctx) -> putStr $ IR.print_mod ctx ir
+        Just ((ir, ctx), ccode) ->
+            putStr (IR.print_mod ctx ir) >>
+            putStr ccode
         Nothing -> return ()
 -- compile helpers {{{1
 amount_of_diag :: Message.SimpleDiagType -> [Message.SimpleDiag] -> Int
