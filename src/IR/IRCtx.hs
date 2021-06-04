@@ -17,6 +17,7 @@ module IR.IRCtx
     , resolve_char
     , resolve_bool
     , resolve_unit
+    , apply_to_tyidx
     ) where
 
 import IR.TypeStuffAndIRCtx.Stuff

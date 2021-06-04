@@ -7,6 +7,7 @@ module IR.DeclSymbol
     ( DeclSymbol(..)
     , IsDeclSymbol
     , ds_cast
+    , ApplyToDS(..)
     ) where
 
 import IR.Describe
@@ -14,11 +15,15 @@ import IR.DeclSpan
 import IR.Parent
 import IR.Value
 
-import IR.PrintClasses
+import {-# SOURCE #-} IR.Module
+import {-# SOURCE #-} IR.TyIdx
 
 import Data.Typeable(Typeable, cast)
 
-class (DSPrint d, Typeable d, DeclSpan d, Describe d, Parent d DeclSymbol String, Parent d Value String) => IsDeclSymbol d where
+class (Typeable d, DeclSpan d, Describe d, Parent d DeclSymbol String, Parent d Value String, ApplyToDS d) => IsDeclSymbol d where
+
+class ApplyToDS d where
+    apply_to_ds :: (Module -> r) -> (TyIdx -> r) -> d -> r
 
 data DeclSymbol where
     DeclSymbol :: (IsDeclSymbol d) => d -> DeclSymbol
@@ -39,8 +44,9 @@ instance DeclSpan DeclSymbol where
     decl_span irctx (DeclSymbol ds) = decl_span irctx ds
 instance Describe DeclSymbol where
     describe irctx (DeclSymbol ds) = describe irctx ds
-instance DSPrint DeclSymbol where
-    ds_print irctx (DeclSymbol ds) = ds_print irctx ds
+
+instance ApplyToDS DeclSymbol where
+    apply_to_ds f1 f2 (DeclSymbol ds) = apply_to_ds f1 f2 ds
 
 ds_cast :: Typeable r => DeclSymbol -> Maybe r
 ds_cast (DeclSymbol v) = cast v

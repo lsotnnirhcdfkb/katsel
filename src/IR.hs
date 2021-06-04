@@ -23,7 +23,7 @@ import IR.Parent
 import IR.Describe
 import IR.DeclSpan
 import IR.Typed
-import IR.PrintFunctions
+import IR.Print
 
 import IR.IRCtx
 

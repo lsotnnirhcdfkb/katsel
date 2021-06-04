@@ -22,6 +22,8 @@ module IR.Function
     , make_br_goto
     , make_br_cond
 
+    , print_fun
+
     , new_function
 
     , get_entry_block
@@ -52,7 +54,6 @@ import IR.IRCtx
 import IR.DeclSpan
 import IR.Describe
 import IR.Typed
-import IR.PrintClasses
 
 import Location
 
@@ -130,83 +131,10 @@ instance Describe Function where
     describe _ f = "function named '" ++ get_name f ++ "'"
 instance Typed Function where
     type_of _ = get_type
-instance VPrint Function where
-    v_print irctx (Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_regs _ _ _) =
-        let
-            make_comment tags = if null tags then "" else " // " ++ intercalate ", " tags
 
-            shown_registers = concatMap show_reg $ zip ([0..] :: [Int]) regs
-                where
-                    show_reg (reg_idx, Register reg_ty muty _) = "    " ++ muty_str ++ "#" ++ show reg_idx ++ ": " ++ stringify_tyidx irctx reg_ty ++ ";" ++ make_comment tags ++ "\n"
-                        where
-                            muty_str = case muty of
-                                Mutable -> "mut "
-                                Immutable -> ""
+instance ApplyToV Function where
+    apply_to_v = id
 
-                            tags = (
-                                    if ret_reg_idx == reg_idx
-                                        then ["return value register"]
-                                        else []
-                                ) ++ (
-                                    case findIndex (\ (RegisterIdx i) -> i == reg_idx) param_regs of
-                                        Just i -> ["register for param " ++ show i]
-                                        Nothing -> []
-                                )
-
-            shown_blocks = concatMap show_block $ zip (map BlockIdx [0..]) blocks
-                where
-                    preds = find_preds blocks
-
-                    show_block_from_idx (BlockIdx idx) =
-                        let (BasicBlock n _ _) = blocks !! idx
-                        in block_name_num n idx
-                    block_name_num name num = name ++ "(" ++ show num ++ ")"
-
-                    show_block (block_n@(BlockIdx block_n'), BasicBlock block_name instructions m_br) =
-                        "    "  ++ block_name_num block_name block_n' ++ " {" ++ make_comment tags ++ "\n" ++
-
-                        concatMap (\ (idx, instr) -> "        (%" ++ show idx ++ ": " ++ stringify_tyidx irctx (type_of irctx instr) ++ ") = " ++ show_instruction instr ++ ";\n") (zip ([0..] :: [Int]) instructions) ++
-
-                        "        =>: " ++ maybe "<no br>" show_br m_br ++ ";\n" ++
-
-                        "    }\n"
-                        where
-                            tags =
-                                case lookup block_n preds of
-                                    Just block_preds
-                                        | not $ null block_preds -> ["has predecessors: " ++ intercalate ", " (map show_block_from_idx block_preds)]
-                                    _ -> ["no predecessors"]
-
-                    show_reg (RegisterIdx i) = '#' : show i
-
-                    show_fv (FVGlobalValue vid) = intercalate "::" $ vid_segments vid
-                    show_fv (FVNLVRegister i) = show_reg i
-                    show_fv (FVLValue lv) = show_lv lv
-                    show_fv (FVConstInt i ty) = "(" ++ show i ++ " of " ++ stringify_tyidx irctx ty ++ ")"
-                    show_fv (FVConstFloat d ty) = "(" ++ show d ++ " of " ++ stringify_tyidx irctx ty ++ ")"
-                    show_fv (FVConstBool b) = if b then "true" else "false"
-                    show_fv (FVConstChar c) = ['\'', c, '\'']
-                    show_fv FVUnit = "unit"
-                    show_fv (FVInstruction (InstructionIdx bidx iidx)) = "%" ++ show_block_from_idx bidx ++ "." ++ show iidx
-
-                    show_lv (LVRegister i) = show_reg i
-
-                    show_instruction (Copy lv fv) = "copy " ++ show_fv fv ++ " -> " ++ show_lv lv
-                    show_instruction (Call fv args) = "call " ++ show_fv fv ++ " [" ++ intercalate ", " (map show_fv args) ++ "]"
-                    show_instruction (Addrof lv muty _) = "addrof " ++ case muty of { Mutable -> "mut "; Immutable -> ""} ++ show_lv lv
-                    show_instruction (DerefPtr fv) = "derefptr " ++ show_fv fv
-
-                    show_br BrRet = "ret"
-                    show_br (BrGoto b) = "goto " ++ show_block_from_idx b
-                    show_br (BrCond fv t f) = "cond " ++ show_fv fv ++ " " ++ show_block_from_idx t ++ " " ++ show_block_from_idx f
-
-        in concat
-            [ "fun {\n"
-            , shown_registers
-            , "\n"
-            , shown_blocks
-            , "}\n"
-            ]
 instance IsValue Function -- TODO: remove this, replace globally bound functions with globally bound function pointers
 
 instance DeclSpan (Function, LValue) where
@@ -388,3 +316,80 @@ find_preds blocks = preds
         leads_to BrRet _ = False
         leads_to (BrGoto b) dest = b == dest
         leads_to (BrCond _ t f) dest = t == dest || f == dest
+-- printing functions {{{1
+print_fun :: IRCtx -> Function -> String
+print_fun irctx (Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_regs _ _ _) =
+    let make_comment tags = if null tags then "" else " // " ++ intercalate ", " tags
+
+        shown_registers = concatMap show_reg $ zip ([0..] :: [Int]) regs
+            where
+                show_reg (reg_idx, Register reg_ty muty _) = "    " ++ muty_str ++ "#" ++ show reg_idx ++ ": " ++ stringify_tyidx irctx reg_ty ++ ";" ++ make_comment tags ++ "\n"
+                    where
+                        muty_str = case muty of
+                            Mutable -> "mut "
+                            Immutable -> ""
+
+                        tags = (
+                                if ret_reg_idx == reg_idx
+                                    then ["return value register"]
+                                    else []
+                            ) ++ (
+                                case findIndex (\ (RegisterIdx i) -> i == reg_idx) param_regs of
+                                    Just i -> ["register for param " ++ show i]
+                                    Nothing -> []
+                            )
+
+        shown_blocks = concatMap show_block $ zip (map BlockIdx [0..]) blocks
+            where
+                preds = find_preds blocks
+
+                show_block_from_idx (BlockIdx idx) =
+                    let (BasicBlock n _ _) = blocks !! idx
+                    in block_name_num n idx
+                block_name_num name num = name ++ "(" ++ show num ++ ")"
+
+                show_block (block_n@(BlockIdx block_n'), BasicBlock block_name instructions m_br) =
+                    "    "  ++ block_name_num block_name block_n' ++ " {" ++ make_comment tags ++ "\n" ++
+
+                    concatMap (\ (idx, instr) -> "        (%" ++ show idx ++ ": " ++ stringify_tyidx irctx (type_of irctx instr) ++ ") = " ++ show_instruction instr ++ ";\n") (zip ([0..] :: [Int]) instructions) ++
+
+                    "        =>: " ++ maybe "<no br>" show_br m_br ++ ";\n" ++
+
+                    "    }\n"
+                    where
+                        tags =
+                            case lookup block_n preds of
+                                Just block_preds
+                                    | not $ null block_preds -> ["has predecessors: " ++ intercalate ", " (map show_block_from_idx block_preds)]
+                                _ -> ["no predecessors"]
+
+                show_reg (RegisterIdx i) = '#' : show i
+
+                show_fv (FVGlobalValue vid) = intercalate "::" $ vid_segments vid
+                show_fv (FVNLVRegister i) = show_reg i
+                show_fv (FVLValue lv) = show_lv lv
+                show_fv (FVConstInt i ty) = "(" ++ show i ++ " of " ++ stringify_tyidx irctx ty ++ ")"
+                show_fv (FVConstFloat d ty) = "(" ++ show d ++ " of " ++ stringify_tyidx irctx ty ++ ")"
+                show_fv (FVConstBool b) = if b then "true" else "false"
+                show_fv (FVConstChar c) = ['\'', c, '\'']
+                show_fv FVUnit = "unit"
+                show_fv (FVInstruction (InstructionIdx bidx iidx)) = "%" ++ show_block_from_idx bidx ++ "." ++ show iidx
+
+                show_lv (LVRegister i) = show_reg i
+
+                show_instruction (Copy lv fv) = "copy " ++ show_fv fv ++ " -> " ++ show_lv lv
+                show_instruction (Call fv args) = "call " ++ show_fv fv ++ " [" ++ intercalate ", " (map show_fv args) ++ "]"
+                show_instruction (Addrof lv muty _) = "addrof " ++ case muty of { Mutable -> "mut "; Immutable -> ""} ++ show_lv lv
+                show_instruction (DerefPtr fv) = "derefptr " ++ show_fv fv
+
+                show_br BrRet = "ret"
+                show_br (BrGoto b) = "goto " ++ show_block_from_idx b
+                show_br (BrCond fv t f) = "cond " ++ show_fv fv ++ " " ++ show_block_from_idx t ++ " " ++ show_block_from_idx f
+
+    in concat
+        [ "fun {\n"
+        , shown_registers
+        , "\n"
+        , shown_blocks
+        , "}\n"
+        ]
