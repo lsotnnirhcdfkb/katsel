@@ -10,8 +10,8 @@ lower_mod_to_c :: IR.IRCtx -> IR.Module -> String
 lower_mod_to_c irctx root =
     let v_child_list = Map.toList $ IR.get_child_map (root, irctx)
         ds_child_list = Map.toList $ IR.get_child_map (root, irctx)
-    in "// module\n" ++
-    "\n// declarations of declsymbols\n" ++
+    in
+    "// declarations of declsymbols\n" ++
     concatMap (uncurry $ decl_ds irctx) ds_child_list ++
     "\n// definitions of declsymbols\n" ++
     concatMap (uncurry $ def_ds irctx) ds_child_list ++
@@ -28,7 +28,7 @@ decl_mod irctx name mod' = "// declaration of module\n"
 
 decl_tyidx irctx name = IR.apply_to_tyidx (decl_ty irctx name) irctx
 
-decl_ty irctx name ty = "// declaration of type\n#error declaration of type currently unsupporetd\n"
+decl_ty irctx name ty = "// declaration of type\n#error declaration of type currently unsupported\n"
 -- def_ds {{{1
 def_ds :: IR.IRCtx -> String -> IR.DeclSymbol -> String
 def_ds irctx name = IR.apply_to_ds (def_mod irctx name) (def_tyidx irctx name)
@@ -37,7 +37,7 @@ def_mod irctx name mod' = "// definition of module\n"
 
 def_tyidx irctx name = IR.apply_to_tyidx (def_ty irctx name) irctx
 
-def_ty irctx name ty = "// definition of type\n#error definition of type currently unsupporetd\n"
+def_ty irctx name ty = "// definition of type\n#error definition of type currently unsupported\n"
 -- decl_v {{{1
 decl_v :: IR.IRCtx -> String -> IR.Value -> String
 decl_v irctx name = IR.apply_to_v (decl_fun irctx name)
