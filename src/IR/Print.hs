@@ -23,6 +23,7 @@ import Data.List(intercalate)
 
 print_mod :: IRCtx -> Module -> String
 print_mod irctx = print_ds irctx . DeclSymbol
+
 -- declsymbols {{{1
 print_ds :: IRCtx -> DeclSymbol -> String
 print_ds irctx ds = apply_to_ds (print_mod' irctx) (print_tyidx irctx) ds ++ " " ++ body_with_braces
