@@ -8,8 +8,8 @@ import qualified Data.Map as Map
 
 lower_mod_to_c :: IR.IRCtx -> IR.Module -> String
 lower_mod_to_c irctx root =
-    let v_child_list = Map.toList $ IR.get_child_map (root, irctx)
-        ds_child_list = Map.toList $ IR.get_child_map (root, irctx)
+    let v_child_list = Map.toAscList $ IR.get_child_map (root, irctx)
+        ds_child_list = Map.toAscList $ IR.get_child_map (root, irctx)
 
         desc_wrapper action thing_type fun (name, thing) = "// " ++ action ++ " of " ++ thing_type ++ " '" ++ name ++ "':\n" ++ fun name thing ++ "\n"
     in
