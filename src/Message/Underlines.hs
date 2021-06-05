@@ -88,7 +88,7 @@ assign_messages :: [Message] -> ([DrawableMessage], [SectionLine])
 assign_messages messages = (firstrow, msglines)
     where
         coln_comparator (Message (Span _ before_end_1 _) _ _ _) (Message (Span _ before_end_2 _) _ _ _) = coln_of_loc before_end_2 `compare` coln_of_loc before_end_1
-        assignments = map (\ (i, m) -> (assign m i, m)) $ zip [0..] (sortBy coln_comparator messages)
+        assignments = zipWith (\ i m -> (assign m i, m)) [0..] (sortBy coln_comparator messages)
 
         assign :: Message -> Int -> Int
         assign msg cur_idx =
@@ -101,7 +101,7 @@ assign_messages messages = (firstrow, msglines)
                 msg_end_col = end_col_of_msg msg
                 overlapping = (msg_end_col >=) . col_of_msg
 
-            in case findIndex (not . (any overlapping) . msgs_on_row) rows of
+            in case findIndex (not . any overlapping . msgs_on_row) rows of
                 Just x -> x
                 Nothing -> error "unreachable"
 

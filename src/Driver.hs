@@ -89,7 +89,7 @@ compile num max_num filename =
                 Just ast ->
                     lower_ast_stage ast >>= \ ir'@(ir, irctx) ->
                     lower_to_c_stage irctx ir >>= \ ccode ->
-                    return (Just $ (ir', ccode))
+                    return (Just (ir', ccode))
                 Nothing -> return Nothing
 
         sorted_diagnostics =

@@ -80,7 +80,7 @@ print_ty irctx (PointerType _ muty ty) = "pointer type *" ++ muty_str ++ stringi
 
 -- values {{{1
 print_v :: IRCtx -> Value -> String
-print_v irctx v = apply_to_v (print_fun irctx) v
+print_v irctx = apply_to_v (print_fun irctx)
 -- helpers {{{1
 indent :: Int -> String -> String
 indent n = unlines . map (replicate n ' ' ++) . lines
