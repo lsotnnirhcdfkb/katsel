@@ -9,6 +9,21 @@ module IR
     , Module
     , IRCtx
     , print_mod
+
+    , DeclSymbol
+    , Value
+
+    , get_child_map
+    , get
+
+    , decl_span
+    , describe
+    , type_of
+
+    , apply_to_ds
+    , apply_to_v
+
+    , apply_to_tyidx
     ) where
 
 import qualified AST
