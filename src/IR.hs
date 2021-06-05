@@ -6,12 +6,17 @@
 
 module IR
     ( build_ir
-    , Module
     , IRCtx
+
     , print_mod
 
     , DeclSymbol
+    , Module
+    , TyIdx
+    , Type
+
     , Value
+    , Function
 
     , get_child_map
     , get
