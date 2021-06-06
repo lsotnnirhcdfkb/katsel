@@ -25,7 +25,7 @@ data Type
     | GenericIntType
     | CharType DSMap
     | BoolType DSMap
-    | FunctionType DSMap TyIdx [(Mutability, TyIdx)]
+    | FunctionType DSMap TyIdx [TyIdx]
     | UnitType DSMap
     | PointerType DSMap Mutability TyIdx
 
@@ -139,7 +139,7 @@ stringify_ty _ (CharType _) = "char"
 stringify_ty _ (BoolType _) = "bool"
 stringify_ty irctx (FunctionType _ ret_idx params) =
     let ret_str = stringify_tyidx irctx ret_idx
-        param_strs = map (stringify_tyidx irctx . snd) params
+        param_strs = map (stringify_tyidx irctx) params
     in "fun(" ++ intercalate ", " param_strs ++ "): " ++ ret_str
 stringify_ty _ (UnitType _) = "unit"
 stringify_ty irctx (PointerType _ muty pointee) =

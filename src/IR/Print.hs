@@ -70,7 +70,7 @@ print_ty _ GenericFloatType = "generic float type"
 print_ty _ GenericIntType = "generic int type"
 print_ty _ (CharType _) = "primitive char type"
 print_ty _ (BoolType _) = "primitive bool type"
-print_ty irctx (FunctionType _ ret_ty params) = "function type fun(" ++ intercalate ", " (map (stringify_tyidx irctx . snd) params) ++ "): " ++ stringify_tyidx irctx ret_ty
+print_ty irctx (FunctionType _ ret_ty params) = "function type fun(" ++ intercalate ", " (map (stringify_tyidx irctx) params) ++ "): " ++ stringify_tyidx irctx ret_ty
 print_ty _ (UnitType _) = "primitive unit type"
 print_ty irctx (PointerType _ muty ty) = "pointer type *" ++ muty_str ++ stringify_tyidx irctx ty
     where

@@ -166,7 +166,7 @@ new_function ret_type param_tys sp name irctx =
 
         registers = Register ret_type Mutable sp : param_regs
 
-        function_type = FunctionType Map.empty ret_type $ map (\ (a, b, _) -> (a, b)) param_tys
+        function_type = FunctionType Map.empty ret_type $ map (\ (_, b, _) -> b) param_tys
         (function_type_idx, irctx') = get_ty_irctx function_type irctx
 
         blocks =
