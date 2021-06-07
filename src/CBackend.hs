@@ -11,16 +11,15 @@ lower_mod_to_c irctx root =
     let v_child_list = Map.toAscList $ IR.get_child_map (root, irctx)
         ds_child_list = Map.toAscList $ IR.get_child_map (root, irctx)
 
-        desc_wrapper action thing_type fun (name, thing) = "// " ++ action ++ " of " ++ thing_type ++ " '" ++ name ++ "':\n" ++ fun name thing ++ "\n"
+        desc_wrapper action thing_type fun (name, thing) = "// " ++ action ++ " of " ++ thing_type ++ " '" ++ name ++ "':\n" ++ fun irctx name thing ++ "\n"
+        section action thing_type fun child_list =
+            "// " ++ action ++ "s of " ++ thing_type ++ "s\n\n" ++
+            concatMap (desc_wrapper action thing_type fun) child_list
     in
-    "// declarations of declsymbols\n\n" ++
-    concatMap (desc_wrapper "declaration" "declsymbol" (decl_ds irctx)) ds_child_list ++
-    "\n// definitions of declsymbols\n\n" ++
-    concatMap (desc_wrapper "definition" "declsymbol" (def_ds irctx)) ds_child_list ++
-    "\n// declarations of values\n\n" ++
-    concatMap (desc_wrapper "declaration" "value" (decl_v irctx)) v_child_list ++
-    "\n// definitions of values\n\n" ++
-    concatMap (desc_wrapper "definition" "value" (def_v irctx)) v_child_list
+    section "declaration" "declsymbol" decl_ds ds_child_list ++
+    section "definition" "declsymbol" def_ds ds_child_list ++
+    section "declaration" "value" decl_v v_child_list ++
+    section "definition" "value" def_v v_child_list
 
 -- decl_ds {{{1
 decl_ds :: IR.IRCtx -> String -> IR.DeclSymbol -> String
