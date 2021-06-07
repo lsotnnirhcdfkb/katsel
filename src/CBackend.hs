@@ -15,11 +15,12 @@ lower_mod_to_c irctx root =
         section action thing_type fun child_list =
             "// " ++ action ++ "s of " ++ thing_type ++ "s\n\n" ++
             concatMap (desc_wrapper action thing_type fun) child_list
-    in
-    section "declaration" "declsymbol" decl_ds ds_child_list ++
-    section "definition" "declsymbol" def_ds ds_child_list ++
-    section "declaration" "value" decl_v v_child_list ++
-    section "definition" "value" def_v v_child_list
+    in concat
+        [ section "declaration" "declsymbol" decl_ds ds_child_list
+        , section "definition" "declsymbol" def_ds ds_child_list
+        , section "declaration" "value" decl_v v_child_list
+        , section "definition" "value" def_v v_child_list
+        ]
 
 -- decl_ds {{{1
 decl_ds :: IR.IRCtx -> String -> IR.DeclSymbol -> String
