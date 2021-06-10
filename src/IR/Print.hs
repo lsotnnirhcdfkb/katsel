@@ -46,11 +46,7 @@ print_v_binding irctx (name, v) =
     in "[value] " ++ name ++ ": " ++ stringify_tyidx irctx (type_of irctx v) ++ " =" ++ (
             if num_lines > 1
                 then "\n" ++ indent 4 v_str
-                else " " ++ v_str
-        ) ++ (
-            if not (null v_str) && last v_str /= '\n'
-                then "\n"
-                else ""
+                else " " ++ v_str ++ "\n"
         )
 
 print_mod' :: IRCtx -> Module -> String
