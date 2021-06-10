@@ -73,16 +73,18 @@ data Function
       , get_ret_reg :: RegisterIdx
       , get_param_regs :: [RegisterIdx]
 
+      , get_instruction_pool :: [Instruction]
+
       , get_type :: TyIdx
 
       , get_span :: Span
       , get_name :: String
       }
 newtype BlockIdx = BlockIdx Int deriving Eq
-data InstructionIdx = InstructionIdx BlockIdx Int deriving Eq
+newtype InstructionIdx = InstructionIdx Int deriving Eq
 newtype RegisterIdx = RegisterIdx Int deriving Eq
 
-data BasicBlock = BasicBlock String [Instruction] (Maybe Br)
+data BasicBlock = BasicBlock String [InstructionIdx] (Maybe Br)
 data Register = Register TyIdx Mutability Span
 data Instruction
     = Copy LValue FValue
@@ -174,7 +176,7 @@ new_function ret_type param_tys sp name irctx =
             , BasicBlock "exit" [] (Just BrRet)
             ]
 
-    in (Function blocks (BlockIdx 0) (BlockIdx 1) registers (RegisterIdx 0) param_reg_idxs function_type_idx sp name, irctx')
+    in (Function blocks (BlockIdx 0) (BlockIdx 1) registers (RegisterIdx 0) param_reg_idxs [] function_type_idx sp name, irctx')
 
 add_register :: TyIdx -> Mutability -> Span -> Function -> (RegisterIdx, Function)
 add_register tyidx muty sp fun = (reg_idx, fun')
@@ -191,9 +193,7 @@ get_register :: Function -> RegisterIdx -> Register
 get_register fun (RegisterIdx idx) = get_registers fun !! idx
 
 get_instruction :: Function -> InstructionIdx -> Instruction
-get_instruction (Function blocks _ _ _ _ _ _ _ _) (InstructionIdx (BlockIdx bidx) iidx) =
-    let (BasicBlock _ instrs _) = blocks !! bidx
-    in instrs !! iidx
+get_instruction (Function _ _ _ _ _ _ instr_pool _ _ _) (InstructionIdx iidx) = instr_pool !! iidx
 
 function_not_defined :: Function -> Bool
 function_not_defined = (2==) . length . get_blocks -- a function starts out with 2 blocks, and it only goes up from there; blocks cannot be removed
@@ -278,15 +278,16 @@ add_basic_block name fun =
         new_block_idx = BlockIdx $ length blocks
         new_block = BasicBlock name [] Nothing
 add_instruction :: Instruction -> BlockIdx -> Function -> (InstructionIdx, Function)
-add_instruction instr block_idx@(BlockIdx block_idx') fun = (instr_idx, fun { get_blocks = new_blocks })
+add_instruction instr (BlockIdx block_idx) fun = (instr_idx, fun { get_instruction_pool = new_pool, get_blocks = new_blocks })
     where
+        new_pool = get_instruction_pool fun ++ [instr]
+        instr_idx = InstructionIdx $ length new_pool - 1
+
         blocks = get_blocks fun
 
-        (BasicBlock block_name block_instrs block_br) = blocks !! block_idx'
-        new_block = BasicBlock block_name (block_instrs ++ [instr]) block_br
-        new_blocks = replace_block blocks block_idx' new_block
-
-        instr_idx = InstructionIdx block_idx $ length block_instrs
+        (BasicBlock block_name block_instrs block_br) = blocks !! block_idx
+        new_block = BasicBlock block_name (block_instrs ++ [instr_idx]) block_br
+        new_blocks = replace_block blocks block_idx new_block
 
 add_br :: Br -> BlockIdx -> Function -> Function
 add_br br (BlockIdx block_idx) fun = fun { get_blocks = new_blocks }
@@ -318,7 +319,7 @@ find_preds blocks = preds
         leads_to (BrCond _ t f) dest = t == dest || f == dest
 -- printing functions {{{1
 print_fun :: IRCtx -> Function -> String
-print_fun irctx (Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_regs _ _ _) =
+print_fun irctx fun@(Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_regs _ _ _ _) =
     let make_comment tags = if null tags then "" else " // " ++ intercalate ", " tags
 
         shown_registers = concatMap show_reg $ zip ([0..] :: [Int]) regs
@@ -351,7 +352,10 @@ print_fun irctx (Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_regs _
                 show_block (block_n@(BlockIdx block_n'), BasicBlock block_name instructions m_br) =
                     "    "  ++ block_name_num block_name block_n' ++ " {" ++ make_comment tags ++ "\n" ++
 
-                    concatMap (\ (idx, instr) -> "        (%" ++ show idx ++ ": " ++ stringify_tyidx irctx (type_of irctx instr) ++ ") = " ++ show_instruction instr ++ ";\n") (zip ([0..] :: [Int]) instructions) ++
+                    concatMap (\ idx@(InstructionIdx idx') ->
+                            let instr = get_instruction fun idx
+                            in "        (%" ++ show idx' ++ ": " ++ stringify_tyidx irctx (type_of irctx instr) ++ ") = " ++ show_instruction instr ++ ";\n"
+                        ) instructions ++
 
                     "        =>: " ++ maybe "<no br>" show_br m_br ++ ";\n" ++
 
@@ -373,7 +377,7 @@ print_fun irctx (Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_regs _
                 show_fv (FVConstBool b) = if b then "true" else "false"
                 show_fv (FVConstChar c) = ['\'', c, '\'']
                 show_fv FVUnit = "unit"
-                show_fv (FVInstruction (InstructionIdx bidx iidx)) = "%" ++ show_block_from_idx bidx ++ "." ++ show iidx
+                show_fv (FVInstruction (InstructionIdx iidx)) = "%" ++ show iidx
 
                 show_lv (LVRegister i) = show_reg i
 
