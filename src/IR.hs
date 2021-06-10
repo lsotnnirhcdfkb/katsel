@@ -401,9 +401,10 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
 
     State.get >>= \ ir_builder ->
     let (ir_builder', _, fun') = State.execState (lower_body_expr body root) (ir_builder, function_cg, fun)
+        fun'' = simplify_cfg fun'
     in State.put ir_builder' >>
 
-    add_replace_s name (Value fun') parent
+    add_replace_s name (Value fun'') parent
 -- lowering things {{{3
 type BlockGroup = (BlockIdx, BlockIdx)
 lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) ()

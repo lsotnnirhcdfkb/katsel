@@ -39,6 +39,8 @@ module IR.Function
     , add_basic_block
     , add_instruction
     , add_br
+
+    , simplify_cfg
     ) where
 
 import IR.TyIdx
@@ -80,12 +82,13 @@ data Function
       , get_span :: Span
       , get_name :: String
       }
+      deriving Eq
 newtype BlockIdx = BlockIdx Int deriving Eq
 newtype InstructionIdx = InstructionIdx Int deriving Eq
 newtype RegisterIdx = RegisterIdx Int deriving Eq
 
-data BasicBlock = BasicBlock String [InstructionIdx] (Maybe Br)
-data Register = Register TyIdx Mutability Span
+data BasicBlock = BasicBlock String [InstructionIdx] (Maybe Br) deriving Eq
+data Register = Register TyIdx Mutability Span deriving Eq
 data Instruction
     = Copy LValue FValue
     | Call FValue [FValue]
@@ -112,6 +115,7 @@ data Br
     = BrRet
     | BrGoto BlockIdx
     | BrCond FValue BlockIdx BlockIdx
+    deriving Eq
 
 instance DeclSpan Register where
     decl_span _ (Register _ _ sp) = Just sp
@@ -317,6 +321,42 @@ find_preds blocks = preds
         leads_to BrRet _ = False
         leads_to (BrGoto b) dest = b == dest
         leads_to (BrCond _ t f) dest = t == dest || f == dest
+-- optimizations {{{1
+-- helpers {{{2
+keep_blocks :: [BasicBlock] -> [BlockIdx] -> [BasicBlock]
+keep_blocks blocks indexes =
+    let new_indexes = zip indexes (map BlockIdx [0..])
+
+        unwrap_maybe (Just x) = x
+        unwrap_maybe Nothing = error "unwrap Nothing"
+
+        convert_block_idx = unwrap_maybe . (`lookup` new_indexes)
+
+        convert_br BrRet = BrRet
+        convert_br (BrGoto b) = BrGoto (convert_block_idx b)
+        convert_br (BrCond v t f) = BrCond v (convert_block_idx t) (convert_block_idx f)
+
+        keep_block (BlockIdx block_idx) =
+            let (BasicBlock name instrs br) = blocks !! block_idx
+                new_br = convert_br <$> br
+            in BasicBlock name instrs new_br
+
+    in map keep_block indexes
+
+repeat_opt :: (Function -> Function) -> Function -> Function
+repeat_opt opt f =
+    let f' = opt f
+    in if f == f'
+        then f
+        else repeat_opt opt f'
+-- simplify cfg {{{2
+simplify_cfg :: Function -> Function
+simplify_cfg = repeat_opt $ \ fun ->
+    -- TODO: merge blocks
+    let blocks = get_blocks fun
+        preds = find_preds blocks
+        keep = map fst $ filter (\ (idx, p) -> length p > 0 || idx == get_entry_block fun || idx == get_exit_block fun) preds
+    in fun { get_blocks = keep_blocks blocks keep }
 -- printing functions {{{1
 print_fun :: IRCtx -> Function -> String
 print_fun irctx fun@(Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_regs _ _ _ _) =
