@@ -64,6 +64,7 @@ import qualified Message.Underlines as MsgUnds
 
 import qualified Data.Map as Map(empty)
 import Data.List(intercalate, findIndex)
+import Data.Maybe(mapMaybe)
 
 data Function
     = Function
@@ -351,12 +352,40 @@ repeat_opt opt f =
         else repeat_opt opt f'
 -- simplify cfg {{{2
 simplify_cfg :: Function -> Function
-simplify_cfg = repeat_opt $ \ fun ->
-    -- TODO: merge blocks
-    let blocks = get_blocks fun
-        preds = find_preds blocks
-        keep = map fst $ filter (\ (idx, p) -> length p > 0 || idx == get_entry_block fun || idx == get_exit_block fun) preds
-    in fun { get_blocks = keep_blocks blocks keep }
+simplify_cfg = repeat_opt $ remove . merge
+    where
+        remove fun =
+            let blocks = get_blocks fun
+                preds = find_preds blocks
+                keep = map fst $ filter (\ (idx, p) -> length p > 0 || idx == get_entry_block fun || idx == get_exit_block fun) preds
+            in fun { get_blocks = keep_blocks blocks keep }
+
+        merge fun =
+            let blocks = get_blocks fun
+                preds = find_preds blocks
+                mergeable =
+                    mapMaybe (
+                        \ (cur, ps) ->
+                        if cur == get_entry_block fun || cur == get_exit_block fun
+                            then Nothing
+                            else case ps of
+                                    [pidx@(BlockIdx pidx')] ->
+                                        let (BasicBlock _ _ p_br) = blocks !! pidx'
+                                        in case p_br of
+                                            Just (BrGoto _) -> Just (cur, pidx)
+                                            _ -> Nothing
+                                    _ -> Nothing
+                    ) preds
+
+            in case mergeable of
+                (BlockIdx block, BlockIdx merge_into):_ ->
+                    let (BasicBlock name instrs1 _) = blocks !! merge_into
+                        (BasicBlock _ instrs2 br) = blocks !! block
+                        new_block = BasicBlock name (instrs1 ++ instrs2) br
+
+                        new_blocks = replace_block blocks merge_into new_block
+                    in fun { get_blocks = new_blocks }
+                _ -> fun
 -- printing functions {{{1
 print_fun :: IRCtx -> Function -> String
 print_fun irctx fun@(Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_regs _ _ _ _) =
