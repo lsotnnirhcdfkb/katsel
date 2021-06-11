@@ -111,6 +111,7 @@ compile num max_num filename =
     case result of
         Just ((ir, ctx), ccode) ->
             putStr (IR.print_mod ctx ir) >>
+            putStrLn (IR.dot_mod ctx ir) >>
             putStr ccode
         Nothing -> return ()
 -- compile helpers {{{1

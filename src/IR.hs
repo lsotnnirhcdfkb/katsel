@@ -9,6 +9,7 @@ module IR
     , IRCtx
 
     , print_mod
+    , dot_mod
 
     , DeclSymbol
     , Module
@@ -44,6 +45,7 @@ import IR.Describe
 import IR.DeclSpan
 import IR.Typed
 import IR.Print
+import IR.Dot
 
 import IR.IRCtx
 

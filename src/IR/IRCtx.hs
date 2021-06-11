@@ -18,6 +18,7 @@ module IR.IRCtx
     , resolve_bool
     , resolve_unit
     , apply_to_tyidx
+    , get_type_interner
     ) where
 
 import IR.TypeStuffAndIRCtx.Stuff

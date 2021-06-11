@@ -23,6 +23,7 @@ executable katsel
                      , IR.DeclSpan
                      , IR.DeclSymbol
                      , IR.Describe
+                     , IR.Dot
                      , IR.Function
                      , IR.ID
                      , IR.IRCtx

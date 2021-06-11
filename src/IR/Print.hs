@@ -54,7 +54,7 @@ print_mod' _ _ = "mod"
 
 print_tyidx :: IRCtx -> TyIdx -> String
 print_tyidx irctx = apply_to_tyidx (print_ty irctx) irctx
-
+-- types {{{1
 print_ty :: IRCtx -> Type -> String
 print_ty _ (FloatType _ size) = "primitive float type " ++ show size
 print_ty _ (IntType _ size signedness) = "primitive " ++ signedness_str ++ " int type " ++ show size
@@ -73,7 +73,6 @@ print_ty irctx (PointerType _ muty ty) = "pointer type *" ++ muty_str ++ stringi
         muty_str = case muty of
             Mutable -> "mut "
             Immutable -> ""
-
 -- values {{{1
 print_v :: IRCtx -> Value -> String
 print_v irctx = apply_to_v (print_fun irctx)

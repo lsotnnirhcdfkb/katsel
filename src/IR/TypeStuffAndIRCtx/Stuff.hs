@@ -13,10 +13,10 @@ import IR.Value
 import Data.List(findIndex, intercalate)
 import qualified Data.Map as Map
 
-data IRCtx = IRCtx TypeInterner
+data IRCtx = IRCtx { get_type_interner :: TypeInterner }
 data Signedness = Signed | Unsigned deriving Eq
 data Mutability = Mutable | Immutable deriving Eq
-data TypeInterner = TypeInterner [Type]
+data TypeInterner = TypeInterner { get_types_from_type_interner :: [Type] }
 data TyIdx = TyIdx { untyidx :: Int } deriving Eq
 data Type
     = FloatType DSMap Int
@@ -50,6 +50,9 @@ new_type_interner = TypeInterner
     , BoolType Map.empty
     , UnitType Map.empty
     ]
+
+iter_tyidxs_from_type_interner :: TypeInterner -> [TyIdx]
+iter_tyidxs_from_type_interner (TypeInterner tys) = map (TyIdx . fst) (zip [0..] tys)
 
 resolve_float32, resolve_float64, resolve_uint8, resolve_uint16, resolve_uint32, resolve_uint64, resolve_sint8, resolve_sint16, resolve_sint32, resolve_sint64, resolve_generic_float, resolve_generic_int, resolve_char, resolve_bool, resolve_unit :: IRCtx -> TyIdx
 resolve_float32 = fst . get_ty_irctx (FloatType Map.empty 32)
