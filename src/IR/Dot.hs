@@ -58,7 +58,7 @@ get_node_id orig_node_id_map@(NodeIDMap cur_id node_map) node =
             in (new_id, NodeIDMap (cur_id + 1) (Map.insert node new_id node_map))
 
 str_graph :: Graph -> String
-str_graph (Graph node1 node2) = "strict digraph {node [shape=plain];" ++ node1_strd ++ node2_strd ++ "}"
+str_graph (Graph node1 node2) = "strict digraph { node [shape=plain];" ++ node1_strd ++ node2_strd ++ " }"
     where
         node_map = NodeIDMap 0 Map.empty
         (node1_strd, node_map') = str_node node_map node1
@@ -110,7 +110,7 @@ str_node node_ids node@(Cluster name nodes) =
 
         (strd_nodes, node_ids'') = str_nodes node_ids' nodes
 
-    in ("subgraph cluster_" ++ nodeid ++ " { graph [label=\"" ++ escape name ++ "\"];" ++ strd_nodes ++ "};", node_ids'')
+    in ("subgraph cluster_" ++ nodeid ++ " { graph [label=\"" ++ escape name ++ "\"];" ++ strd_nodes ++ " };", node_ids'')
 
 escape :: String -> String
 escape =
