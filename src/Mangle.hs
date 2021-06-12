@@ -16,7 +16,7 @@ str_tag :: MangleTag -> MangledName
 str_tag t = MangledName $ "_K" ++ str_tag' t
     where
         str_tag' (Tag name children) = str_tag_name name ++ show (length children) ++ concatMap str_tag' children
-        str_tag' (StrTag name val) = "s" ++ str_tag_name name ++ show (length val) ++ "_" ++ val
+        str_tag' (StrTag name val) = "s" ++ str_tag_name name ++ show (length val) ++ "_" ++ val -- TODO: deal with non-ascii values
 
 str_tag_name :: String -> String
 str_tag_name n = map toUpper (init n) ++ [toLower (last n)]
