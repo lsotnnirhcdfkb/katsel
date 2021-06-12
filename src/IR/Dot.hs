@@ -54,7 +54,10 @@ get_node_id orig_node_id_map@(NodeIDMap cur_id node_map) node =
     case Map.lookup node node_map of
         Just i -> (i, orig_node_id_map)
         Nothing ->
-            let new_id = "node" ++ show cur_id
+            let new_id =
+                    case node of
+                        Cluster _ _ -> "cluster_node" ++ show cur_id
+                        Node _ _ -> "node" ++ show cur_id
             in (new_id, NodeIDMap (cur_id + 1) (Map.insert node new_id node_map))
 
 str_graph :: Graph -> String
@@ -110,7 +113,7 @@ str_node node_ids node@(Cluster name nodes) =
 
         (strd_nodes, node_ids'') = str_nodes node_ids' nodes
 
-    in ("subgraph cluster_" ++ nodeid ++ " { graph [label=\"" ++ escape name ++ "\"];" ++ strd_nodes ++ " };", node_ids'')
+    in ("subgraph " ++ nodeid ++ " { graph [label=\"" ++ escape name ++ "\"];" ++ strd_nodes ++ " };", node_ids'')
 
 escape :: String -> String
 escape =
