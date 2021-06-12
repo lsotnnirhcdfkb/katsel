@@ -31,6 +31,7 @@ executable katsel
                      , IR.Module
                      , IR.Parent
                      , IR.Print
+                     , IR.RecFindEntities
                      , IR.TyIdx
                      , IR.Type
                      , IR.TypeInterner
@@ -41,6 +42,8 @@ executable katsel
                      -- c backend
                      , CBackend
 
+                     -- mangling names
+                     , Mangle
                        -- utility things
                      , Location
                      , File

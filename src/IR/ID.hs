@@ -19,10 +19,18 @@ import IR.IRCtx
 
 import Data.Typeable(Typeable, cast)
 
-import Data.List(foldl')
+import Data.List(foldl', intercalate)
 
 data DSIRId resolve = DSIRId [String] deriving Eq
 data VIRId resolve = VIRId (DSIRId DeclSymbol) String deriving Eq
+
+instance Show (DSIRId r) where
+    show (DSIRId segments) = intercalate "::" segments
+instance Show (VIRId r) where
+    show (VIRId parent name) =
+        case show parent of
+            "" -> name
+            parent_str -> parent_str ++ "::" ++ name
 
 m_resolve_dsid :: Typeable r => IRCtx -> Module -> DSIRId r -> Maybe r
 m_resolve_dsid irctx root (DSIRId segments) = foldl' next (Just $ DeclSymbol root) segments >>= cast

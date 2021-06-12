@@ -11,10 +11,17 @@ module IR
     , print_mod
     , dot_mod
 
+    , DSIRId
+    , VIRId
+    , dsid_segments
+    , vid_segments
+
     , DeclSymbol
     , Module
     , TyIdx
     , Type
+
+    , all_entities_in_mod
 
     , Value
     , Function
@@ -52,6 +59,8 @@ import IR.IRCtx
 import IR.DeclSymbol
 import IR.Module
 import IR.Type
+
+import IR.RecFindEntities
 
 import IR.Value
 import IR.Function
