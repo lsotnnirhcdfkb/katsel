@@ -29,7 +29,6 @@ str_tag t = MangledName $ "_K" ++ str_tag' t
 str_tag_name :: TagName -> String
 str_tag_name = (shortened Map.!)
     where
-        full_str_name :: TagName -> String
         full_str_name TN'DSID = "DSID"
         full_str_name TN'VID = "VID"
         full_str_name TN'Name = "NAME"
