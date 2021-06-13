@@ -37,11 +37,11 @@ tn'name = TN'Name
 str_tag_name :: TagName k -> String
 str_tag_name = (shortened Map.!)
     where
-        full_str_name TN'DSID = "DSID"
-        full_str_name TN'VID = "VID"
-        full_str_name TN'Name = "NAME"
-        full_str_name TN'Root = "ROOT"
-        full_str_name TN'Next = "NEXT"
+        full_str_name TN'DSID = "dsid"
+        full_str_name TN'VID = "vid"
+        full_str_name TN'Name = "name"
+        full_str_name TN'Root = "root"
+        full_str_name TN'Next = "next"
 
         -- longest common prefix
         lcp a b = takeWhile (uncurry (==)) (zip a b)
