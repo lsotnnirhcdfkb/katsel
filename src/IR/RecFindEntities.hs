@@ -30,7 +30,7 @@ change_name_to_id make_id_fun irctx root parent_id (name, e) = (new_id_unsafe ma
 rec_find_dses :: Parent d DeclSymbol String => IRCtx -> Module -> DSIRId DeclSymbol -> d -> [(DSIRId DeclSymbol, DeclSymbol)]
 rec_find_dses irctx root parent_id parent =
     let children = Map.toAscList $ get_child_map (parent, irctx)
-        
+
         children_with_ids = map (change_name_to_id new_dsid irctx root parent_id) children
 
         children_childern = concatMap (uncurry $ rec_find_dses irctx root) children_with_ids
