@@ -44,6 +44,9 @@ executable katsel
 
                      -- mangling names
                      , Mangle
+                     , Mangle.Tag
+                     , Mangle.TagName
+
                        -- utility things
                      , Location
                      , File
