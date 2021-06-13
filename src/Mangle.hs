@@ -41,8 +41,7 @@ str_tag_name = (shortened Map.!)
 
         all_names = enumFromTo minBound maxBound
         all_fulls = map full_str_name all_names
-        shorten s =
-            take (longest_lcp_length + 1) s
+        shorten s = take (longest_lcp_length + 1) s
             where
                 longest_lcp_length = maximum $ map (length . lcp s) (filter (s/=) all_fulls)
         shortened = Map.fromList $ map (\ n -> (n, shorten $ full_str_name n)) all_names
