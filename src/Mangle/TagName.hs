@@ -35,7 +35,7 @@ tn'name :: TagName StrTagName
 tn'name = TN'Name
 
 str_tag_name :: TagName k -> String
-str_tag_name = (shortened Map.!)
+str_tag_name = (shortened Map.!) . full_str_name
     where
         full_str_name TN'DSID = "dsid"
         full_str_name TN'VID = "vid"
@@ -51,5 +51,5 @@ str_tag_name = (shortened Map.!)
         shorten s = take (longest_lcp_length + 1) s
             where
                 longest_lcp_length = maximum $ map (length . lcp s) (filter (s/=) all_fulls)
-        shortened = Map.fromList $ map (\ n -> (n, shorten $ full_str_name n)) all_names
+        shortened = Map.fromList $ map (\ n -> (n, shorten n)) all_fulls
 
