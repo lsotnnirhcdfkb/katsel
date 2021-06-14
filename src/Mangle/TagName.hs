@@ -52,4 +52,3 @@ str_tag_name = (shortened Map.!) . full_str_name
             where
                 longest_lcp_length = maximum $ map (length . lcp s) (filter (s/=) all_fulls)
         shortened = Map.fromList $ map (\ n -> (n, shorten n)) all_fulls
-
