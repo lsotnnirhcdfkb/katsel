@@ -52,7 +52,7 @@ new_type_interner = TypeInterner
     ]
 
 iter_tyidxs_from_type_interner :: TypeInterner -> [TyIdx]
-iter_tyidxs_from_type_interner (TypeInterner tys) = zipWith (curry $ TyIdx . fst) [0..] tys
+iter_tyidxs_from_type_interner (TypeInterner tys) = take (length tys) (TyIdx <$> [0..])
 
 resolve_float32, resolve_float64, resolve_uint8, resolve_uint16, resolve_uint32, resolve_uint64, resolve_sint8, resolve_sint16, resolve_sint32, resolve_sint64, resolve_generic_float, resolve_generic_int, resolve_char, resolve_bool, resolve_unit :: IRCtx -> TyIdx
 resolve_float32 = fst . get_ty_irctx (FloatType Map.empty 32)
