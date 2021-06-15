@@ -145,7 +145,7 @@ dot_irctx irctx =
         type_indexes = iter_tyidxs_from_type_interner type_interner
 -- declsymbols {{{1
 dot_ds :: IRCtx -> DeclSymbol -> Node
-dot_ds irctx ds = apply_to_ds (nodify dot_mod' irctx) (nodify dot_tyidx irctx) ds
+dot_ds irctx = apply_to_ds (nodify dot_mod' irctx) (nodify dot_tyidx irctx)
 
 nodify :: (Parent a DeclSymbol String, Parent a Value String) => (IRCtx -> a -> (String, [(FieldColor, String, Either String Node)])) -> IRCtx -> a -> Node
 nodify f irctx a = Node name (fields ++ ds_children ++ v_children)

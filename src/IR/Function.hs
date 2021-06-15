@@ -357,7 +357,7 @@ simplify_cfg = repeat_opt $ remove . merge
         remove fun =
             let blocks = get_blocks fun
                 preds = find_preds blocks
-                keep = map fst $ filter (\ (idx, p) -> length p > 0 || idx == get_entry_block fun || idx == get_exit_block fun) preds
+                keep = map fst $ filter (\ (idx, p) -> not (null p) || idx == get_entry_block fun || idx == get_exit_block fun) preds
             in fun { get_blocks = keep_blocks blocks keep }
 
         merge fun =
