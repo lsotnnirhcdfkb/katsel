@@ -30,7 +30,7 @@ decl_tyidx :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.Ty
 decl_tyidx irctx path mname = IR.apply_to_tyidx (decl_ty irctx path mname) irctx
 
 decl_ty :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.Type -> String
-decl_ty _ _ _ _ = "#error declaration of type currently unsupported\n"
+decl_ty _ _ _ _ = "#error declaration of type currently unsupported\n" -- TODO
 -- def_ds {{{1
 def_ds :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.DeclSymbol -> String
 def_ds irctx path mname = IR.apply_to_ds (error "cannot define module in c backend") (def_tyidx irctx path mname)
@@ -39,16 +39,16 @@ def_tyidx :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.TyI
 def_tyidx irctx path mname = IR.apply_to_tyidx (def_ty irctx path mname) irctx
 
 def_ty :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.Type -> String
-def_ty _ _ _ _ = "#error definition of type currently unsupported\n"
+def_ty _ _ _ _ = "#error definition of type currently unsupported\n" -- TODO
 -- decl_v {{{1
 decl_v :: IR.IRCtx -> IR.VIRId IR.Value -> Mangle.MangledName -> IR.Value -> String
 decl_v irctx path mname = IR.apply_to_v (decl_fun irctx path mname)
 
 decl_fun :: IR.IRCtx -> IR.VIRId IR.Value -> Mangle.MangledName -> IR.Function -> String
-decl_fun _ _ _ _ = "#error declaration of function currently unsupported\n"
+decl_fun _ _ _ _ = "#error declaration of function currently unsupported\n" -- TODO
 -- def_v {{{1
 def_v :: IR.IRCtx -> IR.VIRId IR.Value -> Mangle.MangledName -> IR.Value -> String
 def_v irctx path mname = IR.apply_to_v (def_fun irctx path mname)
 
 def_fun :: IR.IRCtx -> IR.VIRId IR.Value -> Mangle.MangledName -> IR.Function -> String
-def_fun _ _ _ _ = "#error declaration of function currently unsupported\n"
+def_fun _ _ _ _ = "#error declaration of function currently unsupported\n" -- TODO
