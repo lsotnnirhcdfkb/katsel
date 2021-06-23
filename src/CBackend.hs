@@ -30,7 +30,26 @@ decl_tyidx :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.Ty
 decl_tyidx irctx path mname = IR.apply_to_tyidx (decl_ty irctx path mname) irctx
 
 decl_ty :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.Type -> String
-decl_ty _ _ _ _ = "#error declaration of type currently unsupported\n" -- TODO
+decl_ty _ _ mname (IR.FloatType _ 32) = concat ["typedef float ", Mangle.mangled_str mname, ";\n"]
+decl_ty _ _ mname (IR.FloatType _ 64) = concat ["typedef double ", Mangle.mangled_str mname, ";\n"]
+decl_ty _ _ _ (IR.FloatType _ size) = error $ "cannot lower illegal float point type (must be 32 or 64 bits wide, but got " ++ show size ++ " bits"
+
+decl_ty _ _ mname (IR.IntType _ size signedness) =
+    let signedness_str = case signedness of
+            IR.Signed -> "s"
+            IR.Unsigned -> "u"
+    in concat ["typedef ", signedness_str, "int", show size, "_t ", Mangle.mangled_str mname, ";\n"]
+
+decl_ty _ _ _ IR.GenericFloatType = error "cannot declare generic float type"
+decl_ty _ _ _ IR.GenericIntType = error "cannot declare generic int type"
+decl_ty _ _ _ (IR.UnitType _) = "// cannot declare unit type\n"
+
+decl_ty _ _ mname (IR.CharType _) = concat ["typedef char ", Mangle.mangled_str mname, ";\n"]
+decl_ty _ _ mname (IR.BoolType _) = concat ["typedef bool ", Mangle.mangled_str mname, ";\n"]
+
+-- TODO: implement a way to properly print declarators for any type
+decl_ty _ _ _ (IR.FunctionType _ _ _) = "// not implemented yet\n" -- TODO
+decl_ty _ _ _ (IR.PointerType _ _ _) = "// not implemented yet\n" -- TODO
 -- def_ds {{{1
 def_ds :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.DeclSymbol -> String
 def_ds irctx path mname = IR.apply_to_ds (error "cannot define module in c backend") (def_tyidx irctx path mname)
@@ -39,7 +58,15 @@ def_tyidx :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.TyI
 def_tyidx irctx path mname = IR.apply_to_tyidx (def_ty irctx path mname) irctx
 
 def_ty :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.Type -> String
-def_ty _ _ _ _ = "#error definition of type currently unsupported\n" -- TODO
+def_ty _ _ _ (IR.FloatType _ _) = "// float type does not need definition\n"
+def_ty _ _ _ (IR.IntType _ _ _) = "// int type does not need definition\n"
+def_ty _ _ _ IR.GenericFloatType = error "cannot define generic float type"
+def_ty _ _ _ IR.GenericIntType = error "cannot define generic int type"
+def_ty _ _ _ (IR.CharType _) = "// char type does not need definition\n"
+def_ty _ _ _ (IR.BoolType _) = "// bool type does not need definition\n"
+def_ty _ _ _ (IR.FunctionType _ _ _) = "// function type does not need definition\n"
+def_ty _ _ _ (IR.UnitType _) = "// unit type does not need definition\n"
+def_ty _ _ _ (IR.PointerType _ _ _) = "// pointer type does not need definition\n"
 -- decl_v {{{1
 decl_v :: IR.IRCtx -> IR.VIRId IR.Value -> Mangle.MangledName -> IR.Value -> String
 decl_v irctx path mname = IR.apply_to_v (decl_fun irctx path mname)

@@ -19,7 +19,10 @@ module IR
     , DeclSymbol
     , Module
     , TyIdx
-    , Type
+    , Type(..)
+
+    , Mutability(..)
+    , Signedness(..)
 
     , all_entities_in_mod
 
