@@ -30,8 +30,11 @@ module IR.Function
     , get_exit_block
     , get_ret_reg
     , get_param_regs
+    , get_ret_type
+    , get_param_types
     , get_register
     , get_span
+    , get_name
 
     , function_not_defined
 
@@ -76,9 +79,10 @@ data Function
       , get_ret_reg :: RegisterIdx
       , get_param_regs :: [RegisterIdx]
 
-      , get_instruction_pool :: [Instruction]
+      , get_ret_type :: TyIdx
+      , get_param_types :: [TyIdx]
 
-      , get_type :: TyIdx
+      , get_instruction_pool :: [Instruction]
 
       , get_span :: Span
       , get_name :: String
@@ -136,13 +140,6 @@ instance DeclSpan Function where
     decl_span _ f = Just $ get_span f
 instance Describe Function where
     describe _ f = "function named '" ++ get_name f ++ "'"
-instance Typed Function where
-    type_of _ = get_type
-
-instance ApplyToV Function where
-    apply_to_v = id
-
-instance IsValue Function -- TODO: remove this, replace globally bound functions with globally bound function pointers
 
 instance DeclSpan (Function, LValue) where
     decl_span irctx (f, LVRegister reg) = decl_span irctx $ get_register f reg
@@ -166,22 +163,21 @@ instance Typed Instruction where
     type_of irctx (Copy _ _) = resolve_unit irctx
     type_of _ (Addrof _ _ ty) = ty
 
-new_function :: TyIdx -> [(Mutability, TyIdx, Span)] -> Span -> String -> IRCtx -> (Function, IRCtx)
-new_function ret_type param_tys sp name irctx =
+new_function :: TyIdx -> [(Mutability, TyIdx, Span)] -> Span -> String -> Function
+new_function ret_type param_tys sp name =
     let param_regs = map (\ (muty, tyidx, param_sp) -> Register tyidx muty param_sp) param_tys
         param_reg_idxs = map RegisterIdx $ take (length param_tys) [1..]
 
         registers = Register ret_type Mutable sp : param_regs
-
-        function_type = FunctionType Map.empty ret_type $ map (\ (_, b, _) -> b) param_tys
-        (function_type_idx, irctx') = get_ty_irctx function_type irctx
 
         blocks =
             [ BasicBlock "entry" [] Nothing
             , BasicBlock "exit" [] (Just BrRet)
             ]
 
-    in (Function blocks (BlockIdx 0) (BlockIdx 1) registers (RegisterIdx 0) param_reg_idxs [] function_type_idx sp name, irctx')
+        param_tys' = map (\ (_, a, _) -> a) param_tys
+
+    in Function blocks (BlockIdx 0) (BlockIdx 1) registers (RegisterIdx 0) param_reg_idxs ret_type param_tys' [] sp name
 
 add_register :: TyIdx -> Mutability -> Span -> Function -> (RegisterIdx, Function)
 add_register tyidx muty sp fun = (reg_idx, fun')
@@ -198,7 +194,7 @@ get_register :: Function -> RegisterIdx -> Register
 get_register fun (RegisterIdx idx) = get_registers fun !! idx
 
 get_instruction :: Function -> InstructionIdx -> Instruction
-get_instruction (Function _ _ _ _ _ _ instr_pool _ _ _) (InstructionIdx iidx) = instr_pool !! iidx
+get_instruction (Function _ _ _ _ _ _ _ _ instr_pool _ _) (InstructionIdx iidx) = instr_pool !! iidx
 
 function_not_defined :: Function -> Bool
 function_not_defined = (2==) . length . get_blocks -- a function starts out with 2 blocks, and it only goes up from there; blocks cannot be removed
@@ -388,7 +384,7 @@ simplify_cfg = repeat_opt $ remove . merge
                 _ -> fun
 -- printing functions {{{1
 print_fun :: IRCtx -> Function -> String
-print_fun irctx fun@(Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_regs _ _ _ _) =
+print_fun irctx fun@(Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_regs _ _ _ _ _) =
     let make_comment tags = if null tags then "" else " // " ++ intercalate ", " tags
 
         shown_registers = concatMap show_reg $ zip ([0..] :: [Int]) regs

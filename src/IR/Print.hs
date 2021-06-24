@@ -15,6 +15,7 @@ import IR.TyIdx
 import IR.Type
 
 import IR.Function
+import IR.FunctionPointer
 
 import IR.IRCtx
 
@@ -66,7 +67,7 @@ print_ty _ GenericFloatType = "generic float type"
 print_ty _ GenericIntType = "generic int type"
 print_ty _ (CharType _) = "primitive char type"
 print_ty _ (BoolType _) = "primitive bool type"
-print_ty irctx (FunctionType _ ret_ty params) = "function type fun(" ++ intercalate ", " (map (stringify_tyidx irctx) params) ++ "): " ++ stringify_tyidx irctx ret_ty
+print_ty irctx (FunctionPointerType _ ret_ty params) = "function pointer type fun(" ++ intercalate ", " (map (stringify_tyidx irctx) params) ++ "): " ++ stringify_tyidx irctx ret_ty
 print_ty _ (UnitType _) = "primitive unit type"
 print_ty irctx (PointerType _ muty ty) = "pointer type *" ++ muty_str ++ stringify_tyidx irctx ty
     where
@@ -75,7 +76,10 @@ print_ty irctx (PointerType _ muty ty) = "pointer type *" ++ muty_str ++ stringi
             Immutable -> ""
 -- values {{{1
 print_v :: IRCtx -> Value -> String
-print_v irctx = apply_to_v (print_fun irctx)
+print_v irctx = apply_to_v (print_fun_ptr irctx)
+
+print_fun_ptr :: IRCtx -> FunctionPointer -> String
+print_fun_ptr irctx fptr = "(address of function " ++ get_name (get_fptr_pointee irctx fptr) ++ ")"
 -- helpers {{{1
 indent :: Int -> String -> String
 indent n = unlines . map (replicate n ' ' ++) . lines

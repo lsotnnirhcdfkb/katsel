@@ -11,14 +11,14 @@ import IR.DeclSpan
 import IR.Describe
 import IR.Typed
 
-import {-# SOURCE #-} IR.Function
+import {-# SOURCE #-} IR.FunctionPointer
 
 import Data.Typeable(Typeable, cast)
 
 class (Typeable v, DeclSpan v, Describe v, Typed v, ApplyToV v) => IsValue v where
 
 class ApplyToV v where
-    apply_to_v :: (Function -> r) -> v -> r
+    apply_to_v :: (FunctionPointer -> r) -> v -> r
 
 data Value where
     Value :: IsValue v => v -> Value

@@ -28,6 +28,7 @@ module IR
 
     , Value
     , Function
+    , FunctionPointer
 
     , get_child_map
     , get
@@ -66,6 +67,7 @@ import IR.Type
 import IR.RecFindEntities
 
 import IR.Value
+import IR.FunctionPointer
 import IR.Function
 
 import qualified Data.Map as Map
@@ -311,11 +313,13 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
                 resolve_ty_s ty_ast root >>=? return Nothing $ \ ty ->
                 return $ Just (ast_muty_to_ir_muty mutability, ty, sp)
         in sequence <$> mapM make_param params >>=? return parent $ \ param_tys ->
-        apply_irctx_to_irbuilder_s (new_function retty' param_tys fun_sp name) >>= \ fun ->
-        let fun_val = Value fun
-        in add_noreplace_s name fun_val parent >>= \case
+        let fun = new_function retty' param_tys fun_sp name
+        in apply_irctx_to_irbuilder_s (add_function fun) >>= \ fun_idx ->
+        apply_irctx_to_irbuilder_s (new_function_pointer fun_idx) >>= \ fptr ->
+        let fptr_val = Value fptr
+        in add_noreplace_s name fptr_val parent >>= \case
             Left other_value ->
-                add_error_s (DuplicateValue name other_value fun_val) >>
+                add_error_s (DuplicateValue name other_value fptr_val) >>
                 return parent
             Right added -> return added
 
@@ -418,7 +422,8 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
         fun'' = simplify_cfg fun'
     in State.put ir_builder' >>
 
-    add_replace_s name (Value fun'') parent
+    error "not implemented yet" -- TODO
+    -- add_replace_s name (Value fun'') parent
 -- lowering things {{{3
 type BlockGroup = (BlockIdx, BlockIdx)
 lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) ()

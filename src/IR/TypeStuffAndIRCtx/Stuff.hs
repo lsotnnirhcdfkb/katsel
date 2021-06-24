@@ -9,15 +9,17 @@ import IR.Describe
 import IR.MapSynonyms
 import IR.Parent
 import IR.Value
+import {-# SOURCE #-} IR.Function
 
 import Data.List(findIndex, intercalate)
 import qualified Data.Map as Map
 
-data IRCtx = IRCtx { get_type_interner :: TypeInterner }
+data IRCtx = IRCtx { get_type_interner :: TypeInterner, get_functions :: [Function] }
 data Signedness = Signed | Unsigned deriving Eq
 data Mutability = Mutable | Immutable deriving Eq
 data TypeInterner = TypeInterner { get_types_from_type_interner :: [Type] }
 data TyIdx = TyIdx { untyidx :: Int } deriving Eq
+data FunctionIdx = FunctionIdx Int deriving Eq
 data Type
     = FloatType DSMap Int
     | IntType DSMap Int Signedness
@@ -25,12 +27,12 @@ data Type
     | GenericIntType
     | CharType DSMap
     | BoolType DSMap
-    | FunctionType DSMap TyIdx [TyIdx]
+    | FunctionPointerType DSMap TyIdx [TyIdx]
     | UnitType DSMap
     | PointerType DSMap Mutability TyIdx
 
 new_irctx :: IRCtx
-new_irctx = IRCtx new_type_interner
+new_irctx = IRCtx new_type_interner []
 
 new_type_interner :: TypeInterner
 new_type_interner = TypeInterner
@@ -72,25 +74,25 @@ resolve_bool = fst . get_ty_irctx (BoolType Map.empty)
 resolve_unit = fst . get_ty_irctx (UnitType Map.empty)
 
 get_ty_irctx :: Type -> IRCtx -> (TyIdx, IRCtx)
-get_ty_irctx ty (IRCtx interner) =
+get_ty_irctx ty (IRCtx interner functions) =
     let (idx, interner') = get_ty ty interner
-    in (idx, IRCtx interner')
+    in (idx, IRCtx interner' functions)
 
 resolve_tyidx :: TypeInterner -> TyIdx -> Type
 resolve_tyidx (TypeInterner tys) (TyIdx idx) = tys !! idx
 
 resolve_tyidx_irctx :: IRCtx -> TyIdx -> Type
-resolve_tyidx_irctx (IRCtx interner) = resolve_tyidx interner
+resolve_tyidx_irctx (IRCtx interner __) = resolve_tyidx interner
 
 apply_to_tyidx :: (Type -> a) -> IRCtx -> TyIdx -> a
 apply_to_tyidx fun irctx idx = fun $ resolve_tyidx_irctx irctx idx
 
 replace_ty :: IRCtx -> TyIdx -> Type -> IRCtx
-replace_ty (IRCtx (TypeInterner tys)) (TyIdx tyidx) ty =
+replace_ty (IRCtx (TypeInterner tys) functions) (TyIdx tyidx) ty =
     let (keep, _:keep2) = splitAt tyidx tys
         tys' = keep ++ ty : keep2
         interner' = TypeInterner tys'
-    in IRCtx interner'
+    in IRCtx interner' functions
 
 get_ty :: Type -> TypeInterner -> (TyIdx, TypeInterner)
 get_ty ty ctx@(TypeInterner tys) =
@@ -106,7 +108,7 @@ ty_eq (FloatType _ size_a) (FloatType _ size_b)
 ty_eq (IntType _ size_a sign_a) (IntType _ size_b sign_b)
     | size_a == size_b && sign_a == sign_b = True
 
-ty_eq (FunctionType _ ret_a params_a) (FunctionType _ ret_b params_b)
+ty_eq (FunctionPointerType _ ret_a params_a) (FunctionPointerType _ ret_b params_b)
     | ret_a == ret_b && params_a == params_b = True
 
 ty_eq (PointerType _ muty_a pointee_a) (PointerType _ muty_b pointee_b)
@@ -140,7 +142,7 @@ stringify_ty _ GenericIntType = "<int>"
 stringify_ty _ GenericFloatType = "<float>"
 stringify_ty _ (CharType _) = "char"
 stringify_ty _ (BoolType _) = "bool"
-stringify_ty irctx (FunctionType _ ret_idx params) =
+stringify_ty irctx (FunctionPointerType _ ret_idx params) =
     let ret_str = stringify_tyidx irctx ret_idx
         param_strs = map (stringify_tyidx irctx) params
     in "fun(" ++ intercalate ", " param_strs ++ "): " ++ ret_str
@@ -153,6 +155,12 @@ stringify_ty irctx (PointerType _ muty pointee) =
 
 stringify_tyidx :: IRCtx -> TyIdx -> String
 stringify_tyidx irctx idx = stringify_ty irctx $ resolve_tyidx_irctx irctx idx
+
+get_function :: IRCtx -> FunctionIdx -> Function
+get_function (IRCtx _ functions) (FunctionIdx idx) = functions !! idx
+
+add_function :: Function -> IRCtx -> (FunctionIdx, IRCtx)
+add_function fun (IRCtx type_interner functions) = (FunctionIdx $ length functions, IRCtx type_interner $ functions ++ [fun])
 
 instance DeclSpan TyIdx where
     decl_span irctx idx = decl_span irctx $ resolve_tyidx_irctx irctx idx
@@ -191,7 +199,7 @@ instance Describe Type where
     describe _ GenericIntType = "generic integer type"
     describe _ (CharType _) = "primitive character type"
     describe _ (BoolType _) = "primitive bool type"
-    describe _ (FunctionType _ _ _) = "function type" -- TODO: put argument types and return type here?
+    describe _ (FunctionPointerType _ _ _) = "function pointer type" -- TODO: put argument types and return type here?
     describe _ (UnitType _) = "primitive unit type"
     describe _ (PointerType _ _ _) = "pointer type" -- TODO: put pointee type here?
 
@@ -202,7 +210,7 @@ instance Parent Type DeclSymbol String where
     get_child_map (GenericIntType, _) = Map.empty
     get_child_map (CharType dsmap, _) = dsmap
     get_child_map (BoolType dsmap, _) = dsmap
-    get_child_map (FunctionType dsmap _ _, _) = dsmap
+    get_child_map (FunctionPointerType dsmap _ _, _) = dsmap
     get_child_map (UnitType dsmap, _) = dsmap
     get_child_map (PointerType dsmap _ _, _) = dsmap
 

@@ -48,7 +48,7 @@ decl_ty _ _ mname (IR.CharType _) = concat ["typedef char ", Mangle.mangled_str 
 decl_ty _ _ mname (IR.BoolType _) = concat ["typedef bool ", Mangle.mangled_str mname, ";\n"]
 
 -- TODO: implement a way to properly print declarators for any type
-decl_ty _ _ _ (IR.FunctionType _ _ _) = "// not implemented yet\n" -- TODO
+decl_ty _ _ _ (IR.FunctionPointerType _ _ _) = "// not implemented yet\n" -- TODO
 decl_ty _ _ _ (IR.PointerType _ _ _) = "// not implemented yet\n" -- TODO
 -- def_ds {{{1
 def_ds :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.DeclSymbol -> String
@@ -64,18 +64,24 @@ def_ty _ _ _ IR.GenericFloatType = error "cannot define generic float type"
 def_ty _ _ _ IR.GenericIntType = error "cannot define generic int type"
 def_ty _ _ _ (IR.CharType _) = "// char type does not need definition\n"
 def_ty _ _ _ (IR.BoolType _) = "// bool type does not need definition\n"
-def_ty _ _ _ (IR.FunctionType _ _ _) = "// function type does not need definition\n"
+def_ty _ _ _ (IR.FunctionPointerType _ _ _) = "// function type does not need definition\n"
 def_ty _ _ _ (IR.UnitType _) = "// unit type does not need definition\n"
 def_ty _ _ _ (IR.PointerType _ _ _) = "// pointer type does not need definition\n"
 -- decl_v {{{1
 decl_v :: IR.IRCtx -> IR.VIRId IR.Value -> Mangle.MangledName -> IR.Value -> String
-decl_v irctx path mname = IR.apply_to_v (decl_fun irctx path mname)
+decl_v irctx path mname = IR.apply_to_v (decl_fun_ptr irctx path mname)
+
+decl_fun_ptr :: IR.IRCtx -> IR.VIRId IR.Value -> Mangle.MangledName -> IR.FunctionPointer -> String
+decl_fun_ptr _ _ _ _ = "#error declaration of const function pointer current unsupported\n" -- TODO
 
 decl_fun :: IR.IRCtx -> IR.VIRId IR.Value -> Mangle.MangledName -> IR.Function -> String
 decl_fun _ _ _ _ = "#error declaration of function currently unsupported\n" -- TODO
 -- def_v {{{1
 def_v :: IR.IRCtx -> IR.VIRId IR.Value -> Mangle.MangledName -> IR.Value -> String
-def_v irctx path mname = IR.apply_to_v (def_fun irctx path mname)
+def_v irctx path mname = IR.apply_to_v (def_fun_ptr irctx path mname)
+
+def_fun_ptr :: IR.IRCtx -> IR.VIRId IR.Value -> Mangle.MangledName -> IR.FunctionPointer -> String
+def_fun_ptr _ _ _ _ = "#error definition of const function pointer current unsupported\n" -- TODO
 
 def_fun :: IR.IRCtx -> IR.VIRId IR.Value -> Mangle.MangledName -> IR.Function -> String
 def_fun _ _ _ _ = "#error declaration of function currently unsupported\n" -- TODO

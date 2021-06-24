@@ -25,6 +25,7 @@ executable katsel
                      , IR.Describe
                      , IR.Dot
                      , IR.Function
+                     , IR.FunctionPointer
                      , IR.ID
                      , IR.IRCtx
                      , IR.MapSynonyms

@@ -19,6 +19,9 @@ module IR.IRCtx
     , resolve_unit
     , apply_to_tyidx
     , get_type_interner
+    , FunctionIdx
+    , add_function
+    , get_function
     ) where
 
 import IR.TypeStuffAndIRCtx.Stuff

@@ -14,6 +14,7 @@ import IR.TyIdx
 import IR.Type
 
 import IR.Function
+import IR.FunctionPointer
 
 import IR.IRCtx
 import IR.TypeInterner
@@ -179,8 +180,8 @@ dot_type _ GenericFloatType = Node "generic float type" []
 dot_type _ GenericIntType = Node "generic int type" []
 dot_type _ (CharType _) = Node "char type" []
 dot_type _ (BoolType _) = Node "bool type" []
-dot_type irctx (FunctionType _ ret _) =
-    Node "function type"
+dot_type irctx (FunctionPointerType _ ret _) =
+    Node "function pointer type"
         [ make_node_field "return type" (nodify dot_tyidx irctx ret)
         , make_str_field "parameter types" "<todo>" -- TODO
         ]
@@ -195,7 +196,10 @@ dot_type irctx (PointerType _ muty pointee) =
         ]
 -- values {{{1
 dot_v :: IRCtx -> Value -> Node
-dot_v irctx = apply_to_v (dot_fun irctx)
+dot_v irctx = apply_to_v (dot_fun_ptr irctx)
+
+dot_fun_ptr :: IRCtx -> FunctionPointer -> Node
+dot_fun_ptr _ _ = Node "function pointer" [] -- TODO
 
 dot_fun :: IRCtx -> Function -> Node
 dot_fun _ _ = Node "function" [] -- TODO
