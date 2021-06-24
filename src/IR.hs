@@ -7,6 +7,7 @@
 module IR
     ( build_ir
     , IRCtx
+    , get_function_interner
 
     , print_mod
     , dot_mod
