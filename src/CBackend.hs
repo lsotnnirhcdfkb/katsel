@@ -78,7 +78,7 @@ type_to_cdecl irctx ty name = CDecl basic_type declarator
         convert _ (IR.UnitType _) = error "cannot convert unit type into c declaration"
 
         convert parent (IR.CharType _) = ("uint8_t", parent) -- TODO: this maybe should not be 8 bits
-        convert parent (IR.BoolType _) = ("bool", parent) -- TODO: maybe use single bit datatype for this
+        convert parent (IR.BoolType _) = ("int", parent)
 
         convert parent (IR.FunctionPointerType _ ret params) =
             let parent' = FunctionDeclarator (PointerDeclarator parent) (map (IR.apply_to_tyidx (\ pty -> type_to_cdecl irctx pty Nothing) irctx) params)
