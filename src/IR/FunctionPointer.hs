@@ -4,7 +4,6 @@ module IR.FunctionPointer
     , get_fptr_pointee
     ) where
 
-import IR.TyIdx
 import IR.IRCtx
 import IR.Type
 import IR.Function
@@ -14,11 +13,13 @@ import IR.Describe
 import IR.Typed
 import IR.Value
 
+import Interner
+
 import qualified Data.Map as Map(empty)
 
-data FunctionPointer = FunctionPointer TyIdx FunctionIdx
+data FunctionPointer = FunctionPointer (InternerIdx Type) (InternerIdx Function)
 
-new_function_pointer :: FunctionIdx -> IRCtx -> (FunctionPointer, IRCtx)
+new_function_pointer :: InternerIdx Function -> IRCtx -> (FunctionPointer, IRCtx)
 new_function_pointer fun_idx irctx =
     let fun = get_function irctx fun_idx
         fptr_type = FunctionPointerType Map.empty (get_ret_type fun) (get_param_types fun)

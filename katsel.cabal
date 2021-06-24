@@ -33,9 +33,7 @@ executable katsel
                      , IR.Parent
                      , IR.Print
                      , IR.RecFindEntities
-                     , IR.TyIdx
                      , IR.Type
-                     , IR.TypeInterner
                      , IR.TypeStuffAndIRCtx.Stuff
                      , IR.Typed
                      , IR.Value
@@ -51,6 +49,7 @@ executable katsel
                        -- utility things
                      , Location
                      , File
+                     , Interner
 
                        -- message things (diagnostics)
                      , Message

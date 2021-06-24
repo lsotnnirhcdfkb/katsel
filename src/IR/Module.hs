@@ -6,6 +6,8 @@ module IR.Module
     , new_module
     ) where
 
+import Interner
+
 import IR.Parent
 import IR.MapSynonyms
 import IR.IRCtx
@@ -23,7 +25,7 @@ data Module = Module DSMap VMap Span
 new_module :: Span -> IRCtx -> (Module, IRCtx)
 new_module sp irctx = (Module dsmap Map.empty sp, irctx)
     where
-        r :: (IRCtx -> TyIdx) -> DeclSymbol
+        r :: (IRCtx -> InternerIdx Type) -> DeclSymbol
         r f = DeclSymbol $ f irctx
 
         dsmap = Map.fromList

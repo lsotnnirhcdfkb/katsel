@@ -5,6 +5,8 @@ module CBackend
 import qualified IR
 import qualified Mangle
 
+import Interner
+
 lower_mod_to_c :: IR.IRCtx -> IR.Module -> String
 lower_mod_to_c irctx root =
     let (dses, vals) = IR.all_entities_in_mod irctx root
@@ -26,7 +28,7 @@ lower_mod_to_c irctx root =
 decl_ds :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.DeclSymbol -> String
 decl_ds irctx path mname = IR.apply_to_ds (error "cannot declare module in c backend") (decl_tyidx irctx path mname)
 
-decl_tyidx :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.TyIdx -> String
+decl_tyidx :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> InternerIdx IR.Type -> String
 decl_tyidx irctx path mname = IR.apply_to_tyidx (decl_ty irctx path mname) irctx
 
 decl_ty :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.Type -> String
@@ -54,7 +56,7 @@ decl_ty _ _ _ (IR.PointerType _ _ _) = "// not implemented yet\n" -- TODO
 def_ds :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.DeclSymbol -> String
 def_ds irctx path mname = IR.apply_to_ds (error "cannot define module in c backend") (def_tyidx irctx path mname)
 
-def_tyidx :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.TyIdx -> String
+def_tyidx :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> InternerIdx IR.Type -> String
 def_tyidx irctx path mname = IR.apply_to_tyidx (def_ty irctx path mname) irctx
 
 def_ty :: IR.IRCtx -> IR.DSIRId IR.DeclSymbol -> Mangle.MangledName -> IR.Type -> String

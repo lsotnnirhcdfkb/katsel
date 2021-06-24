@@ -46,7 +46,6 @@ module IR.Function
     , simplify_cfg
     ) where
 
-import IR.TyIdx
 import IR.Type
 import IR.Value
 
@@ -61,6 +60,8 @@ import IR.Describe
 import IR.Typed
 
 import Location
+
+import Interner
 
 import qualified Message
 import qualified Message.Underlines as MsgUnds
@@ -79,8 +80,8 @@ data Function
       , get_ret_reg :: RegisterIdx
       , get_param_regs :: [RegisterIdx]
 
-      , get_ret_type :: TyIdx
-      , get_param_types :: [TyIdx]
+      , get_ret_type :: (InternerIdx Type)
+      , get_param_types :: [(InternerIdx Type)]
 
       , get_instruction_pool :: [Instruction]
 
@@ -93,11 +94,11 @@ newtype InstructionIdx = InstructionIdx Int deriving Eq
 newtype RegisterIdx = RegisterIdx Int deriving Eq
 
 data BasicBlock = BasicBlock String [InstructionIdx] (Maybe Br) deriving Eq
-data Register = Register TyIdx Mutability Span deriving Eq
+data Register = Register (InternerIdx Type) Mutability Span deriving Eq
 data Instruction
     = Copy LValue FValue
     | Call FValue [FValue]
-    | Addrof LValue Mutability TyIdx
+    | Addrof LValue Mutability (InternerIdx Type)
     | DerefPtr FValue
     deriving Eq
 
@@ -108,8 +109,8 @@ data FValue
     = FVGlobalValue (VIRId Value)
     | FVNLVRegister RegisterIdx
     | FVLValue LValue
-    | FVConstInt Integer TyIdx
-    | FVConstFloat Double TyIdx
+    | FVConstInt Integer (InternerIdx Type)
+    | FVConstFloat Double (InternerIdx Type)
     | FVConstBool Bool
     | FVConstChar Char
     | FVUnit
@@ -163,7 +164,7 @@ instance Typed Instruction where
     type_of irctx (Copy _ _) = resolve_unit irctx
     type_of _ (Addrof _ _ ty) = ty
 
-new_function :: TyIdx -> [(Mutability, TyIdx, Span)] -> Span -> String -> Function
+new_function :: (InternerIdx Type) -> [(Mutability, (InternerIdx Type), Span)] -> Span -> String -> Function
 new_function ret_type param_tys sp name =
     let param_regs = map (\ (muty, tyidx, param_sp) -> Register tyidx muty param_sp) param_tys
         param_reg_idxs = map RegisterIdx $ take (length param_tys) [1..]
@@ -179,7 +180,7 @@ new_function ret_type param_tys sp name =
 
     in Function blocks (BlockIdx 0) (BlockIdx 1) registers (RegisterIdx 0) param_reg_idxs ret_type param_tys' [] sp name
 
-add_register :: TyIdx -> Mutability -> Span -> Function -> (RegisterIdx, Function)
+add_register :: (InternerIdx Type) -> Mutability -> Span -> Function -> (RegisterIdx, Function)
 add_register tyidx muty sp fun = (reg_idx, fun')
     where
         reg = Register tyidx muty sp
@@ -203,8 +204,8 @@ function_not_defined = (2==) . length . get_blocks -- a function starts out with
 -- TypeError datatype {{{2
 data TypeError = TypeError [TypeErrorClause]
 data TypeErrorClause
-    = ThingIs String Span TyIdx Reason
-    | ThingShouldBe String Span TyIdx Reason
+    = ThingIs String Span (InternerIdx Type) Reason
+    | ThingShouldBe String Span (InternerIdx Type) Reason
 data Reason = Because String | NoReason
 
 instance Message.ToDiagnostic (TypeError, IRCtx) where

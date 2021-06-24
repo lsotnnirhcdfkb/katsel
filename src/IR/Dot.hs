@@ -10,14 +10,14 @@ import IR.DeclSymbol
 import IR.Value
 
 import IR.Module
-import IR.TyIdx
 import IR.Type
 
 import IR.Function
 import IR.FunctionPointer
 
 import IR.IRCtx
-import IR.TypeInterner
+
+import Interner
 
 import Data.List(foldl', nub)
 import Data.Map(Map)
@@ -142,8 +142,8 @@ dot_irctx irctx =
         ]
     where
         type_interner = get_type_interner irctx
-        types = get_types_from_type_interner type_interner
-        type_indexes = iter_tyidxs_from_type_interner type_interner
+        types = all_interner_items type_interner
+        type_indexes = all_interner_idxs type_interner
 -- declsymbols {{{1
 dot_ds :: IRCtx -> DeclSymbol -> Node
 dot_ds irctx = apply_to_ds (nodify dot_mod' irctx) (nodify dot_tyidx irctx)
@@ -159,7 +159,7 @@ nodify f irctx a = Node name (fields ++ ds_children ++ v_children)
 dot_mod' :: IRCtx -> Module -> (String, [(FieldColor, String, Either String Node)])
 dot_mod' _ _ = ("mod", [])
 
-dot_tyidx :: IRCtx -> TyIdx -> (String, [(FieldColor, String, Either String Node)])
+dot_tyidx :: IRCtx -> (InternerIdx Type) -> (String, [(FieldColor, String, Either String Node)])
 dot_tyidx irctx tyidx =
     ("type index",
         [ make_node_field "referee" $ apply_to_tyidx (dot_type irctx) irctx tyidx

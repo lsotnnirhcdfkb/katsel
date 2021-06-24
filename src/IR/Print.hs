@@ -11,13 +11,14 @@ import IR.DeclSymbol
 import IR.Value
 
 import IR.Module
-import IR.TyIdx
 import IR.Type
 
 import IR.Function
 import IR.FunctionPointer
 
 import IR.IRCtx
+
+import Interner
 
 import qualified Data.Map as Map
 import Data.List(intercalate)
@@ -53,7 +54,7 @@ print_v_binding irctx (name, v) =
 print_mod' :: IRCtx -> Module -> String
 print_mod' _ _ = "mod"
 
-print_tyidx :: IRCtx -> TyIdx -> String
+print_tyidx :: IRCtx -> (InternerIdx Type) -> String
 print_tyidx irctx = apply_to_tyidx (print_ty irctx) irctx
 -- types {{{1
 print_ty :: IRCtx -> Type -> String

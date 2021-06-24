@@ -3,6 +3,8 @@
 
 module IR.TypeStuffAndIRCtx.Stuff where
 
+import Interner
+
 import IR.DeclSpan
 import IR.DeclSymbol
 import IR.Describe
@@ -11,15 +13,12 @@ import IR.Parent
 import IR.Value
 import {-# SOURCE #-} IR.Function
 
-import Data.List(findIndex, intercalate)
+import Data.List(intercalate)
 import qualified Data.Map as Map
 
-data IRCtx = IRCtx { get_type_interner :: TypeInterner, get_functions :: [Function] }
+data IRCtx = IRCtx { get_type_interner :: Interner Type, get_functions :: Interner Function }
 data Signedness = Signed | Unsigned deriving Eq
 data Mutability = Mutable | Immutable deriving Eq
-data TypeInterner = TypeInterner { get_types_from_type_interner :: [Type] }
-data TyIdx = TyIdx { untyidx :: Int } deriving Eq
-data FunctionIdx = FunctionIdx Int deriving Eq
 data Type
     = FloatType DSMap Int
     | IntType DSMap Int Signedness
@@ -27,15 +26,15 @@ data Type
     | GenericIntType
     | CharType DSMap
     | BoolType DSMap
-    | FunctionPointerType DSMap TyIdx [TyIdx]
+    | FunctionPointerType DSMap (InternerIdx Type) [InternerIdx Type]
     | UnitType DSMap
-    | PointerType DSMap Mutability TyIdx
+    | PointerType DSMap Mutability (InternerIdx Type)
 
 new_irctx :: IRCtx
-new_irctx = IRCtx new_type_interner []
+new_irctx = IRCtx new_type_interner new_interner
 
-new_type_interner :: TypeInterner
-new_type_interner = TypeInterner
+new_type_interner :: Interner Type
+new_type_interner = new_interner_with
     [ FloatType Map.empty 32
     , FloatType Map.empty 64
     , IntType Map.empty  8 Unsigned
@@ -53,10 +52,7 @@ new_type_interner = TypeInterner
     , UnitType Map.empty
     ]
 
-iter_tyidxs_from_type_interner :: TypeInterner -> [TyIdx]
-iter_tyidxs_from_type_interner (TypeInterner tys) = take (length tys) (TyIdx <$> [0..])
-
-resolve_float32, resolve_float64, resolve_uint8, resolve_uint16, resolve_uint32, resolve_uint64, resolve_sint8, resolve_sint16, resolve_sint32, resolve_sint64, resolve_generic_float, resolve_generic_int, resolve_char, resolve_bool, resolve_unit :: IRCtx -> TyIdx
+resolve_float32, resolve_float64, resolve_uint8, resolve_uint16, resolve_uint32, resolve_uint64, resolve_sint8, resolve_sint16, resolve_sint32, resolve_sint64, resolve_generic_float, resolve_generic_int, resolve_char, resolve_bool, resolve_unit :: IRCtx -> (InternerIdx Type)
 resolve_float32 = fst . get_ty_irctx (FloatType Map.empty 32)
 resolve_float64 = fst . get_ty_irctx (FloatType Map.empty 64)
 resolve_uint8 = fst . get_ty_irctx (IntType Map.empty  8 Unsigned)
@@ -73,32 +69,19 @@ resolve_char = fst . get_ty_irctx (CharType Map.empty)
 resolve_bool = fst . get_ty_irctx (BoolType Map.empty)
 resolve_unit = fst . get_ty_irctx (UnitType Map.empty)
 
-get_ty_irctx :: Type -> IRCtx -> (TyIdx, IRCtx)
-get_ty_irctx ty (IRCtx interner functions) =
-    let (idx, interner') = get_ty ty interner
-    in (idx, IRCtx interner' functions)
+get_ty_irctx :: Type -> IRCtx -> (InternerIdx Type, IRCtx)
+get_ty_irctx ty (IRCtx ty_interner functions) =
+    let (idx, ty_interner') = add_to_interner ty_eq ty ty_interner
+    in (idx, IRCtx ty_interner' functions)
 
-resolve_tyidx :: TypeInterner -> TyIdx -> Type
-resolve_tyidx (TypeInterner tys) (TyIdx idx) = tys !! idx
+replace_ty :: Type -> InternerIdx Type -> IRCtx -> IRCtx
+replace_ty ty idx (IRCtx ty_interner fun_interner) = IRCtx (replace_in_interner ty idx ty_interner) fun_interner
 
-resolve_tyidx_irctx :: IRCtx -> TyIdx -> Type
-resolve_tyidx_irctx (IRCtx interner __) = resolve_tyidx interner
+resolve_tyidx_irctx :: IRCtx -> InternerIdx Type -> Type
+resolve_tyidx_irctx (IRCtx interner _) idx = get_from_interner idx interner
 
-apply_to_tyidx :: (Type -> a) -> IRCtx -> TyIdx -> a
+apply_to_tyidx :: (Type -> a) -> IRCtx -> (InternerIdx Type) -> a
 apply_to_tyidx fun irctx idx = fun $ resolve_tyidx_irctx irctx idx
-
-replace_ty :: IRCtx -> TyIdx -> Type -> IRCtx
-replace_ty (IRCtx (TypeInterner tys) functions) (TyIdx tyidx) ty =
-    let (keep, _:keep2) = splitAt tyidx tys
-        tys' = keep ++ ty : keep2
-        interner' = TypeInterner tys'
-    in IRCtx interner' functions
-
-get_ty :: Type -> TypeInterner -> (TyIdx, TypeInterner)
-get_ty ty ctx@(TypeInterner tys) =
-    case findIndex (ty_eq ty) tys of
-        Just idx -> (TyIdx idx, ctx)
-        Nothing -> (TyIdx $ length tys, TypeInterner $ tys ++ [ty])
 
 ty_eq :: Type -> Type -> Bool
 
@@ -126,7 +109,7 @@ ty_eq _ _ = False
 ty_match :: Type -> Type -> Bool
 ty_match = ty_eq
 
-ty_match' :: IRCtx -> TyIdx -> TyIdx -> Bool
+ty_match' :: IRCtx -> (InternerIdx Type) -> InternerIdx Type -> Bool
 ty_match' irctx a b = ty_match (resolve_tyidx_irctx irctx a) (resolve_tyidx_irctx irctx b)
 
 stringify_ty :: IRCtx -> Type -> String
@@ -153,37 +136,42 @@ stringify_ty irctx (PointerType _ muty pointee) =
             Immutable -> ""
     in "*" ++ muty_str ++ stringify_tyidx irctx pointee
 
-stringify_tyidx :: IRCtx -> TyIdx -> String
+stringify_tyidx :: IRCtx -> (InternerIdx Type) -> String
 stringify_tyidx irctx idx = stringify_ty irctx $ resolve_tyidx_irctx irctx idx
 
-get_function :: IRCtx -> FunctionIdx -> Function
-get_function (IRCtx _ functions) (FunctionIdx idx) = functions !! idx
+get_function :: IRCtx -> InternerIdx Function -> Function
+get_function (IRCtx _ functions) idx = get_from_interner idx functions
 
-add_function :: Function -> IRCtx -> (FunctionIdx, IRCtx)
-add_function fun (IRCtx type_interner functions) = (FunctionIdx $ length functions, IRCtx type_interner $ functions ++ [fun])
+add_function :: Function -> IRCtx -> (InternerIdx Function, IRCtx)
+add_function fun (IRCtx ty_interner fun_interner) =
+    let (idx, fun_interner') = add_to_interner (\ _ _ -> False) fun fun_interner
+    in (idx, IRCtx ty_interner fun_interner')
 
-instance DeclSpan TyIdx where
+replace_function :: Function -> InternerIdx Function -> IRCtx -> IRCtx
+replace_function fun idx (IRCtx ty_interner fun_interner) = IRCtx ty_interner (replace_in_interner fun idx fun_interner)
+
+instance DeclSpan (InternerIdx Type) where
     decl_span irctx idx = decl_span irctx $ resolve_tyidx_irctx irctx idx
-instance Describe TyIdx where
+instance Describe (InternerIdx Type) where
     describe irctx idx = describe irctx $ resolve_tyidx_irctx irctx idx
-instance Parent TyIdx DeclSymbol String where
+instance Parent (InternerIdx Type) DeclSymbol String where
     get_child_map (idx, irctx) = get_child_map (resolve_tyidx_irctx irctx idx, irctx)
     add i child (tyidx, irctx) =
         let resolved_ty = resolve_tyidx_irctx irctx tyidx
             (old_child, (resolved_ty', irctx')) = add i child (resolved_ty, irctx)
-            irctx'' = replace_ty irctx' tyidx resolved_ty'
+            irctx'' = replace_ty resolved_ty' tyidx irctx' 
         in (old_child, (tyidx, irctx''))
 -- TODO: maybe this shouldn't be copy and pasted
-instance Parent TyIdx Value String where
+instance Parent (InternerIdx Type) Value String where
     get_child_map (idx, irctx) = get_child_map (resolve_tyidx_irctx irctx idx, irctx)
     add i child (tyidx, irctx) =
         let resolved_ty = resolve_tyidx_irctx irctx tyidx
             (old_child, (resolved_ty', irctx')) = add i child (resolved_ty, irctx)
-            irctx'' = replace_ty irctx' tyidx resolved_ty'
+            irctx'' = replace_ty resolved_ty' tyidx irctx' 
         in (old_child, (tyidx, irctx''))
-instance ApplyToDS TyIdx where
+instance ApplyToDS (InternerIdx Type) where
     apply_to_ds _ f = f
-instance IsDeclSymbol TyIdx
+instance IsDeclSymbol (InternerIdx Type)
 
 instance DeclSpan Type where
     -- all the types currently implemented are primitive types or types that otherwise wouldn't have declaration spans anyway, so this is a constant Nothing

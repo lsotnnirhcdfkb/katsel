@@ -18,7 +18,6 @@ module IR
 
     , DeclSymbol
     , Module
-    , TyIdx
     , Type(..)
 
     , Mutability(..)
@@ -69,6 +68,8 @@ import IR.RecFindEntities
 import IR.Value
 import IR.FunctionPointer
 import IR.Function
+
+import Interner
 
 import qualified Data.Map as Map
 
@@ -251,11 +252,11 @@ resolve_path_v (Located path_sp (AST.DPath' located_segments)) root ir_builder@(
         segments = map unlocate located_segments
         m_vid = new_vid irctx root segments :: Maybe (VIRId Value)
 
-resolve_ty_s :: AST.LDType -> Module -> State.State IRBuilder (Maybe TyIdx)
+resolve_ty_s :: AST.LDType -> Module -> State.State IRBuilder (Maybe (InternerIdx Type))
 
 resolve_ty_s (Located path_sp (AST.DType'Path path)) root =
     State.state (resolve_path_d path root) >>=? return Nothing $ \ (ds, _) ->
-    case ds_cast ds :: Maybe TyIdx of
+    case ds_cast ds :: Maybe (InternerIdx Type) of
         j@(Just _) -> return j
         Nothing ->
             add_error_s (NotAType path_sp ds) >>
@@ -272,7 +273,7 @@ resolve_ty_s (Located sp AST.DType'This) _ =
     return Nothing
 -}
 
-get_ty_s :: Type -> State.State IRBuilder TyIdx
+get_ty_s :: Type -> State.State IRBuilder (InternerIdx Type)
 get_ty_s ty = State.state $ \ (IRBuilder ctx errs) ->
     let (idx, ctx') = get_ty_irctx ty ctx
     in (idx, IRBuilder ctx' errs)
@@ -308,7 +309,7 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
             Just retty -> resolve_ty_s retty root
             Nothing -> Just <$> get_ty_s (UnitType Map.empty)
          >>=? return parent $ \ retty' ->
-        let make_param :: AST.LDParam -> State.State IRBuilder (Maybe (Mutability, TyIdx, Span))
+        let make_param :: AST.LDParam -> State.State IRBuilder (Maybe (Mutability, (InternerIdx Type), Span))
             make_param (Located sp (AST.DParam'Normal mutability ty_ast _)) =
                 resolve_ty_s ty_ast root >>=? return Nothing $ \ ty ->
                 return $ Just (ast_muty_to_ir_muty mutability, ty, sp)
