@@ -75,8 +75,6 @@ type_to_cdecl irctx ty name = CDecl basic_type declarator
                     IR.Unsigned -> "u"
             in (signedness_str ++ "int" ++ show size ++ "_t", parent)
 
-        convert _ IR.GenericFloatType = error "cannot convert generic float type into c declaration"
-        convert _ IR.GenericIntType = error "cannot convert generic float type into c declaration"
         convert _ (IR.UnitType _) = error "cannot convert unit type into c declaration"
 
         convert parent (IR.CharType _) = ("uint8_t", parent) -- TODO: this maybe should not be 8 bits
@@ -97,8 +95,6 @@ decl_tyidx :: LoweringFun (IR.DSIRId IR.DeclSymbol) (InternerIdx IR.Type)
 decl_tyidx irctx path mname = IR.apply_to_tyidx (decl_ty irctx path mname) irctx
 
 decl_ty :: LoweringFun (IR.DSIRId IR.DeclSymbol) IR.Type
-decl_ty _ _ _ IR.GenericFloatType = error "cannot declare generic float type"
-decl_ty _ _ _ IR.GenericIntType = error "cannot declare generic int type"
 decl_ty _ _ _ (IR.UnitType _) = "// cannot declare unit type\n"
 decl_ty irctx _ mname ty = "typedef " ++ str_cdecl (type_to_cdecl irctx ty (Just mname)) ++ "\n"
 -- def_ds {{{1
@@ -111,8 +107,6 @@ def_tyidx irctx path mname = IR.apply_to_tyidx (def_ty irctx path mname) irctx
 def_ty :: LoweringFun (IR.DSIRId IR.DeclSymbol) IR.Type
 def_ty _ _ _ (IR.FloatType _ _) = print_not_necessary "definition" "float type"
 def_ty _ _ _ (IR.IntType _ _ _) = print_not_necessary "definition" "int type"
-def_ty _ _ _ IR.GenericFloatType = error "cannot define generic float type"
-def_ty _ _ _ IR.GenericIntType = error "cannot define generic int type"
 def_ty _ _ _ (IR.CharType _) = print_not_necessary "definition" "char type"
 def_ty _ _ _ (IR.BoolType _) = print_not_necessary "definition" "bool type"
 def_ty _ _ _ (IR.FunctionPointerType _ _ _) = print_not_necessary "definition" "function type"

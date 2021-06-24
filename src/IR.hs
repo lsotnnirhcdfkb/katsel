@@ -583,12 +583,12 @@ lower_expr (Located sp (AST.DExpr'Method _ _ _)) _ =
 -}
 
 lower_expr (Located sp (AST.DExpr'Int i)) _ =
-    apply_irb_to_funcgtup_s (get_ty_s GenericIntType) >>= \ ty ->
+    apply_irb_to_funcgtup_s (get_ty_s (IntType Map.empty 32 Unsigned)) >>= \ ty ->
     add_basic_block_s "literal_int_expr" >>= \ block ->
     return (Just ((block, block), Located sp $ FVConstInt i ty))
 
 lower_expr (Located sp (AST.DExpr'Float d)) _ =
-    apply_irb_to_funcgtup_s (get_ty_s GenericFloatType) >>= \ ty ->
+    apply_irb_to_funcgtup_s (get_ty_s (FloatType Map.empty 32)) >>= \ ty ->
     add_basic_block_s "literal_float_expr" >>= \ block ->
     return (Just ((block, block), Located sp $ FVConstFloat d ty))
 

@@ -178,8 +178,6 @@ dot_type _ (IntType _ size signedness) =
                   Unsigned -> "unsigned"
                   Signed -> "signed"
         ])
-dot_type _ GenericFloatType = ("generic float type", [])
-dot_type _ GenericIntType = ("generic int type", [])
 dot_type _ (CharType _) = ("char type", [])
 dot_type _ (BoolType _) = ("bool type", [])
 dot_type irctx (FunctionPointerType _ ret _) =

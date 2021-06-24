@@ -70,8 +70,6 @@ print_ty _ (IntType _ size signedness) = "primitive " ++ signedness_str ++ " int
         signedness_str = case signedness of
             Unsigned -> "unsigned"
             Signed -> "signed"
-print_ty _ GenericFloatType = "generic float type"
-print_ty _ GenericIntType = "generic int type"
 print_ty _ (CharType _) = "primitive char type"
 print_ty _ (BoolType _) = "primitive bool type"
 print_ty irctx (FunctionPointerType _ ret_ty params) = "function pointer type fun(" ++ intercalate ", " (map (stringify_tyidx irctx) params) ++ "): " ++ stringify_tyidx irctx ret_ty

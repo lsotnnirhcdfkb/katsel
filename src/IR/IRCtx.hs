@@ -12,8 +12,6 @@ module IR.IRCtx
     , resolve_sint16
     , resolve_sint32
     , resolve_sint64
-    , resolve_generic_float
-    , resolve_generic_int
     , resolve_char
     , resolve_bool
     , resolve_unit

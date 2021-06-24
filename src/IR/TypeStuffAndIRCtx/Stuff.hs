@@ -22,8 +22,6 @@ data Signedness = Signed | Unsigned deriving Eq
 data Type
     = FloatType DSMap Int
     | IntType DSMap Int Signedness
-    | GenericFloatType
-    | GenericIntType
     | CharType DSMap
     | BoolType DSMap
     | FunctionPointerType DSMap (InternerIdx Type) [InternerIdx Type]
@@ -44,14 +42,12 @@ new_type_interner = new_interner_with
     , IntType Map.empty 16 Signed
     , IntType Map.empty 32 Signed
     , IntType Map.empty 64 Signed
-    , GenericFloatType
-    , GenericIntType
     , CharType Map.empty
     , BoolType Map.empty
     , UnitType Map.empty
     ]
 
-resolve_float32, resolve_float64, resolve_uint8, resolve_uint16, resolve_uint32, resolve_uint64, resolve_sint8, resolve_sint16, resolve_sint32, resolve_sint64, resolve_generic_float, resolve_generic_int, resolve_char, resolve_bool, resolve_unit :: IRCtx -> InternerIdx Type
+resolve_float32, resolve_float64, resolve_uint8, resolve_uint16, resolve_uint32, resolve_uint64, resolve_sint8, resolve_sint16, resolve_sint32, resolve_sint64, resolve_char, resolve_bool, resolve_unit :: IRCtx -> InternerIdx Type
 resolve_float32 = fst . get_ty_irctx (FloatType Map.empty 32)
 resolve_float64 = fst . get_ty_irctx (FloatType Map.empty 64)
 resolve_uint8 = fst . get_ty_irctx (IntType Map.empty  8 Unsigned)
@@ -62,8 +58,6 @@ resolve_sint8 = fst . get_ty_irctx (IntType Map.empty  8 Signed)
 resolve_sint16 = fst . get_ty_irctx (IntType Map.empty 16 Signed)
 resolve_sint32 = fst . get_ty_irctx (IntType Map.empty 32 Signed)
 resolve_sint64 = fst . get_ty_irctx (IntType Map.empty 64 Signed)
-resolve_generic_float = fst . get_ty_irctx GenericFloatType
-resolve_generic_int = fst . get_ty_irctx GenericIntType
 resolve_char = fst . get_ty_irctx (CharType Map.empty)
 resolve_bool = fst . get_ty_irctx (BoolType Map.empty)
 resolve_unit = fst . get_ty_irctx (UnitType Map.empty)
@@ -96,8 +90,6 @@ ty_eq (FunctionPointerType _ ret_a params_a) (FunctionPointerType _ ret_b params
 ty_eq (CharType _) (CharType _) = True
 ty_eq (BoolType _) (BoolType _) = True
 ty_eq (UnitType _) (UnitType _) = True
-ty_eq GenericIntType GenericIntType = True
-ty_eq GenericFloatType GenericFloatType = True
 
 ty_eq _ _ = False
 
@@ -117,8 +109,6 @@ stringify_ty _ (IntType _ size signedness) =
             Unsigned -> "u"
             Signed -> "s"
     in signedness_str ++ "int" ++ show size
-stringify_ty _ GenericIntType = "<int>"
-stringify_ty _ GenericFloatType = "<float>"
 stringify_ty _ (CharType _) = "char"
 stringify_ty _ (BoolType _) = "bool"
 stringify_ty irctx (FunctionPointerType _ ret_idx params) =
@@ -174,8 +164,6 @@ instance Describe Type where
                 Unsigned -> "unsigned"
                 Signed -> "signed"
         in "primitive " ++ show size ++ "-bit " ++ signedness_str ++ " integer type"
-    describe _ GenericFloatType = "generic float type"
-    describe _ GenericIntType = "generic integer type"
     describe _ (CharType _) = "primitive character type"
     describe _ (BoolType _) = "primitive bool type"
     describe _ (FunctionPointerType _ _ _) = "function pointer type" -- TODO: put argument types and return type here?
@@ -184,8 +172,6 @@ instance Describe Type where
 instance Parent Type DeclSymbol String where
     get_child_map (FloatType dsmap _, _) = dsmap
     get_child_map (IntType dsmap _ _, _) = dsmap
-    get_child_map (GenericFloatType, _) = Map.empty
-    get_child_map (GenericIntType, _) = Map.empty
     get_child_map (CharType dsmap, _) = dsmap
     get_child_map (BoolType dsmap, _) = dsmap
     get_child_map (FunctionPointerType dsmap _ _, _) = dsmap
