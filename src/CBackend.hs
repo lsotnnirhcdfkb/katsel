@@ -19,8 +19,17 @@ lower_mod_to_c irctx root =
         section action thing_type fun mangle_fun child_list =
             "// " ++ action ++ "s of " ++ thing_type ++ "s\n\n" ++
             concatMap (desc_wrapper action thing_type fun mangle_fun) child_list
+
+        include_section =
+            "// includes:\n" ++
+            concatMap (("#include "++) . (++"\n"))
+                [ "<stdint.h>"
+                ] ++
+                "\n"
+
     in concat
-        [ section "declaration" "declsymbol" decl_ds Mangle.mangle_dsid dses
+        [ include_section
+        , section "declaration" "declsymbol" decl_ds Mangle.mangle_dsid dses
         , section "definition" "declsymbol" def_ds Mangle.mangle_dsid dses
         , section "declaration" "value" decl_v Mangle.mangle_vid vals
         , section "definition" "value" def_v Mangle.mangle_vid vals
@@ -95,7 +104,7 @@ decl_tyidx :: LoweringFun (IR.DSIRId IR.DeclSymbol) (InternerIdx IR.Type)
 decl_tyidx irctx path mname = IR.apply_to_tyidx (decl_ty irctx path mname) irctx
 
 decl_ty :: LoweringFun (IR.DSIRId IR.DeclSymbol) IR.Type
-decl_ty _ _ _ (IR.UnitType _) = "// cannot declare unit type\n"
+decl_ty _ _ _ (IR.UnitType _) = print_not_necessary "declaration" "unit type"
 decl_ty irctx _ mname ty = "typedef " ++ str_cdecl (type_to_cdecl irctx ty (Just mname)) ++ ";\n"
 -- def_ds {{{1
 def_ds :: LoweringFun (IR.DSIRId IR.DeclSymbol) IR.DeclSymbol
