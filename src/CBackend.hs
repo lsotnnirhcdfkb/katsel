@@ -171,7 +171,7 @@ vdecl_irctx irctx =
         function_idxs = all_interner_idxs function_interner
         functions = all_interner_items function_interner
 
-    in "// declaration of functions:\n" ++ concat (zipWith (decl_fun irctx . Mangle.mangle_fun idx) function_idxs functions)
+    in "// declaration of functions:\n" ++ concat (zipWith (decl_fun irctx . Mangle.mangle_fun) function_idxs functions)
 -- def_v {{{1
 def_v :: LoweringFun IR.Value
 def_v irctx mname = IR.apply_to_v (def_fun_ptr irctx mname)
@@ -188,7 +188,7 @@ vdef_irctx irctx =
         function_idxs = all_interner_idxs function_interner
         functions = all_interner_items function_interner
 
-    in "// definition of functions:\n" ++ concat (zipWith (\ idx -> def_fun irctx . Mangle.mangle_fun idx) function_idxs functions)
+    in "// definition of functions:\n" ++ concat (zipWith (def_fun irctx . Mangle.mangle_fun) function_idxs functions)
 -- functions {{{1
 decl_fun :: LoweringFun IR.Function
 decl_fun irctx mname fun =
