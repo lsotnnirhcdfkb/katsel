@@ -135,15 +135,11 @@ replace x y (ch:more)
 dot_irctx :: IRCtx -> Node
 dot_irctx irctx =
     Cluster "irctx"
-        [ Cluster "type interner"
-            [ Cluster "types" $ map (dot_type irctx) types
-            , Cluster "indexes" $ map (nodify dot_tyidx irctx) type_indexes
-            ]
+        [ Cluster "type interner" $ map (nodify dot_type irctx) types
         ]
     where
         type_interner = get_type_interner irctx
         types = all_interner_items type_interner
-        type_indexes = all_interner_idxs type_interner
 -- declsymbols {{{1
 dot_ds :: IRCtx -> DeclSymbol -> Node
 dot_ds irctx = apply_to_ds (nodify dot_mod' irctx) (nodify dot_tyidx irctx)
@@ -160,11 +156,7 @@ dot_mod' :: IRCtx -> Module -> (String, [(FieldColor, String, Either String Node
 dot_mod' _ _ = ("mod", [])
 
 dot_tyidx :: IRCtx -> InternerIdx Type -> (String, [(FieldColor, String, Either String Node)])
-dot_tyidx irctx tyidx =
-    ("type index",
-        [ make_node_field "referee" $ apply_to_tyidx (dot_type irctx) irctx tyidx
-        ]
-    )
+dot_tyidx irctx = apply_to_tyidx (dot_type irctx) irctx
 -- values {{{1
 dot_v :: IRCtx -> Value -> Node
 dot_v irctx = apply_to_v (dot_fun_ptr irctx)
@@ -175,32 +167,32 @@ dot_fun_ptr _ _ = Node "function pointer" [] -- TODO
 dot_fun :: IRCtx -> Function -> Node
 dot_fun _ _ = Node "function" [] -- TODO
 -- types {{{1
-dot_type :: IRCtx -> Type -> Node
-dot_type _ (FloatType _ size) = Node "float type" [make_str_field "size" (show size)]
+dot_type :: IRCtx -> Type -> (String, [(FieldColor, String, Either String Node)])
+dot_type _ (FloatType _ size) = ("float type", [make_str_field "size" (show size)])
 dot_type _ (IntType _ size signedness) =
-    Node "int type"
+    ("int type",
         [ make_str_field "size" (show size)
         , make_str_field "signedness" $
               case signedness of
                   Unsigned -> "unsigned"
                   Signed -> "signed"
-        ]
-dot_type _ GenericFloatType = Node "generic float type" []
-dot_type _ GenericIntType = Node "generic int type" []
-dot_type _ (CharType _) = Node "char type" []
-dot_type _ (BoolType _) = Node "bool type" []
+        ])
+dot_type _ GenericFloatType = ("generic float type", [])
+dot_type _ GenericIntType = ("generic int type", [])
+dot_type _ (CharType _) = ("char type", [])
+dot_type _ (BoolType _) = ("bool type", [])
 dot_type irctx (FunctionPointerType _ ret _) =
-    Node "function pointer type"
+    ("function pointer type",
         [ make_node_field "return type" (nodify dot_tyidx irctx ret)
         , make_str_field "parameter types" "<todo>" -- TODO
-        ]
-dot_type _ (UnitType _) = Node "unit type" []
+        ])
+dot_type _ (UnitType _) = ("unit type", [])
 dot_type irctx (PointerType _ muty pointee) =
-    Node "pointer type"
+    ("pointer type",
         [ make_str_field "mutability" $
               case muty of
                   Mutable -> "mutable"
                   Immutable -> "immutable"
         , make_node_field "pointee" (nodify dot_tyidx irctx pointee)
-        ]
+        ])
 -- functions {{{1
