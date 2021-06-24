@@ -92,11 +92,11 @@ newtype InstructionIdx = InstructionIdx Int deriving Eq
 newtype RegisterIdx = RegisterIdx Int deriving Eq
 
 data BasicBlock = BasicBlock String [InstructionIdx] (Maybe Br) deriving Eq
-data Register = Register (InternerIdx Type) Mutability Span deriving Eq
+data Register = Register (InternerIdx Type) {- Mutability -} Span deriving Eq
 data Instruction
     = Copy LValue FValue
     | Call FValue [FValue]
-    | Addrof LValue Mutability (InternerIdx Type)
+    | Addrof LValue {- Mutability -} (InternerIdx Type)
     | DerefPtr FValue
     deriving Eq
 
@@ -122,18 +122,13 @@ data Br
     deriving Eq
 
 instance DeclSpan Register where
-    decl_span _ (Register _ _ sp) = Just sp
+    decl_span _ (Register _ sp) = Just sp
 instance Describe Register where
-    describe irctx (Register ty_idx muty _) =
-        let muty_str = case muty of
-                Immutable -> "immutable"
-                Mutable -> "mutable"
-
-            ty_str = stringify_tyidx irctx ty_idx
-
-        in muty_str ++ " register of type '" ++ ty_str ++ "'"
+    describe irctx (Register ty_idx {- muty -} _) =
+        let ty_str = stringify_tyidx irctx ty_idx
+        in "register of type '" ++ ty_str ++ "'"
 instance Typed Register where
-    type_of _ (Register ty _ _) = ty
+    type_of _ (Register ty _) = ty
 
 instance DeclSpan Function where
     decl_span _ f = Just $ get_span f
@@ -158,28 +153,28 @@ instance Typed (Module, Function, FValue) where
 
 instance Typed Instruction where
     type_of irctx (Copy _ _) = resolve_unit irctx
-    type_of _ (Addrof _ _ ty) = ty
+    type_of _ (Addrof _ ty) = ty
 
-new_function :: InternerIdx Type -> [(Mutability, InternerIdx Type, Span)] -> Span -> Function
+new_function :: InternerIdx Type -> [(InternerIdx Type, Span)] -> Span -> Function
 new_function ret_type param_tys sp =
-    let param_regs = map (\ (muty, tyidx, param_sp) -> Register tyidx muty param_sp) param_tys
+    let param_regs = map (\ (tyidx, param_sp) -> Register tyidx param_sp) param_tys
         param_reg_idxs = map RegisterIdx $ take (length param_tys) [1..]
 
-        registers = Register ret_type Mutable sp : param_regs
+        registers = Register ret_type sp : param_regs
 
         blocks =
             [ BasicBlock "entry" [] Nothing
             , BasicBlock "exit" [] (Just BrRet)
             ]
 
-        param_tys' = map (\ (_, a, _) -> a) param_tys
+        param_tys' = map fst param_tys
 
     in Function blocks (BlockIdx 0) (BlockIdx 1) registers (RegisterIdx 0) param_reg_idxs ret_type param_tys' [] sp
 
-add_register :: InternerIdx Type -> Mutability -> Span -> Function -> (RegisterIdx, Function)
-add_register tyidx muty sp fun = (reg_idx, fun')
+add_register :: InternerIdx Type -> Span -> Function -> (RegisterIdx, Function)
+add_register tyidx sp fun = (reg_idx, fun')
     where
-        reg = Register tyidx muty sp
+        reg = Register tyidx sp
 
         registers = get_registers fun
         fun' = fun
@@ -234,11 +229,11 @@ make_copy irctx fun root (Located lvsp lv) lv_name (Located fvsp fv) fv_name =
        )
 make_call :: IRCtx -> Function -> Module -> FValue -> [FValue] -> (Either TypeError Instruction, IRCtx)
 make_call = error "not implemented yet"
-make_addrof :: IRCtx -> Function -> Module -> LValue -> Mutability -> (Either TypeError Instruction, IRCtx)
-make_addrof irctx fun _ lv muty =
+make_addrof :: IRCtx -> Function -> Module -> LValue -> (Either TypeError Instruction, IRCtx)
+make_addrof irctx fun _ lv =
     let lvty = type_of irctx (fun, lv)
-        (ty, irctx') = get_ty_irctx (PointerType Map.empty muty lvty) irctx
-    in (Right $ Addrof lv muty ty, irctx')
+        (ty, irctx') = get_ty_irctx (PointerType Map.empty lvty) irctx
+    in (Right $ Addrof lv ty, irctx')
 make_derefptr :: IRCtx -> Function -> Module -> FValue -> (Either TypeError Instruction, IRCtx)
 make_derefptr = error "not implemented yet"
 -- branches {{{2
@@ -386,12 +381,8 @@ print_fun irctx fun@(Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_re
 
         shown_registers = concatMap show_reg $ zip ([0..] :: [Int]) regs
             where
-                show_reg (reg_idx, Register reg_ty muty _) = "    " ++ muty_str ++ "#" ++ show reg_idx ++ ": " ++ stringify_tyidx irctx reg_ty ++ ";" ++ make_comment tags ++ "\n"
+                show_reg (reg_idx, Register reg_ty _) = "    " ++ "#" ++ show reg_idx ++ ": " ++ stringify_tyidx irctx reg_ty ++ ";" ++ make_comment tags ++ "\n"
                     where
-                        muty_str = case muty of
-                            Mutable -> "mut "
-                            Immutable -> ""
-
                         tags = (
                                 if ret_reg_idx == reg_idx
                                     then ["return value register"]
@@ -445,7 +436,7 @@ print_fun irctx fun@(Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_re
 
                 show_instruction (Copy lv fv) = "copy " ++ show_fv fv ++ " -> " ++ show_lv lv
                 show_instruction (Call fv args) = "call " ++ show_fv fv ++ " [" ++ intercalate ", " (map show_fv args) ++ "]"
-                show_instruction (Addrof lv muty _) = "addrof " ++ case muty of { Mutable -> "mut "; Immutable -> ""} ++ show_lv lv
+                show_instruction (Addrof lv _) = "addrof " ++ show_lv lv
                 show_instruction (DerefPtr fv) = "derefptr " ++ show_fv fv
 
                 show_br BrRet = "ret"

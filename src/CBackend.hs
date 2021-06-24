@@ -86,7 +86,7 @@ type_to_cdecl irctx ty name = CDecl basic_type declarator
             let parent' = FunctionDeclarator (PointerDeclarator parent) (map (IR.apply_to_tyidx (\ pty -> type_to_cdecl irctx pty Nothing) irctx) params)
             in convert' parent' ret
 
-        convert parent (IR.PointerType _ _ pointee) =
+        convert parent (IR.PointerType _ pointee) =
             let parent' = PointerDeclarator parent
             in convert' parent' pointee
 -- decl_ds {{{1
@@ -117,7 +117,7 @@ def_ty _ _ _ (IR.CharType _) = print_not_necessary "definition" "char type"
 def_ty _ _ _ (IR.BoolType _) = print_not_necessary "definition" "bool type"
 def_ty _ _ _ (IR.FunctionPointerType _ _ _) = print_not_necessary "definition" "function type"
 def_ty _ _ _ (IR.UnitType _) = print_not_necessary "definition" "unit type"
-def_ty _ _ _ (IR.PointerType _ _ _) = print_not_necessary "definition" "pointer type"
+def_ty _ _ _ (IR.PointerType _ _) = print_not_necessary "definition" "pointer type"
 -- decl_v {{{1
 decl_v :: LoweringFun (IR.VIRId IR.Value) IR.Value
 decl_v irctx path mname = IR.apply_to_v (decl_fun_ptr irctx path mname)

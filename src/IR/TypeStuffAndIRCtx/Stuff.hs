@@ -18,7 +18,7 @@ import qualified Data.Map as Map
 
 data IRCtx = IRCtx { get_type_interner :: Interner Type, get_function_interner :: Interner Function }
 data Signedness = Signed | Unsigned deriving Eq
-data Mutability = Mutable | Immutable deriving Eq
+-- data Mutability = Mutable | Immutable deriving Eq -- TODO: mutability
 data Type
     = FloatType DSMap Int
     | IntType DSMap Int Signedness
@@ -28,7 +28,7 @@ data Type
     | BoolType DSMap
     | FunctionPointerType DSMap (InternerIdx Type) [InternerIdx Type]
     | UnitType DSMap
-    | PointerType DSMap Mutability (InternerIdx Type)
+    | PointerType DSMap {- Mutability -} (InternerIdx Type)
 
 new_irctx :: IRCtx
 new_irctx = IRCtx new_type_interner new_interner
@@ -94,8 +94,8 @@ ty_eq (IntType _ size_a sign_a) (IntType _ size_b sign_b)
 ty_eq (FunctionPointerType _ ret_a params_a) (FunctionPointerType _ ret_b params_b)
     | ret_a == ret_b && params_a == params_b = True
 
-ty_eq (PointerType _ muty_a pointee_a) (PointerType _ muty_b pointee_b)
-    | muty_a == muty_b && pointee_a == pointee_b = True
+ty_eq (PointerType _ pointee_a) (PointerType _ pointee_b)
+    | pointee_a == pointee_b = True
 
 ty_eq (CharType _) (CharType _) = True
 ty_eq (BoolType _) (BoolType _) = True
@@ -130,11 +130,7 @@ stringify_ty irctx (FunctionPointerType _ ret_idx params) =
         param_strs = map (stringify_tyidx irctx) params
     in "fun(" ++ intercalate ", " param_strs ++ "): " ++ ret_str
 stringify_ty _ (UnitType _) = "unit"
-stringify_ty irctx (PointerType _ muty pointee) =
-    let muty_str = case muty of
-            Mutable -> "mut "
-            Immutable -> ""
-    in "*" ++ muty_str ++ stringify_tyidx irctx pointee
+stringify_ty irctx (PointerType _ pointee) = "*" ++ stringify_tyidx irctx pointee
 
 stringify_tyidx :: IRCtx -> InternerIdx Type -> String
 stringify_tyidx irctx idx = stringify_ty irctx $ resolve_tyidx_irctx irctx idx
@@ -189,7 +185,7 @@ instance Describe Type where
     describe _ (BoolType _) = "primitive bool type"
     describe _ (FunctionPointerType _ _ _) = "function pointer type" -- TODO: put argument types and return type here?
     describe _ (UnitType _) = "primitive unit type"
-    describe _ (PointerType _ _ _) = "pointer type" -- TODO: put pointee type here?
+    describe _ (PointerType _ _) = "pointer type" -- TODO: put pointee type here?
 
 instance Parent Type DeclSymbol String where
     get_child_map (FloatType dsmap _, _) = dsmap
@@ -200,7 +196,7 @@ instance Parent Type DeclSymbol String where
     get_child_map (BoolType dsmap, _) = dsmap
     get_child_map (FunctionPointerType dsmap _ _, _) = dsmap
     get_child_map (UnitType dsmap, _) = dsmap
-    get_child_map (PointerType dsmap _ _, _) = dsmap
+    get_child_map (PointerType dsmap _, _) = dsmap
 
 instance Parent Type Value String where
     get_child_map _ = Map.empty

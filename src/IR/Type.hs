@@ -1,6 +1,5 @@
 module IR.Type
-    ( Mutability(..)
-    , Signedness(..)
+    ( Signedness(..)
     , Type(..)
     , stringify_ty
     , stringify_tyidx

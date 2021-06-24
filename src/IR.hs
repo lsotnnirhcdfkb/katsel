@@ -20,7 +20,6 @@ module IR
     , Module
     , Type(..)
 
-    , Mutability(..)
     , Signedness(..)
 
     , all_entities_in_mod
@@ -186,10 +185,6 @@ lower_all_in_list things fun root start irb = foldl' (flip (.)) id funs (start, 
 lower_all_in_list_s :: Lowerable l p => [l] -> (l -> Module -> p -> IRBuilder -> (p, IRBuilder)) -> Module -> p -> State.State IRBuilder p
 lower_all_in_list_s things fun root start = State.state $ lower_all_in_list things fun root start
 
-ast_muty_to_ir_muty :: AST.Mutability -> Mutability
-ast_muty_to_ir_muty AST.Immutable = Immutable
-ast_muty_to_ir_muty AST.Mutable = Mutable
-
 (>>=?) :: Monad m => m (Maybe a) -> m b -> (a -> m b) -> m b
 (>>=?) m f c = m >>= maybe f c
 infixl 1 >>=?
@@ -262,9 +257,9 @@ resolve_ty_s (Located path_sp (AST.DType'Path path)) root =
             add_error_s (NotAType path_sp ds) >>
             return Nothing
 
-resolve_ty_s (Located _ (AST.DType'Pointer muty pointee)) root =
+resolve_ty_s (Located _ (AST.DType'Pointer pointee)) root =
     resolve_ty_s pointee root >>=? return Nothing $ \ pointee_idx ->
-    let pointer_ty = PointerType Map.empty (ast_muty_to_ir_muty muty) pointee_idx
+    let pointer_ty = PointerType Map.empty pointee_idx
     in Just <$> get_ty_s pointer_ty
 
 {-
@@ -309,10 +304,10 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
             Just retty -> resolve_ty_s retty root
             Nothing -> Just <$> get_ty_s (UnitType Map.empty)
          >>=? return parent $ \ retty' ->
-        let make_param :: AST.LDParam -> State.State IRBuilder (Maybe (Mutability, InternerIdx Type, Span))
-            make_param (Located sp (AST.DParam'Normal mutability ty_ast _)) =
+        let make_param :: AST.LDParam -> State.State IRBuilder (Maybe (InternerIdx Type, Span))
+            make_param (Located sp (AST.DParam'Normal ty_ast _)) =
                 resolve_ty_s ty_ast root >>=? return Nothing $ \ ty ->
-                return $ Just (ast_muty_to_ir_muty mutability, ty, sp)
+                return $ Just (ty, sp)
         in sequence <$> mapM make_param params >>=? return parent $ \ param_tys ->
         let fun = new_function retty' param_tys fun_sp
         in apply_irctx_to_irbuilder_s (add_function fun) >>= \ fun_idx ->
@@ -392,8 +387,8 @@ make_copy_s root lv lvn fv fvn = make_instr_s make_copy (\ a -> a lv lvn fv fvn)
 make_call_s :: Module -> FValue -> [FValue] -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
 make_call_s root fv args = make_instr_s make_call (\ a -> a fv args) root
 
-make_addrof_s :: Module -> LValue -> Mutability -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
-make_addrof_s root lv muty = make_instr_s make_addrof (\ a -> a lv muty) root
+make_addrof_s :: Module -> LValue -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
+make_addrof_s root lv = make_instr_s make_addrof (\ a -> a lv) root
 
 make_derefptr_s :: Module -> FValue -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
 make_derefptr_s root fv = make_instr_s make_derefptr ($fv) root
@@ -408,7 +403,7 @@ lower_fun_body (AST.SFunDecl' _ _ params body) root fptr parent =
         fun_idx = get_function_idx fptr
         function_valid = if function_not_defined fun then Just () else Nothing
     in return function_valid >>=? return parent $ \ _ ->
-    let param_to_local (Located _ (AST.DParam'Normal _ _ (Located _ param_name)), reg_idx) function_cg =
+    let param_to_local (Located _ (AST.DParam'Normal _ (Located _ param_name)), reg_idx) function_cg =
             let m_function_cg' = add_local param_name (LVRegister reg_idx) function_cg
             in case m_function_cg' of
                 Right function_cg' -> return function_cg'
@@ -462,7 +457,7 @@ lower_expr (Located sp (AST.DExpr'If cond trueb@(Located truebsp _) m_falseb)) r
 
     State.get >>= \ (irb, _, fun) ->
     let irctx = get_irctx irb
-    in apply_fun_to_funcgtup_s (State.state $ add_register (type_of irctx (root, fun, unlocate trueb_val)) Immutable sp) >>= \ ret_reg ->
+    in apply_fun_to_funcgtup_s (State.state $ add_register (type_of irctx (root, fun, unlocate trueb_val)) sp) >>= \ ret_reg ->
 
     add_basic_block_s "if_after" >>= \ end_block ->
 
@@ -549,15 +544,12 @@ lower_expr (Located sp (AST.DExpr'Unary _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "unary expressions" sp) >> -- TODO
     return Nothing
 
-lower_expr (Located sp (AST.DExpr'Ref muty expr)) root =
+lower_expr (Located sp (AST.DExpr'Ref expr)) root =
     lower_expr expr root >>=? return Nothing $ \ (expr_ir, expr_val) ->
 
     case expr_val of
         Located _ (FVLValue expr_lv) ->
-            let muty' = ast_muty_to_ir_muty muty
-            in
-
-            make_addrof_s root expr_lv muty' >>=<> ((>>return Nothing) . report_type_error) $ \ ref_instr ->
+            make_addrof_s root expr_lv >>=<> ((>>return Nothing) . report_type_error) $ \ ref_instr ->
 
             add_basic_block_s "ref_block" >>= \ ref_block ->
             add_instruction_s ref_instr ref_block >>= \ instr_idx ->
@@ -702,9 +694,9 @@ lower_block_expr (Located blocksp (AST.SBlockExpr' stmts)) root =
 lower_stmt :: AST.LDStmt -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe BlockGroup)
 lower_stmt (Located _ (AST.DStmt'Expr ex)) root = (fst <$>) <$> lower_expr ex root
 
-lower_stmt (Located _ (AST.DStmt'Var ty muty (Located name_sp name) m_init)) root =
+lower_stmt (Located _ (AST.DStmt'Var ty (Located name_sp name) m_init)) root =
     apply_irb_to_funcgtup_s (resolve_ty_s ty root) >>=? return Nothing $ \ var_ty_idx ->
-    apply_fun_to_funcgtup_s (State.state $ add_register var_ty_idx (ast_muty_to_ir_muty muty) name_sp) >>= \ reg_idx ->
+    apply_fun_to_funcgtup_s (State.state $ add_register var_ty_idx name_sp) >>= \ reg_idx ->
     apply_fcg_to_funcgtup_s (add_local_s name (LVRegister reg_idx)) >>= \ m_old ->
     (case m_old of
         Left old ->

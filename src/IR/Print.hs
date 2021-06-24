@@ -76,11 +76,7 @@ print_ty _ (CharType _) = "primitive char type"
 print_ty _ (BoolType _) = "primitive bool type"
 print_ty irctx (FunctionPointerType _ ret_ty params) = "function pointer type fun(" ++ intercalate ", " (map (stringify_tyidx irctx) params) ++ "): " ++ stringify_tyidx irctx ret_ty
 print_ty _ (UnitType _) = "primitive unit type"
-print_ty irctx (PointerType _ muty ty) = "pointer type *" ++ muty_str ++ stringify_tyidx irctx ty
-    where
-        muty_str = case muty of
-            Mutable -> "mut "
-            Immutable -> ""
+print_ty irctx (PointerType _ ty) = "pointer type *" ++ stringify_tyidx irctx ty
 -- functions {{{1
 -- helpers {{{1
 indent :: Int -> String -> String

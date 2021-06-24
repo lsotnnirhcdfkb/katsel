@@ -102,15 +102,6 @@ putnl = state $ \ segments -> ((), segments ++ [Newline])
 maybe_do :: (a -> State [PPrintSegment] ()) -> Maybe a -> State [PPrintSegment] ()
 maybe_do = maybe (return ())
 
-act_on_mutability :: State [PPrintSegment] () -> State [PPrintSegment] () -> AST.Mutability -> State [PPrintSegment] ()
-act_on_mutability if_mut if_immut mutability =
-    case mutability of
-        AST.Mutable -> if_mut
-        AST.Immutable -> if_immut
-
-if_mutable_put :: String -> AST.Mutability -> State [PPrintSegment] ()
-if_mutable_put str = act_on_mutability (put str) (return ())
-
 pprint_list :: (a -> State [PPrintSegment] ()) -> [a] -> State [PPrintSegment] ()
 pprint_list pprintfun things = foldl' (>>) (return ()) $ map pprintfun things
 
@@ -136,8 +127,8 @@ pprint_impl_entity_s (AST.DImplEntity'Fun sf) = pprint_fun_decl_s $ unlocate sf
 -- AST.DStmt {{{1
 pprint_stmt_s :: AST.DStmt -> State [PPrintSegment] ()
 
-pprint_stmt_s (AST.DStmt'Var ty mutability name maybeinitializer) =
-    put "var " >> if_mutable_put "mut " mutability >> put (unlocate name) >>
+pprint_stmt_s (AST.DStmt'Var ty name maybeinitializer) =
+    put "var " >> put (unlocate name) >>
     pprint_type_annotation_s (unlocate ty) >>
     (case maybeinitializer of
         Just init_expr -> put " = " >> pprint_expr_s (unlocate init_expr)
@@ -160,7 +151,7 @@ expr_requires_prec (AST.DExpr'ShortCircuit _ op _) = AST.prec_of_short_op $ unlo
 expr_requires_prec (AST.DExpr'Binary _ op _) = AST.prec_of_bin_op $ unlocate op
 expr_requires_prec (AST.DExpr'Cast _ _) = AST.PrecCast
 expr_requires_prec (AST.DExpr'Unary _ _) = AST.PrecUnary
-expr_requires_prec (AST.DExpr'Ref _ _) = AST.PrecUnary
+expr_requires_prec (AST.DExpr'Ref _) = AST.PrecUnary
 expr_requires_prec (AST.DExpr'Deref _) = AST.PrecUnary
 expr_requires_prec (AST.DExpr'Call _ _) = AST.PrecCall
 -- expr_requires_prec (AST.DExpr'Field _ _) = AST.PrecCall
@@ -261,7 +252,7 @@ pprint_expr_s' (AST.DExpr'Unary op expr) =
             AST.UnTilde -> "~"
             AST.UnMinus -> "-"
     in put opstr >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
-pprint_expr_s' (AST.DExpr'Ref mutability expr) = put "&" >> if_mutable_put "mut " mutability >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
+pprint_expr_s' (AST.DExpr'Ref expr) = put "&" >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
 pprint_expr_s' (AST.DExpr'Deref expr) = put "*" >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
 
 pprint_expr_s' (AST.DExpr'Call expr args) =
@@ -316,16 +307,14 @@ pprint_param_s (AST.DParam'Normal AST.Immutable (
     ) (Located _ "this")) = put "*mut this"
 pprint_param_s (AST.DParam'Normal _ _ (Located _ "this")) = error "pretty print malformed 'this' parameter"
 -}
-pprint_param_s (AST.DParam'Normal mutability lty lname) =
-    if_mutable_put "mut " mutability >>
+pprint_param_s (AST.DParam'Normal lty lname) =
     put (unlocate lname) >>
     pprint_type_annotation_s (unlocate lty)
 -- AST.DType {{{1
 pprint_type_s :: AST.DType -> State [PPrintSegment] ()
 pprint_type_s (AST.DType'Path path) = pprint_path_s $ unlocate path
-pprint_type_s (AST.DType'Pointer mutability lty) =
+pprint_type_s (AST.DType'Pointer lty) =
     put "*" >>
-    if_mutable_put "mut " mutability >>
     pprint_type_s (unlocate lty)
 -- pprint_type_s (AST.DType'This) = put "this"
 -- AST.DPath {{{1

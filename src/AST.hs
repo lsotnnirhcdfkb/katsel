@@ -6,7 +6,6 @@ module AST
     , prec_of_short_op
 
     -- datatypes
-    , Mutability(..)
     , ExprPrec(..)
     , BinOp(..)
     , ShortOp(..)
@@ -88,8 +87,6 @@ import Control.Monad.State.Lazy(State, state, runState)
 
 type LocStr = Located String
 
-data Mutability = Mutable | Immutable
-
 data ExprPrec
     = PrecAssign | PrecBinOr | PrecBinAnd
     | PrecCompEQ | PrecCompLGT | PrecBitXor | PrecBitOr
@@ -156,7 +153,7 @@ data DImplEntity
 
 type LDStmt = Located DStmt
 data DStmt
-    = DStmt'Var LDType Mutability LocStr (Maybe LDExpr)
+    = DStmt'Var LDType LocStr (Maybe LDExpr)
     | DStmt'Expr LDExpr
 
 type LDExpr = Located DExpr
@@ -170,7 +167,7 @@ data DExpr
     | DExpr'Cast LDType LDExpr
     | DExpr'Unary LUnaryOp LDExpr
     | DExpr'Deref LDExpr
-    | DExpr'Ref Mutability LDExpr
+    | DExpr'Ref LDExpr
     | DExpr'Call LDExpr [LDExpr]
 {-
     | DExpr'Field LDExpr LocStr
@@ -187,12 +184,12 @@ data DExpr
 
 type LDParam = Located DParam
 data DParam
-    = DParam'Normal Mutability LDType LocStr
+    = DParam'Normal LDType LocStr
 
 type LDType = Located DType
 data DType
     = DType'Path LDPath
-    | DType'Pointer Mutability LDType
+    | DType'Pointer LDType
     {- | DType'This -}
 
 type LDPath = Located DPath
@@ -489,11 +486,6 @@ must_not_match ex onerr =
             return (Just ())
 -}
 -- grammar {{{1
--- grammar helpers {{{
-maybe_to_mutability :: Maybe a -> AST.Mutability
-maybe_to_mutability (Just _) = AST.Mutable
-maybe_to_mutability Nothing = AST.Immutable
--- }}}
 -- span helpers {{{
 span_from_list :: Span -> [Located a] -> Span
 span_from_list fallback [] = fallback
@@ -521,7 +513,7 @@ param_list =
     mapM (
         \ (p@(Located param_sp param), idx) ->
         case param of
-            DParam'Normal _ _ (Located _ "this")
+            DParam'Normal _ (Located _ "this")
                 | idx /= 0 ->
                     new_uncond_err_s (ThisParamMustBeFirst param_sp) >>
                     return Nothing
@@ -611,9 +603,9 @@ parse_type = choice [pointer_type, {- this_type, -} path_type]
 
 pointer_type =
     consume_tok_s Tokens.Star (XIsMissingYFound "pointer type" "introductory '*'") `seqparser` \ starsp ->
-    consume_tok_u Tokens.Mut (XIsMissingYAfterZFound "mutable pointer type" "'mut'" "'*'") >>= \ mmut ->
+    -- consume_tok_u Tokens.Mut (XIsMissingYAfterZFound "mutable pointer type" "'mut'" "'*'") >>= \ mmut ->
     parse_type `seqparser` \ pointee_ty@(Located pointeesp _) ->
-    return $ Just $ Located (join_span starsp pointeesp) $ AST.DType'Pointer (maybe_to_mutability mmut) pointee_ty
+    return $ Just $ Located (join_span starsp pointeesp) $ AST.DType'Pointer {- (maybe_to_mutability mmut) -} pointee_ty
 
 {-
 this_type =
@@ -638,12 +630,10 @@ parse_param, normal_param {-, this_param -} :: ParseFunM AST.LDParam
 parse_param = choice [normal_param {-, this_param -}]
 
 normal_param =
-    consume_tok_s Tokens.Mut (XIsMissingYFound "mutable parameter" "'mut'") >>= \ mmut ->
+    -- consume_tok_s Tokens.Mut (XIsMissingYFound "mutable parameter" "'mut'") >>= \ mmut ->
     consume_iden (XIsMissingYFound "parameter" "parameter name") `seqparser` \ name@(Located namesp _) ->
     type_annotation `seqparser` \ ty@(Located tysp _) ->
-    let startsp = fromMaybe namesp mmut
-        endsp = tysp
-    in return $ Just $ Located (join_span startsp endsp) $ AST.DParam'Normal (maybe_to_mutability mmut) ty name
+    return $ Just $ Located (namesp `join_span` tysp) $ AST.DParam'Normal {- (maybe_to_mutability mmut) -} ty name
 
 {-
 this_param =
@@ -812,9 +802,9 @@ unary_expr =
     where
         amper_expr =
             consume_tok_s Tokens.Amper (XIsMissingYFound "reference expression" "operator '&'") `seqparser` \ ampersp ->
-            consume_tok_u Tokens.Mut (XIsMissingYFound "mutable reference expression" "'mut'") >>= \ mmut ->
+            -- consume_tok_u Tokens.Mut (XIsMissingYFound "mutable reference expression" "'mut'") >>= \ mmut ->
             unary_expr `seqparser` \ operand@(Located operandsp _) ->
-            return $ Just $ Located (ampersp `join_span` operandsp) $ AST.DExpr'Ref (maybe_to_mutability mmut) operand
+            return $ Just $ Located (ampersp `join_span` operandsp) $ AST.DExpr'Ref {- (maybe_to_mutability mmut) -} operand
 
         deref_expr =
             consume_tok_s Tokens.Star (XIsMissingYFound "dereference expression" "operator '*'") `seqparser` \ starsp ->
@@ -952,12 +942,12 @@ parse_stmt = choice [expr_stmt, var_stmt]
 
 var_stmt =
     consume_tok_s Tokens.Let (XIsMissingYFound "variable statement" "introductory 'let'") `seqparser` \ varsp ->
-    consume_tok_u Tokens.Mut (XIsMissingYAfterZFound "variable statement" "'mut'" "'let'") >>= \ mmut ->
+    -- consume_tok_u Tokens.Mut (XIsMissingYAfterZFound "variable statement" "'mut'" "'let'") >>= \ mmut ->
     consume_iden (XIsMissingYFound "variable statement" "variable name") `seqparser` \ name ->
     type_annotation `seqparser` \ ty ->
     (consume_tok_s Tokens.Equal (XIsMissingYAfterZFound "variable initialization" "'='" "variable name") `seqparser` \ _ -> parse_expr) >>= \ initializer ->
     lnend "variable statement" `seqparser` \ endlsp ->
-    return $ Just $ Located (varsp `join_span` endlsp) $ AST.DStmt'Var ty (maybe_to_mutability mmut) name initializer
+    return $ Just $ Located (varsp `join_span` endlsp) $ AST.DStmt'Var ty {- (maybe_to_mutability mmut) -} name initializer
 
 expr_stmt =
     parse_expr `seqparser` \ expr@(Located exprsp not_located_expr) ->
