@@ -151,7 +151,7 @@ instance Typed Instruction where
 
 new_function :: InternerIdx Type -> [(InternerIdx Type, Span)] -> Span -> Function
 new_function ret_type param_tys sp =
-    let param_regs = map (\ (tyidx, param_sp) -> Register tyidx param_sp) param_tys
+    let param_regs = map (uncurry Register) param_tys
         param_reg_idxs = map RegisterIdx $ take (length param_tys) [1..]
 
         registers = Register ret_type sp : param_regs

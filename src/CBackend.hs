@@ -96,7 +96,7 @@ type_to_cdecl irctx ty name = CDecl basic_type declarator
         (basic_type, declarator) = add_to_declarator False irctx name_declarator ty
 
 add_to_declarator' :: Bool -> IR.IRCtx -> CDeclarator -> InternerIdx IR.Type -> (String, CDeclarator)
-add_to_declarator' uav irctx parent idx = IR.apply_to_tyidx (add_to_declarator uav irctx parent) irctx idx
+add_to_declarator' uav irctx parent = IR.apply_to_tyidx (add_to_declarator uav irctx parent) irctx
 
 add_to_declarator :: Bool -> IR.IRCtx -> CDeclarator -> IR.Type -> (String, CDeclarator)
 -- the given declarator is a value that is the same time as the type passed in
@@ -171,7 +171,7 @@ vdecl_irctx irctx =
         function_idxs = all_interner_idxs function_interner
         functions = all_interner_items function_interner
 
-    in "// declaration of functions:\n" ++ concat (zipWith (\ idx -> decl_fun irctx (Mangle.mangle_fun idx)) function_idxs functions)
+    in "// declaration of functions:\n" ++ concat (zipWith (decl_fun irctx . Mangle.mangle_fun idx) function_idxs functions)
 -- def_v {{{1
 def_v :: LoweringFun IR.Value
 def_v irctx mname = IR.apply_to_v (def_fun_ptr irctx mname)
@@ -188,7 +188,7 @@ vdef_irctx irctx =
         function_idxs = all_interner_idxs function_interner
         functions = all_interner_items function_interner
 
-    in "// definition of functions:\n" ++ concat (zipWith (\ idx -> def_fun irctx (Mangle.mangle_fun idx)) function_idxs functions)
+    in "// definition of functions:\n" ++ concat (zipWith (\ idx -> def_fun irctx . Mangle.mangle_fun idx) function_idxs functions)
 -- functions {{{1
 decl_fun :: LoweringFun IR.Function
 decl_fun irctx mname fun =
