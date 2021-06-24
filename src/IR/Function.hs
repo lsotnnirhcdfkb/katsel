@@ -16,8 +16,6 @@ module IR.Function
     , TypeError
     , make_copy
     , make_call
-    , make_addrof
-    , make_derefptr
     , make_br_ret
     , make_br_goto
     , make_br_cond
@@ -65,7 +63,6 @@ import Interner
 import qualified Message
 import qualified Message.Underlines as MsgUnds
 
-import qualified Data.Map as Map(empty)
 import Data.List(intercalate, findIndex)
 import Data.Maybe(mapMaybe)
 
@@ -96,8 +93,6 @@ data Register = Register (InternerIdx Type) {- Mutability -} Span deriving Eq
 data Instruction
     = Copy LValue FValue
     | Call FValue [FValue]
-    | Addrof LValue {- Mutability -} (InternerIdx Type)
-    | DerefPtr FValue
     deriving Eq
 
 data LValue
@@ -153,7 +148,6 @@ instance Typed (Module, Function, FValue) where
 
 instance Typed Instruction where
     type_of irctx (Copy _ _) = resolve_unit irctx
-    type_of _ (Addrof _ ty) = ty
 
 new_function :: InternerIdx Type -> [(InternerIdx Type, Span)] -> Span -> Function
 new_function ret_type param_tys sp =
@@ -229,13 +223,6 @@ make_copy irctx fun root (Located lvsp lv) lv_name (Located fvsp fv) fv_name =
        )
 make_call :: IRCtx -> Function -> Module -> FValue -> [FValue] -> (Either TypeError Instruction, IRCtx)
 make_call = error "not implemented yet"
-make_addrof :: IRCtx -> Function -> Module -> LValue -> (Either TypeError Instruction, IRCtx)
-make_addrof irctx fun _ lv =
-    let lvty = type_of irctx (fun, lv)
-        (ty, irctx') = get_ty_irctx (PointerType Map.empty lvty) irctx
-    in (Right $ Addrof lv ty, irctx')
-make_derefptr :: IRCtx -> Function -> Module -> FValue -> (Either TypeError Instruction, IRCtx)
-make_derefptr = error "not implemented yet"
 -- branches {{{2
 make_br_ret :: Br
 make_br_ret = BrRet
@@ -436,8 +423,6 @@ print_fun irctx fun@(Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_re
 
                 show_instruction (Copy lv fv) = "copy " ++ show_fv fv ++ " -> " ++ show_lv lv
                 show_instruction (Call fv args) = "call " ++ show_fv fv ++ " [" ++ intercalate ", " (map show_fv args) ++ "]"
-                show_instruction (Addrof lv _) = "addrof " ++ show_lv lv
-                show_instruction (DerefPtr fv) = "derefptr " ++ show_fv fv
 
                 show_br BrRet = "ret"
                 show_br (BrGoto b) = "goto " ++ show_block_from_idx b

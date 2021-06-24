@@ -166,8 +166,8 @@ data DExpr
     | DExpr'Binary LDExpr LBinOp LDExpr
     | DExpr'Cast LDType LDExpr
     | DExpr'Unary LUnaryOp LDExpr
-    | DExpr'Deref LDExpr
-    | DExpr'Ref LDExpr
+    -- | DExpr'Deref LDExpr
+    -- | DExpr'Ref LDExpr
     | DExpr'Call LDExpr [LDExpr]
 {-
     | DExpr'Field LDExpr LocStr
@@ -189,7 +189,7 @@ data DParam
 type LDType = Located DType
 data DType
     = DType'Path LDPath
-    | DType'Pointer LDType
+    -- | DType'Pointer LDType
     {- | DType'This -}
 
 type LDPath = Located DPath
@@ -598,14 +598,16 @@ type_annotation =
     consume_tok_u Tokens.Colon (XIsMissingYFound "type annotation" "introductory ':'") `seqparser` \ _ ->
     parse_type
 
-parse_type, pointer_type, {- this_type, -} path_type :: ParseFunM AST.LDType
-parse_type = choice [pointer_type, {- this_type, -} path_type]
+parse_type, {- pointer_type, this_type, -} path_type :: ParseFunM AST.LDType
+parse_type = choice [{- pointer_type, this_type, -} path_type]
 
+{-
 pointer_type =
     consume_tok_s Tokens.Star (XIsMissingYFound "pointer type" "introductory '*'") `seqparser` \ starsp ->
     -- consume_tok_u Tokens.Mut (XIsMissingYAfterZFound "mutable pointer type" "'mut'" "'*'") >>= \ mmut ->
     parse_type `seqparser` \ pointee_ty@(Located pointeesp _) ->
     return $ Just $ Located (join_span starsp pointeesp) $ AST.DType'Pointer {- (maybe_to_mutability mmut) -} pointee_ty
+-}
 
 {-
 this_type =
@@ -798,8 +800,9 @@ cast_expr =
                 Nothing -> return $ Just lhs
 
 unary_expr =
-    choice [punop, deref_expr, amper_expr, call_expr]
+    choice [punop, call_expr]
     where
+        {-
         amper_expr =
             consume_tok_s Tokens.Amper (XIsMissingYFound "reference expression" "operator '&'") `seqparser` \ ampersp ->
             -- consume_tok_u Tokens.Mut (XIsMissingYFound "mutable reference expression" "'mut'") >>= \ mmut ->
@@ -810,6 +813,7 @@ unary_expr =
             consume_tok_s Tokens.Star (XIsMissingYFound "dereference expression" "operator '*'") `seqparser` \ starsp ->
             unary_expr `seqparser` \ operand@(Located operandsp _) ->
             return $ Just $ Located (starsp `join_span` operandsp) $ AST.DExpr'Deref operand
+        -}
 
         punop =
             consume (\ (Located sp tok) ->

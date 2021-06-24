@@ -151,8 +151,8 @@ expr_requires_prec (AST.DExpr'ShortCircuit _ op _) = AST.prec_of_short_op $ unlo
 expr_requires_prec (AST.DExpr'Binary _ op _) = AST.prec_of_bin_op $ unlocate op
 expr_requires_prec (AST.DExpr'Cast _ _) = AST.PrecCast
 expr_requires_prec (AST.DExpr'Unary _ _) = AST.PrecUnary
-expr_requires_prec (AST.DExpr'Ref _) = AST.PrecUnary
-expr_requires_prec (AST.DExpr'Deref _) = AST.PrecUnary
+-- expr_requires_prec (AST.DExpr'Ref _) = AST.PrecUnary
+-- expr_requires_prec (AST.DExpr'Deref _) = AST.PrecUnary
 expr_requires_prec (AST.DExpr'Call _ _) = AST.PrecCall
 -- expr_requires_prec (AST.DExpr'Field _ _) = AST.PrecCall
 -- expr_requires_prec (AST.DExpr'Method _ _ _) = AST.PrecCall
@@ -252,8 +252,8 @@ pprint_expr_s' (AST.DExpr'Unary op expr) =
             AST.UnTilde -> "~"
             AST.UnMinus -> "-"
     in put opstr >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
-pprint_expr_s' (AST.DExpr'Ref expr) = put "&" >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
-pprint_expr_s' (AST.DExpr'Deref expr) = put "*" >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
+-- pprint_expr_s' (AST.DExpr'Ref expr) = put "&" >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
+-- pprint_expr_s' (AST.DExpr'Deref expr) = put "*" >> pprint_expr_with_prec_s AST.PrecUnary (unlocate expr)
 
 pprint_expr_s' (AST.DExpr'Call expr args) =
     (let callee_is_field = False
@@ -313,9 +313,11 @@ pprint_param_s (AST.DParam'Normal lty lname) =
 -- AST.DType {{{1
 pprint_type_s :: AST.DType -> State [PPrintSegment] ()
 pprint_type_s (AST.DType'Path path) = pprint_path_s $ unlocate path
+{-
 pprint_type_s (AST.DType'Pointer lty) =
     put "*" >>
     pprint_type_s (unlocate lty)
+-}
 -- pprint_type_s (AST.DType'This) = put "this"
 -- AST.DPath {{{1
 pprint_path_s :: AST.DPath -> State [PPrintSegment] ()

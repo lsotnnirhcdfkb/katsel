@@ -188,14 +188,6 @@ dot_type irctx (FunctionPointerType _ ret _) =
         , make_str_field "parameter types" "<todo>" -- TODO
         ])
 dot_type _ (UnitType _) = ("unit type", [])
-dot_type irctx (PointerType _ {- muty -} pointee) =
-    ("pointer type",
-        [ make_node_field "pointee" (nodify dot_tyidx irctx pointee)
-        {- , make_str_field "mutability" $
-              case muty of
-                  Mutable -> "mutable"
-                  Immutable -> "immutable" -}
-        ])
 -- functions {{{1
 dot_fun :: IRCtx -> Function -> Node
 dot_fun _ _ = Node "function" [] -- TODO

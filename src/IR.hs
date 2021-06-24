@@ -257,12 +257,12 @@ resolve_ty_s (Located path_sp (AST.DType'Path path)) root =
             add_error_s (NotAType path_sp ds) >>
             return Nothing
 
+{-
 resolve_ty_s (Located _ (AST.DType'Pointer pointee)) root =
     resolve_ty_s pointee root >>=? return Nothing $ \ pointee_idx ->
     let pointer_ty = PointerType Map.empty pointee_idx
     in Just <$> get_ty_s pointer_ty
 
-{-
 resolve_ty_s (Located sp AST.DType'This) _ =
     add_error_s (Unimplemented "'this' types" sp) >> -- TODO
     return Nothing
@@ -387,11 +387,11 @@ make_copy_s root lv lvn fv fvn = make_instr_s make_copy (\ a -> a lv lvn fv fvn)
 make_call_s :: Module -> FValue -> [FValue] -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
 make_call_s root fv args = make_instr_s make_call (\ a -> a fv args) root
 
-make_addrof_s :: Module -> LValue -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
-make_addrof_s root lv = make_instr_s make_addrof (\ a -> a lv) root
+-- make_addrof_s :: Module -> LValue -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
+-- make_addrof_s root lv = make_instr_s make_addrof (\ a -> a lv) root
 
-make_derefptr_s :: Module -> FValue -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
-make_derefptr_s root fv = make_instr_s make_derefptr ($fv) root
+-- make_derefptr_s :: Module -> FValue -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Instruction)
+-- make_derefptr_s root fv = make_instr_s make_derefptr ($fv) root
 
 make_br_cond_s :: Module -> Located FValue -> BlockIdx -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Br)
 make_br_cond_s root fv t f = make_instr_s make_br_cond (\ a -> a fv t f) root
@@ -544,6 +544,7 @@ lower_expr (Located sp (AST.DExpr'Unary _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "unary expressions" sp) >> -- TODO
     return Nothing
 
+{-
 lower_expr (Located sp (AST.DExpr'Ref expr)) root =
     lower_expr expr root >>=? return Nothing $ \ (expr_ir, expr_val) ->
 
@@ -565,6 +566,7 @@ lower_expr (Located sp (AST.DExpr'Ref expr)) root =
 lower_expr (Located sp (AST.DExpr'Deref _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "dereference expressions" sp) >> -- TODO
     return Nothing
+-}
 
 lower_expr (Located sp (AST.DExpr'Call _ _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "call expressions" sp) >> -- TODO
