@@ -23,6 +23,7 @@ module IR.IRCtx
     , add_function
     , get_function
     , replace_function
+    , get_function_interner
     ) where
 
 import IR.TypeStuffAndIRCtx.Stuff

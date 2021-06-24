@@ -136,10 +136,14 @@ dot_irctx :: IRCtx -> Node
 dot_irctx irctx =
     Cluster "irctx"
         [ Cluster "type interner" $ map (nodify dot_type irctx) types
+        , Cluster "function interner" $ map (dot_fun irctx) function
         ]
     where
         type_interner = get_type_interner irctx
         types = all_interner_items type_interner
+
+        function_interner = get_function_interner irctx
+        function = all_interner_items function_interner
 -- declsymbols {{{1
 dot_ds :: IRCtx -> DeclSymbol -> Node
 dot_ds irctx = apply_to_ds (nodify dot_mod' irctx) (nodify dot_tyidx irctx)
@@ -162,7 +166,7 @@ dot_v :: IRCtx -> Value -> Node
 dot_v irctx = apply_to_v (dot_fun_ptr irctx)
 
 dot_fun_ptr :: IRCtx -> FunctionPointer -> Node
-dot_fun_ptr _ _ = Node "function pointer" [] -- TODO
+dot_fun_ptr irctx fptr = Node "function pointer" [make_node_field "pointee" (dot_fun irctx $ get_fptr_pointee irctx fptr)]
 
 dot_fun :: IRCtx -> Function -> Node
 dot_fun _ _ = Node "function" [] -- TODO

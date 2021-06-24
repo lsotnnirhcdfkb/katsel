@@ -16,7 +16,7 @@ import {-# SOURCE #-} IR.Function
 import Data.List(intercalate)
 import qualified Data.Map as Map
 
-data IRCtx = IRCtx { get_type_interner :: Interner Type, get_functions :: Interner Function }
+data IRCtx = IRCtx { get_type_interner :: Interner Type, get_function_interner :: Interner Function }
 data Signedness = Signed | Unsigned deriving Eq
 data Mutability = Mutable | Immutable deriving Eq
 data Type
