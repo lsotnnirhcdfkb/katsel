@@ -33,5 +33,5 @@ instance Typed Value where
 instance ApplyToV Value where
     apply_to_v f (Value v) = apply_to_v f v
 
-value_cast :: Typeable r => Value -> Maybe r
+value_cast :: (IsValue r, Typeable r) => Value -> Maybe r
 value_cast (Value v) = cast v

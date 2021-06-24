@@ -326,7 +326,7 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
 
     vdefine (Located _ sf@(AST.SFunDecl' _ (Located _ name) _ _)) root parent = State.runState $
         get_s name parent >>= \ m_val ->
-        let m_fun = m_val >>= value_cast :: Maybe Function
+        let m_fun = m_val >>= value_cast :: Maybe FunctionPointer
         in case m_fun of
             -- silently ignore becuase the only way this can happen is if there is another global declaration
             -- that made a value of the same name that is not a function, which should already be reported as a duplicate value error
@@ -401,9 +401,12 @@ make_derefptr_s root fv = make_instr_s make_derefptr ($fv) root
 make_br_cond_s :: Module -> Located FValue -> BlockIdx -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Br)
 make_br_cond_s root fv t f = make_instr_s make_br_cond (\ a -> a fv t f) root
 -- lower function body {{{3
-lower_fun_body :: Parent p Value String => AST.SFunDecl -> Module -> Function -> p -> State.State IRBuilder p
-lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
-    let function_valid = if function_not_defined fun then Just () else Nothing
+lower_fun_body :: Parent p Value String => AST.SFunDecl -> Module -> FunctionPointer -> p -> State.State IRBuilder p
+lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fptr parent =
+    State.get >>= \ (IRBuilder irctx _) ->
+    let fun = get_fptr_pointee irctx fptr
+        fun_idx = get_function_idx fptr
+        function_valid = if function_not_defined fun then Just () else Nothing
     in return function_valid >>=? return parent $ \ _ ->
     let param_to_local (Located _ (AST.DParam'Normal _ _ (Located _ param_name)), reg_idx) function_cg =
             let m_function_cg' = add_local param_name (LVRegister reg_idx) function_cg
@@ -419,12 +422,11 @@ lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fun parent =
     in foldl' (>>=) start_function_cg add_locals_for_params >>= \ function_cg ->
 
     State.get >>= \ ir_builder ->
-    let (ir_builder', _, fun') = State.execState (lower_body_expr body root) (ir_builder, function_cg, fun)
+    let (ir_builder'@(IRBuilder _ errs) , _, fun') = State.execState (lower_body_expr body root) (ir_builder, function_cg, fun)
         fun'' = simplify_cfg fun'
-    in State.put ir_builder' >>
-
-    error "not implemented yet" -- TODO
-    -- add_replace_s name (Value fun'') parent
+        ir_builder'' = IRBuilder (replace_function fun'' fun_idx (get_irctx ir_builder')) errs
+    in State.put ir_builder'' >>
+    return parent
 -- lowering things {{{3
 type BlockGroup = (BlockIdx, BlockIdx)
 lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) ()

@@ -2,6 +2,7 @@ module IR.FunctionPointer
     ( FunctionPointer
     , new_function_pointer
     , get_fptr_pointee
+    , get_function_idx
     ) where
 
 import IR.IRCtx
@@ -17,7 +18,7 @@ import Interner
 
 import qualified Data.Map as Map(empty)
 
-data FunctionPointer = FunctionPointer (InternerIdx Type) (InternerIdx Function)
+data FunctionPointer = FunctionPointer { get_ty :: InternerIdx Type, get_function_idx :: InternerIdx Function }
 
 new_function_pointer :: InternerIdx Function -> IRCtx -> (FunctionPointer, IRCtx)
 new_function_pointer fun_idx irctx =
@@ -34,7 +35,7 @@ instance DeclSpan FunctionPointer where
 instance Describe FunctionPointer where
     describe irctx (FunctionPointer _ fidx) = "constant function pointer to " ++ describe irctx (get_function irctx fidx)
 instance Typed FunctionPointer where
-    type_of _ (FunctionPointer ty _) = ty
+    type_of _ = get_ty
 
 instance ApplyToV FunctionPointer where
     apply_to_v = id

@@ -50,6 +50,5 @@ instance Describe DeclSymbol where
 instance ApplyToDS DeclSymbol where
     apply_to_ds f1 f2 (DeclSymbol ds) = apply_to_ds f1 f2 ds
 
-ds_cast :: Typeable r => DeclSymbol -> Maybe r
+ds_cast :: (IsDeclSymbol r, Typeable r) => DeclSymbol -> Maybe r
 ds_cast (DeclSymbol v) = cast v
-
