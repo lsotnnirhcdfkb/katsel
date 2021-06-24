@@ -10,6 +10,8 @@ module Mangle.TagName
     , tn'name
     , tn'root
     , tn'next
+    , tn'funidx
+    , tn'idx
     ) where
 
 import qualified Data.Map as Map
@@ -20,19 +22,23 @@ data TagName k
     | TN'Name
     | TN'Root
     | TN'Next
+    | TN'FunIdx
+    | TN'Idx
     deriving (Eq, Ord, Enum, Bounded)
 
 data TagTagName
 data StrTagName
 
-tn'dsid, tn'vid, tn'root, tn'next :: TagName TagTagName
+tn'dsid, tn'vid, tn'root, tn'next, tn'funidx :: TagName TagTagName
 tn'dsid = TN'DSID
 tn'vid = TN'VID
 tn'root = TN'Root
 tn'next = TN'Next
+tn'funidx = TN'FunIdx
 
-tn'name :: TagName StrTagName
+tn'name, tn'idx :: TagName StrTagName
 tn'name = TN'Name
+tn'idx = TN'Idx
 
 str_tag_name :: TagName k -> String
 str_tag_name = (shortened Map.!) . full_str_name
@@ -42,6 +48,8 @@ str_tag_name = (shortened Map.!) . full_str_name
         full_str_name TN'Name = "name"
         full_str_name TN'Root = "root"
         full_str_name TN'Next = "next"
+        full_str_name TN'FunIdx = "funidx"
+        full_str_name TN'Idx = "idx"
 
         -- longest common prefix
         lcp a b = takeWhile (uncurry (==)) (zip a b)

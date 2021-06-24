@@ -27,6 +27,7 @@ module IR
     , Value
     , Function
     , FunctionPointer
+    , get_function_idx
 
     , get_child_map
     , get

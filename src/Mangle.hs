@@ -3,9 +3,12 @@ module Mangle
     , mangled_str
     , mangle_dsid
     , mangle_vid
+    , mangle_fun
     ) where
 
 import qualified IR
+
+import Interner
 
 import Mangle.TagName
 import Mangle.Tag
@@ -25,3 +28,6 @@ segments_tag :: TagName TagTagName -> [String] -> Tag
 segments_tag name [x] = Tag name [StrTag tn'name x]
 segments_tag name (cur:more) = Tag name [StrTag tn'name cur, segments_tag tn'next more]
 segments_tag _ [] = error "cannot make tag for 0 segments"
+
+mangle_fun :: InternerIdx IR.Function -> MangledName
+mangle_fun fidx = to_mn $ Tag tn'funidx [StrTag tn'idx (show fidx)]

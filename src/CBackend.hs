@@ -63,6 +63,9 @@ str_cdecl (CDecl res declarator) = res ++ " " ++ str_declarator declarator
         str_declarator (ArrayDeclarator decl size) = str_declarator' decl ++ "[" ++ show size ++ "]"
         str_declarator (FunctionDeclarator decl params) = str_declarator' decl ++ "(" ++ intercalate ", " (map str_cdecl params) ++ ")"
 -- converting types to c declarations {{{1
+type_to_cdecl' :: IR.IRCtx -> InternerIdx IR.Type -> Maybe Mangle.MangledName -> CDecl
+type_to_cdecl' irctx tyidx name = IR.apply_to_tyidx (\ ty -> type_to_cdecl irctx ty name) irctx tyidx
+
 type_to_cdecl :: IR.IRCtx -> IR.Type -> Maybe Mangle.MangledName -> CDecl
 type_to_cdecl irctx ty name = CDecl basic_type declarator
     where
@@ -84,7 +87,7 @@ type_to_cdecl irctx ty name = CDecl basic_type declarator
                     IR.Unsigned -> "u"
             in (signedness_str ++ "int" ++ show size ++ "_t", parent)
 
-        convert _ (IR.UnitType _) = error "cannot convert unit type into c declaration"
+        convert parent (IR.UnitType _) = ("void", parent)
 
         convert parent (IR.CharType _) = ("uint8_t", parent) -- TODO: this maybe should not be 8 bits
         convert parent (IR.BoolType _) = ("int", parent)
@@ -125,16 +128,20 @@ decl_v :: LoweringFun (IR.VIRId IR.Value) IR.Value
 decl_v irctx path mname = IR.apply_to_v (decl_fun_ptr irctx path mname)
 
 decl_fun_ptr :: LoweringFun (IR.VIRId IR.Value) IR.FunctionPointer
-decl_fun_ptr = print_not_impl_fun "declaration" "const function pointer" -- TODO
-
-decl_fun :: LoweringFun (IR.VIRId IR.Value) IR.Function
-decl_fun = print_not_impl_fun "declaration" "function" -- TODO
+decl_fun_ptr irctx _ mname fptr =
+    let ty = IR.type_of irctx fptr
+    in str_cdecl (type_to_cdecl' irctx ty (Just mname)) ++ ";\n"
 -- def_v {{{1
 def_v :: LoweringFun (IR.VIRId IR.Value) IR.Value
 def_v irctx path mname = IR.apply_to_v (def_fun_ptr irctx path mname)
 
 def_fun_ptr :: LoweringFun (IR.VIRId IR.Value) IR.FunctionPointer
-def_fun_ptr = print_not_impl_fun "definition" "const function pointer" -- TODO
+def_fun_ptr irctx _ mname fptr =
+    let ty = IR.type_of irctx fptr
+    in str_cdecl (type_to_cdecl' irctx ty (Just mname)) ++ " = &" ++ Mangle.mangled_str (Mangle.mangle_fun (IR.get_function_idx fptr)) ++ ";\n"
+-- functions {{{1
+decl_fun :: LoweringFun (IR.VIRId IR.Value) IR.Function
+decl_fun = print_not_impl_fun "declaration" "function" -- TODO
 
 def_fun :: LoweringFun (IR.VIRId IR.Value) IR.Function
 def_fun = print_not_impl_fun "definition" "function" -- TODO
