@@ -15,6 +15,9 @@ import Data.List(findIndex)
 newtype Interner a = Interner [a]
 newtype InternerIdx a = InternerIdx Int deriving Eq
 
+instance Show (InternerIdx a) where
+    show (InternerIdx i) = show i
+
 new_interner :: Interner a
 new_interner = Interner []
 

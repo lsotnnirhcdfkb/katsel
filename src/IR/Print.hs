@@ -13,7 +13,7 @@ import IR.Value
 import IR.Module
 import IR.Type
 
-import IR.Function
+-- import IR.Function
 import IR.FunctionPointer
 
 import IR.IRCtx
@@ -56,6 +56,12 @@ print_mod' _ _ = "mod"
 
 print_tyidx :: IRCtx -> InternerIdx Type -> String
 print_tyidx irctx = apply_to_tyidx (print_ty irctx) irctx
+-- values {{{1
+print_v :: IRCtx -> Value -> String
+print_v irctx = apply_to_v (print_fun_ptr irctx)
+
+print_fun_ptr :: IRCtx -> FunctionPointer -> String
+print_fun_ptr _ fptr = "(address of function at interner index " ++ show (get_function_idx fptr) ++ ")"
 -- types {{{1
 print_ty :: IRCtx -> Type -> String
 print_ty _ (FloatType _ size) = "primitive float type " ++ show size
@@ -75,12 +81,6 @@ print_ty irctx (PointerType _ muty ty) = "pointer type *" ++ muty_str ++ stringi
         muty_str = case muty of
             Mutable -> "mut "
             Immutable -> ""
--- values {{{1
-print_v :: IRCtx -> Value -> String
-print_v irctx = apply_to_v (print_fun_ptr irctx)
-
-print_fun_ptr :: IRCtx -> FunctionPointer -> String
-print_fun_ptr irctx fptr = "(address of function " ++ get_name (get_fptr_pointee irctx fptr) ++ ")"
 -- functions {{{1
 -- helpers {{{1
 indent :: Int -> String -> String
