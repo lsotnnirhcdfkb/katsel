@@ -16,7 +16,7 @@ str_tag = ("_K"++) . str_tag'
         str_tag' (Tag name children) = str_tag_name name ++ show (length children) ++ concatMap str_tag' children
         str_tag' (StrTag name val) =
             let val' = encode val
-            in str_tag_name name ++ show (length val') ++ val' -- TODO: deal with non-ascii values
+            in str_tag_name name ++ show (length val') ++ val'
 
 encode :: String -> String
 encode "" = ""
