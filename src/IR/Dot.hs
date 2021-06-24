@@ -165,6 +165,15 @@ dot_tyidx irctx tyidx =
         [ make_node_field "referee" $ apply_to_tyidx (dot_type irctx) irctx tyidx
         ]
     )
+-- values {{{1
+dot_v :: IRCtx -> Value -> Node
+dot_v irctx = apply_to_v (dot_fun_ptr irctx)
+
+dot_fun_ptr :: IRCtx -> FunctionPointer -> Node
+dot_fun_ptr _ _ = Node "function pointer" [] -- TODO
+
+dot_fun :: IRCtx -> Function -> Node
+dot_fun _ _ = Node "function" [] -- TODO
 -- types {{{1
 dot_type :: IRCtx -> Type -> Node
 dot_type _ (FloatType _ size) = Node "float type" [make_str_field "size" (show size)]
@@ -194,12 +203,4 @@ dot_type irctx (PointerType _ muty pointee) =
                   Immutable -> "immutable"
         , make_node_field "pointee" (nodify dot_tyidx irctx pointee)
         ]
--- values {{{1
-dot_v :: IRCtx -> Value -> Node
-dot_v irctx = apply_to_v (dot_fun_ptr irctx)
-
-dot_fun_ptr :: IRCtx -> FunctionPointer -> Node
-dot_fun_ptr _ _ = Node "function pointer" [] -- TODO
-
-dot_fun :: IRCtx -> Function -> Node
-dot_fun _ _ = Node "function" [] -- TODO
+-- functions {{{1

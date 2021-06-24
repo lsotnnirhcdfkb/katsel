@@ -29,6 +29,9 @@ type LoweringFun id entity = IR.IRCtx -> id -> Mangle.MangledName -> entity -> S
 print_not_impl_fun :: String -> String -> LoweringFun id entity
 print_not_impl_fun action thing _ _ _ _ = "#error " ++ action ++ " of " ++ thing ++ " currently unsupported\n"
 
+print_not_necessary :: String -> String -> String
+print_not_necessary action thing = "// " ++ thing ++ " does not need " ++ action ++ "\n"
+
 -- decl_ds {{{1
 decl_ds :: LoweringFun (IR.DSIRId IR.DeclSymbol) IR.DeclSymbol
 decl_ds irctx path mname = IR.apply_to_ds (error "cannot declare module in c backend") (decl_tyidx irctx path mname)
@@ -65,15 +68,15 @@ def_tyidx :: LoweringFun (IR.DSIRId IR.DeclSymbol) (InternerIdx IR.Type)
 def_tyidx irctx path mname = IR.apply_to_tyidx (def_ty irctx path mname) irctx
 
 def_ty :: LoweringFun (IR.DSIRId IR.DeclSymbol) IR.Type
-def_ty _ _ _ (IR.FloatType _ _) = "// float type does not need definition\n"
-def_ty _ _ _ (IR.IntType _ _ _) = "// int type does not need definition\n"
+def_ty _ _ _ (IR.FloatType _ _) = print_not_necessary "definition" "float type"
+def_ty _ _ _ (IR.IntType _ _ _) = print_not_necessary "definition" "int type"
 def_ty _ _ _ IR.GenericFloatType = error "cannot define generic float type"
 def_ty _ _ _ IR.GenericIntType = error "cannot define generic int type"
-def_ty _ _ _ (IR.CharType _) = "// char type does not need definition\n"
-def_ty _ _ _ (IR.BoolType _) = "// bool type does not need definition\n"
-def_ty _ _ _ (IR.FunctionPointerType _ _ _) = "// function type does not need definition\n"
-def_ty _ _ _ (IR.UnitType _) = "// unit type does not need definition\n"
-def_ty _ _ _ (IR.PointerType _ _ _) = "// pointer type does not need definition\n"
+def_ty _ _ _ (IR.CharType _) = print_not_necessary "definition" "char type"
+def_ty _ _ _ (IR.BoolType _) = print_not_necessary "definition" "bool type"
+def_ty _ _ _ (IR.FunctionPointerType _ _ _) = print_not_necessary "definition" "function type"
+def_ty _ _ _ (IR.UnitType _) = print_not_necessary "definition" "unit type"
+def_ty _ _ _ (IR.PointerType _ _ _) = print_not_necessary "definition" "pointer type"
 -- decl_v {{{1
 decl_v :: LoweringFun (IR.VIRId IR.Value) IR.Value
 decl_v irctx path mname = IR.apply_to_v (decl_fun_ptr irctx path mname)
@@ -91,4 +94,4 @@ def_fun_ptr :: LoweringFun (IR.VIRId IR.Value) IR.FunctionPointer
 def_fun_ptr = print_not_impl_fun "definition" "const function pointer" -- TODO
 
 def_fun :: LoweringFun (IR.VIRId IR.Value) IR.Function
-def_fun = print_not_impl_fun "declaration" "function" -- TODO
+def_fun = print_not_impl_fun "definition" "function" -- TODO

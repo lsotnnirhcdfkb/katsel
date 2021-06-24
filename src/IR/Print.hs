@@ -81,6 +81,7 @@ print_v irctx = apply_to_v (print_fun_ptr irctx)
 
 print_fun_ptr :: IRCtx -> FunctionPointer -> String
 print_fun_ptr irctx fptr = "(address of function " ++ get_name (get_fptr_pointee irctx fptr) ++ ")"
+-- functions {{{1
 -- helpers {{{1
 indent :: Int -> String -> String
 indent n = unlines . map (replicate n ' ' ++) . lines
