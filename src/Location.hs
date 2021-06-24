@@ -55,5 +55,8 @@ data Located a
       }
     deriving Eq
 
+instance Functor Located where
+    fmap f (Located sp v) = Located sp (f v)
+
 make_location :: File -> Int -> Int -> Int -> Location
 make_location = Location
