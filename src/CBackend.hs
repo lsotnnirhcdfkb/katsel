@@ -7,6 +7,8 @@ import qualified Mangle
 
 import Interner
 
+import Data.List(intercalate)
+
 lower_mod_to_c :: IR.IRCtx -> IR.Module -> String
 lower_mod_to_c irctx root =
     let (dses, vals) = IR.all_entities_in_mod irctx root
@@ -32,6 +34,61 @@ print_not_impl_fun action thing _ _ _ _ = "#error " ++ action ++ " of " ++ thing
 print_not_necessary :: String -> String -> String
 print_not_necessary action thing = "// " ++ thing ++ " does not need " ++ action ++ "\n"
 
+-- c declarations {{{1
+data CDecl = CDecl String CDeclarator
+data CDeclarator
+    = IdentifierDeclarator Mangle.MangledName
+    | AbstractDeclarator
+    | PointerDeclarator CDeclarator
+    | ArrayDeclarator CDeclarator Int
+    | FunctionDeclarator CDeclarator [CDecl]
+
+str_cdecl :: CDecl -> String
+str_cdecl (CDecl res declarator) = res ++ " " ++ str_declarator declarator ++ ";"
+    where
+        str_declarator' d = "(" ++ str_declarator d ++ ")"
+
+        str_declarator (IdentifierDeclarator mn) = Mangle.mangled_str mn
+        str_declarator AbstractDeclarator = ""
+        str_declarator (PointerDeclarator decl) = "*" ++ str_declarator' decl
+        str_declarator (ArrayDeclarator decl size) = str_declarator' decl ++ "[" ++ show size ++ "]"
+        str_declarator (FunctionDeclarator decl params) = str_declarator' decl ++ "(" ++ intercalate ", " (map str_cdecl params) ++ ")"
+-- converting types to c declarations {{{1
+type_to_cdecl :: IR.IRCtx -> IR.Type -> Maybe Mangle.MangledName -> CDecl
+type_to_cdecl irctx ty name = CDecl basic_type declarator
+    where
+        name_declarator = maybe AbstractDeclarator IdentifierDeclarator name
+        (basic_type, declarator) = convert name_declarator ty
+
+        convert' :: CDeclarator -> InternerIdx IR.Type -> (String, CDeclarator)
+        convert' parent idx = IR.apply_to_tyidx (convert parent) irctx idx
+
+        convert :: CDeclarator -> IR.Type -> (String, CDeclarator)
+        -- the given declarator is a value that is the same time as the type passed in
+        -- this function will add to the declarator the operation that can be performed on the type, and also return the basic type
+        convert parent (IR.FloatType _ 32) = ("float", parent)
+        convert parent (IR.FloatType _ 64) = ("double", parent)
+        convert _ (IR.FloatType _ _) = error "cannot convert invalid float type to c declaration"
+        convert parent (IR.IntType _ size signedness) =
+            let signedness_str = case signedness of
+                    IR.Signed -> "s"
+                    IR.Unsigned -> "u"
+            in (signedness_str ++ "int" ++ show size ++ "_t", parent)
+
+        convert _ IR.GenericFloatType = error "cannot convert generic float type into c declaration"
+        convert _ IR.GenericIntType = error "cannot convert generic float type into c declaration"
+        convert _ (IR.UnitType _) = error "cannot convert unit type into c declaration"
+
+        convert parent (IR.CharType _) = ("uint8_t", parent) -- TODO: this maybe should not be 8 bits
+        convert parent (IR.BoolType _) = ("bool", parent) -- TODO: maybe use single bit datatype for this
+
+        convert parent (IR.FunctionPointerType _ ret params) =
+            let parent' = FunctionDeclarator (PointerDeclarator parent) (map (IR.apply_to_tyidx (\ pty -> type_to_cdecl irctx pty Nothing) irctx) params)
+            in convert' parent' ret
+
+        convert parent (IR.PointerType _ _ pointee) =
+            let parent' = PointerDeclarator parent
+            in convert' parent' pointee
 -- decl_ds {{{1
 decl_ds :: LoweringFun (IR.DSIRId IR.DeclSymbol) IR.DeclSymbol
 decl_ds irctx path mname = IR.apply_to_ds (error "cannot declare module in c backend") (decl_tyidx irctx path mname)
@@ -40,26 +97,10 @@ decl_tyidx :: LoweringFun (IR.DSIRId IR.DeclSymbol) (InternerIdx IR.Type)
 decl_tyidx irctx path mname = IR.apply_to_tyidx (decl_ty irctx path mname) irctx
 
 decl_ty :: LoweringFun (IR.DSIRId IR.DeclSymbol) IR.Type
-decl_ty _ _ mname (IR.FloatType _ 32) = concat ["typedef float ", Mangle.mangled_str mname, ";\n"]
-decl_ty _ _ mname (IR.FloatType _ 64) = concat ["typedef double ", Mangle.mangled_str mname, ";\n"]
-decl_ty _ _ _ (IR.FloatType _ size) = error $ "cannot lower illegal float point type (must be 32 or 64 bits wide, but got " ++ show size ++ " bits"
-
-decl_ty _ _ mname (IR.IntType _ size signedness) =
-    let signedness_str = case signedness of
-            IR.Signed -> "s"
-            IR.Unsigned -> "u"
-    in concat ["typedef ", signedness_str, "int", show size, "_t ", Mangle.mangled_str mname, ";\n"]
-
 decl_ty _ _ _ IR.GenericFloatType = error "cannot declare generic float type"
 decl_ty _ _ _ IR.GenericIntType = error "cannot declare generic int type"
 decl_ty _ _ _ (IR.UnitType _) = "// cannot declare unit type\n"
-
-decl_ty _ _ mname (IR.CharType _) = concat ["typedef char ", Mangle.mangled_str mname, ";\n"]
-decl_ty _ _ mname (IR.BoolType _) = concat ["typedef bool ", Mangle.mangled_str mname, ";\n"]
-
--- TODO: implement a way to properly print declarators for any type
-decl_ty _ _ _ (IR.FunctionPointerType _ _ _) = "// not implemented yet\n" -- TODO
-decl_ty _ _ _ (IR.PointerType _ _ _) = "// not implemented yet\n" -- TODO
+decl_ty irctx _ mname ty = "typedef " ++ str_cdecl (type_to_cdecl irctx ty (Just mname)) ++ "\n"
 -- def_ds {{{1
 def_ds :: LoweringFun (IR.DSIRId IR.DeclSymbol) IR.DeclSymbol
 def_ds irctx path mname = IR.apply_to_ds (error "cannot define module in c backend") (def_tyidx irctx path mname)
