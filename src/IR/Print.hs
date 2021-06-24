@@ -54,7 +54,7 @@ print_v_binding irctx (name, v) =
 print_mod' :: IRCtx -> Module -> String
 print_mod' _ _ = "mod"
 
-print_tyidx :: IRCtx -> (InternerIdx Type) -> String
+print_tyidx :: IRCtx -> InternerIdx Type -> String
 print_tyidx irctx = apply_to_tyidx (print_ty irctx) irctx
 -- types {{{1
 print_ty :: IRCtx -> Type -> String

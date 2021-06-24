@@ -80,8 +80,8 @@ data Function
       , get_ret_reg :: RegisterIdx
       , get_param_regs :: [RegisterIdx]
 
-      , get_ret_type :: (InternerIdx Type)
-      , get_param_types :: [(InternerIdx Type)]
+      , get_ret_type :: InternerIdx Type
+      , get_param_types :: [InternerIdx Type]
 
       , get_instruction_pool :: [Instruction]
 
@@ -164,7 +164,7 @@ instance Typed Instruction where
     type_of irctx (Copy _ _) = resolve_unit irctx
     type_of _ (Addrof _ _ ty) = ty
 
-new_function :: (InternerIdx Type) -> [(Mutability, (InternerIdx Type), Span)] -> Span -> String -> Function
+new_function :: InternerIdx Type -> [(Mutability, InternerIdx Type, Span)] -> Span -> String -> Function
 new_function ret_type param_tys sp name =
     let param_regs = map (\ (muty, tyidx, param_sp) -> Register tyidx muty param_sp) param_tys
         param_reg_idxs = map RegisterIdx $ take (length param_tys) [1..]
@@ -180,7 +180,7 @@ new_function ret_type param_tys sp name =
 
     in Function blocks (BlockIdx 0) (BlockIdx 1) registers (RegisterIdx 0) param_reg_idxs ret_type param_tys' [] sp name
 
-add_register :: (InternerIdx Type) -> Mutability -> Span -> Function -> (RegisterIdx, Function)
+add_register :: InternerIdx Type -> Mutability -> Span -> Function -> (RegisterIdx, Function)
 add_register tyidx muty sp fun = (reg_idx, fun')
     where
         reg = Register tyidx muty sp

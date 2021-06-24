@@ -309,7 +309,7 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
             Just retty -> resolve_ty_s retty root
             Nothing -> Just <$> get_ty_s (UnitType Map.empty)
          >>=? return parent $ \ retty' ->
-        let make_param :: AST.LDParam -> State.State IRBuilder (Maybe (Mutability, (InternerIdx Type), Span))
+        let make_param :: AST.LDParam -> State.State IRBuilder (Maybe (Mutability, InternerIdx Type, Span))
             make_param (Located sp (AST.DParam'Normal mutability ty_ast _)) =
                 resolve_ty_s ty_ast root >>=? return Nothing $ \ ty ->
                 return $ Just (ast_muty_to_ir_muty mutability, ty, sp)

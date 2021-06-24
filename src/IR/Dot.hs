@@ -159,7 +159,7 @@ nodify f irctx a = Node name (fields ++ ds_children ++ v_children)
 dot_mod' :: IRCtx -> Module -> (String, [(FieldColor, String, Either String Node)])
 dot_mod' _ _ = ("mod", [])
 
-dot_tyidx :: IRCtx -> (InternerIdx Type) -> (String, [(FieldColor, String, Either String Node)])
+dot_tyidx :: IRCtx -> InternerIdx Type -> (String, [(FieldColor, String, Either String Node)])
 dot_tyidx irctx tyidx =
     ("type index",
         [ make_node_field "referee" $ apply_to_tyidx (dot_type irctx) irctx tyidx

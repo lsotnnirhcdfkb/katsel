@@ -52,7 +52,7 @@ new_type_interner = new_interner_with
     , UnitType Map.empty
     ]
 
-resolve_float32, resolve_float64, resolve_uint8, resolve_uint16, resolve_uint32, resolve_uint64, resolve_sint8, resolve_sint16, resolve_sint32, resolve_sint64, resolve_generic_float, resolve_generic_int, resolve_char, resolve_bool, resolve_unit :: IRCtx -> (InternerIdx Type)
+resolve_float32, resolve_float64, resolve_uint8, resolve_uint16, resolve_uint32, resolve_uint64, resolve_sint8, resolve_sint16, resolve_sint32, resolve_sint64, resolve_generic_float, resolve_generic_int, resolve_char, resolve_bool, resolve_unit :: IRCtx -> InternerIdx Type
 resolve_float32 = fst . get_ty_irctx (FloatType Map.empty 32)
 resolve_float64 = fst . get_ty_irctx (FloatType Map.empty 64)
 resolve_uint8 = fst . get_ty_irctx (IntType Map.empty  8 Unsigned)
@@ -80,7 +80,7 @@ replace_ty ty idx (IRCtx ty_interner fun_interner) = IRCtx (replace_in_interner 
 resolve_tyidx_irctx :: IRCtx -> InternerIdx Type -> Type
 resolve_tyidx_irctx (IRCtx interner _) idx = get_from_interner idx interner
 
-apply_to_tyidx :: (Type -> a) -> IRCtx -> (InternerIdx Type) -> a
+apply_to_tyidx :: (Type -> a) -> IRCtx -> InternerIdx Type -> a
 apply_to_tyidx fun irctx idx = fun $ resolve_tyidx_irctx irctx idx
 
 ty_eq :: Type -> Type -> Bool
@@ -109,7 +109,7 @@ ty_eq _ _ = False
 ty_match :: Type -> Type -> Bool
 ty_match = ty_eq
 
-ty_match' :: IRCtx -> (InternerIdx Type) -> InternerIdx Type -> Bool
+ty_match' :: IRCtx -> InternerIdx Type -> InternerIdx Type -> Bool
 ty_match' irctx a b = ty_match (resolve_tyidx_irctx irctx a) (resolve_tyidx_irctx irctx b)
 
 stringify_ty :: IRCtx -> Type -> String
@@ -136,7 +136,7 @@ stringify_ty irctx (PointerType _ muty pointee) =
             Immutable -> ""
     in "*" ++ muty_str ++ stringify_tyidx irctx pointee
 
-stringify_tyidx :: IRCtx -> (InternerIdx Type) -> String
+stringify_tyidx :: IRCtx -> InternerIdx Type -> String
 stringify_tyidx irctx idx = stringify_ty irctx $ resolve_tyidx_irctx irctx idx
 
 get_function :: IRCtx -> InternerIdx Function -> Function

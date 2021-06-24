@@ -36,7 +36,7 @@ decl_ds irctx path mname = IR.apply_to_ds (error "cannot declare module in c bac
 decl_tyidx :: LoweringFun (IR.DSIRId IR.DeclSymbol) (InternerIdx IR.Type)
 decl_tyidx irctx path mname = IR.apply_to_tyidx (decl_ty irctx path mname) irctx
 
-decl_ty :: LoweringFun (IR.DSIRId IR.DeclSymbol) (IR.Type)
+decl_ty :: LoweringFun (IR.DSIRId IR.DeclSymbol) IR.Type
 decl_ty _ _ mname (IR.FloatType _ 32) = concat ["typedef float ", Mangle.mangled_str mname, ";\n"]
 decl_ty _ _ mname (IR.FloatType _ 64) = concat ["typedef double ", Mangle.mangled_str mname, ";\n"]
 decl_ty _ _ _ (IR.FloatType _ size) = error $ "cannot lower illegal float point type (must be 32 or 64 bits wide, but got " ++ show size ++ " bits"
@@ -58,13 +58,13 @@ decl_ty _ _ mname (IR.BoolType _) = concat ["typedef bool ", Mangle.mangled_str 
 decl_ty _ _ _ (IR.FunctionPointerType _ _ _) = "// not implemented yet\n" -- TODO
 decl_ty _ _ _ (IR.PointerType _ _ _) = "// not implemented yet\n" -- TODO
 -- def_ds {{{1
-def_ds :: LoweringFun (IR.DSIRId IR.DeclSymbol) (IR.DeclSymbol)
+def_ds :: LoweringFun (IR.DSIRId IR.DeclSymbol) IR.DeclSymbol
 def_ds irctx path mname = IR.apply_to_ds (error "cannot define module in c backend") (def_tyidx irctx path mname)
 
 def_tyidx :: LoweringFun (IR.DSIRId IR.DeclSymbol) (InternerIdx IR.Type)
 def_tyidx irctx path mname = IR.apply_to_tyidx (def_ty irctx path mname) irctx
 
-def_ty :: LoweringFun (IR.DSIRId IR.DeclSymbol) (IR.Type)
+def_ty :: LoweringFun (IR.DSIRId IR.DeclSymbol) IR.Type
 def_ty _ _ _ (IR.FloatType _ _) = "// float type does not need definition\n"
 def_ty _ _ _ (IR.IntType _ _ _) = "// int type does not need definition\n"
 def_ty _ _ _ IR.GenericFloatType = error "cannot define generic float type"
@@ -75,20 +75,20 @@ def_ty _ _ _ (IR.FunctionPointerType _ _ _) = "// function type does not need de
 def_ty _ _ _ (IR.UnitType _) = "// unit type does not need definition\n"
 def_ty _ _ _ (IR.PointerType _ _ _) = "// pointer type does not need definition\n"
 -- decl_v {{{1
-decl_v :: LoweringFun (IR.VIRId IR.Value) (IR.Value)
+decl_v :: LoweringFun (IR.VIRId IR.Value) IR.Value
 decl_v irctx path mname = IR.apply_to_v (decl_fun_ptr irctx path mname)
 
-decl_fun_ptr :: LoweringFun (IR.VIRId IR.Value) (IR.FunctionPointer)
+decl_fun_ptr :: LoweringFun (IR.VIRId IR.Value) IR.FunctionPointer
 decl_fun_ptr = print_not_impl_fun "declaration" "const function pointer" -- TODO
 
-decl_fun :: LoweringFun (IR.VIRId IR.Value) (IR.Function)
+decl_fun :: LoweringFun (IR.VIRId IR.Value) IR.Function
 decl_fun = print_not_impl_fun "declaration" "function" -- TODO
 -- def_v {{{1
-def_v :: LoweringFun (IR.VIRId IR.Value) (IR.Value)
+def_v :: LoweringFun (IR.VIRId IR.Value) IR.Value
 def_v irctx path mname = IR.apply_to_v (def_fun_ptr irctx path mname)
 
-def_fun_ptr :: LoweringFun (IR.VIRId IR.Value) (IR.FunctionPointer)
+def_fun_ptr :: LoweringFun (IR.VIRId IR.Value) IR.FunctionPointer
 def_fun_ptr = print_not_impl_fun "definition" "const function pointer" -- TODO
 
-def_fun :: LoweringFun (IR.VIRId IR.Value) (IR.Function)
+def_fun :: LoweringFun (IR.VIRId IR.Value) IR.Function
 def_fun = print_not_impl_fun "declaration" "function" -- TODO
