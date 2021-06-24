@@ -23,6 +23,8 @@ import Interner
 import qualified Data.Map as Map
 import Data.List(intercalate)
 
+-- TODO: print irctx
+
 print_mod :: IRCtx -> Module -> String
 print_mod irctx = print_ds irctx . DeclSymbol
 
