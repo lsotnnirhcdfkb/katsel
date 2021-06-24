@@ -27,6 +27,8 @@ module IR
 
     , Value
     , Function
+    , get_ret_type
+    , get_param_types
     , FunctionPointer
     , get_function_idx
 

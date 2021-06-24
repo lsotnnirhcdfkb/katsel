@@ -9,6 +9,8 @@ import Interner
 
 import Data.List(intercalate)
 
+-- TODO: remove copying and pasting from declaration to definition
+
 lower_mod_to_c :: IR.IRCtx -> IR.Module -> String
 lower_mod_to_c irctx root =
     let (dses, vals) = IR.all_entities_in_mod irctx root
@@ -51,6 +53,15 @@ print_not_impl_fun action thing _ _ _ = "#error " ++ action ++ " of " ++ thing +
 print_not_necessary :: String -> String -> String
 print_not_necessary action thing = "// " ++ thing ++ " does not need " ++ action ++ "\n"
 
+-- helpers {{{1
+filter_units_from_params :: IR.IRCtx -> [InternerIdx IR.Type] -> [InternerIdx IR.Type]
+filter_units_from_params irctx =
+    let is_unit = IR.apply_to_tyidx
+            (\case
+                IR.UnitType _ -> True
+                _ -> False
+            ) irctx
+    in filter (not . is_unit)
 -- c declarations {{{1
 data CDecl = CDecl String CDeclarator
 data CDeclarator
@@ -82,44 +93,38 @@ type_to_cdecl :: IR.IRCtx -> IR.Type -> Maybe Mangle.MangledName -> CDecl
 type_to_cdecl irctx ty name = CDecl basic_type declarator
     where
         name_declarator = maybe AbstractDeclarator IdentifierDeclarator name
-        (basic_type, declarator) = convert False name_declarator ty
+        (basic_type, declarator) = add_to_declarator False irctx name_declarator ty
 
-        convert' :: Bool -> CDeclarator -> InternerIdx IR.Type -> (String, CDeclarator)
-        convert' uav parent idx = IR.apply_to_tyidx (convert uav parent) irctx idx
+add_to_declarator' :: Bool -> IR.IRCtx -> CDeclarator -> InternerIdx IR.Type -> (String, CDeclarator)
+add_to_declarator' uav irctx parent idx = IR.apply_to_tyidx (add_to_declarator uav irctx parent) irctx idx
 
-        convert :: Bool -> CDeclarator -> IR.Type -> (String, CDeclarator)
-        -- the given declarator is a value that is the same time as the type passed in
-        -- this function will add to the declarator the operation that can be performed on the type, and also return the basic type
-        convert _ parent (IR.FloatType _ 32) = ("float", parent)
-        convert _ parent (IR.FloatType _ 64) = ("double", parent)
-        convert _ _ (IR.FloatType _ _) = error "cannot convert invalid float type to c declaration"
-        convert _ parent (IR.IntType _ size signedness) =
-            let signedness_str = case signedness of
-                    IR.Signed -> ""
-                    IR.Unsigned -> "u"
-            in (signedness_str ++ "int" ++ show size ++ "_t", parent)
+add_to_declarator :: Bool -> IR.IRCtx -> CDeclarator -> IR.Type -> (String, CDeclarator)
+-- the given declarator is a value that is the same time as the type passed in
+-- this function will add to the declarator the operation that can be performed on the type, and also return the basic type
+add_to_declarator _ _ parent (IR.FloatType _ 32) = ("float", parent)
+add_to_declarator _ _ parent (IR.FloatType _ 64) = ("double", parent)
+add_to_declarator _ _ _ (IR.FloatType _ _) = error "cannot convert invalid float type to c declaration"
+add_to_declarator _ _ parent (IR.IntType _ size signedness) =
+    let signedness_str = case signedness of
+            IR.Signed -> ""
+            IR.Unsigned -> "u"
+    in (signedness_str ++ "int" ++ show size ++ "_t", parent)
 
-        convert unit_as_void parent (IR.UnitType _)
-            | unit_as_void = ("void", parent)
-            | otherwise = error "cannot lower unit type to c"
+add_to_declarator unit_as_void _ parent (IR.UnitType _)
+    | unit_as_void = ("void", parent)
+    | otherwise = error "cannot lower unit type to c"
 
-        convert _ parent (IR.CharType _) = ("uint8_t", parent) -- TODO: this maybe should not be 8 bits
-        convert _ parent (IR.BoolType _) = ("int", parent)
+add_to_declarator _ _ parent (IR.CharType _) = ("uint8_t", parent) -- TODO: this maybe should not be 8 bits
+add_to_declarator _ _ parent (IR.BoolType _) = ("int", parent)
 
-        convert _ parent (IR.FunctionPointerType _ ret params) =
-            let is_unit = IR.apply_to_tyidx
-                    (\case
-                        IR.UnitType _ -> True
-                        _ -> False
-                    ) irctx
-                cparams = filter (not . is_unit) params
+add_to_declarator _ irctx parent (IR.FunctionPointerType _ ret params) =
+    let params' = filter_units_from_params irctx params
+        parent' = FunctionDeclarator (PointerDeclarator parent) (map (\ pty -> type_to_cdecl' irctx pty Nothing) params')
+    in add_to_declarator' True irctx parent' ret
 
-                parent' = FunctionDeclarator (PointerDeclarator parent) (map (IR.apply_to_tyidx (\ pty -> type_to_cdecl irctx pty Nothing) irctx) cparams)
-            in convert' True parent' ret
-
-        -- convert parent (IR.PointerType _ pointee) =
-            -- let parent' = PointerDeclarator parent
-            -- in convert' parent' pointee
+-- convert parent (IR.PointerType _ pointee) =
+    -- let parent' = PointerDeclarator parent
+    -- in convert' parent' pointee
 -- decl_ds {{{1
 decl_ds :: LoweringFun IR.DeclSymbol
 decl_ds irctx mname = IR.apply_to_ds (error "cannot declare module in c backend") (decl_tyidx irctx mname)
@@ -185,8 +190,18 @@ vdef_irctx irctx =
 
     in "// definition of functions:\n" ++ concat (zipWith (\ idx -> def_fun irctx (Mangle.mangle_fun idx)) function_idxs functions)
 -- functions {{{1
-decl_fun :: IR.IRCtx -> Mangle.MangledName -> IR.Function -> String
-decl_fun = print_not_impl_fun "declaration" "function" -- TODO
+decl_fun :: LoweringFun IR.Function
+decl_fun irctx mname fun =
+    let ret_ty = IR.get_ret_type fun
+        param_tys = filter_units_from_params irctx $ IR.get_param_types fun
 
-def_fun :: IR.IRCtx -> Mangle.MangledName -> IR.Function -> String
-def_fun = print_not_impl_fun "definition" "function" -- TODO
+        (fun_basic_type, fun_declarator) = add_to_declarator' True irctx (FunctionDeclarator (IdentifierDeclarator mname) (map (\ tyidx -> type_to_cdecl' irctx tyidx Nothing) param_tys)) ret_ty
+    in str_cdecl (CDecl fun_basic_type fun_declarator) ++ ";\n"
+
+def_fun :: LoweringFun IR.Function
+def_fun irctx mname fun =
+    let ret_ty = IR.get_ret_type fun
+        param_tys = filter_units_from_params irctx $ IR.get_param_types fun
+
+        (fun_basic_type, fun_declarator) = add_to_declarator' True irctx (FunctionDeclarator (IdentifierDeclarator mname) (map (\ tyidx -> type_to_cdecl' irctx tyidx Nothing) param_tys)) ret_ty
+    in str_cdecl (CDecl fun_basic_type fun_declarator) ++ " {\n    #error not implemented yet\n}\n"
