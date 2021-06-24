@@ -44,7 +44,7 @@ data CDeclarator
     | FunctionDeclarator CDeclarator [CDecl]
 
 str_cdecl :: CDecl -> String
-str_cdecl (CDecl res declarator) = res ++ " " ++ str_declarator declarator ++ ";"
+str_cdecl (CDecl res declarator) = res ++ " " ++ str_declarator declarator
     where
         str_declarator' d = "(" ++ str_declarator d ++ ")"
 
@@ -96,7 +96,7 @@ decl_tyidx irctx path mname = IR.apply_to_tyidx (decl_ty irctx path mname) irctx
 
 decl_ty :: LoweringFun (IR.DSIRId IR.DeclSymbol) IR.Type
 decl_ty _ _ _ (IR.UnitType _) = "// cannot declare unit type\n"
-decl_ty irctx _ mname ty = "typedef " ++ str_cdecl (type_to_cdecl irctx ty (Just mname)) ++ "\n"
+decl_ty irctx _ mname ty = "typedef " ++ str_cdecl (type_to_cdecl irctx ty (Just mname)) ++ ";\n"
 -- def_ds {{{1
 def_ds :: LoweringFun (IR.DSIRId IR.DeclSymbol) IR.DeclSymbol
 def_ds irctx path mname = IR.apply_to_ds (error "cannot define module in c backend") (def_tyidx irctx path mname)
