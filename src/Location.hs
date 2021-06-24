@@ -25,6 +25,10 @@ data Location
       }
     deriving Eq
 
+
+make_location :: File -> Int -> Int -> Int -> Location
+make_location = Location
+
 fmt_location :: Location -> String
 fmt_location (Location file _ lnnr coln) = name file ++ ":" ++ show lnnr ++ ":" ++ show coln
 
@@ -57,6 +61,3 @@ data Located a
 
 instance Functor Located where
     fmap f (Located sp v) = Located sp (f v)
-
-make_location :: File -> Int -> Int -> Int -> Location
-make_location = Location
