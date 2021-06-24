@@ -33,7 +33,7 @@ get_fptr_pointee irctx (FunctionPointer _ fidx) = get_function irctx fidx
 instance DeclSpan FunctionPointer where
     decl_span irctx (FunctionPointer _ fidx) = decl_span irctx (get_function irctx fidx)
 instance Describe FunctionPointer where
-    describe irctx (FunctionPointer _ fidx) = "constant function pointer to " ++ describe irctx (get_function irctx fidx)
+    describe _ _ = "constant function pointer"
 instance Typed FunctionPointer where
     type_of _ = get_ty
 

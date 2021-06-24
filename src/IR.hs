@@ -314,7 +314,7 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
                 resolve_ty_s ty_ast root >>=? return Nothing $ \ ty ->
                 return $ Just (ast_muty_to_ir_muty mutability, ty, sp)
         in sequence <$> mapM make_param params >>=? return parent $ \ param_tys ->
-        let fun = new_function retty' param_tys fun_sp name
+        let fun = new_function retty' param_tys fun_sp
         in apply_irctx_to_irbuilder_s (add_function fun) >>= \ fun_idx ->
         apply_irctx_to_irbuilder_s (new_function_pointer fun_idx) >>= \ fptr ->
         let fptr_val = Value fptr
@@ -402,7 +402,7 @@ make_br_cond_s :: Module -> Located FValue -> BlockIdx -> BlockIdx -> State.Stat
 make_br_cond_s root fv t f = make_instr_s make_br_cond (\ a -> a fv t f) root
 -- lower function body {{{3
 lower_fun_body :: Parent p Value String => AST.SFunDecl -> Module -> FunctionPointer -> p -> State.State IRBuilder p
-lower_fun_body (AST.SFunDecl' _ (Located _ name) params body) root fptr parent =
+lower_fun_body (AST.SFunDecl' _ _ params body) root fptr parent =
     State.get >>= \ (IRBuilder irctx _) ->
     let fun = get_fptr_pointee irctx fptr
         fun_idx = get_function_idx fptr

@@ -34,7 +34,6 @@ module IR.Function
     , get_param_types
     , get_register
     , get_span
-    , get_name
 
     , function_not_defined
 
@@ -86,7 +85,6 @@ data Function
       , get_instruction_pool :: [Instruction]
 
       , get_span :: Span
-      , get_name :: String
       }
       deriving Eq
 newtype BlockIdx = BlockIdx Int deriving Eq
@@ -139,8 +137,6 @@ instance Typed Register where
 
 instance DeclSpan Function where
     decl_span _ f = Just $ get_span f
-instance Describe Function where
-    describe _ f = "function named '" ++ get_name f ++ "'"
 
 instance DeclSpan (Function, LValue) where
     decl_span irctx (f, LVRegister reg) = decl_span irctx $ get_register f reg
@@ -164,8 +160,8 @@ instance Typed Instruction where
     type_of irctx (Copy _ _) = resolve_unit irctx
     type_of _ (Addrof _ _ ty) = ty
 
-new_function :: InternerIdx Type -> [(Mutability, InternerIdx Type, Span)] -> Span -> String -> Function
-new_function ret_type param_tys sp name =
+new_function :: InternerIdx Type -> [(Mutability, InternerIdx Type, Span)] -> Span -> Function
+new_function ret_type param_tys sp =
     let param_regs = map (\ (muty, tyidx, param_sp) -> Register tyidx muty param_sp) param_tys
         param_reg_idxs = map RegisterIdx $ take (length param_tys) [1..]
 
@@ -178,7 +174,7 @@ new_function ret_type param_tys sp name =
 
         param_tys' = map (\ (_, a, _) -> a) param_tys
 
-    in Function blocks (BlockIdx 0) (BlockIdx 1) registers (RegisterIdx 0) param_reg_idxs ret_type param_tys' [] sp name
+    in Function blocks (BlockIdx 0) (BlockIdx 1) registers (RegisterIdx 0) param_reg_idxs ret_type param_tys' [] sp
 
 add_register :: InternerIdx Type -> Mutability -> Span -> Function -> (RegisterIdx, Function)
 add_register tyidx muty sp fun = (reg_idx, fun')
@@ -195,7 +191,7 @@ get_register :: Function -> RegisterIdx -> Register
 get_register fun (RegisterIdx idx) = get_registers fun !! idx
 
 get_instruction :: Function -> InstructionIdx -> Instruction
-get_instruction (Function _ _ _ _ _ _ _ _ instr_pool _ _) (InstructionIdx iidx) = instr_pool !! iidx
+get_instruction (Function _ _ _ _ _ _ _ _ instr_pool _) (InstructionIdx iidx) = instr_pool !! iidx
 
 function_not_defined :: Function -> Bool
 function_not_defined = (2==) . length . get_blocks -- a function starts out with 2 blocks, and it only goes up from there; blocks cannot be removed
@@ -385,7 +381,7 @@ simplify_cfg = repeat_opt $ remove . merge
                 _ -> fun
 -- printing functions {{{1
 print_fun :: IRCtx -> Function -> String
-print_fun irctx fun@(Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_regs _ _ _ _ _) =
+print_fun irctx fun@(Function blocks _ _ regs (RegisterIdx ret_reg_idx) param_regs _ _ _ _) =
     let make_comment tags = if null tags then "" else " // " ++ intercalate ", " tags
 
         shown_registers = concatMap show_reg $ zip ([0..] :: [Int]) regs
