@@ -167,9 +167,6 @@ dot_v irctx = apply_to_v (dot_fun_ptr irctx)
 
 dot_fun_ptr :: IRCtx -> FunctionPointer -> Node
 dot_fun_ptr irctx fptr = Node "function pointer" [make_node_field "pointee" (dot_fun irctx $ get_fptr_pointee irctx fptr)]
-
-dot_fun :: IRCtx -> Function -> Node
-dot_fun _ _ = Node "function" [] -- TODO
 -- types {{{1
 dot_type :: IRCtx -> Type -> (String, [(FieldColor, String, Either String Node)])
 dot_type _ (FloatType _ size) = ("float type", [make_str_field "size" (show size)])
@@ -200,3 +197,5 @@ dot_type irctx (PointerType _ muty pointee) =
         , make_node_field "pointee" (nodify dot_tyidx irctx pointee)
         ])
 -- functions {{{1
+dot_fun :: IRCtx -> Function -> Node
+dot_fun _ _ = Node "function" [] -- TODO
