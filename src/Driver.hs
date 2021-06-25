@@ -27,7 +27,7 @@ import qualified System.Console.ANSI as ANSI
 
 -- data Backend = CBackend
 
--- data OutputFormat = Lexed | Parsed | KatselIR | BackendCode Backend
+-- data OutputFormat = Lexed | Parsed | BraceIR | BackendCode Backend
 
 -- ErrorAccumulated {{{1
 data ErrorAccumulated r = ErrorAcc r [Message.SimpleDiag]

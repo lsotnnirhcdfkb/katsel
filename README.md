@@ -1,4 +1,4 @@
-# katsel
+# brace
 
 A language with some things.
 I maintain this for fun; you probably wouldn't want to use this ever.

@@ -1,6 +1,6 @@
 cabal-version:       2.0
 
-name:                katsel
+name:                brace
 version:             0.0.0
 license:             MIT
 license-file:        LICENSE
@@ -8,7 +8,7 @@ author:              Jason Nguyen
 maintainer:          lsotnnirhcdfkb@gmail.com
 build-type:          Simple
 
-executable katsel
+executable brace
   hs-source-dirs:      src
   other-modules:       Driver
 
