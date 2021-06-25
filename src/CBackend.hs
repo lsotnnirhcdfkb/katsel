@@ -9,49 +9,65 @@ import Interner
 
 import Data.List(intercalate)
 
--- TODO: remove copying and pasting from declaration to definition
-
 lower_mod_to_c :: IR.IRCtx -> IR.Module -> String
 lower_mod_to_c irctx root =
     let (dses, vals) = IR.all_entities_in_mod irctx root
-
-        desc_wrapper action thing_type fun mangle_fun (path, thing) =
-            let mangled = mangle_fun path
-            in "// " ++ action ++ " of " ++ thing_type ++ " '" ++ show path ++ "' mangled as '" ++ Mangle.mangled_str mangled ++ "':\n" ++ fun irctx mangled thing ++ "\n"
-        section action thing_type fun mangle_fun child_list =
-            "// " ++ action ++ "s of " ++ thing_type ++ "s\n\n" ++
-            concatMap (desc_wrapper action thing_type fun mangle_fun) child_list
 
         include_section =
             "// includes:\n" ++
             concatMap (("#include "++) . (++"\n"))
                 [ "<stdint.h>"
                 ] ++
-                "\n"
+                    "\n"
+
+        (dsdecl_section, dsdef_section, vdecl_section, vdef_section) =
+            ( add_comments "declaration" "declsymbol" dses Mangle.mangle_dsid ds_decls
+            , add_comments "definition" "declsymbol" dses Mangle.mangle_dsid ds_defs
+            , add_comments "declaration" "value" vals Mangle.mangle_vid v_decls
+            , add_comments "definition" "value" vals Mangle.mangle_vid v_defs
+            )
+            where
+                apply_lower_fun mangle_fun lowering_fun (item_path, item) = lowering_fun irctx (mangle_fun item_path) item
+
+                (ds_decls, ds_defs) = unzip $ map (apply_lower_fun Mangle.mangle_dsid lower_ds) dses
+                (v_decls, v_defs) = unzip $ map (apply_lower_fun Mangle.mangle_vid lower_v) vals
+
+                add_comments action thing_type thing_list mangle_fun lowered =
+                    group_comment action thing_type ++ concat (zipWith add_single_comment thing_list lowered)
+                    where
+                        add_single_comment (thing_path, _) =
+                            (single_comment action thing_type thing_path (Mangle.mangled_str $ mangle_fun thing_path) ++) . (++"\n")
+
+                single_comment action thing_type path mangled_name = "// " ++ action ++ " of " ++ thing_type ++ " '" ++ show path ++ "' mangled as '" ++ mangled_name ++ "':\n"
+                group_comment action thing_type = "// " ++ action ++ "s of " ++ thing_type ++ "s\n\n"
+
+        (ddecl_irctx_section, ddef_irctx_section, vdecl_irctx_section, vdef_irctx_section) =
+            let (a, b) = dlower_irctx irctx
+                (c, d) = vlower_irctx irctx
+            in (a, b, c, d)
 
     in concat
         [ include_section
 
-        , section "declaration" "declsymbol" decl_ds Mangle.mangle_dsid dses
-        , "// declaration declaration of irctx\n" ++ ddecl_irctx irctx ++ "\n"
+        , dsdecl_section
+        , ddecl_irctx_section
 
-        , section "definition" "declsymbol" def_ds Mangle.mangle_dsid dses
-        , "// declaration definition of irctx\n" ++ ddef_irctx irctx ++ "\n"
+        , dsdef_section
+        , ddef_irctx_section
 
-        , section "declaration" "value" decl_v Mangle.mangle_vid vals
-        , "// value declaration of irctx:\n" ++ vdecl_irctx irctx ++ "\n"
+        , vdecl_section
+        , vdecl_irctx_section
 
-        , section "definition" "value" def_v Mangle.mangle_vid vals
-        , "// value definition of irctx:\n" ++ vdef_irctx irctx ++ "\n"
+        , vdef_section
+        , vdef_irctx_section
         ]
 
-type LoweringFun entity = IR.IRCtx -> Mangle.MangledName -> entity -> String
+type LoweringFun entity = IR.IRCtx -> Mangle.MangledName -> entity -> (String, String)
 
-print_not_impl_fun :: String -> String -> LoweringFun entity
-print_not_impl_fun action thing _ _ _ = "#error " ++ action ++ " of " ++ thing ++ " currently unsupported\n"
-
-print_not_necessary :: String -> String -> String
-print_not_necessary action thing = "// " ++ thing ++ " does not need " ++ action ++ "\n"
+not_necessary :: String
+not_necessary = "// not necessary\n"
+not_necessary' :: (String, String)
+not_necessary' = (not_necessary, not_necessary)
 
 -- helpers {{{1
 filter_units_from_params :: IR.IRCtx -> [InternerIdx IR.Type] -> [InternerIdx IR.Type]
@@ -125,83 +141,62 @@ add_to_declarator _ irctx parent (IR.FunctionPointerType _ ret params) =
 -- convert parent (IR.PointerType _ pointee) =
     -- let parent' = PointerDeclarator parent
     -- in convert' parent' pointee
--- decl_ds {{{1
-decl_ds :: LoweringFun IR.DeclSymbol
-decl_ds irctx mname = IR.apply_to_ds (error "cannot declare module in c backend") (decl_tyidx irctx mname)
+-- declsymbols {{{1
+lower_ds :: LoweringFun IR.DeclSymbol
+lower_ds irctx mname = IR.apply_to_ds (error "cannot lower module in c backend") (lower_tyidx irctx mname)
 
-decl_tyidx :: LoweringFun (InternerIdx IR.Type)
-decl_tyidx irctx mname = IR.apply_to_tyidx (decl_ty irctx mname) irctx
+lower_tyidx :: LoweringFun (InternerIdx IR.Type)
+lower_tyidx irctx mname = IR.apply_to_tyidx (lower_ty irctx mname) irctx
 
-decl_ty :: LoweringFun IR.Type
-decl_ty _ _ (IR.UnitType _) = print_not_necessary "declaration" "unit type"
-decl_ty irctx mname ty = "typedef " ++ str_cdecl (type_to_cdecl irctx ty (Just mname)) ++ ";\n"
--- ddecl_irctx {{{1
-ddecl_irctx :: IR.IRCtx -> String
-ddecl_irctx _ = ""
--- def_ds {{{1
-def_ds :: LoweringFun IR.DeclSymbol
-def_ds irctx mname = IR.apply_to_ds (error "cannot define module in c backend") (def_tyidx irctx mname)
+lower_ty :: LoweringFun IR.Type
+lower_ty _ _ (IR.UnitType _) = not_necessary'
+lower_ty irctx mname ty =
+    ( "typedef " ++ str_cdecl (type_to_cdecl irctx ty (Just mname)) ++ ";\n"
+    , case ty of
+        IR.FloatType _ _ -> not_necessary
+        IR.IntType _ _ _ -> not_necessary
+        IR.CharType _ -> not_necessary
+        IR.BoolType _ -> not_necessary
+        IR.FunctionPointerType _ _ _ -> not_necessary
+        IR.UnitType _ -> not_necessary
+    )
+-- declsymbol phase of irctx {{{1
+dlower_irctx :: IR.IRCtx -> (String, String)
+dlower_irctx _ = not_necessary'
+-- values {{{1
+lower_v :: LoweringFun IR.Value
+lower_v irctx mname = IR.apply_to_v (lower_fun_ptr irctx mname)
 
-def_tyidx :: LoweringFun (InternerIdx IR.Type)
-def_tyidx irctx mname = IR.apply_to_tyidx (def_ty irctx mname) irctx
-
-def_ty :: LoweringFun IR.Type
-def_ty _ _ (IR.FloatType _ _) = print_not_necessary "definition" "float type"
-def_ty _ _ (IR.IntType _ _ _) = print_not_necessary "definition" "int type"
-def_ty _ _ (IR.CharType _) = print_not_necessary "definition" "char type"
-def_ty _ _ (IR.BoolType _) = print_not_necessary "definition" "bool type"
-def_ty _ _ (IR.FunctionPointerType _ _ _) = print_not_necessary "definition" "function type"
-def_ty _ _ (IR.UnitType _) = print_not_necessary "definition" "unit type"
--- ddef_irctx {{{1
-ddef_irctx :: IR.IRCtx -> String
-ddef_irctx _ = ""
--- decl_v {{{1
-decl_v :: LoweringFun IR.Value
-decl_v irctx mname = IR.apply_to_v (decl_fun_ptr irctx mname)
-
-decl_fun_ptr :: LoweringFun IR.FunctionPointer
-decl_fun_ptr irctx mname fptr =
+lower_fun_ptr :: LoweringFun IR.FunctionPointer
+lower_fun_ptr irctx mname fptr =
     let ty = IR.type_of irctx fptr
-    in str_cdecl (type_to_cdecl' irctx ty (Just mname)) ++ ";\n"
--- vdecl_irctx {{{1
-vdecl_irctx :: IR.IRCtx -> String
-vdecl_irctx irctx =
+        cdecl_strd = str_cdecl (type_to_cdecl' irctx ty (Just mname))
+    in ( cdecl_strd ++ ";\n"
+       , cdecl_strd ++ " = &" ++ Mangle.mangled_str (Mangle.mangle_fun (IR.get_function_idx fptr)) ++ ";\n"
+       )
+-- value phase of irctx {{{1
+vlower_irctx :: IR.IRCtx -> (String, String)
+vlower_irctx irctx =
     let function_interner = IR.get_function_interner irctx
 
         function_idxs = all_interner_idxs function_interner
         functions = all_interner_items function_interner
 
-    in "// declaration of functions:\n" ++ concat (zipWith (decl_fun irctx . Mangle.mangle_fun) function_idxs functions)
--- def_v {{{1
-def_v :: LoweringFun IR.Value
-def_v irctx mname = IR.apply_to_v (def_fun_ptr irctx mname)
+        (function_decls, function_defs) = unzip $ zipWith (lower_fun irctx . Mangle.mangle_fun) function_idxs functions
 
-def_fun_ptr :: LoweringFun IR.FunctionPointer
-def_fun_ptr irctx mname fptr =
-    let ty = IR.type_of irctx fptr
-    in str_cdecl (type_to_cdecl' irctx ty (Just mname)) ++ " = &" ++ Mangle.mangled_str (Mangle.mangle_fun (IR.get_function_idx fptr)) ++ ";\n"
--- vdef_irctx {{{1
-vdef_irctx :: IR.IRCtx -> String
-vdef_irctx irctx =
-    let function_interner = IR.get_function_interner irctx
+    in ( "// declaration of functions:\n" ++ concat function_decls
+       , "// definition of functions:\n" ++ concat function_defs
+       )
 
-        function_idxs = all_interner_idxs function_interner
-        functions = all_interner_items function_interner
-
-    in "// definition of functions:\n" ++ concat (zipWith (def_fun irctx . Mangle.mangle_fun) function_idxs functions)
 -- functions {{{1
-decl_fun :: LoweringFun IR.Function
-decl_fun irctx mname fun =
+lower_fun :: LoweringFun IR.Function
+lower_fun irctx mname fun =
     let ret_ty = IR.get_ret_type fun
         param_tys = filter_units_from_params irctx $ IR.get_param_types fun
 
         (fun_basic_type, fun_declarator) = add_to_declarator' True irctx (FunctionDeclarator (IdentifierDeclarator mname) (map (\ tyidx -> type_to_cdecl' irctx tyidx Nothing) param_tys)) ret_ty
-    in str_cdecl (CDecl fun_basic_type fun_declarator) ++ ";\n"
 
-def_fun :: LoweringFun IR.Function
-def_fun irctx mname fun =
-    let ret_ty = IR.get_ret_type fun
-        param_tys = filter_units_from_params irctx $ IR.get_param_types fun
-
-        (fun_basic_type, fun_declarator) = add_to_declarator' True irctx (FunctionDeclarator (IdentifierDeclarator mname) (map (\ tyidx -> type_to_cdecl' irctx tyidx Nothing) param_tys)) ret_ty
-    in str_cdecl (CDecl fun_basic_type fun_declarator) ++ " {\n    #error not implemented yet\n}\n"
+        cdecl_strd = str_cdecl (CDecl fun_basic_type fun_declarator)
+    in ( cdecl_strd ++ ";\n"
+       , cdecl_strd ++ " {\n    #error not implemented yet\n}\n"
+       )
