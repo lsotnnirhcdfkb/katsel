@@ -13,7 +13,7 @@ import IR.Value
 import IR.Module
 import IR.Type
 
--- import IR.Function
+import IR.Function
 import IR.FunctionPointer
 
 import IR.IRCtx
@@ -26,8 +26,30 @@ import Data.List(intercalate)
 -- TODO: print irctx
 
 print_mod :: IRCtx -> Module -> String
-print_mod irctx = print_ds irctx . DeclSymbol
+print_mod irctx = (print_irctx irctx ++) . print_ds irctx . DeclSymbol
 
+-- irctx {{{1
+print_irctx :: IRCtx -> String
+print_irctx irctx =
+    concat
+        [ "irctx {\n"
+        , indent 4 (print_interner "function" (print_fun irctx) function_interner)
+        , "}\n"
+        ]
+
+    where
+        function_interner = get_function_interner irctx
+
+print_interner :: String -> (a -> String) -> Interner a -> String
+print_interner interner_label str_fun interner =
+    interner_label ++ " interner {\n" ++
+    indent 4 (concatMap (++"\n") $ zipWith str_with_idx idxs items) ++
+    "}\n"
+    where
+        str_with_idx idx item = "[" ++ show idx ++ "]" ++ " " ++ str_fun item
+
+        idxs = all_interner_idxs interner
+        items = all_interner_items interner
 -- declsymbols {{{1
 print_ds :: IRCtx -> DeclSymbol -> String
 print_ds irctx ds = apply_to_ds (print_mod' irctx) (print_tyidx irctx) ds ++ " " ++ body_with_braces
