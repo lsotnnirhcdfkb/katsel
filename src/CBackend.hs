@@ -18,7 +18,7 @@ lower_mod_to_c irctx root =
             concatMap (("#include "++) . (++"\n"))
                 [ "<stdint.h>"
                 ] ++
-                    "\n"
+            "\n"
 
         (dsdecl_section, dsdef_section, vdecl_section, vdef_section) =
             ( add_comments "declaration" "declsymbol" dses Mangle.mangle_dsid ds_decls
