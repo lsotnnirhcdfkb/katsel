@@ -155,7 +155,7 @@ get_lines_shown = sortBy sort_comparator . nub . concatMap get_dim_lines . map g
             | fl1 == fl2 = nr1 `compare` nr2
             | otherwise = name fl1 `compare` name fl2
 
--- TODO: clean up this code
+-- TODO: clean up this code, lots of magic numbers and stuff
 show_multiline_underlines :: [Underline] -> [DiagLine]
 show_multiline_underlines = concatMap show_multiline_underline
     where
@@ -172,6 +172,7 @@ show_multiline_underlines = concatMap show_multiline_underline
                 , before_last_quote_line
                 , last_quote_line
                 , after_last_quote_line
+                , msgs_lines
                 ]
 
             where
@@ -254,3 +255,7 @@ show_multiline_underlines = concatMap show_multiline_underline
                 before_last_quote_line = transition_line min_col min_col max_col last_col
                 last_quote_line = [DiagLine (show last_line_nr) '|' (surround_line (get_line last_line_nr) min_col last_col)]
                 after_last_quote_line = [DiagLine "" '|' (top_or_bottom min_col last_col)]
+
+                msgs_lines = map (DiagLine "" '|' . show_msg) msgs
+                    where
+                        show_msg (Message ty str) = replicate (last_col + 4) ' ' ++ ANSI.setSGRCode (sgr_of_ty ty) ++ "`-- " ++ str ++ ANSI.setSGRCode []
