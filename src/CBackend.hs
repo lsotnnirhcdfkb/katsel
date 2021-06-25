@@ -44,7 +44,11 @@ lower_mod_to_c irctx root =
         (ddecl_irctx_section, ddef_irctx_section, vdecl_irctx_section, vdef_irctx_section) =
             let (a, b) = dlower_irctx irctx
                 (c, d) = vlower_irctx irctx
-            in (a, b, c, d)
+            in ( "// declaration declaration of irctx:\n" ++ a ++ "\n"
+               , "// declaration definition of irctx:\n" ++ b ++ "\n"
+               , "// value declaration of irctx:\n" ++ c ++ "\n"
+               , "// value definition of irctx:\n" ++ d ++ "\n"
+               )
 
     in concat
         [ include_section
