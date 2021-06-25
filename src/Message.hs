@@ -91,7 +91,9 @@ report' (SimpleDiag ty maybe_span maybe_diag_code maybe_name sections) =
                     where
                         ind = replicate (indent_amt - length prefix) ' '
 
-        indent_amt = maximum $ map indent_of diag_lines
+        indent_amt
+            | null diag_lines = 0
+            | otherwise = maximum $ map indent_of diag_lines
             where
                 indent_of (DiagLine prefix _ _) = length prefix
 

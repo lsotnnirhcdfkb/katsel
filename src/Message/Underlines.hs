@@ -12,156 +12,123 @@ import File
 
 import Message.Utils
 
-import Data.List(nubBy, sortBy, partition, find, findIndex)
+import qualified Colors
 
-import Data.Maybe(maybeToList, fromMaybe, mapMaybe)
-
+import Data.List(nub, sortBy, partition, findIndex)
+import Data.Maybe(maybeToList)
 import Data.Char(isSpace)
 
 import qualified System.Console.ANSI as ANSI
 
-import qualified Colors
-
--- TODO: clean up all the messy code in this file
-
 data UnderlinesSection = UnderlinesSection [Underline]
-data Underline = Underline Span [Message]
-data Message = Message Type Importance String
+data Underline = Underline { get_span_of_underline :: Span, get_importance_of_underline :: Importance, get_messages_of_underline :: [Message] }
+data Message = Message Type String
 data Importance = Primary | Secondary | Tertiary
 data Type = Error | Warning | Note | Hint
 
-data LineToShow = LineToShow File Int Dimness
-data Dimness = Dim | Normal
-
 show_underlines_section :: UnderlinesSection -> [DiagLine]
-show_underlines_section (UnderlinesSection underlines) = [DiagLine "not implemented yet!" '|' "this is not implemented yet!"] -- TODO
-
-{-
-line_nrs_of_messages :: [Message] -> [ShowLine]
-line_nrs_of_messages msgs = sortBy sort_comparator $ nubBy nub_comparator lines_with_dim
+show_underlines_section (UnderlinesSection underlines) = singleline_underlines' ++ multiline_underlines'
     where
-        -- nub keeps the first occurance, so it will keep all the normal lines if there are duplicate dim lines
-        -- since the dim lines are all appended to the end of the list
-        lines_with_dim = lines_without_dim ++ concatMap get_dim_lines lines_without_dim
-        get_dim_lines (ShowLine fl nr _) = mapMaybe make_dim [-2..2] -- will have a duplicate line at offset 0 that is filtered out by nub
+        (singleline_underlines, multiline_underlines) = partition (is_single_line . get_span_of_underline) underlines
+
+        singleline_underlines' = show_singleline_underlines singleline_underlines
+        multiline_underlines' = show_multiline_underlines multiline_underlines
+
+is_single_line :: Span -> Bool
+is_single_line (Span start before_end _) = lnn_of_loc start == lnn_of_loc before_end
+
+show_singleline_underlines :: [Underline] -> [DiagLine]
+show_singleline_underlines underlines = concat $ zipWith make_lines lines_shown (Nothing : map Just lines_shown)
+    where
+        lines_shown = get_lines_shown underlines
+
+        make_lines (fl, nr) m_last_flnr = maybeToList file_line ++ maybeToList elipsis_line ++ content_lines
             where
-                make_dim n
-                    | nr+n >= 1 = Just $ ShowLine fl (nr+n) Dim
-                    | otherwise = Nothing
+                file_line =
+                    case m_last_flnr of
+                        Just (last_fl, _)
+                            | last_fl == fl -> Nothing
 
-        lines_without_dim = concatMap linenrsof msgs
-        linenrsof (Message (Span start before_end _) _ _ _) = [ShowLine (file_of_loc start) (lnn_of_loc start) Normal, ShowLine (file_of_loc start) (lnn_of_loc before_end) Normal]
+                        _ -> Just $ DiagLine "" '>' (ANSI.setSGRCode Colors.file_path_sgr ++ name fl ++ ANSI.setSGRCode [])
 
-        sort_comparator (ShowLine fl1 nr1 _) (ShowLine fl2 nr2 _) =
-            if fl1 == fl2
-            then nr1 `compare` nr2
-            else name fl1 `compare` name fl2
+                elipsis_line =
+                    case m_last_flnr of
+                        Just (last_fl, last_nr)
+                            | last_fl == fl && last_nr + 1 /= nr -> Just $ DiagLine "..." '|' "..."
 
-        nub_comparator (ShowLine fl1 nr1 _) (ShowLine fl2 nr2 _) = (fl1, nr1) == (fl2, nr2)
+                        _ -> Nothing
 
-indent_of_underlines_section :: UnderlinesSection -> Int
-indent_of_underlines_section (UnderlinesSection msgs) = 1 + maximum (map get_width $ line_nrs_of_messages msgs)
+                content_lines = show_quote_and_underlines fl nr underlines
+
+show_quote_and_underlines :: File -> Int -> [Underline] -> [DiagLine]
+show_quote_and_underlines file line_nr underlines =
+    [DiagLine (show line_nr) '|' quote] ++
+    underline_line ++ message_lines
     where
-        get_width (ShowLine _ ln _) = length . show $ ln
+        underlines_on_line = filter (is_on_line . get_span_of_underline) underlines
+        is_on_line (Span start _ _) = file_of_loc start == file && lnn_of_loc start == line_nr
 
-show_underlines_section :: Int -> UnderlinesSection -> String
-show_underlines_section indent sec =
-    concatMap (draw_section_line indent) $ section_lines sec
+        quote = case drop (line_nr - 1) $ lines $ source file of
+            x:_ -> x
+            [] -> ""
 
-data DrawableMessage = DMessage [ANSI.SGR] Int String
-data SectionLine
-    = FileLine File
-    | QuoteLine File Int
-    | DimQuote File Int
-    | ElipsisLine
-    | UnderlineLine [Message] [DrawableMessage]
+        underline_line
+            | null underlines_on_line = []
+            | otherwise = [DiagLine "" '|' $ concatMap get_und [1..max_col]]
+                where
+                    get_und col = head $ concatMap (in_col col) underlines_on_line ++ [" "]
+                        where
+                            in_col c (Underline (Span start before _) imp msgs)
+                                | coln_of_loc start <= c && coln_of_loc before >= c =
+                                    let sgr = sgr_of_msgs msgs
+                                    in [ANSI.setSGRCode sgr ++ [char_of_imp imp] ++ ANSI.setSGRCode []]
 
-    -- TODO: MessageLine needs to draw a pipe over messages on rows below
-    --       to do:
-    --       > quote a
-    --       > |     `-- this
-    --       > `-- that
-    --
-    --       instead of:
-    --       > quote a
-    --       >       `-- this
-    --       > `-- that
-    | MessageLine [DrawableMessage]
-    | MultilineMessageLines Message
+                                | otherwise = []
 
-assign_messages :: [Message] -> ([DrawableMessage], [SectionLine])
-assign_messages messages = (firstrow, msglines)
+                    max_col = maximum $ map (get_end_col . get_span_of_underline) underlines_on_line
+                    get_end_col (Span _ before _) = coln_of_loc before
+
+        message_assignments = assign_messages $ concatMap get_messages underlines_on_line
+            where
+                get_messages (Underline (Span _ before _) _ msgs) = map ((,) $ coln_of_loc before) msgs
+
+        message_lines = map draw_message_line message_assignments
+        draw_message_line msgs = DiagLine "" '|' $ draw msgs 1 ""
+            where
+                draw curmsgs col acc
+                    | null curmsgs = acc
+                    | otherwise =
+                        let (curs, rest) = partition ((col==) . fst) curmsgs
+                        in case curs of
+                            [] -> draw rest (col + 1) (acc ++ " ")
+                            [(_, Message ty str)] ->
+                                let len = length str
+                                    sgr = sgr_of_ty ty
+                                in draw rest (col + len + 4) (acc ++ ANSI.setSGRCode sgr ++ "`-- " ++ str ++ ANSI.setSGRCode [])
+
+                            _ -> error "multiple messages on the same column"
+
+assign_messages :: [(Int, Message)] -> [[(Int, Message)]]
+assign_messages messages = takeWhile (not . null) $ map find_msgs_on_row [0..]
     where
-        coln_comparator (Message (Span _ before_end_1 _) _ _ _) (Message (Span _ before_end_2 _) _ _ _) = coln_of_loc before_end_2 `compare` coln_of_loc before_end_1
-        assignments = zipWith (\ i m -> (assign m i, m)) [0..] (sortBy coln_comparator messages)
+        coln_comparator (col1, _) (col2, _)  = col2 `compare` col1
+        assignments = zipWith (\ ind msg -> (assign msg ind, msg)) [0..] (sortBy coln_comparator messages)
 
-        assign :: Message -> Int -> Int
-        assign msg cur_idx =
-            let rows = [0..]
-                msgs_on_row r = map snd $ filter ((r==) . fst) (take cur_idx assignments)
+        assign :: (Int, Message) -> Int -> Int
+        assign to_assign ind =
+            let already_assigned = take ind assignments
 
-                col_of_msg (Message (Span _ before_end _) _ _ _) = coln_of_loc before_end
-                end_col_of_msg m@(Message _ _ _ str) = col_of_msg m + length str + 3
+                msgs_on_row r = map snd $ filter ((r==) . fst) already_assigned
 
-                msg_end_col = end_col_of_msg msg
-                overlapping = (msg_end_col >=) . col_of_msg
+                end_col_of_msg (start_col, Message _ str) = start_col + length str + 4
 
-            in case findIndex (not . any overlapping . msgs_on_row) rows of
+                overlapping = (end_col_of_msg to_assign >=) . fst
+
+            in case findIndex (not . any overlapping . msgs_on_row) [0..] of
                 Just x -> x
                 Nothing -> error "unreachable"
 
-        find_msgs_on_row row = map (todmsg . snd) $ filter ((row==) . fst) assignments
-
-        msglines = map MessageLine $ takeWhile (not . null) $ map find_msgs_on_row [1..]
-        firstrow = find_msgs_on_row 0
-
-        todmsg (Message (Span _ before_end _) ty _ str) = DMessage (sgr_of_ty ty) (coln_of_loc before_end) str
-
-section_lines :: UnderlinesSection -> [SectionLine]
-section_lines (UnderlinesSection msgs) =
-    concatMap make_lines (zip flnrs (Nothing : map Just flnrs)) ++ map MultilineMessageLines multiline_msgs
-    where
-        flnrs = line_nrs_of_messages msgs
-
-        multiline_msgs = filter is_multiline msgs
-            where
-                is_multiline (Message (Span start before_end _) _ _ _) = lnn_of_loc start /= lnn_of_loc before_end
-
-
-        make_lines (ShowLine curfl curnr curdimn, lastshln) = maybeToList file_line ++ maybeToList elipsis_line ++ content_lines
-            where
-                file_line =
-                    case lastshln of
-                        Just (ShowLine lastfl _ _)
-                            | lastfl == curfl -> Nothing
-                        _ -> Just $ FileLine curfl
-
-                elipsis_line =
-                    case lastshln of
-                        Just (ShowLine lastfl lastnr _)
-                            | lastfl == curfl && lastnr + 1 /= curnr ->
-                                Just ElipsisLine
-                        _ -> Nothing
-
-                content_lines =
-                    case curdimn of
-                        Dim -> [DimQuote curfl curnr]
-                        Normal -> [QuoteLine curfl curnr] ++ maybeToList underline_line ++ message_lines
-                    where
-                        underline_line =
-                            if null line_underlines
-                            then Nothing
-                            else Just $ UnderlineLine line_underlines first_row_messages
-
-                (first_row_messages, message_lines) = assign_messages line_messages
-
-                is_single_line (Span start before_end _) = lnn_of_loc start == lnn_of_loc before_end
-                line_messages = filter is_correct_line msgs
-                    where
-                        is_correct_line (Message sp@(Span _ before_end _) _ _ _) = (file_of_loc before_end, lnn_of_loc before_end) == (curfl, curnr) && is_single_line sp
-                line_underlines = filter is_correct_line msgs
-                    where
-                        is_correct_line (Message sp@(Span start _ _) _ _ _) = curfl == file_of_loc start && lnn_of_loc start == curnr && is_single_line sp
+        find_msgs_on_row row = map snd $ filter ((row==) . fst) assignments
 
 char_of_imp :: Importance -> Char
 char_of_imp Primary = '^'
@@ -174,180 +141,116 @@ sgr_of_ty Warning = Colors.warning_sgr
 sgr_of_ty Note = Colors.note_sgr
 sgr_of_ty Hint = Colors.hint_sgr
 
-elipsis_prefix :: Int -> String
-elipsis_prefix indent = replicate (indent - 1) '.'
+sgr_of_msgs :: [Message] -> [ANSI.SGR]
+sgr_of_msgs [] = Colors.empty_underline_sgr
+sgr_of_msgs (Message ty _ : _) = sgr_of_ty ty
 
-draw_section_line :: Int -> SectionLine -> String
-draw_section_line indent (FileLine fl) = make_indent_with_divider '>' "" indent ++ ANSI.setSGRCode Colors.file_path_sgr ++ name fl ++ ANSI.setSGRCode [] ++ "\n"
-draw_section_line indent (DimQuote fl ln) =
-    case drop (ln - 1) $ lines (source fl) of
-        -- it is called a dim line, but it is not drawn dimly
-        -- cannot handle empty lines here because if some dim lines are hidden here then elipsis lines are not inserted when necessary
-        quote:_ -> make_indent_with_divider '|' (show ln) indent ++ quote ++ "\n"
-        [] -> ""
-draw_section_line indent (QuoteLine fl ln) = make_indent_with_divider '|' (show ln) indent ++ quote ++ "\n"
+get_lines_shown :: [Underline] -> [(File, Int)]
+get_lines_shown = sortBy sort_comparator . nub . concatMap get_dim_lines . map get_starts . map get_span_of_underline
     where
-        quote = case drop (ln - 1) $ lines (source fl) of
-            x:_ -> x
-            [] -> ""
-draw_section_line indent ElipsisLine = make_indent_with_divider '|' (elipsis_prefix indent) indent ++ "...\n"
+        get_dim_lines (fl, lnnr) = map ((,) fl) $ filter (>=1) $ map (lnnr+) [-2..2]
+        get_starts (Span start _ _) = (file_of_loc start, lnn_of_loc start)
 
-draw_section_line indent (UnderlineLine underlines messages) =
-    make_indent_with_divider '|' "" indent ++ draw 0 "" ++ "\n"
+        sort_comparator (fl1, nr1) (fl2, nr2)
+            | fl1 == fl2 = nr1 `compare` nr2
+            | otherwise = name fl1 `compare` name fl2
+
+-- TODO: clean up this code
+show_multiline_underlines :: [Underline] -> [DiagLine]
+show_multiline_underlines = concatMap show_multiline_underline
     where
-        draw ind acc
-            | ind > length column_messages && ind > length column_underlines = acc
-            | otherwise =
-                let cur_underline =
-                        case drop ind column_underlines of
-                            x:_ -> x
-                            [] -> Nothing
-                    cur_msg =
-                        case drop ind column_messages of
-                            x: _ -> x
-                            [] -> Nothing
-                in case (cur_underline, cur_msg) of
-                    -- messages have higher priority than underlines
-                    (_, Just (DMessage sgr _ str)) ->
-                        let len = length str
-                        in draw (ind + len + 3) (acc ++ ANSI.setSGRCode sgr ++ "-- " ++ str ++ ANSI.setSGRCode [])
+        show_multiline_underline (Underline (Span sp_start sp_before _) imp msgs) =
+            concat
+                [ file_line
 
-                    (Just (imp, ty), Nothing) ->
-                        draw (ind + 1) (acc ++ ANSI.setSGRCode (sgr_of_ty ty) ++ [char_of_imp imp] ++ ANSI.setSGRCode [])
+                , before_first_quote_line
+                , first_quote_line
+                , after_first_quote_line
 
-                    (Nothing, Nothing) -> draw (ind + 1) (acc ++ " ")
+                , middle_quote_lines
 
-        column_messages = helper messages 1 []
+                , before_last_quote_line
+                , last_quote_line
+                , after_last_quote_line
+                ]
+
             where
-                helper [] _ acc = acc
-                helper curmessages col acc =
-                    helper rest (col+1) (acc ++ [current])
+                tycolor = ANSI.setSGRCode $ sgr_of_msgs msgs
+                colorify x = tycolor ++ x ++ ANSI.setSGRCode []
+
+                impchar = char_of_imp imp
+
+                first_line_nr = lnn_of_loc sp_start
+                last_line_nr = lnn_of_loc sp_before
+                first_col = coln_of_loc sp_start
+                last_col = coln_of_loc sp_before
+
+                min_col = 1 + minimum (map amt_wh [first_line_nr + 1 .. last_line_nr])
                     where
-                        (in_cur_col, rest) = partition (\ (DMessage _ msgcol _) -> col == (msgcol + 1)) curmessages
-                        current =
-                            case in_cur_col of
-                                [] -> Nothing
-                                [x] -> Just x
-                                _ -> error "multiple messages for same column in UnderlineLine"
+                        amt_wh lnnr
+                            | all isSpace ln = maxBound
+                            | otherwise = length $ takeWhile isSpace ln
+                            where
+                                ln = get_line lnnr
+                max_col = 1 + maximum (map (length . get_line) [first_line_nr .. last_line_nr - 1])
 
-        column_underlines = helper 1 []
-            where
-                helper col acc =
-                    if any_underlines_left
-                    then helper (col+1) (acc ++ [current])
-                    else acc
+                get_line n = case drop (n - 1) $ lines $ source $ file_of_loc sp_start of
+                    x:_ -> x
+                    [] -> ""
+
+                padded_delim = [' ', impchar, ' ']
+
+                file_line = [DiagLine "" '>' $ ANSI.setSGRCode Colors.file_path_sgr ++ name (file_of_loc sp_start) ++ ANSI.setSGRCode []]
+
+                surround_line str startcol endcol =
+                    not_surrounded_left ++ colorify padded_delim ++ surrounded ++ colorify padded_delim ++ not_surrounded_right
                     where
-                        any_underlines_left = any (\ (Message (Span _ before_end _) _ _ _) -> col <= coln_of_loc before_end) underlines
-                        in_cur_col = find (\ (Message (Span start before_end _) _ _ _) -> coln_of_loc start <= col && col <= coln_of_loc before_end) underlines
-                        current = case in_cur_col of
-                            Nothing -> Nothing
-                            Just (Message _ ty imp _) -> Just (imp, ty)
+                        str_extended = str ++ repeat ' '
+                        (not_surrounded_left, rest) = splitAt (startcol - 1) str_extended
+                                                       -- +1 because end column is included in the box
+                        (surrounded, rest') = splitAt (endcol - startcol + 1) rest
+                        not_surrounded_right = take (length str - endcol) rest'
 
-draw_section_line indent (MessageLine msgs) =
-    make_indent_with_divider '|' "" indent ++ draw msgs 1 "" ++ "\n"
-    where
-        draw curmessages@(_:_) col acc =
-            case curs of
-                [] -> draw rest (col + 1) (acc ++ " ")
-                [DMessage sgr _ str] ->
-                    let len = length str
-                    in draw rest (col + len + 4) (acc ++ ANSI.setSGRCode sgr ++ "`-- " ++ str ++ ANSI.setSGRCode [])
+                                                                                                -- +4 for '^ ' and ' ^'
+                                                                                                -- +1 for inclusive end
+                top_or_bottom startcol endcol = colorify $ replicate startcol ' ' ++ replicate (endcol - startcol + 4 + 1) impchar
 
-                _ -> error "multiple messages on the same column in MessageLine"
-
-            where
-                (curs, rest) = partition (\ (DMessage _ msgcol _) -> col == msgcol) curmessages
-
-        draw [] _ acc = acc
-
--- TODO: this is really messy and has a lot of magic numbers, refactor this maybe
-draw_section_line indent (MultilineMessageLines (Message (Span spstart sp_before_end _) ty imp msg)) =
-    fileline ++
-    before_first_quote_line ++
-    first_quote_line ++
-    fromMaybe "" after_first_quote_line ++
-    middle_quote_lines ++
-    fromMaybe "" before_last_quote_line ++
-    last_quote_line ++
-    after_last_quote_line
-    where
-        prefix ch = make_indent_with_divider ch "" indent
-
-        tycolor = ANSI.setSGRCode $ sgr_of_ty ty
-        colorify x = tycolor ++ x ++ ANSI.setSGRCode []
-
-        impchar = char_of_imp imp
-
-        fileline = draw_section_line indent $ FileLine $ file_of_loc spstart
-
-        startlnn = lnn_of_loc spstart
-        endlnn = lnn_of_loc sp_before_end
-        msglnns = [startlnn+1..endlnn-1]
-
-        firstcol = coln_of_loc spstart
-        mincol = 1 + minimum (map wh_in_line [startlnn+1..endlnn])
-            where
-                wh_in_line lnnr =
-                    if all isSpace ln
-                    then maxBound
-                    else length $ takeWhile isSpace ln
+                transition_line a1 b1 a2 b2 =
+                    if a1 == b1 && a2 == b2
+                    then []
+                    else [DiagLine "" '|' $ colorify (replicate abs1start ' ' ++ replicate abs1len impchar ++ replicate absdistbetween ' ' ++ replicate abs2len impchar)]
                     where
-                        ln = getlnn lnnr
-        maxcol = 1 + maximum (map (length . getlnn) [startlnn..endlnn-1])
-        lastcol = coln_of_loc sp_before_end
+                        lowerupper a b = (min a b, max a b)
+                        (lower1, upper1) = lowerupper a1 b1
+                        (lower2, upper2) = lowerupper a2 b2
 
-        getlnn n = case drop (n - 1) $ lines $ source $ file_of_loc spstart of
-            x:_ -> x
-            [] -> "after"
+                        abs1start = lower1
+                        abs1end = upper1
+                        abs2start = lower2 + 3 -- +3 for first divider, +1 for space before current divider, -1 for zero based columns
+                        abs2end = upper2 + 3
 
-        surround_delim = [' ', impchar, ' ']
-        surround str startcol endcol =
-            not_surrounded_left ++ colorify surround_delim ++ surrounded ++ colorify surround_delim ++ not_surrounded_right
-            where
-                str_extended = str ++ repeat ' '
-                (not_surrounded_left, rest) = splitAt (startcol - 1) str_extended
-                                               -- +1 because end column is included in the box
-                (surrounded, rest') = splitAt (endcol - startcol + 1) rest
-                not_surrounded_right = take (length str - endcol) rest'
-                                                                                   -- +4 for '^ ' and ' ^'
-                                                                                   -- +1 for inclusive end
-        topbottom startcol endcol = colorify $ replicate startcol ' ' ++ replicate (endcol-startcol+4+1) impchar
-        transition_line a1 b1 a2 b2 =
-            if a1 == b1 && a2 == b2
-            then Nothing
-            else Just $ make_indent_with_divider '|' "" indent ++ colorify (replicate abs1start ' ' ++ replicate abs1len impchar ++ replicate absdistbetween ' ' ++ replicate abs2len impchar) ++ "\n"
-            where
-                lowerupper a b = (min a b, max a b)
-                (lower1, upper1) = lowerupper a1 b1
-                (lower2, upper2) = lowerupper a2 b2
+                        abs1len = abs1end - abs1start + 1 -- +1 for inclusive end, if not then it's just the number of columsn in between, not including the end
+                        absdistbetween = abs2start - abs1end
+                        abs2len = abs2end - abs2start + 1 -- +1 also for inclusive end
 
-                abs1start = lower1
-                abs1end = upper1
-                abs2start = lower2 + 3 -- +3 for first divider, +1 for space before current divider, -1 for zero based columns
-                abs2end = upper2 + 3
+                before_first_quote_line = [DiagLine "" '|' (top_or_bottom first_col max_col)]
+                first_quote_line = [DiagLine (show first_line_nr) '|' (surround_line (get_line first_line_nr) first_col max_col)]
+                after_first_quote_line = transition_line first_col min_col max_col max_col
 
-                abs1len = abs1end - abs1start + 1 -- +1 for inclusive end, if not then it's just the number of columsn in between, not including the end
-                absdistbetween = abs2start - abs1end
-                abs2len = abs2end - abs2start + 1 -- +1 also for inclusive end
-
-        before_first_quote_line = prefix '|' ++ topbottom firstcol maxcol ++ "\n"
-        first_quote_line = make_indent_with_divider '|' (show startlnn) indent ++ surround (getlnn startlnn) firstcol maxcol ++ "\n"
-        after_first_quote_line = transition_line firstcol mincol maxcol maxcol
-
-        middle_quote_lines = lines_trimmed
-            where
-                lines_trimmed =
-                    if len <= 10
-                    then concatMap make_line msglnns
-                    else
-                        concatMap make_line (take 5 msglnns) ++
-                        make_indent_with_divider '|' (elipsis_prefix indent) indent ++ "...\n" ++
-                        concatMap make_line (drop (len - 5) msglnns)
+                middle_quote_lines = lines_trimmed
                     where
-                        len = length msglnns
-                make_line lnnr = make_indent_with_divider '|' (show lnnr) indent ++ surround (getlnn lnnr) mincol maxcol ++ "\n"
+                        lines_trimmed =
+                            let middle_line_nrs = [first_line_nr + 1 .. last_line_nr - 1]
+                                amt_middle_lines = length middle_line_nrs
+                            in if amt_middle_lines  <= 1
+                                then map make_line middle_line_nrs
+                                else
+                                    map make_line (take 5 middle_line_nrs) ++
+                                    [DiagLine "..." '|' "..."] ++
+                                    map make_line (drop (amt_middle_lines - 5) middle_line_nrs)
+                            where
+                                make_line lnnr = DiagLine (show lnnr) '|' (surround_line (get_line lnnr) min_col max_col)
 
-        before_last_quote_line = transition_line mincol mincol maxcol lastcol
-        last_quote_line = make_indent_with_divider '|' (show endlnn) indent ++ surround (getlnn endlnn) mincol lastcol ++ "\n"
-        after_last_quote_line = prefix '|' ++ topbottom mincol lastcol ++ colorify ("-- " ++ colorify msg) ++ "\n"
--}
+                before_last_quote_line = transition_line min_col min_col max_col last_col
+                last_quote_line = [DiagLine (show last_line_nr) '|' (surround_line (get_line last_line_nr) min_col last_col)]
+                after_last_quote_line = [DiagLine "" '|' (top_or_bottom min_col last_col)]

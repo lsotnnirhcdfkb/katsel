@@ -201,9 +201,9 @@ instance Message.ToDiagnostic (TypeError, IRCtx) where
             ]
         where
             clause_to_underline (ThingIs thing thingsp ty reason) =
-                MsgUnds.Underline thingsp [MsgUnds.Message MsgUnds.Note MsgUnds.Secondary $ "the " ++ thing ++ " is " ++ stringify_tyidx irctx ty ++ str_reason reason]
+                MsgUnds.Underline thingsp MsgUnds.Secondary [MsgUnds.Message MsgUnds.Note $ "the " ++ thing ++ " is " ++ stringify_tyidx irctx ty ++ str_reason reason]
             clause_to_underline (ThingShouldBe thing thingsp ty reason) =
-                MsgUnds.Underline thingsp [MsgUnds.Message MsgUnds.Note MsgUnds.Secondary $ "the " ++ thing ++ " should be " ++ stringify_tyidx irctx ty ++ str_reason reason]
+                MsgUnds.Underline thingsp MsgUnds.Secondary [MsgUnds.Message MsgUnds.Note $ "the " ++ thing ++ " should be " ++ stringify_tyidx irctx ty ++ str_reason reason]
 
             str_reason (Because reason) = " because " ++ reason
             str_reason NoReason = ""
