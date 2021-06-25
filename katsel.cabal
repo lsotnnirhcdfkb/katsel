@@ -20,12 +20,12 @@ executable katsel
 
                        -- lowering the ast into ir
                      , IR
+                     , IR.ConstFunctionPointer
                      , IR.DeclSpan
                      , IR.DeclSymbol
                      , IR.Describe
                      , IR.Dot
                      , IR.Function
-                     , IR.FunctionPointer
                      , IR.ID
                      , IR.IRCtx
                      , IR.MapSynonyms

@@ -171,7 +171,7 @@ dlower_irctx _ = not_necessary'
 lower_v :: LoweringFun IR.Value
 lower_v irctx mname = IR.apply_to_v (lower_fun_ptr irctx mname)
 
-lower_fun_ptr :: LoweringFun IR.FunctionPointer
+lower_fun_ptr :: LoweringFun IR.ConstFunctionPointer
 lower_fun_ptr irctx mname fptr =
     let ty = IR.type_of irctx fptr
         cdecl_strd = str_cdecl (type_to_cdecl' irctx ty (Just mname))

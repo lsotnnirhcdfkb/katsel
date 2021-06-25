@@ -14,7 +14,7 @@ import IR.Module
 import IR.Type
 
 import IR.Function
-import IR.FunctionPointer
+import IR.ConstFunctionPointer
 
 import IR.IRCtx
 
@@ -84,7 +84,7 @@ print_tyidx irctx = apply_to_tyidx (print_ty irctx) irctx
 print_v :: IRCtx -> Value -> String
 print_v irctx = apply_to_v (print_fun_ptr irctx)
 
-print_fun_ptr :: IRCtx -> FunctionPointer -> String
+print_fun_ptr :: IRCtx -> ConstFunctionPointer -> String
 print_fun_ptr _ fptr = "(address of function at interner index " ++ show (get_function_idx fptr) ++ ")"
 -- types {{{1
 print_ty :: IRCtx -> Type -> String

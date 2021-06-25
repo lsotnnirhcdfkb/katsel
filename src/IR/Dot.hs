@@ -13,7 +13,7 @@ import IR.Module
 import IR.Type
 
 import IR.Function
-import IR.FunctionPointer
+import IR.ConstFunctionPointer
 
 import IR.IRCtx
 
@@ -165,7 +165,7 @@ dot_tyidx irctx = apply_to_tyidx (dot_type irctx) irctx
 dot_v :: IRCtx -> Value -> Node
 dot_v irctx = apply_to_v (dot_fun_ptr irctx)
 
-dot_fun_ptr :: IRCtx -> FunctionPointer -> Node
+dot_fun_ptr :: IRCtx -> ConstFunctionPointer -> Node
 dot_fun_ptr irctx fptr = Node "function pointer" [make_node_field "pointee" (dot_fun irctx $ get_fptr_pointee irctx fptr)]
 -- types {{{1
 dot_type :: IRCtx -> Type -> (String, [(FieldColor, String, Either String Node)])

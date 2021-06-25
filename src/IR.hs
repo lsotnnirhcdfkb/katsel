@@ -29,7 +29,7 @@ module IR
     , Function
     , get_ret_type
     , get_param_types
-    , FunctionPointer
+    , ConstFunctionPointer
     , get_function_idx
 
     , get_child_map
@@ -69,7 +69,7 @@ import IR.Type
 import IR.RecFindEntities
 
 import IR.Value
-import IR.FunctionPointer
+import IR.ConstFunctionPointer
 import IR.Function
 
 import Interner
@@ -325,7 +325,7 @@ instance Parent p Value String => Lowerable AST.LSFunDecl p where
 
     vdefine (Located _ sf@(AST.SFunDecl' _ (Located _ name) _ _)) root parent = State.runState $
         get_s name parent >>= \ m_val ->
-        let m_fun = m_val >>= value_cast :: Maybe FunctionPointer
+        let m_fun = m_val >>= value_cast :: Maybe ConstFunctionPointer
         in case m_fun of
             -- silently ignore becuase the only way this can happen is if there is another global declaration
             -- that made a value of the same name that is not a function, which should already be reported as a duplicate value error
@@ -400,7 +400,7 @@ make_call_s root fv args = make_instr_s make_call (\ a -> a fv args) root
 make_br_cond_s :: Module -> Located FValue -> BlockIdx -> BlockIdx -> State.State (IRBuilder, FunctionCG, Function) (Either TypeError Br)
 make_br_cond_s root fv t f = make_instr_s make_br_cond (\ a -> a fv t f) root
 -- lower function body {{{3
-lower_fun_body :: Parent p Value String => AST.SFunDecl -> Module -> FunctionPointer -> p -> State.State IRBuilder p
+lower_fun_body :: Parent p Value String => AST.SFunDecl -> Module -> ConstFunctionPointer -> p -> State.State IRBuilder p
 lower_fun_body (AST.SFunDecl' _ _ params body) root fptr parent =
     State.get >>= \ (IRBuilder irctx _) ->
     let fun = get_fptr_pointee irctx fptr
