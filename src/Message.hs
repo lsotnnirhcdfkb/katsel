@@ -6,14 +6,13 @@ module Message
     , to_diagnostic
     , report
     , make_code
-    , make_indent_with_divider
     ) where
 
 import Location
 
 import qualified System.Console.ANSI as ANSI
 
-import Message.Underlines(UnderlinesSection, show_underlines_section, indent_of_underlines_section)
+import Message.Underlines(UnderlinesSection, show_underlines_section)
 import Message.Utils
 
 import qualified Colors
@@ -60,16 +59,17 @@ report = report' . to_diagnostic
 
 report' :: SimpleDiag -> String
 report' (SimpleDiag ty maybe_span maybe_diag_code maybe_name sections) =
-    header ++ "\n" ++
-    shown_sections ++
-    footer ++ "\n"
+    header ++
+    shown_diag_lines ++
+    footer ++
+    "\n"
     where
         header =
             ANSI.setSGRCode (sgr_of_diag_type ty) ++ text_of_diag_type ty ++ ANSI.setSGRCode [] ++
             (case maybe_span of
                 Just sp -> " at " ++ ANSI.setSGRCode Colors.file_path_sgr ++ fmt_span sp ++ ANSI.setSGRCode []
                 Nothing -> ""
-            ) ++ ":"
+            ) ++ ":\n"
 
         footer =
             case (maybe_diag_code, maybe_name) of
@@ -81,26 +81,25 @@ report' (SimpleDiag ty maybe_span maybe_diag_code maybe_name sections) =
             where
                 add_sgr sgr thing = ANSI.setSGRCode sgr ++ thing ++ ANSI.setSGRCode []
                 surround x y z = [x] ++ z ++ [y]
-                prefix = indent_str ++ "==> "
+                prefix = replicate (indent_amt + 1) ' ' ++ "==> "
 
-        shown_sections = concatMap (show_section indent_amt) sections
+        diag_lines = concatMap show_section sections
 
-        indent_amt = maximum $ map indent_of sections
-        indent_str = make_indent_str indent_amt
+        shown_diag_lines = concatMap show_diag_line diag_lines
+            where
+                show_diag_line (DiagLine prefix sep contents) = ind ++ prefix ++ " " ++ [sep] ++ " " ++ contents ++ "\n"
+                    where
+                        ind = replicate (indent_amt - length prefix) ' '
 
-indent_of :: Section -> Int
-indent_of (SimpleText _) = 4
-indent_of (SimpleMultilineText _) = 4
-indent_of (Underlines sec) = indent_of_underlines_section sec
-indent_of (Note _) = 4
+        indent_amt = maximum $ map indent_of diag_lines
+            where
+                indent_of (DiagLine prefix _ _) = length prefix
 
-show_section :: Int -> Section -> String
-show_section indent (SimpleText text) = make_indent_str indent ++ " " ++ text ++ "\n"
-show_section indent (SimpleMultilineText text) = unlines $ map ((indent_str ++ " ")++) $ lines text
-    where
-        indent_str = make_indent_str indent
-show_section indent (Note text) = make_indent_with_divider '\\' "" indent ++ notesgr ++ "note" ++ resetsgr ++ ": " ++ notesgr ++ text ++ resetsgr ++ "\n"
+show_section :: Section -> [DiagLine]
+show_section (SimpleText text) = [DiagLine "" '=' text]
+show_section (SimpleMultilineText text) = map (DiagLine "" '=') $ lines text
+show_section (Note text) = [DiagLine "" '\\' $ notesgr ++ "note" ++ resetsgr ++ ": " ++ notesgr ++ text ++ resetsgr ++ "\n"]
     where
         notesgr = ANSI.setSGRCode Colors.note_sgr
         resetsgr = ANSI.setSGRCode []
-show_section indent (Underlines sec) = show_underlines_section indent sec
+show_section (Underlines sec) = show_underlines_section sec

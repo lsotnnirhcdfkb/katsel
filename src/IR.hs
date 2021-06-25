@@ -119,7 +119,7 @@ duplicate_msg :: String -> String -> String -> (Maybe Span, String) -> (Maybe Sp
 duplicate_msg entity_kind diag_name name (old_sp, old_desc) (new_sp, new_desc) =
     let if_span m_sp ty imp msg =
             case m_sp of
-                Just sp -> Right $ MsgUnds.Message sp ty imp msg
+                Just sp -> Right $ MsgUnds.Underline sp [MsgUnds.Message ty imp msg]
                 Nothing -> Left $ Message.Note msg
 
         oldmsg = if_span old_sp MsgUnds.Note MsgUnds.Secondary $ entity_kind ++ " '" ++ name ++ "' already declared as " ++ old_desc
@@ -144,29 +144,29 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
     to_diagnostic (Unimplemented name sp, _) =
         Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
             [ Message.Underlines $ MsgUnds.UnderlinesSection
-                [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary $ "use of unimplemented feature: " ++ name
+                [ MsgUnds.Underline sp [MsgUnds.Message MsgUnds.Error MsgUnds.Primary $ "use of unimplemented feature: " ++ name]
                 ]
             ]
 
     to_diagnostic (NotAType path_sp ds, irctx) =
         Message.SimpleDiag Message.Error (Just path_sp) Nothing (Just "not-type")
             [ Message.Underlines $ MsgUnds.UnderlinesSection
-                [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary "not a type"
-                , MsgUnds.Message path_sp MsgUnds.Note MsgUnds.Secondary $ "this path resolved to " ++ describe irctx ds
+                [ MsgUnds.Underline path_sp [MsgUnds.Message MsgUnds.Error MsgUnds.Primary "not a type"]
+                , MsgUnds.Underline path_sp [MsgUnds.Message MsgUnds.Note MsgUnds.Secondary $ "this path resolved to " ++ describe irctx ds]
                 ]
             ]
 
     to_diagnostic (PathDoesntExist path_sp, _) =
         Message.SimpleDiag Message.Error (Just path_sp) Nothing (Just "path-doesnt-exist")
             [ Message.Underlines $ MsgUnds.UnderlinesSection
-                [ MsgUnds.Message path_sp MsgUnds.Error MsgUnds.Primary "entity referred to by path doesn't exist"
+                [ MsgUnds.Underline path_sp [MsgUnds.Message MsgUnds.Error MsgUnds.Primary "entity referred to by path doesn't exist"]
                 ]
             ]
 
     to_diagnostic (InvalidAssign target_sp op_sp, _) =
         Message.SimpleDiag Message.Error (Just op_sp) Nothing (Just "invalid-assign")
             [ Message.Underlines $ MsgUnds.UnderlinesSection
-                [ MsgUnds.Message target_sp MsgUnds.Error MsgUnds.Primary "cannot assign to non-lvalue"
+                [ MsgUnds.Underline target_sp [MsgUnds.Message MsgUnds.Error MsgUnds.Primary "cannot assign to non-lvalue"]
                 ]
             ]
 
@@ -175,7 +175,7 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
     to_diagnostic (AddrofNotLValue sp, _) =
         Message.SimpleDiag Message.Error (Just sp) Nothing (Just "bad-ref")
             [ Message.Underlines $ MsgUnds.UnderlinesSection
-                [ MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary "cannot take pointer to non-lvalue"
+                [ MsgUnds.Underline sp [MsgUnds.Message MsgUnds.Error MsgUnds.Primary "cannot take pointer to non-lvalue"]
                 ]
             ]
 

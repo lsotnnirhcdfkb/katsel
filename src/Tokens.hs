@@ -223,15 +223,15 @@ instance Message.ToDiagnostic LexError where
             InvalidBase basechr basechrsp _ ->
                 Message.SimpleDiag Message.Error (Just basechrsp) (Message.make_code "E0006") (Just "invalid-intlit-base")
                     [ Message.Underlines $ MsgUnds.UnderlinesSection
-                        [ MsgUnds.Message basechrsp MsgUnds.Error MsgUnds.Primary $ "invalid integer literal base '" ++ [basechr] ++ "' (must be 'x', 'o', or 'b' or omitted)"
+                        [ MsgUnds.Underline basechrsp [MsgUnds.Message MsgUnds.Error MsgUnds.Primary $ "invalid integer literal base '" ++ [basechr] ++ "' (must be 'x', 'o', or 'b' or omitted)"]
                         ]
                     ]
 
             InvalidDigit digitchr digitsp litsp ->
                 Message.SimpleDiag Message.Error (Just digitsp) (Message.make_code "E0007") (Just "invalid-digit")
                     [ Message.Underlines $ MsgUnds.UnderlinesSection
-                        [ MsgUnds.Message digitsp MsgUnds.Error MsgUnds.Primary $ "invalid digit '" ++ [digitchr] ++ "'"
-                        , MsgUnds.Message litsp MsgUnds.Note MsgUnds.Secondary "in this integer literal"
+                        [ MsgUnds.Underline digitsp [MsgUnds.Message MsgUnds.Error MsgUnds.Primary $ "invalid digit '" ++ [digitchr] ++ "'"]
+                        , MsgUnds.Underline litsp [MsgUnds.Message MsgUnds.Note MsgUnds.Secondary "in this integer literal"]
                         ]
                     ]
 
@@ -242,8 +242,7 @@ instance Message.ToDiagnostic LexError where
 
         where
             simple sp code nm msg = Message.SimpleDiag Message.Error (Just sp) (Message.make_code code) (Just nm)
-                    [ Message.Underlines $ MsgUnds.UnderlinesSection [MsgUnds.Message sp MsgUnds.Error MsgUnds.Primary msg]
-                    ]
+                    [Message.Underlines $ MsgUnds.UnderlinesSection [MsgUnds.Underline sp [MsgUnds.Message MsgUnds.Error MsgUnds.Primary msg]]]
 
 lex :: File -> [Either LexError (Located Token)]
 lex f = lex' [] [IndentationSensitive 0] $ Lexer

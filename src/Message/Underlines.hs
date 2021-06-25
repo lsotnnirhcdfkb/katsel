@@ -1,10 +1,10 @@
 module Message.Underlines
     ( UnderlinesSection(..)
+    , Underline(..)
     , Message(..)
     , Importance(..)
     , Type(..)
     , show_underlines_section
-    , indent_of_underlines_section
     ) where
 
 import Location
@@ -24,14 +24,19 @@ import qualified Colors
 
 -- TODO: clean up all the messy code in this file
 
-data UnderlinesSection = UnderlinesSection [Message]
-data Message = Message Span Type Importance String
+data UnderlinesSection = UnderlinesSection [Underline]
+data Underline = Underline Span [Message]
+data Message = Message Type Importance String
 data Importance = Primary | Secondary | Tertiary
 data Type = Error | Warning | Note | Hint
 
-data ShowLine = ShowLine File Int Dimness
+data LineToShow = LineToShow File Int Dimness
 data Dimness = Dim | Normal
 
+show_underlines_section :: UnderlinesSection -> [DiagLine]
+show_underlines_section (UnderlinesSection underlines) = [DiagLine "not implemented yet!" '|' "this is not implemented yet!"] -- TODO
+
+{-
 line_nrs_of_messages :: [Message] -> [ShowLine]
 line_nrs_of_messages msgs = sortBy sort_comparator $ nubBy nub_comparator lines_with_dim
     where
@@ -345,3 +350,4 @@ draw_section_line indent (MultilineMessageLines (Message (Span spstart sp_before
         before_last_quote_line = transition_line mincol mincol maxcol lastcol
         last_quote_line = make_indent_with_divider '|' (show endlnn) indent ++ surround (getlnn endlnn) mincol lastcol ++ "\n"
         after_last_quote_line = prefix '|' ++ topbottom mincol lastcol ++ colorify ("-- " ++ colorify msg) ++ "\n"
+-}
