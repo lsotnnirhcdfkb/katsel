@@ -434,16 +434,12 @@ data BlockGroup
 data BlockGroupCont
     = BlockGroupCont
       { bgc_start :: BlockIdx
-      , bgc_end :: BlockIdx
       , bgc_cont :: BlockIdx
       }
 
 bg_bgc :: Monad m => BlockGroup -> m b -> (BlockGroupCont -> m b) -> m b
 bg_bgc (BlockGroup _ _ Nothing) on_no_cont _ = on_no_cont
-bg_bgc (BlockGroup s e (Just c)) _ on_cont
-    -- bgc_end is never used elsewhere, so this is hre to remove the warning: "Defined but not used: ‘bgc_end’"
-    | const False (bgc_end undefined) = undefined
-    | otherwise = on_cont $ BlockGroupCont s e c
+bg_bgc (BlockGroup s _ (Just c)) _ on_cont = on_cont $ BlockGroupCont s c
 infixl 1 `bg_bgc`
 
 lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) ()
@@ -496,7 +492,7 @@ lower_expr (Located sp (AST.DExpr'If cond trueb@(Located truebsp _) m_falseb)) r
             add_instruction_s copy_instr block >>
             add_br_s (make_br_goto end_block) block >>
 
-            return (Right $ BlockGroupCont (bgc_start ir) block block)
+            return (Right $ BlockGroupCont (bgc_start ir) block)
 
     in block_and_ret_reg "true" trueb_ir trueb_val (error "true block result doesn't match type of result register") >>=<> ((>>return Nothing) . report_type_error) $ \ trueb_ir'' ->
     let cond_br = make_br_cond_s root cond_val (bgc_start trueb_ir'')
