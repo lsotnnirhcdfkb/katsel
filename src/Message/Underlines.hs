@@ -33,9 +33,6 @@ show_underlines_section underlines = singleline_underlines' ++ multiline_underli
         singleline_underlines' = show_singleline_underlines singleline_underlines
         multiline_underlines' = show_multiline_underlines multiline_underlines
 
-is_single_line :: Span -> Bool
-is_single_line (Span start before_end _) = lnn_of_loc start == lnn_of_loc before_end
-
 show_singleline_underlines :: [Underline] -> [DiagLine]
 show_singleline_underlines underlines = concat $ zipWith make_lines lines_shown (Nothing : map Just lines_shown)
     where

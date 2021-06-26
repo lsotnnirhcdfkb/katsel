@@ -11,6 +11,7 @@ module Location
     , lnn_of_loc
     , coln_of_loc
     , file_of_loc
+    , is_single_line
     ) where
 
 import File
@@ -70,3 +71,6 @@ find_lnn file ind = 1 + length (filter ('\n'==) (take ind $ source file))
 
 find_coln :: File -> Int -> Int
 find_coln file ind = 1 + length (takeWhile (/='\n') $ reverse $ take ind $ source file)
+
+is_single_line :: Span -> Bool
+is_single_line (Span start before_end _) = lnn_of_loc start == lnn_of_loc before_end
