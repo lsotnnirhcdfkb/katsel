@@ -16,7 +16,9 @@ data TestSuite = TestSuite [Test]
 data Test
     = Describe String [Test]
     | When String [Test]
-    | ItCan String Bool
+    | ItCan String TestResult
+
+data TestResult = Pass | Fail String | Untested
 
 run_test_suite :: TestSuite -> IO ()
 run_test_suite (TestSuite tests) =
@@ -35,13 +37,10 @@ run_test indent_amt (When context test_list) =
 
 run_test indent_amt (ItCan action result) =
     indent_put_str indent_amt "it " >>
-    (if result
-        then putStr "can "
-        else putStr "cannot "
-    ) >>
-    putStrLn action >>
-    return result
-
+    case result of
+        Pass -> putStr ("can " ++ action) >> return True
+        Fail msg -> putStr ("cannot " ++ action ++ ": " ++ msg) >> return False
+        Untested -> putStr ("maybe can " ++ action) >> return True
 
 indent :: Int -> String
 indent = (`replicate` ' ')
