@@ -9,7 +9,7 @@ import Message.Utils
 
 import qualified Colors
 
-import Data.Maybe(maybeToList)
+import Data.Maybe(maybeToList, isJust)
 import Data.List(foldl')
 
 import qualified System.Console.ANSI as ANSI
@@ -67,12 +67,15 @@ show_place (sp@(Span cur_start cur_before _), msg) m_last =
                             upper = max last_end_col start_col
                     
                 Nothing -> Nothing
-        current_pipe_and_arrow_lines =
-            DiagLine "" '|' <$>
-                (case transition_line of
-                    Just _ -> [replace_with_pipe (start_col - 1) ""]
-                    Nothing -> []
-                ) ++ [replace_at (start_col - 1) ' ' 'v' ""]
+
+        current_pipe_and_arrow_lines
+            | isJust m_last =
+                DiagLine "" '|' <$>
+                    (case transition_line of
+                        Just _ -> [replace_with_pipe (start_col - 1) ""]
+                        Nothing -> []
+                    ) ++ [replace_at (start_col - 1) ' ' 'v' ""]
+            | otherwise = []
 
         (underline_lines, start_col, end_col)
             | is_single_line sp =
