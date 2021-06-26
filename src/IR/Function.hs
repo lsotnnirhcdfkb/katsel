@@ -187,23 +187,38 @@ function_not_defined = (2==) . length . get_blocks -- a function starts out with
 
 -- making instructions and branches for typechecking {{{1
 -- TypeError datatype {{{2
-data TypeError = TypeError [TypeErrorClause]
+data TypeError = TypeError TypeErrorClause [TypeErrorClause]
 data TypeErrorClause
     = ThingIs String Span (InternerIdx Type) Reason
     | ThingShouldBe String Span (InternerIdx Type) Reason
 data Reason = Because String | NoReason
 
 instance Message.ToDiagnostic (TypeError, IRCtx) where
-    to_diagnostic (TypeError clauses, irctx) =
-        -- TODO: spans
-        Message.SimpleDiag Message.Error Nothing Nothing Nothing
-            [ Message.Underlines $ MsgUnds.UnderlinesSection $ map clause_to_underline clauses
+    to_diagnostic (TypeError main_clause clauses, irctx) =
+        Message.SimpleDiag Message.Error (Just main_span) Nothing Nothing
+            [ Message.Underlines $ MsgUnds.UnderlinesSection $ clause_to_underline True main_clause : map (clause_to_underline False) clauses
             ]
         where
-            clause_to_underline (ThingIs thing thingsp ty reason) =
-                MsgUnds.Underline thingsp MsgUnds.Secondary [MsgUnds.Message MsgUnds.Note $ "the " ++ thing ++ " is '" ++ stringify_tyidx irctx ty ++ "'" ++ str_reason reason]
-            clause_to_underline (ThingShouldBe thing thingsp ty reason) =
-                MsgUnds.Underline thingsp MsgUnds.Secondary [MsgUnds.Message MsgUnds.Note $ "the " ++ thing ++ " should be '" ++ stringify_tyidx irctx ty ++ "'" ++ str_reason reason]
+            get_clause_span (ThingIs _ sp _ _) = sp
+            get_clause_span (ThingShouldBe _ sp _ _) = sp
+
+            main_span = get_clause_span main_clause
+
+            clause_to_underline is_main clause =
+                MsgUnds.Underline thingsp msg_imp [MsgUnds.Message msg_ty msg]
+                where
+                    msg_imp
+                        | is_main = MsgUnds.Primary
+                        | otherwise = MsgUnds.Secondary
+                    msg_ty
+                        | is_main = MsgUnds.Error
+                        | otherwise = MsgUnds.Note
+
+                    thingsp = get_clause_span clause
+
+                    msg = case clause of
+                        ThingIs thing _ ty reason -> "the " ++ thing ++ " is '" ++ stringify_tyidx irctx ty ++ "'" ++ str_reason reason
+                        ThingShouldBe thing _ ty reason -> "the " ++ thing ++ " should be '" ++ stringify_tyidx irctx ty ++ "'" ++ str_reason reason
 
             str_reason (Because reason) = " because " ++ reason
             str_reason NoReason = ""
@@ -216,8 +231,8 @@ make_copy irctx fun root (Located lvsp lv) lv_name (Located fvsp fv) fv_name =
     in ( if ty_match' irctx lvty fvty
              then Right $ Copy lv fv
              else Left $ TypeError
+                         ( ThingIs fv_name fvsp fvty NoReason )
                          [ ThingIs lv_name lvsp lvty NoReason
-                         , ThingIs fv_name fvsp fvty NoReason
                          ]
        , irctx
        )
@@ -237,8 +252,8 @@ make_br_cond irctx fun root (Located condsp cond) t f =
     in ( if ty_match' irctx cond_ty bool_ty
           then Right $ BrCond cond t f
           else Left $ TypeError
-                  [ ThingIs "branch condition's type" condsp cond_ty NoReason
-                  , ThingShouldBe "branch condition's type" condsp bool_ty NoReason
+                  ( ThingIs "branch condition's type" condsp cond_ty NoReason )
+                  [ ThingShouldBe "branch condition's type" condsp bool_ty NoReason
                   ]
        , irctx
        )
