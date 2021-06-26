@@ -428,7 +428,6 @@ lower_fun_body (AST.SFunDecl' _ _ params body) root fptr parent =
 data BlockGroup
     = BlockGroup
       { bg_start :: BlockIdx
-      , bg_end :: BlockIdx
       , bg_cont :: Maybe BlockIdx
       }
 data BlockGroupCont
@@ -438,8 +437,8 @@ data BlockGroupCont
       }
 
 bg_bgc :: Monad m => BlockGroup -> m b -> (BlockGroupCont -> m b) -> m b
-bg_bgc (BlockGroup _ _ Nothing) on_no_cont _ = on_no_cont
-bg_bgc (BlockGroup s _ (Just c)) _ on_cont = on_cont $ BlockGroupCont s c
+bg_bgc (BlockGroup _ Nothing) on_no_cont _ = on_no_cont
+bg_bgc (BlockGroup s (Just c)) _ on_cont = on_cont $ BlockGroupCont s c
 infixl 1 `bg_bgc`
 
 lower_body_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) ()
@@ -507,14 +506,14 @@ lower_expr (Located sp (AST.DExpr'If cond trueb@(Located truebsp _) m_falseb)) r
 
                 add_br_s br (bgc_cont cond_ir) >>
 
-                return (Just $ BlockGroup (bgc_start cond_ir) end_block (Just end_block))
+                return (Just $ BlockGroup (bgc_start cond_ir) (Just end_block))
 
             Nothing ->
                 cond_br end_block >>=<> ((>>return Nothing) . report_type_error) $ \ br ->
 
                 add_br_s br (bgc_cont cond_ir) >>
 
-                return (Just $ BlockGroup (bgc_start cond_ir) end_block (Just end_block))
+                return (Just $ BlockGroup (bgc_start cond_ir) (Just end_block))
 
     ) >>=? return Nothing $ \ blocks ->
     return $ Just (blocks, Located sp $ FVNLVRegister ret_reg)
@@ -533,7 +532,7 @@ lower_expr (Located sp (AST.DExpr'While cond body)) root =
 
     add_br_s (make_br_goto while_after) (bgc_cont body_ir) >>
 
-    return (Just (BlockGroup (bgc_start cond_ir) while_after (Just while_after), Located sp FVUnit))
+    return (Just (BlockGroup (bgc_start cond_ir) (Just while_after), Located sp FVUnit))
 
 lower_expr (Located sp (AST.DExpr'Assign target@(Located target_sp _) (Located op_sp AST.Equal) expr)) root =
     lower_expr target root >>=? return Nothing $ \ (target_ir', target_val) ->
@@ -551,7 +550,7 @@ lower_expr (Located sp (AST.DExpr'Assign target@(Located target_sp _) (Located o
             add_br_s (make_br_goto (bgc_start expr_ir)) (bgc_cont target_ir) >>
             add_br_s (make_br_goto assign_block) (bgc_cont expr_ir) >>
 
-            return (Just (BlockGroup (bgc_start target_ir) assign_block (Just assign_block), Located sp FVUnit))
+            return (Just (BlockGroup (bgc_start target_ir) (Just assign_block), Located sp FVUnit))
 
         _ ->
             apply_irb_to_funcgtup_s (add_error_s $ InvalidAssign target_sp op_sp) >>
@@ -614,20 +613,20 @@ lower_expr (Located sp (AST.DExpr'Method _ _ _)) _ =
 lower_expr (Located sp (AST.DExpr'Int i)) _ =
     apply_irb_to_funcgtup_s (get_ty_s (IntType Map.empty 32 Unsigned)) >>= \ ty ->
     add_basic_block_s "literal_int_expr" >>= \ block ->
-    return (Just (BlockGroup block block (Just block), Located sp $ FVConstInt i ty))
+    return (Just (BlockGroup block (Just block), Located sp $ FVConstInt i ty))
 
 lower_expr (Located sp (AST.DExpr'Float d)) _ =
     apply_irb_to_funcgtup_s (get_ty_s (FloatType Map.empty 32)) >>= \ ty ->
     add_basic_block_s "literal_float_expr" >>= \ block ->
-    return (Just (BlockGroup block block (Just block), Located sp $ FVConstFloat d ty))
+    return (Just (BlockGroup block (Just block), Located sp $ FVConstFloat d ty))
 
 lower_expr (Located sp (AST.DExpr'Bool b)) _ =
     add_basic_block_s "literal_bool_expr" >>= \ block ->
-    return $ Just (BlockGroup block block (Just block), Located sp $ FVConstBool b)
+    return $ Just (BlockGroup block (Just block), Located sp $ FVConstBool b)
 
 lower_expr (Located sp (AST.DExpr'Char c)) _ =
     add_basic_block_s "literal_char_expr" >>= \ block ->
-    return $ Just (BlockGroup block block (Just block), Located sp $ FVConstChar c)
+    return $ Just (BlockGroup block (Just block), Located sp $ FVConstChar c)
 
 lower_expr (Located sp (AST.DExpr'String _)) _ =
     apply_irb_to_funcgtup_s (add_error_s $ Unimplemented "string literal expressions" sp) >> -- TODO
@@ -653,10 +652,10 @@ lower_expr (Located sp (AST.DExpr'Path path)) root =
     ) >>= \ m_res ->
     add_basic_block_s "resolve_path_expr" >>= \ block ->
     case m_res of
-        Just reg_fv -> return $ Just (BlockGroup block block (Just block), Located sp reg_fv)
+        Just reg_fv -> return $ Just (BlockGroup block (Just block), Located sp reg_fv)
         Nothing ->
             apply_irb_to_funcgtup_s (State.state $ resolve_path_v path root) >>=? return Nothing $ \ (_, vid) ->
-            return $ Just (BlockGroup block block (Just block), Located sp $ FVGlobalValue vid)
+            return $ Just (BlockGroup block (Just block), Located sp $ FVGlobalValue vid)
 
 lower_expr (Located sp (AST.DExpr'Ret expr)) root =
     lower_expr expr root >>=? return Nothing $ \ (expr_ir', expr_val) ->
@@ -672,7 +671,7 @@ lower_expr (Located sp (AST.DExpr'Ret expr)) root =
     add_instruction_s copy_instr put_block >>
     add_br_s (make_br_goto $ get_exit_block fun) put_block >>
 
-    return (Just (BlockGroup (bgc_start expr_ir) put_block Nothing, Located sp FVUnit))
+    return (Just (BlockGroup (bgc_start expr_ir) Nothing, Located sp FVUnit))
 
 lower_block_expr :: AST.LSBlockExpr -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe (BlockGroup, Located FValue))
 lower_block_expr (Located blocksp (AST.SBlockExpr' stmts)) root =
@@ -721,11 +720,11 @@ lower_block_expr (Located blocksp (AST.SBlockExpr' stmts)) root =
     in set_brs total_irs >>= \case
         [] ->
             add_basic_block_s "empty_block_expr" >>= \ b ->
-            return (Just (BlockGroup b b (Just b), res_val))
+            return (Just (BlockGroup b (Just b), res_val))
         [single] -> return $ Just (single, res_val)
         first_block:more ->
             let last_block = last more
-            in return (Just (BlockGroup (bg_start first_block) (bg_end last_block) (bg_cont last_block), res_val))
+            in return (Just (BlockGroup (bg_start first_block) (bg_cont last_block), res_val))
 
 lower_stmt :: AST.LDStmt -> Module -> State.State (IRBuilder, FunctionCG, Function) (Maybe BlockGroup)
 lower_stmt (Located _ (AST.DStmt'Expr ex)) root = (fst <$>) <$> lower_expr ex root
@@ -743,7 +742,7 @@ lower_stmt (Located _ (AST.DStmt'Var ty (Located name_sp name) m_init)) root =
         Right () -> return $ Just ()
     ) >>=? return Nothing $ \ _ ->
     case m_init of
-        Nothing -> add_basic_block_s "new_var" >>= \ block -> return (Just $ BlockGroup block block (Just block))
+        Nothing -> add_basic_block_s "new_var" >>= \ block -> return (Just $ BlockGroup block (Just block))
         Just init_expr ->
             lower_expr init_expr root >>=? return Nothing $ \ (init_expr_ir', init_expr_val) ->
             init_expr_ir' `bg_bgc` return Nothing $ \ init_expr_ir ->
@@ -754,7 +753,7 @@ lower_stmt (Located _ (AST.DStmt'Var ty (Located name_sp name) m_init)) root =
 
             add_br_s (make_br_goto init_block) (bgc_cont init_expr_ir) >>
 
-            return (Just $ BlockGroup (bgc_start init_expr_ir) init_block (Just init_block))
+            return (Just $ BlockGroup (bgc_start init_expr_ir) (Just init_block))
 
 -- lowering declarations {{{1
 instance Parent p Value String => Lowerable AST.LDDecl p where
