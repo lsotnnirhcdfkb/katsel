@@ -43,7 +43,7 @@ print_irctx irctx =
 print_interner :: String -> (a -> String) -> Interner a -> String
 print_interner interner_label str_fun interner =
     interner_label ++ " interner {\n" ++
-    indent 4 (concatMap (++"\n") $ zipWith str_with_idx idxs items) ++
+    indent 4 (unlines $ zipWith str_with_idx idxs items) ++
     "}\n"
     where
         str_with_idx idx item = "[" ++ show idx ++ "]" ++ " " ++ str_fun item
