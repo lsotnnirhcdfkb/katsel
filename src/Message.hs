@@ -45,7 +45,7 @@ sgr_of_diag_type DebugMessage = Colors.dbgmsg_sgr
 newtype DiagCode = DiagCode String
 
 make_code :: String -> Maybe DiagCode
-make_code str = Just $ DiagCode str
+make_code = Just . DiagCode
 
 data SimpleDiag = SimpleDiag SimpleDiagType (Maybe Span) (Maybe DiagCode) (Maybe String) [Section]
 
