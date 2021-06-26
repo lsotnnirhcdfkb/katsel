@@ -52,10 +52,11 @@ executable brace
 
                        -- message things (diagnostics)
                      , Message
-                     , Message.Underlines
-                     , Message.Utils
+                     , Message.Arrows
                      , Message.PrettyPrint
                      , Message.PrettyPrintTH
+                     , Message.Underlines
+                     , Message.Utils
 
                      -- ANSI colors
                      , Colors

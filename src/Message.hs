@@ -13,6 +13,7 @@ import Location
 import qualified System.Console.ANSI as ANSI
 
 import Message.Underlines(Underline, show_underlines_section)
+import Message.Arrows
 import Message.Utils
 
 import qualified Colors
@@ -21,6 +22,7 @@ data Section
     = SimpleText String
     | SimpleMultilineText String
     | Underlines [Underline]
+    | Arrows [(Span, String)]
     | Note String
 
 data SimpleDiagType
@@ -105,3 +107,4 @@ show_section (Note text) = [DiagLine "" '\\' $ notesgr ++ "note" ++ resetsgr ++ 
         notesgr = ANSI.setSGRCode Colors.note_sgr
         resetsgr = ANSI.setSGRCode []
 show_section (Underlines us) = show_underlines_section us
+show_section (Arrows places) = show_arrows places

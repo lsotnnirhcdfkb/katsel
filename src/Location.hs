@@ -3,6 +3,7 @@ module Location
     , Span(..)
     , Located(..)
     , make_location
+    , make_location_from_ind
     , join_span
     , fmt_location
     , fmt_span
@@ -25,9 +26,11 @@ data Location
       }
     deriving Eq
 
-
 make_location :: File -> Int -> Int -> Int -> Location
 make_location = Location
+
+make_location_from_ind :: File -> Int -> Location
+make_location_from_ind file ind = Location file ind (find_lnn file ind) (find_coln file ind)
 
 fmt_location :: Location -> String
 fmt_location (Location file _ lnnr coln) = name file ++ ":" ++ show lnnr ++ ":" ++ show coln
@@ -61,3 +64,9 @@ data Located a
 
 instance Functor Located where
     fmap f (Located sp v) = Located sp (f v)
+
+find_lnn :: File -> Int -> Int
+find_lnn file ind = 1 + length (filter ('\n'==) (take ind $ source file))
+
+find_coln :: File -> Int -> Int
+find_coln file ind = 1 + length (takeWhile (/='\n') $ reverse $ take ind $ source file)
