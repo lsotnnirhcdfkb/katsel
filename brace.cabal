@@ -54,9 +54,11 @@ executable brace
       Message.Underlines
       Message.Utils
       Tokens
+      Test
       Paths_brace
   hs-source-dirs:
       src
+      test
   default-extensions:
       LambdaCase
   ghc-options: -Wall
@@ -72,9 +74,45 @@ test-suite brace-test
   type: exitcode-stdio-1.0
   main-is: test.hs
   other-modules:
+      AST
+      CBackend
+      Colors
+      Driver
+      File
+      Interner
+      IR
+      IR.ConstFunctionPointer
+      IR.DeclSpan
+      IR.DeclSymbol
+      IR.Dot
+      IR.Function
+      IR.ID
+      IR.IRCtx
+      IR.MapSynonyms
+      IR.Module
+      IR.Parent
+      IR.Print
+      IR.RecFindEntities
+      IR.Type
+      IR.Typed
+      IR.TypeStuffAndIRCtx.Stuff
+      IR.Value
+      Location
+      Main
+      Mangle
+      Mangle.Tag
+      Mangle.TagName
+      Message
+      Message.Arrows
+      Message.PrettyPrint
+      Message.PrettyPrintTH
+      Message.Underlines
+      Message.Utils
+      Tokens
       Test
       Paths_brace
   hs-source-dirs:
+      src
       test
   default-extensions:
       LambdaCase

@@ -19,9 +19,11 @@ executable:
   main: Main.hs
   source-dirs:
     - src
+    - test
 
 tests:
   brace-test:
     main: test.hs
     source-dirs:
+      - src
       - test
