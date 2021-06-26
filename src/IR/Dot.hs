@@ -180,11 +180,10 @@ dot_type _ (IntType _ size signedness) =
         ])
 dot_type _ (CharType _) = ("char type", [])
 dot_type _ (BoolType _) = ("bool type", [])
-dot_type irctx (FunctionPointerType _ ret _) =
-    ("function pointer type",
-        [ make_node_field "return type" (nodify dot_tyidx irctx ret)
-        , make_str_field "parameter types" "<todo>" -- TODO
-        ])
+dot_type irctx (FunctionPointerType _ ret params) =
+    ("function pointer type", [make_node_field "return type" (nodify dot_tyidx irctx ret)] ++ zipWith dot_param ([0..] :: [Int]) params)
+    where
+        dot_param i ty = make_node_field ("parameter type " ++ show i) (nodify dot_tyidx irctx ty)
 dot_type _ (UnitType _) = ("unit type", [])
 -- functions {{{1
 dot_fun :: IRCtx -> Function -> Node
