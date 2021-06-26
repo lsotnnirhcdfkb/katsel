@@ -127,7 +127,7 @@ duplicate_msg entity_kind diag_name name old_sp new_sp =
         underlines_section =
             case [x | Right x <- totalmsgs] of
                 [] -> Nothing
-                msgs -> Just $ Message.Underlines $ MsgUnds.UnderlinesSection msgs
+                msgs -> Just $ Message.Underlines msgs
         notes = [Just x | Left x <- totalmsgs]
         sections = catMaybes $ underlines_section : notes
     in Message.SimpleDiag Message.Error new_sp Nothing (Just diag_name) sections
@@ -141,14 +141,14 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
 
     to_diagnostic (Unimplemented name sp, _) =
         Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
-            [ Message.Underlines $ MsgUnds.UnderlinesSection
+            [ Message.Underlines
                 [ MsgUnds.Underline sp MsgUnds.Primary [MsgUnds.Message MsgUnds.Error $ "use of unimplemented feature: " ++ name]
                 ]
             ]
 
     to_diagnostic (NotAType path_sp _, _) =
         Message.SimpleDiag Message.Error (Just path_sp) Nothing (Just "not-type")
-            [ Message.Underlines $ MsgUnds.UnderlinesSection
+            [ Message.Underlines
                 [ MsgUnds.Underline path_sp MsgUnds.Primary [MsgUnds.Message MsgUnds.Error "not a type"]
                 -- , MsgUnds.Underline path_sp MsgUnds.Secondary [MsgUnds.Message MsgUnds.Note $ "this path resolved to " ++ describe irctx ds] -- TODO: get entity type name
                 ]
@@ -156,14 +156,14 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
 
     to_diagnostic (PathDoesntExist path_sp, _) =
         Message.SimpleDiag Message.Error (Just path_sp) Nothing (Just "path-doesnt-exist")
-            [ Message.Underlines $ MsgUnds.UnderlinesSection
+            [ Message.Underlines
                 [ MsgUnds.Underline path_sp MsgUnds.Primary [MsgUnds.Message MsgUnds.Error "entity referred to by path doesn't exist"]
                 ]
             ]
 
     to_diagnostic (InvalidAssign target_sp op_sp, _) =
         Message.SimpleDiag Message.Error (Just op_sp) Nothing (Just "invalid-assign")
-            [ Message.Underlines $ MsgUnds.UnderlinesSection
+            [ Message.Underlines
                 [ MsgUnds.Underline target_sp MsgUnds.Primary [MsgUnds.Message MsgUnds.Error "cannot assign to non-lvalue"]
                 ]
             ]
@@ -172,7 +172,7 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
 
     to_diagnostic (AddrofNotLValue sp, _) =
         Message.SimpleDiag Message.Error (Just sp) Nothing (Just "bad-ref")
-            [ Message.Underlines $ MsgUnds.UnderlinesSection
+            [ Message.Underlines
                 [ MsgUnds.Underline sp MsgUnds.Primary [MsgUnds.Message MsgUnds.Error "cannot take pointer to non-lvalue"]
                 ]
             ]

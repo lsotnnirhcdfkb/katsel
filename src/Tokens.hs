@@ -222,14 +222,14 @@ instance Message.ToDiagnostic LexError where
 
             InvalidBase basechr basechrsp _ ->
                 Message.SimpleDiag Message.Error (Just basechrsp) (Message.make_code "E0006") (Just "invalid-intlit-base")
-                    [ Message.Underlines $ MsgUnds.UnderlinesSection
+                    [ Message.Underlines
                         [ MsgUnds.Underline basechrsp MsgUnds.Primary [MsgUnds.Message MsgUnds.Error $ "invalid integer literal base '" ++ [basechr] ++ "' (must be 'x', 'o', or 'b' or omitted)"]
                         ]
                     ]
 
             InvalidDigit digitchr digitsp litsp ->
                 Message.SimpleDiag Message.Error (Just digitsp) (Message.make_code "E0007") (Just "invalid-digit")
-                    [ Message.Underlines $ MsgUnds.UnderlinesSection
+                    [ Message.Underlines
                         [ MsgUnds.Underline digitsp MsgUnds.Primary [MsgUnds.Message MsgUnds.Error $ "invalid digit '" ++ [digitchr] ++ "'"]
                         , MsgUnds.Underline litsp MsgUnds.Secondary [MsgUnds.Message MsgUnds.Note "in this integer literal"]
                         ]
@@ -242,7 +242,7 @@ instance Message.ToDiagnostic LexError where
 
         where
             simple sp code nm msg = Message.SimpleDiag Message.Error (Just sp) (Message.make_code code) (Just nm)
-                    [Message.Underlines $ MsgUnds.UnderlinesSection [MsgUnds.Underline sp MsgUnds.Primary [MsgUnds.Message MsgUnds.Error msg]]]
+                    [Message.Underlines [MsgUnds.Underline sp MsgUnds.Primary [MsgUnds.Message MsgUnds.Error msg]]]
 
 lex :: File -> [Either LexError (Located Token)]
 lex f = lex' [] [IndentationSensitive 0] $ Lexer

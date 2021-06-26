@@ -1,6 +1,5 @@
 module Message.Underlines
-    ( UnderlinesSection(..)
-    , Underline(..)
+    ( Underline(..)
     , Message(..)
     , Importance(..)
     , Type(..)
@@ -20,14 +19,13 @@ import Data.Char(isSpace)
 
 import qualified System.Console.ANSI as ANSI
 
-data UnderlinesSection = UnderlinesSection [Underline]
 data Underline = Underline { get_span_of_underline :: Span, get_importance_of_underline :: Importance, get_messages_of_underline :: [Message] }
 data Message = Message Type String
 data Importance = Primary | Secondary | Tertiary
 data Type = Error | Warning | Note | Hint
 
-show_underlines_section :: UnderlinesSection -> [DiagLine]
-show_underlines_section (UnderlinesSection underlines) = singleline_underlines' ++ multiline_underlines'
+show_underlines_section :: [Underline] -> [DiagLine]
+show_underlines_section underlines = singleline_underlines' ++ multiline_underlines'
     where
         (singleline_underlines, multiline_underlines) = partition (is_single_line . get_span_of_underline) underlines
 

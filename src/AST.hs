@@ -265,7 +265,7 @@ instance Message.ToDiagnostic ParseError where
     -- TODO: put span in error line (pass into Message.SimpleDiag constructor)
     to_diagnostic (ParseError msgs) =
         Message.SimpleDiag Message.Error Nothing Nothing Nothing $
-            Message.Underlines (MsgUnds.UnderlinesSection messages) : extra_sections
+            Message.Underlines messages : extra_sections
         where
             maxind = maximum $ map condloc msgs
             to_show = map condv $ combine_all $ nub $ filter ((maxind==) . condloc) msgs
@@ -293,7 +293,7 @@ instance Message.ToDiagnostic ParseError where
 instance Message.ToDiagnostic UncondError where
     to_diagnostic (ThisParamMustBeFirst sp) =
         Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
-            [ Message.Underlines $ MsgUnds.UnderlinesSection
+            [ Message.Underlines
                 [ MsgUnds.Underline sp MsgUnds.Primary [MsgUnds.Message MsgUnds.Error "'this' parameters must be the first parameter"]
                 ]
             ]

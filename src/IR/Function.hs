@@ -189,7 +189,7 @@ data Reason = Because String | NoReason
 instance Message.ToDiagnostic (TypeError, IRCtx) where
     to_diagnostic (TypeError main_clause clauses, irctx) =
         Message.SimpleDiag Message.Error (Just main_span) Nothing Nothing
-            [ Message.Underlines $ MsgUnds.UnderlinesSection $ clause_to_underline True main_clause : map (clause_to_underline False) clauses
+            [ Message.Underlines $ clause_to_underline True main_clause : map (clause_to_underline False) clauses
             ]
         where
             get_clause_span (ThingIs _ sp _ _) = sp
