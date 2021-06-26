@@ -1,0 +1,27 @@
+name: brace
+version: 0.0.0
+maintainer: Jason Nguyen <lsotnnirhcdfkb@gmail.com>
+github: lsotnnirhcdfkb/brace
+
+ghc-options: -Wall
+
+default-extensions:
+  - LambdaCase
+
+dependencies:
+  - base
+  - ansi-terminal
+  - mtl
+  - containers
+  - template-haskell
+
+executable:
+  main: Main.hs
+  source-dirs:
+    - src
+
+tests:
+  brace-test:
+    main: test.hs
+    source-dirs:
+      - test

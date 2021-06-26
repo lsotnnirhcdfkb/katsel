@@ -9,6 +9,8 @@ profile/*
 # no DS_Store files please
 **/.DS_Store
 
+stack.yaml.lock
+
 # from the gitignore Haskell template
 dist
 dist-*
