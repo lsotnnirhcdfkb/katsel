@@ -8,6 +8,8 @@ module Test
 
 -- inspired by RSpec
 
+import Control.Monad(unless)
+
 import System.Exit(exitFailure)
 
 data TestSuite = TestSuite [Test]
@@ -19,9 +21,7 @@ data Test
 run_test_suite :: TestSuite -> IO ()
 run_test_suite (TestSuite tests) =
     run_test_list 0 tests >>= \ success ->
-    if success
-        then return ()
-        else exitFailure
+    unless success exitFailure
 
 run_test :: Int -> Test -> IO Bool
 
@@ -50,4 +50,4 @@ indent_put_str :: Int -> String -> IO ()
 indent_put_str amt = putStr . (indent amt ++)
 
 run_test_list :: Int -> [Test] -> IO Bool
-run_test_list indent_amt test_list = all id <$> mapM (run_test indent_amt) test_list
+run_test_list indent_amt test_list = and <$> mapM (run_test indent_amt) test_list
