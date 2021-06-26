@@ -85,20 +85,12 @@ compile num max_num filename =
     open_file filename >>= \ file ->
     let (ErrorAcc result diagnostics) =
             lex_stage file >>=
-            parse_stage >>= \ parsed ->
-            (case parsed of
+            parse_stage >>= \case
                 Just ast ->
                     lower_ast_stage ast >>= \ ir'@(ir, irctx) ->
                     lower_to_c_stage irctx ir >>= \ ccode ->
                     return (Just (ir', ccode))
                 Nothing -> return Nothing
-            ) >>= \ r ->
-            add_errors
-                [ Message.SimpleDiag Message.DebugMessage Nothing Nothing Nothing
-                    [ Message.Arrows $ (\ i -> (Span (make_location_from_ind file (i * 40)) (make_location_from_ind file (i * 40 + 19)) (make_location_from_ind file (i * 40 + 20)), show i)) <$> [0..30]
-                    ]
-                ] >>
-            return r
 
         sorted_diagnostics =
             sortBy type_comparator diagnostics
