@@ -9,7 +9,7 @@ maintainer:          lsotnnirhcdfkb@gmail.com
 build-type:          Simple
 
 executable brace
-  hs-source-dirs:      src
+  hs-source-dirs:      test, src
 
   main-is:             Main.hs
   other-modules:       Driver
