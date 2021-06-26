@@ -45,7 +45,7 @@ show_place (sp@(Span cur_start cur_before _), msg) m_last =
 
         file_line =
             case m_last of
-                Just ((Span last_start _ _), _)
+                Just (Span last_start _ _, _)
                     | file_of_loc last_start == file_of_loc cur_start && lnn_of_loc last_start <= cur_start_line -> Nothing
 
                 _ -> Just $ DiagLine "" '>' (ANSI.setSGRCode Colors.file_path_sgr ++ name (file_of_loc cur_start) ++ ANSI.setSGRCode [])
