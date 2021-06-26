@@ -36,7 +36,6 @@ module IR
     , get
 
     , decl_span
-    , describe
     , type_of
 
     , apply_to_ds
@@ -54,7 +53,6 @@ import Location
 
 import IR.ID
 import IR.Parent
-import IR.Describe
 import IR.DeclSpan
 import IR.Typed
 import IR.Print
@@ -115,15 +113,15 @@ data IRBuildError
     | TypeError TypeError
     | AddrofNotLValue Span
 
-duplicate_msg :: String -> String -> String -> (Maybe Span, String) -> (Maybe Span, String) -> Message.SimpleDiag
-duplicate_msg entity_kind diag_name name (old_sp, old_desc) (new_sp, new_desc) =
+duplicate_msg :: String -> String -> String -> Maybe Span -> Maybe Span -> Message.SimpleDiag
+duplicate_msg entity_kind diag_name name old_sp new_sp =
     let if_span m_sp ty imp msg =
             case m_sp of
                 Just sp -> Right $ MsgUnds.Underline sp imp [MsgUnds.Message ty msg]
                 Nothing -> Left $ Message.Note msg
 
-        oldmsg = if_span old_sp MsgUnds.Note MsgUnds.Secondary $ entity_kind ++ " '" ++ name ++ "' already declared as " ++ old_desc
-        newmsg = if_span new_sp MsgUnds.Error MsgUnds.Primary $ entity_kind ++ " '" ++ name ++ "' redeclared as " ++ new_desc
+        oldmsg = if_span old_sp MsgUnds.Note MsgUnds.Secondary $ entity_kind ++ " '" ++ name ++ "' already declared"
+        newmsg = if_span new_sp MsgUnds.Error MsgUnds.Primary $ entity_kind ++ " '" ++ name ++ "' redeclared"
         totalmsgs = [oldmsg, newmsg]
 
         underlines_section =
@@ -136,10 +134,10 @@ duplicate_msg entity_kind diag_name name (old_sp, old_desc) (new_sp, new_desc) =
 
 instance Message.ToDiagnostic (IRBuildError, IRCtx) where
     to_diagnostic (DuplicateValue name old new, irctx) =
-        duplicate_msg "value" "redecl-val" name (decl_span irctx old, describe irctx old) (decl_span irctx new, describe irctx new)
+        duplicate_msg "value" "redecl-val" name (decl_span irctx old) (decl_span irctx new)
 
     to_diagnostic (DuplicateLocal fun (Local name old_lvalue _) new_lvalue, irctx) =
-        duplicate_msg "local" "redecl-local" name (decl_span irctx (fun, old_lvalue), describe irctx (fun, old_lvalue)) (decl_span irctx (fun, new_lvalue), describe irctx (fun, new_lvalue))
+        duplicate_msg "local" "redecl-local" name (decl_span irctx (fun, old_lvalue)) (decl_span irctx (fun, new_lvalue))
 
     to_diagnostic (Unimplemented name sp, _) =
         Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
@@ -148,11 +146,11 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
                 ]
             ]
 
-    to_diagnostic (NotAType path_sp ds, irctx) =
+    to_diagnostic (NotAType path_sp _, _) =
         Message.SimpleDiag Message.Error (Just path_sp) Nothing (Just "not-type")
             [ Message.Underlines $ MsgUnds.UnderlinesSection
                 [ MsgUnds.Underline path_sp MsgUnds.Primary [MsgUnds.Message MsgUnds.Error "not a type"]
-                , MsgUnds.Underline path_sp MsgUnds.Secondary [MsgUnds.Message MsgUnds.Note $ "this path resolved to " ++ describe irctx ds]
+                -- , MsgUnds.Underline path_sp MsgUnds.Secondary [MsgUnds.Message MsgUnds.Note $ "this path resolved to " ++ describe irctx ds] -- TODO: get entity type name
                 ]
             ]
 

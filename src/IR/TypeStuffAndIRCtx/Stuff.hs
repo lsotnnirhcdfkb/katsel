@@ -7,7 +7,6 @@ import Interner
 
 import IR.DeclSpan
 import IR.DeclSymbol
-import IR.Describe
 import IR.MapSynonyms
 import IR.Parent
 import IR.Value
@@ -133,8 +132,6 @@ replace_function fun idx (IRCtx ty_interner fun_interner) = IRCtx ty_interner (r
 
 instance DeclSpan (InternerIdx Type) where
     decl_span irctx idx = decl_span irctx $ resolve_tyidx_irctx irctx idx
-instance Describe (InternerIdx Type) where
-    describe irctx idx = describe irctx $ resolve_tyidx_irctx irctx idx
 instance Parent (InternerIdx Type) DeclSymbol String where
     get_child_map (idx, irctx) = get_child_map (resolve_tyidx_irctx irctx idx, irctx)
     add i child (tyidx, irctx) =
@@ -157,17 +154,6 @@ instance IsDeclSymbol (InternerIdx Type)
 instance DeclSpan Type where
     -- all the types currently implemented are primitive types or types that otherwise wouldn't have declaration spans anyway, so this is a constant Nothing
     decl_span _ _ = Nothing
-instance Describe Type where
-    describe _ (FloatType _ size) = "primitive " ++ show size ++ "-bit floating-point type"
-    describe _ (IntType _ size signedness) =
-        let signedness_str = case signedness of
-                Unsigned -> "unsigned"
-                Signed -> "signed"
-        in "primitive " ++ show size ++ "-bit " ++ signedness_str ++ " integer type"
-    describe _ (CharType _) = "primitive character type"
-    describe _ (BoolType _) = "primitive bool type"
-    describe _ (FunctionPointerType _ _ _) = "function pointer type" -- TODO: put argument types and return type here?
-    describe _ (UnitType _) = "primitive unit type"
 
 instance Parent Type DeclSymbol String where
     get_child_map (FloatType dsmap _, _) = dsmap

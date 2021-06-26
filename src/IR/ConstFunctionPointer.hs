@@ -10,7 +10,6 @@ import IR.Type
 import IR.Function
 
 import IR.DeclSpan
-import IR.Describe
 import IR.Typed
 import IR.Value
 
@@ -32,8 +31,6 @@ get_fptr_pointee irctx (ConstFunctionPointer _ fidx) = get_function irctx fidx
 
 instance DeclSpan ConstFunctionPointer where
     decl_span irctx (ConstFunctionPointer _ fidx) = decl_span irctx (get_function irctx fidx)
-instance Describe ConstFunctionPointer where
-    describe _ _ = "constant function pointer"
 instance Typed ConstFunctionPointer where
     type_of _ = get_ty
 

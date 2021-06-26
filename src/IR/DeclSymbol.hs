@@ -12,7 +12,6 @@ module IR.DeclSymbol
 
 import Interner
 
-import IR.Describe
 import IR.DeclSpan
 import IR.Parent
 import IR.Value
@@ -22,7 +21,7 @@ import {-# SOURCE #-} IR.Type
 
 import Data.Typeable(Typeable, cast)
 
-class (Typeable d, DeclSpan d, Describe d, Parent d DeclSymbol String, Parent d Value String, ApplyToDS d) => IsDeclSymbol d where
+class (Typeable d, DeclSpan d, Parent d DeclSymbol String, Parent d Value String, ApplyToDS d) => IsDeclSymbol d where
 
 class ApplyToDS d where
     apply_to_ds :: (Module -> r) -> (InternerIdx Type -> r) -> d -> r
@@ -44,8 +43,6 @@ instance Parent DeclSymbol Value String where
 
 instance DeclSpan DeclSymbol where
     decl_span irctx (DeclSymbol ds) = decl_span irctx ds
-instance Describe DeclSymbol where
-    describe irctx (DeclSymbol ds) = describe irctx ds
 
 instance ApplyToDS DeclSymbol where
     apply_to_ds f1 f2 (DeclSymbol ds) = apply_to_ds f1 f2 ds

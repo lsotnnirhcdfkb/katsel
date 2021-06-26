@@ -15,7 +15,6 @@ import IR.DeclSymbol
 import IR.Type
 import IR.Value
 import IR.DeclSpan
-import IR.Describe
 
 import qualified Data.Map as Map
 
@@ -60,8 +59,6 @@ instance Parent Module Value String where
 
 instance DeclSpan Module where
     decl_span _ (Module _ _ sp) = Just sp
-instance Describe Module where
-    describe _ _ = "module being compiled"
 
 instance ApplyToDS Module where
     apply_to_ds f _ = f

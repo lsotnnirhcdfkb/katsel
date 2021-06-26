@@ -53,7 +53,6 @@ import IR.ID
 import IR.IRCtx
 
 import IR.DeclSpan
-import IR.Describe
 import IR.Typed
 
 import Location
@@ -118,10 +117,6 @@ data Br
 
 instance DeclSpan Register where
     decl_span _ (Register _ sp) = Just sp
-instance Describe Register where
-    describe irctx (Register ty_idx {- muty -} _) =
-        let ty_str = stringify_tyidx irctx ty_idx
-        in "register of type '" ++ ty_str ++ "'"
 instance Typed Register where
     type_of _ (Register ty _) = ty
 
@@ -130,8 +125,6 @@ instance DeclSpan Function where
 
 instance DeclSpan (Function, LValue) where
     decl_span irctx (f, LVRegister reg) = decl_span irctx $ get_register f reg
-instance Describe (Function, LValue) where
-    describe irctx (f, LVRegister reg) = describe irctx $ get_register f reg
 instance Typed (Function, LValue) where
     type_of irctx (f, LVRegister reg) = type_of irctx $ get_register f reg
 

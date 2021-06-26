@@ -23,7 +23,6 @@ executable brace
                      , IR.ConstFunctionPointer
                      , IR.DeclSpan
                      , IR.DeclSymbol
-                     , IR.Describe
                      , IR.Dot
                      , IR.Function
                      , IR.ID
