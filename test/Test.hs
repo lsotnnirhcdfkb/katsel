@@ -16,7 +16,7 @@ data TestSuite = TestSuite [Test]
 data Test
     = Describe String [Test]
     | When String [Test]
-    | ItCan String TestResult
+    | ItCan String (IO TestResult)
 
 data TestResult = Pass | Fail String | Untested
 
@@ -37,7 +37,7 @@ run_test indent_amt (When context test_list) =
 
 run_test indent_amt (ItCan action result) =
     indent_put_str indent_amt "it " >>
-    case result of
+    result >>= \case
         Pass -> putStr ("can " ++ action) >> return True
         Fail msg -> putStr ("cannot " ++ action ++ ": " ++ msg) >> return False
         Untested -> putStr ("maybe can " ++ action) >> return True
