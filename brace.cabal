@@ -1,75 +1,126 @@
-cabal-version:       2.0
+cabal-version: 1.12
 
-name:                brace
-version:             0.0.0
-license:             MIT
-license-file:        LICENSE
-author:              Jason Nguyen
-maintainer:          lsotnnirhcdfkb@gmail.com
-build-type:          Simple
+-- This file has been generated from package.yaml by hpack version 0.34.4.
+--
+-- see: https://github.com/sol/hpack
+
+name:           brace
+version:        0.0.0
+homepage:       https://github.com/lsotnnirhcdfkb/brace#readme
+bug-reports:    https://github.com/lsotnnirhcdfkb/brace/issues
+maintainer:     Jason Nguyen <lsotnnirhcdfkb@gmail.com>
+license:        MIT
+license-file:   LICENSE
+build-type:     Simple
+
+source-repository head
+  type: git
+  location: https://github.com/lsotnnirhcdfkb/brace
 
 executable brace
-  hs-source-dirs:      src
-  other-modules:       Driver
-
-                       -- lexing the source into tokens
-                     , Tokens
-
-                       -- parsing the token stream into an ast
-                     , AST
-
-                       -- lowering the ast into ir
-                     , IR
-                     , IR.ConstFunctionPointer
-                     , IR.DeclSpan
-                     , IR.DeclSymbol
-                     , IR.Dot
-                     , IR.Function
-                     , IR.ID
-                     , IR.IRCtx
-                     , IR.MapSynonyms
-                     , IR.Module
-                     , IR.Parent
-                     , IR.Print
-                     , IR.RecFindEntities
-                     , IR.Type
-                     , IR.TypeStuffAndIRCtx.Stuff
-                     , IR.Typed
-                     , IR.Value
-
-                     -- c backend
-                     , CBackend
-
-                     -- mangling names
-                     , Mangle
-                     , Mangle.Tag
-                     , Mangle.TagName
-
-                       -- utility things
-                     , Location
-                     , File
-                     , Interner
-
-                       -- message things (diagnostics)
-                     , Message
-                     , Message.Arrows
-                     , Message.PrettyPrint
-                     , Message.PrettyPrintTH
-                     , Message.Underlines
-                     , Message.Utils
-
-                     -- ANSI colors
-                     , Colors
-
-
-  main-is:             Main.hs
-  build-depends:       base ^>=4.14.1.0
-                     , ansi-terminal >= 0.10
-                     , mtl >= 2.2.2 && < 3
-                     , containers >= 0.6.2.1
-                     , template-haskell >= 2.16.0.0
-
-  default-extensions:  LambdaCase
-  default-language:    Haskell2010
-
+  main-is: Main.hs
+  other-modules:
+      AST
+      CBackend
+      Colors
+      Driver
+      File
+      Interner
+      IR
+      IR.ConstFunctionPointer
+      IR.DeclSpan
+      IR.DeclSymbol
+      IR.Dot
+      IR.Function
+      IR.ID
+      IR.IRCtx
+      IR.MapSynonyms
+      IR.Module
+      IR.Parent
+      IR.Print
+      IR.RecFindEntities
+      IR.Type
+      IR.Typed
+      IR.TypeStuffAndIRCtx.Stuff
+      IR.Value
+      Location
+      Mangle
+      Mangle.Tag
+      Mangle.TagName
+      Message
+      Message.Arrows
+      Message.PrettyPrint
+      Message.PrettyPrintTH
+      Message.Underlines
+      Message.Utils
+      Tokens
+      Test
+      Paths_brace
+  hs-source-dirs:
+      src
+      test
+  default-extensions:
+      LambdaCase
   ghc-options: -Wall
+  build-depends:
+      ansi-terminal
+    , base
+    , containers
+    , mtl
+    , template-haskell
+  default-language: Haskell2010
+
+test-suite brace-test
+  type: exitcode-stdio-1.0
+  main-is: test.hs
+  other-modules:
+      AST
+      CBackend
+      Colors
+      Driver
+      File
+      Interner
+      IR
+      IR.ConstFunctionPointer
+      IR.DeclSpan
+      IR.DeclSymbol
+      IR.Dot
+      IR.Function
+      IR.ID
+      IR.IRCtx
+      IR.MapSynonyms
+      IR.Module
+      IR.Parent
+      IR.Print
+      IR.RecFindEntities
+      IR.Type
+      IR.Typed
+      IR.TypeStuffAndIRCtx.Stuff
+      IR.Value
+      Location
+      Main
+      Mangle
+      Mangle.Tag
+      Mangle.TagName
+      Message
+      Message.Arrows
+      Message.PrettyPrint
+      Message.PrettyPrintTH
+      Message.Underlines
+      Message.Utils
+      Tokens
+      Test
+      Paths_brace
+  hs-source-dirs:
+      src
+      test
+  default-extensions:
+      LambdaCase
+  ghc-options: -Wall
+  build-depends:
+      ansi-terminal
+    , base
+    , containers
+    , mtl
+    , template-haskell
+  default-language: Haskell2010
