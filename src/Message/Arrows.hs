@@ -24,12 +24,12 @@ show_arrows places = fst $ foldl' f ([], Nothing) places
 show_place :: (Span, String) -> Maybe (Span, Int) -> ([DiagLine], Int)
 show_place (sp@(Span cur_start cur_before _), msg) m_last =
     ( concat
-        [ maybeToList last_pipe_line 
-        , maybeToList file_line 
-        , maybeToList elipsis_line 
+        [ maybeToList last_pipe_line
+        , maybeToList file_line
+        , maybeToList elipsis_line
         , maybeToList transition_line
-        , current_pipe_and_arrow_lines 
-        , underline_lines 
+        , current_pipe_and_arrow_lines
+        , underline_lines
         , message_lines
         ]
     , end_col)
@@ -65,7 +65,7 @@ show_place (sp@(Span cur_start cur_before _), msg) m_last =
                         where
                             lower = min last_end_col start_col
                             upper = max last_end_col start_col
-                    
+
                 Nothing -> Nothing
 
         current_pipe_and_arrow_lines

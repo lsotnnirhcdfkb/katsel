@@ -137,7 +137,7 @@ instance Parent (InternerIdx Type) DeclSymbol String where
     add i child (tyidx, irctx) =
         let resolved_ty = resolve_tyidx_irctx irctx tyidx
             (old_child, (resolved_ty', irctx')) = add i child (resolved_ty, irctx)
-            irctx'' = replace_ty resolved_ty' tyidx irctx' 
+            irctx'' = replace_ty resolved_ty' tyidx irctx'
         in (old_child, (tyidx, irctx''))
 -- TODO: maybe this shouldn't be copy and pasted
 instance Parent (InternerIdx Type) Value String where
@@ -145,7 +145,7 @@ instance Parent (InternerIdx Type) Value String where
     add i child (tyidx, irctx) =
         let resolved_ty = resolve_tyidx_irctx irctx tyidx
             (old_child, (resolved_ty', irctx')) = add i child (resolved_ty, irctx)
-            irctx'' = replace_ty resolved_ty' tyidx irctx' 
+            irctx'' = replace_ty resolved_ty' tyidx irctx'
         in (old_child, (tyidx, irctx''))
 instance ApplyToDS (InternerIdx Type) where
     apply_to_ds _ f = f
