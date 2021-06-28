@@ -192,10 +192,7 @@ lower_all_in_list_s things fun root start = State.state $ lower_all_in_list thin
 infixl 1 >>=?
 
 (>>=<>) :: Monad m => m (Either e r) -> (e -> m f) -> (r -> m f) -> m f
-(>>=<>) m onleft onright =
-    m >>= \case
-        Left l -> onleft l
-        Right r -> onright r
+(>>=<>) m onleft onright = m >>= either onleft onright
 infixl 1 >>=<>
 
 add_error :: IRBuildError -> IRBuilder -> IRBuilder
