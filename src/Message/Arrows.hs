@@ -90,9 +90,3 @@ show_place (sp@(Span cur_start cur_before _), msg) m_last =
             | otherwise = draw_box sp '^' Colors.empty_underline_sgr
 
         message_lines = [DiagLine "" '|' $ replicate (end_col - 1) ' ' ++ ANSI.setSGRCode Colors.empty_underline_sgr ++ "`-- " ++ msg ++ ANSI.setSGRCode []]
-
-replace_at :: Int -> a -> a -> [a] -> [a]
-replace_at ind fill change orig =
-    let extended = orig ++ repeat fill
-        (keep, _:keep2) = splitAt ind extended
-    in take (max (ind + 1) (length orig)) (keep ++ change : keep2)

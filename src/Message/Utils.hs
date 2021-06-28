@@ -100,3 +100,9 @@ draw_box (Span sp_start sp_before _) border_char sgr =
         before_last_quote_line = transition_line min_col min_col max_col last_col
         last_quote_line = [DiagLine (show last_line_nr) '|' (surround_line (get_line last_line_nr) min_col last_col)]
         after_last_quote_line = [DiagLine "" '|' (top_or_bottom min_col last_col)]
+
+replace_at :: Int -> a -> a -> [a] -> [a]
+replace_at ind fill change orig =
+    let extended = orig ++ repeat fill
+        (keep, _:keep2) = splitAt ind extended
+    in take (max (ind + 1) (length orig)) (keep ++ change : keep2)
