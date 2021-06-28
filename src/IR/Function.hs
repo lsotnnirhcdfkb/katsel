@@ -63,7 +63,7 @@ import qualified Message
 import qualified Message.Underlines as MsgUnds
 
 import Data.List(intercalate, findIndex)
-import Data.Maybe(mapMaybe)
+import Data.Maybe(mapMaybe, fromJust)
 
 data Function
     = Function
@@ -311,10 +311,7 @@ keep_blocks :: [BasicBlock] -> [BlockIdx] -> [BasicBlock]
 keep_blocks blocks indexes =
     let new_indexes = zip indexes (map BlockIdx [0..])
 
-        unwrap_maybe (Just x) = x
-        unwrap_maybe Nothing = error "unwrap Nothing"
-
-        convert_block_idx = unwrap_maybe . (`lookup` new_indexes)
+        convert_block_idx = fromJust . (`lookup` new_indexes)
 
         convert_br BrRet = BrRet
         convert_br (BrGoto b) = BrGoto (convert_block_idx b)
