@@ -106,3 +106,9 @@ replace_at ind fill change orig =
     let extended = orig ++ repeat fill
         (keep, _:keep2) = splitAt ind extended
     in take (max (ind + 1) (length orig)) (keep ++ change : keep2)
+
+get_line_from_file :: File -> Int -> String
+get_line_from_file file lnnr =
+    case drop (lnnr - 1) (lines $ source file) of
+        x:_ -> x
+        [] -> ""
