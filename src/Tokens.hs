@@ -10,8 +10,8 @@ import File
 import Location
 
 import Data.Char(isDigit, isAlpha, isHexDigit, isOctDigit, digitToInt, isSpace)
-import Data.List(foldl', find, elemIndex, elemIndices)
-import Data.Either(isRight)
+import Data.List(foldl', elemIndex, elemIndices)
+import Data.Maybe(catMaybes, fromMaybe)
 
 import qualified Message
 import qualified Message.Underlines as MsgUnds
@@ -196,6 +196,7 @@ data Lexer
      , rev_str_before_lexer :: String
      , linen :: Int
      , coln :: Int
+     , indent_stack :: [IndentFrame]
      }
 
 data LexError
@@ -244,308 +245,210 @@ instance Message.ToDiagnostic LexError where
             simple sp code nm msg = Message.SimpleDiag Message.Error (Just sp) (Message.make_code code) (Just nm)
                     [Message.Underlines [MsgUnds.Underline sp MsgUnds.Primary [MsgUnds.Message MsgUnds.Error msg]]]
 
-lex :: File -> [Either LexError (Located Token)]
-lex f = lex' [] [IndentationSensitive 0] $ Lexer
-           { sourcefile = f
-           , source_location = 0
-           , remaining = source f
-           , rev_str_before_lexer = ""
-           , linen = 1
-           , coln = 1
-           }
+lex :: File -> ([LexError], [Located Token])
+lex f =
+    let start_lexer =
+            ( Just $ Lexer
+                     { sourcefile = f
+                     , source_location = 0
+                     , remaining = source f
+                     , rev_str_before_lexer = ""
+                     , linen = 1
+                     , coln = 1
+                     , indent_stack = [IndentationSensitive 0]
+                     }
+            , []
+            , []
+            )
 
-lex' :: [Either LexError (Located Token)] -> [IndentFrame] -> Lexer -> [Either LexError (Located Token)]
-lex' prevtoks indent_stack lexer =
+        should_end (Nothing, _, _) = True
+        should_end (Just _, _, _) = False
+
+        feed (Nothing, _, _) = error "unreachable"
+        feed (Just l, errs, toks) =
+            let safe_last [] = Nothing
+                safe_last x = Just $ last x
+
+                (l', next_errs, next_toks) = lex' l (safe_last toks)
+
+            in (l', errs ++ next_errs, toks ++ next_toks)
+
+        (_, final_errs, final_toks) = until should_end feed start_lexer
+    in (final_errs, final_toks)
+
+lex' :: Lexer -> Maybe (Located Token) -> (Maybe Lexer, [LexError], [Located Token])
+lex' lexer last_tok =
+    let lex_choices =
+            [ lex_eof
+            , lex_comment
+            , lex_punc_token
+            , lex_braces_semi
+            , lex_str_or_char_lit
+            , lex_iden
+            , lex_number
+            , lex_space
+            , make_bad_char
+            ]
+
+        (include_indent, lexer', errs, toks) = head $ catMaybes $ map ($ lexer) lex_choices
+        (next_indent_stack, indent_errs, indent_toks) = lex_indent lexer last_tok
+
+    in if include_indent
+        then ( case lexer' of
+                   Just l -> Just $ l { indent_stack = next_indent_stack }
+                   Nothing -> Nothing
+             , indent_errs ++ errs
+             , indent_toks ++ toks
+             )
+        else (lexer', errs, toks)
+
+lex_eof, lex_comment, lex_punc_token, lex_braces_semi, lex_str_or_char_lit, lex_iden, lex_number, lex_space, make_bad_char :: Lexer -> Maybe (Bool, Maybe Lexer, [LexError], [Located Token])
+
+lex_eof lexer =
     case remaining lexer of
-        -- comments {{{
-        '/':'/':next ->
-            let comment = takeWhile (/='\n') next
-            in continue_lex_with_nothing $ length comment + 3
-
-        '/':'*':next ->
-            case comment_length next of
-                Right cl -> continue_lex_with_nothing cl
-                Left chars_to_end -> continue_lex_with [Left $ make_error 0 chars_to_end UntermMultilineComment] chars_to_end
-            where
-                comment_length after_slash_star =
-                    case chars_until_comment_end 0 after_slash_star of
-                        Right cl -> Right $ 4 + cl
-                        Left chars_to_end -> Left $ 2 + chars_to_end
-
-                chars_until_comment_end acc entire@('/':'*':rest) =
-                    case comment_length rest of
-                        Right inner_comment_length ->
-                            chars_until_comment_end (acc + inner_comment_length) after_inner_comment
-                            where
-                                after_inner_comment = drop inner_comment_length entire
-                        Left unterminated_inner_comment_length -> Left $ acc + unterminated_inner_comment_length
-
-                chars_until_comment_end acc ('*':'/':_) = Right acc
-                chars_until_comment_end acc [] = Left acc
-                chars_until_comment_end acc (_:rest) = chars_until_comment_end (acc + 1) rest
-
-                -- TODO: check for '* /' and put a note there
-        -- }}}
-
-        '<':'<':'=':_ -> continue_lex_with_single_tok 3 DoubleLessEqual
-        '>':'>':'=':_ -> continue_lex_with_single_tok 3 DoubleGreaterEqual
-
-        '+':'=':_ -> continue_lex_with_single_tok 2 PlusEqual
-        '-':'=':_ -> continue_lex_with_single_tok 2 MinusEqual
-        '*':'=':_ -> continue_lex_with_single_tok 2 StarEqual
-        '/':'=':_ -> continue_lex_with_single_tok 2 SlashEqual
-        '%':'=':_ -> continue_lex_with_single_tok 2 PercentEqual
-        '<':'=':_ -> continue_lex_with_single_tok 2 LessEqual
-        '>':'=':_ -> continue_lex_with_single_tok 2 GreaterEqual
-        '!':'=':_ -> continue_lex_with_single_tok 2 BangEqual
-        '&':'=':_ -> continue_lex_with_single_tok 2 AmperEqual
-        '|':'=':_ -> continue_lex_with_single_tok 2 PipeEqual
-        '^':'=':_ -> continue_lex_with_single_tok 2 CaretEqual
-
-        '=':'=':_ -> continue_lex_with_single_tok 2 DoubleEqual
-        '+':'+':_ -> continue_lex_with_single_tok 2 DoublePlus
-        '-':'-':_ -> continue_lex_with_single_tok 2 DoubleMinus
-        '&':'&':_ -> continue_lex_with_single_tok 2 DoubleAmper
-        '|':'|':_ -> continue_lex_with_single_tok 2 DoublePipe
-        '<':'<':_ -> continue_lex_with_single_tok 2 DoubleLess
-        '>':'>':_ -> continue_lex_with_single_tok 2 DoubleGreater
-        ':':':':_ -> continue_lex_with_single_tok 2 DoubleColon
-
-        '-':'>':_ -> continue_lex_with_single_tok 2 RightArrow
-        '<':'-':_ -> continue_lex_with_single_tok 2 LeftArrow
-
-        '(':_ -> continue_lex_with_single_tok 1 OParen
-        ')':_ -> continue_lex_with_single_tok 1 CParen
-        '[':_ -> continue_lex_with_single_tok 1 OBrack
-        ']':_ -> continue_lex_with_single_tok 1 CBrack
-        ',':_ -> continue_lex_with_single_tok 1 Comma
-        '.':_ -> continue_lex_with_single_tok 1 Period
-        '?':_ -> continue_lex_with_single_tok 1 Question
-        '~':_ -> continue_lex_with_single_tok 1 Tilde
-        '#':_ -> continue_lex_with_single_tok 1 Hash
-        '$':_ -> continue_lex_with_single_tok 1 Dollar
-        '!':_ -> continue_lex_with_single_tok 1 Bang
-        '=':_ -> continue_lex_with_single_tok 1 Equal
-        ':':_ -> continue_lex_with_single_tok 1 Colon
-        '+':_ -> continue_lex_with_single_tok 1 Plus
-        '-':_ -> continue_lex_with_single_tok 1 Minus
-        '*':_ -> continue_lex_with_single_tok 1 Star
-        '/':_ -> continue_lex_with_single_tok 1 Slash
-        '%':_ -> continue_lex_with_single_tok 1 Percent
-        '<':_ -> continue_lex_with_single_tok 1 Less
-        '>':_ -> continue_lex_with_single_tok 1 Greater
-        '^':_ -> continue_lex_with_single_tok 1 Caret
-        '&':_ -> continue_lex_with_single_tok 1 Amper
-        '|':_ -> continue_lex_with_single_tok 1 Pipe
-
-        -- braces and semicolons are handled by indentation tokens
-        -- cannot use continue_lex_with_nothing because that function does not include indent tokens
-        '{':_ -> continue_lex_with [] 1
-        '}':_ -> continue_lex_with [] 1
-        ';':_ -> continue_lex_with [] 1
-
-        '"':strlit -> lex_str_lit strlit
-        '\'':chrlit -> lex_char_lit chrlit
-
-        [] -> prevtoks ++ alldedents ++ [Right $ make_token 0 1 EOF]
+        [] -> Just (False, Nothing, [], all_dedents ++ [Located (make_span_from_lexer lexer 0 1) EOF])
             where
                 -- TODO: use the same span as other dedent tokens
-                alldedents = case concatMap make_dedent (init indent_stack) of
+                all_dedents = case concatMap make_dedent (init $ indent_stack lexer) of
                     [] -> []
-                    dedents -> Right (make_token 0 1 Newline) : dedents
+                    dedents -> Located (make_span_from_lexer lexer 0 1) Newline : dedents
 
-                make_dedent (IndentationSensitive _) = [Right $ make_token 0 1 Dedent]
+                make_dedent (IndentationSensitive _) = [Located (make_span_from_lexer lexer 0 1) Dedent]
                 make_dedent IndentationInsensitive = [] -- the parser will handle these when it finds a dedent token instead of a matching '}'
 
-        entire@(other:_)
-            | isAlpha other || other == '_' -> lex_iden entire
-            | isDigit other -> lex_nr entire
-            | isSpace other -> continue_lex_with_nothing 1
-            | otherwise -> continue_lex_with_single_err 1 $ BadChar other
+        _ -> Nothing
 
+lex_comment lexer =
+    case remaining lexer of
+        '/':'/':next ->
+            let comment = takeWhile (/='\n') next
+                advance_amt = length comment + 3 -- +2 for '//' and +1 for the newline
+            in Just (False, Just $ seek_lexer lexer advance_amt, [], [])
+
+        '/':'*':next ->
+            case until_comment_end next of
+                Just comment_length -> Just (False, Just $ seek_lexer lexer (comment_length + 4), [], [])
+                Nothing -> single_err lexer (length next + 2) UntermMultilineComment False
+            where
+                until_comment_end ('*':'/':_) = Just 0
+                until_comment_end ('/':'*':more) =
+                    until_comment_end more >>= \ subcomment_len ->
+                    until_comment_end (drop (subcomment_len + 2) more) >>= \ more_after ->
+                    Just (2 + subcomment_len + 2 + more_after)
+                until_comment_end (_:more) = (1 +) <$> until_comment_end more
+                until_comment_end [] = Nothing
+
+        _ -> Nothing
+
+lex_punc_token lexer =
+    let res len tok = single_tok lexer len tok True
+    in case remaining lexer of
+        '<':'<':'=':_ -> res 3 DoubleLessEqual
+        '>':'>':'=':_ -> res 3 DoubleGreaterEqual
+
+        '+':'=':_ -> res 2 PlusEqual
+        '-':'=':_ -> res 2 MinusEqual
+        '*':'=':_ -> res 2 StarEqual
+        '/':'=':_ -> res 2 SlashEqual
+        '%':'=':_ -> res 2 PercentEqual
+        '<':'=':_ -> res 2 LessEqual
+        '>':'=':_ -> res 2 GreaterEqual
+        '!':'=':_ -> res 2 BangEqual
+        '&':'=':_ -> res 2 AmperEqual
+        '|':'=':_ -> res 2 PipeEqual
+        '^':'=':_ -> res 2 CaretEqual
+
+        '=':'=':_ -> res 2 DoubleEqual
+        '+':'+':_ -> res 2 DoublePlus
+        '-':'-':_ -> res 2 DoubleMinus
+        '&':'&':_ -> res 2 DoubleAmper
+        '|':'|':_ -> res 2 DoublePipe
+        '<':'<':_ -> res 2 DoubleLess
+        '>':'>':_ -> res 2 DoubleGreater
+        ':':':':_ -> res 2 DoubleColon
+
+        '-':'>':_ -> res 2 RightArrow
+        '<':'-':_ -> res 2 LeftArrow
+
+        '(':_ -> res 1 OParen
+        ')':_ -> res 1 CParen
+        '[':_ -> res 1 OBrack
+        ']':_ -> res 1 CBrack
+        ',':_ -> res 1 Comma
+        '.':_ -> res 1 Period
+        '?':_ -> res 1 Question
+        '~':_ -> res 1 Tilde
+        '#':_ -> res 1 Hash
+        '$':_ -> res 1 Dollar
+        '!':_ -> res 1 Bang
+        '=':_ -> res 1 Equal
+        ':':_ -> res 1 Colon
+        '+':_ -> res 1 Plus
+        '-':_ -> res 1 Minus
+        '*':_ -> res 1 Star
+        '/':_ -> res 1 Slash
+        '%':_ -> res 1 Percent
+        '<':_ -> res 1 Less
+        '>':_ -> res 1 Greater
+        '^':_ -> res 1 Caret
+        '&':_ -> res 1 Amper
+        '|':_ -> res 1 Pipe
+
+        _ -> Nothing
+
+lex_braces_semi lexer =
+    let res = Just (True, Just $ seek_lexer lexer 1, [], [])
+    in case remaining lexer of
+        '{':_ -> res
+        '}':_ -> res
+        ';':_ -> res
+        _ -> Nothing
+
+lex_str_or_char_lit lexer =
+    case remaining lexer of
+        '\'':more ->
+            case f '\'' more of
+                Right (seek_amt_minus_1, contents)
+                    | length contents == 1 -> single_tok lexer (seek_amt_minus_1 + 1) (CharLit $ head contents) True
+                    | otherwise -> single_err lexer (seek_amt_minus_1 + 1) MulticharChar True
+
+                Left err_len_minus_1 -> single_err lexer (err_len_minus_1 + 1) UntermChar True
+
+        '"':more ->
+            case f '"' more of
+                Right (seek_amt_minus_1, contents) -> single_tok lexer (seek_amt_minus_1 + 1) (StringLit contents) True
+
+                Left err_len_minus_1 -> single_err lexer (err_len_minus_1 + 1) UntermStr True
+
+        _ -> Nothing
     where
-        -- helpers {{{
-        continue_lex_with things advanceamt = lex' (prevtoks ++ indentation_tokens ++ things) new_indent_stack $ lexer `seek_lexer` advanceamt
-        continue_lex_with_nothing advanceamt = lex' prevtoks indent_stack $ lexer `seek_lexer` advanceamt
+        f start_delim more =
+            let nl_ind = fromMaybe (length more) $ elemIndex '\n' more
+                end_delim_ind = fromMaybe (length more) $ elemIndex start_delim more
 
-        continue_lex_with_single_tok len tok = continue_lex_with [Right $ make_token 0 len tok] len
-        continue_lex_with_single_err len err = continue_lex_with [Left $ make_error 0 len err] len
+                (cur_contents, after_lit) = splitAt (min nl_ind end_delim_ind) more
 
-        make_token start len tok = Located (make_span_from_lexer start len) tok
-
-        make_error start len err = err $ make_span_from_lexer start len
-
-        make_span_from_lexer start len = Span (make_loc_from_lexer start_lexer) (make_loc_from_lexer before_lexer) (make_loc_from_lexer end_lexer)
-            where
-                file = sourcefile lexer
-
-                make_loc_from_lexer l = make_location file (source_location l) (linen l) (coln l)
-
-                start_lexer = lexer `seek_lexer` start
-                before_lexer = start_lexer `seek_lexer` (len - 1)
-                end_lexer = before_lexer `seek_lexer` 1
-
-        (new_indent_stack, indentation_tokens) =
-            if null prevtoks
-                then (indent_stack, [])
+            in if end_delim_ind < nl_ind
+                then Right (length cur_contents + 1, cur_contents)
                 else
-                    let remain = remaining lexer
-                    in
-                        process_cbrace remain .
-                        process_semi   remain .
-                        process_obrace remain .
-                        process_dedent cur_indent last_indent .
-                        process_nl     cur_indent last_indent .
-                        process_indent cur_indent last_indent $ (indent_stack, [])
+                    let (whitespace, after_whitespace) = span isSpace after_lit
+                    in case after_whitespace of
+                        x:after_next_start_delim | x == start_delim ->
+                            let total_len = ((length cur_contents + length whitespace + 1) +)
+                            in case f start_delim after_next_start_delim of
+                                Right (next_tok_len, next_contents) -> Right (total_len next_tok_len, cur_contents ++ "\n" ++ next_contents)
+                                Left err_len -> Left $ total_len err_len
 
-            where
-                cur_indent = foldl' count_indent (Just 0) str_before_lexer'
-                    where
-                        str_before_lexer' = takeWhile (/='\n') $ rev_str_before_lexer lexer
+                        _ -> Left $ length cur_contents
 
-                        count_indent (Just acc) ' ' = Just $ acc + 1
-                        count_indent (Just acc) '\t' = Just $ (acc `div` 8 + 1) * 8
-                        count_indent _ _ = Nothing
-
-                last_indent = case head indent_stack of
-                    IndentationInsensitive -> Nothing
-                    IndentationSensitive x -> Just x
-
-                last_is_semi =
-                    case find isRight $ reverse prevtoks of
-                        Just (Right (Located _ Semicolon)) -> True
-                        _ -> False
-
-                -- TODO: support \ at the end of a line to prevent indent tokens
-                -- TODO: support ~ at the end of a line to start a indentation sensitive frame
-                process_indent (Just curlvl) (Just lastlvl) (stack, toks)
-                    | curlvl > lastlvl =
-                        (new_frame:stack, toks ++ [Right $ make_tok_at_cur Indent])
-                        where
-                            new_frame = IndentationSensitive curlvl
-                process_indent _ _ st = st
-
-                process_obrace ('{':_) (stack, toks) = (IndentationInsensitive : stack, toks ++ [Right $ make_tok_at_cur OBrace])
-                process_obrace _ st = st
-
-                process_nl (Just curlvl) (Just lastlvl) (stack, toks)
-                    -- TODO: do not emit newline if first character is '{'
-                    | curlvl == lastlvl =
-                        if last_is_semi
-                            then (stack, toks)
-                            else (stack, toks ++ [Right $ make_tok_at_nl_before Newline])
-
-                process_nl _ _ st = st
-
-                process_semi (';':_) (stack, toks) = (stack, toks ++ [Right $ make_tok_at_cur Semicolon])
-                process_semi _ st = st
-
-                process_dedent (Just curlvl) (Just lastlvl) (stack, toks)
-                    | curlvl < lastlvl =
-                        let canpop (IndentationSensitive ind)
-                                | curlvl < ind = True
-                                | otherwise = False
-                            canpop IndentationInsensitive = False
-
-                            (popped, after_pop) = span canpop stack
-
-                            is_valid_level = case head after_pop of
-                                IndentationSensitive lvl
-                                    | curlvl > lvl -> False
-
-                                _ -> True
-
-                            num_pop = length popped
-                        in
-                            (
-                                after_pop,
-                                toks ++
-                                (if last_is_semi
-                                    then []
-                                    else [Right $ make_tok_at_nl_before Newline]) ++
-                                replicate num_pop (Right $ make_tok_at_cur Dedent) ++ -- TODO: change dedent span to something better so that it doesnt include beginning of the next token
-                                (if is_valid_level
-                                    then []
-                                    else [Left $ make_error 0 1 BadDedent])
-                            )
-                process_dedent _ _ st = st
-
-                process_cbrace ('}':_) (stack, toks) =
-                    case head stack of
-                        IndentationInsensitive -> (tail stack, newtoks)
-                        IndentationSensitive _ -> (stack, newtoks) -- do not pop on the stack, but the parser will handle the error message when there is a random '}' that appears
-                    where
-                        newtoks = toks ++ [Right $ make_tok_at_cur CBrace]
-                process_cbrace _ st = st
-
-                make_tok_at_cur = make_token 0 1
-
-                make_tok_relative_to_nl_before off = make_token $ off_to_nl + off
-                    where
-                        off_to_nl =
-                            case from_last_tok of
-                                Just x -> x :: Int
-                                Nothing ->
-                                    case from_cur_pos of
-                                        Just x -> x :: Int
-                                        Nothing -> error "no newlines to make token at"
-                            where
-                                from_last_tok =
-                                    find isRight (reverse prevtoks) >>= \ (Right (Located (Span _ _ endloc) _)) ->
-                                    let endind = ind_of_loc endloc
-                                    in elemIndex '\n' (drop endind $ source $ sourcefile lexer) >>= \ from_tok_ind ->
-                                    Just $ from_tok_ind + endind - source_location lexer
-
-                                from_cur_pos =
-                                    elemIndex '\n' (rev_str_before_lexer lexer) >>= \ x ->
-                                    Just $ -x - 1
-
-                make_tok_at_nl_before = make_tok_relative_to_nl_before 0 1
-        -- }}}
-        -- {{{ str and char literals
-        lex_str_or_char_lit is_char_lit lex_from =
-            case lex_str_or_char_lit' lex_from of
-                Right (contents, tok_len_minus1) ->
-                    let tok_len = tok_len_minus1 + 1 -- + 1 for starting quote
-                    in if is_char_lit
-                    then if length contents == 1
-                        then continue_lex_with_single_tok tok_len $ CharLit $ head contents
-                        else continue_lex_with_single_err tok_len   MulticharChar
-                    else continue_lex_with_single_tok tok_len $ StringLit contents
-
-                Left err_len ->
-                    if is_char_lit
-                        -- + 1 for starting quote
-                    then continue_lex_with_single_err (err_len + 1) UntermChar
-                    else continue_lex_with_single_err (err_len + 1) UntermStr
-            where
-                lex_str_or_char_lit' rest =
-                    let (cur_contents, after_lit) = break end_pred rest
-                    in case after_lit of
-                        x:_ | x == start_delim ->
-                            Right (cur_contents, length cur_contents + 1) -- + 1 for terminating quote
-                        _ ->
-                            let (whsp, after_wh) = span isSpace after_lit
-                            in case after_wh of
-                                x:after_continuing_start_delim | x == start_delim ->
-                                    let total_len next_len = length cur_contents + length whsp + 1 + next_len -- + 1 for starting quote of next segment
-                                    in case lex_str_or_char_lit' after_continuing_start_delim of
-                                        Right (next_contents, next_tok_len) -> Right (cur_contents ++ "\n" ++ next_contents, total_len next_tok_len)
-                                        Left err_len -> Left $ total_len err_len
-
-                                _ ->
-                                    Left $ length cur_contents
-
-                start_delim = if is_char_lit then '\'' else '"'
-                end_pred ch = ch == '\n' || ch == start_delim
-
-        lex_str_lit = lex_str_or_char_lit False
-        lex_char_lit = lex_str_or_char_lit True
-        -- }}}
-        -- lex_iden {{{
-        lex_iden entire =
-            continue_lex_with_single_tok iden_len (
-                case iden_contents of
+lex_iden lexer =
+    case remaining lexer of
+        entire@(x:_) | isAlpha x || x == '_' ->
+            let is_iden_char ch = isAlpha ch || isDigit ch || ch == '_' || ch == '\''
+                contents = takeWhile is_iden_char entire
+                iden_len = length contents
+            in single_tok lexer iden_len (
+                case contents of
                     "data" -> Data
                     "impl" -> Impl
                     "fun" -> Fun
@@ -564,17 +467,15 @@ lex' prevtoks indent_stack lexer =
                     "true" -> BoolLit True
                     "false" -> BoolLit False
                     "boom" -> Boom
-                    _ -> Identifier iden_contents
-            )
-            where
-                iden_contents = alphanum ++ apostrophes
-                    where
-                        iden_pred ch = isAlpha ch || isDigit ch || ch == '_'
-                        (alphanum, rest) = span iden_pred entire
-                        apostrophes = takeWhile (=='\'') rest
-                iden_len = length iden_contents
-        -- }}}
-        -- {{{ lex_nr
+                    _ -> Identifier contents
+            ) True
+
+        _ -> Nothing
+
+-- TOOD: clean this up
+lex_number lexer =
+    case remaining lexer of
+        entire@(x:_) | isDigit x ->
         {- {{{ how the algorithm works
             {{{ first scan
             a number literal has three components:
@@ -634,7 +535,6 @@ lex' prevtoks indent_stack lexer =
                 - missing digits (there are no integral digits)
             }}}
         }}} -}
-        lex_nr entire =
             let (base, base_len, after_base) =
                     case entire of
                         '0':ch:after | isAlpha ch -> (Just ch, 2, after)
@@ -663,7 +563,7 @@ lex' prevtoks indent_stack lexer =
                 read_lit_digits read_base power_fn = read_digits (reverse [0..toInteger digits_len - 1]) read_base digits power_fn
 
                 get_invalid_digits chk = filter (not . chk . fst) $ zip digits [base_len..]
-                make_errors_from_invalid_digits = map (\ (dig, ind) -> Left $ InvalidDigit dig (make_span_from_lexer ind 1) (make_span_from_lexer 0 total_len))
+                make_errors_from_invalid_digits = map (\ (dig, ind) -> InvalidDigit dig (make_span_from_lexer lexer ind 1) (make_span_from_lexer lexer 0 total_len))
 
                 check_int_no_float digit_chk tok =
                     if not $ null digits
@@ -672,10 +572,10 @@ lex' prevtoks indent_stack lexer =
                         in if null invalid_digits
                             then
                                 case decimal_digits of
-                                    Nothing -> continue_lex_with_single_tok total_len tok
-                                    Just _ -> continue_lex_with_single_err total_len NonDecimalFloat
-                            else continue_lex_with (make_errors_from_invalid_digits invalid_digits) total_len
-                    else continue_lex_with_single_err total_len MissingDigits
+                                    Nothing -> single_tok lexer total_len tok True
+                                    Just _ -> single_err lexer total_len NonDecimalFloat True
+                            else Just (True, Just $ seek_lexer lexer total_len, make_errors_from_invalid_digits invalid_digits, [])
+                    else single_err lexer total_len MissingDigits True
 
             in case base of
                 Just 'x' ->
@@ -691,18 +591,164 @@ lex' prevtoks indent_stack lexer =
                         in if null invalid_digits
                             then
                                 case decimal_digits of
-                                    Nothing -> continue_lex_with_single_tok total_len $ IntLit Dec $ read_lit_digits 10 (^)
-                                    Just dd -> continue_lex_with_single_tok total_len $ FloatLit $ fromIntegral (read_lit_digits 10 (^)) + read_digits (map (fromIntegral . negate) [1..decimal_len]) 10 dd (**)
-                            else continue_lex_with (make_errors_from_invalid_digits invalid_digits) total_len
-                    else continue_lex_with_single_err total_len MissingDigits
+                                    Nothing -> single_tok lexer total_len (IntLit Dec $ read_lit_digits 10 (^)) True
+                                    Just dd -> single_tok lexer total_len (FloatLit $ fromIntegral (read_lit_digits 10 (^)) + read_digits (map (fromIntegral . negate) [1..decimal_len]) 10 dd (**)) True
+                            else Just (True, Just $ seek_lexer lexer total_len, make_errors_from_invalid_digits invalid_digits, [])
+                    else single_err lexer total_len MissingDigits True
 
-                Just b ->
-                    continue_lex_with_single_err total_len $ InvalidBase b $ make_span_from_lexer 1 1
-        -- }}}
+                Just b -> single_err lexer total_len (InvalidBase b $ make_span_from_lexer lexer 1 1) True
+
+        _ -> Nothing
+
+lex_space lexer =
+    case remaining lexer of
+        x:_ | isSpace x -> Just (False, Just $ seek_lexer lexer 1, [], [])
+        _ -> Nothing
+
+make_bad_char lexer =
+    case remaining lexer of
+        x:_ -> single_err lexer 1 (BadChar x) True
+        [] -> Nothing
+
+-- TODO: clean this up
+lex_indent :: Lexer -> Maybe (Located Token) -> ([IndentFrame], [LexError], [Located Token])
+lex_indent lexer last_tok =
+    case last_tok of
+        Just _ ->
+            let remain = remaining lexer
+            in
+                process_cbrace remain .
+                process_semi   remain .
+                process_obrace remain .
+                process_dedent cur_indent last_indent .
+                process_nl     cur_indent last_indent .
+                process_indent cur_indent last_indent $ (orig_indent_stack, [], [])
+        Nothing -> (orig_indent_stack, [], [])
+    where
+        orig_indent_stack = indent_stack lexer
+
+        cur_indent = foldl' count_indent (Just 0) str_before_lexer'
+            where
+                str_before_lexer' = takeWhile (/='\n') $ rev_str_before_lexer lexer
+
+                count_indent (Just acc) ' ' = Just $ acc + 1
+                count_indent (Just acc) '\t' = Just $ (acc `div` 8 + 1) * 8
+                count_indent _ _ = Nothing
+
+        last_indent = case head orig_indent_stack of
+            IndentationInsensitive -> Nothing
+            IndentationSensitive x -> Just x
+
+        last_is_semi =
+            case last_tok of
+                Just (Located _ Semicolon) -> True
+                _ -> False
+
+        -- TODO: support \ at the end of a line to prevent indent tokens
+        -- TODO: support ~ at the end of a line to start a indentation sensitive frame
+        process_indent (Just curlvl) (Just lastlvl) (stack, errs, toks)
+            | curlvl > lastlvl =
+                (new_frame:stack, errs, toks ++ [make_tok_at_cur Indent])
+                where
+                    new_frame = IndentationSensitive curlvl
+        process_indent _ _ st = st
+
+        process_obrace ('{':_) (stack, errs, toks) = (IndentationInsensitive : stack, errs, toks ++ [make_tok_at_cur OBrace])
+        process_obrace _ st = st
+
+        process_nl (Just curlvl) (Just lastlvl) (stack, errs, toks)
+            -- TODO: do not emit newline if first character is '{'
+            | curlvl == lastlvl =
+                if last_is_semi
+                    then (stack, errs, toks)
+                    else (stack, errs, toks ++ [make_tok_at_nl_before Newline])
+
+        process_nl _ _ st = st
+
+        process_semi (';':_) (stack, errs, toks) = (stack, errs, toks ++ [make_tok_at_cur Semicolon])
+        process_semi _ st = st
+
+        process_dedent (Just curlvl) (Just lastlvl) (stack, errs, toks)
+            | curlvl < lastlvl =
+                let canpop (IndentationSensitive ind)
+                        | curlvl < ind = True
+                        | otherwise = False
+                    canpop IndentationInsensitive = False
+
+                    (popped, after_pop) = span canpop stack
+
+                    is_valid_level = case head after_pop of
+                        IndentationSensitive lvl
+                            | curlvl > lvl -> False
+
+                        _ -> True
+
+                    num_pop = length popped
+                in
+                    ( after_pop
+                    , errs ++
+                      (if is_valid_level
+                          then []
+                          else [BadDedent (make_span_from_lexer lexer 0 1)])
+                    , toks ++
+                      (if last_is_semi
+                          then []
+                          else [make_tok_at_nl_before Newline]) ++
+                      replicate num_pop (make_tok_at_cur Dedent) -- TODO: change dedent span to something better so that it doesnt include beginning of the next token
+                    )
+        process_dedent _ _ st = st
+
+        process_cbrace ('}':_) (stack, errs, toks) =
+            case head stack of
+                IndentationInsensitive -> (tail stack, errs, newtoks)
+                IndentationSensitive _ -> (stack, errs, newtoks) -- do not pop on the stack, but the parser will handle the error message when there is a random '}' that appears
+            where
+                newtoks = toks ++ [make_tok_at_cur CBrace]
+        process_cbrace _ st = st
+
+        make_tok_at_cur tok = Located (make_span_from_lexer lexer 0 1) tok
+
+        make_tok_relative_to_nl_before off len tok = Located (make_span_from_lexer lexer (off_to_nl + off) len) tok
+            where
+                off_to_nl =
+                    case from_last_tok of
+                        Just x -> x :: Int
+                        Nothing ->
+                            case from_cur_pos of
+                                Just x -> x :: Int
+                                Nothing -> error "no newlines to make token at"
+                    where
+                        from_last_tok =
+                            last_tok >>= \ (Located (Span _ _ endloc) _) ->
+                            let endind = ind_of_loc endloc
+                            in elemIndex '\n' (drop endind $ source $ sourcefile lexer) >>= \ from_tok_ind ->
+                            Just $ from_tok_ind + endind - source_location lexer
+
+                        from_cur_pos =
+                            elemIndex '\n' (rev_str_before_lexer lexer) >>= \ x ->
+                            Just $ -x - 1
+
+        make_tok_at_nl_before = make_tok_relative_to_nl_before 0 1
+
+make_span_from_lexer :: Lexer -> Int -> Int -> Span
+make_span_from_lexer lexer start len = Span (make_loc_from_lexer start_lexer) (make_loc_from_lexer before_lexer) (make_loc_from_lexer end_lexer)
+    where
+        start_lexer = lexer `seek_lexer` start
+        before_lexer = start_lexer `seek_lexer` (len - 1)
+        end_lexer = before_lexer `seek_lexer` 1
+
+make_loc_from_lexer :: Lexer -> Location
+make_loc_from_lexer l = make_location (sourcefile l) (source_location l) (linen l) (coln l)
+
+single_tok :: Lexer -> Int -> Token -> Bool -> Maybe (Bool, Maybe Lexer, [LexError], [Located Token])
+single_tok lexer len tok b = Just (b, Just $ seek_lexer lexer len, [], [Located (make_span_from_lexer lexer 0 len) tok])
+
+single_err :: Lexer -> Int -> (Span -> LexError) -> Bool -> Maybe (Bool, Maybe Lexer, [LexError], [Located Token])
+single_err lexer len err b = Just (b, Just $ seek_lexer lexer len, [err (make_span_from_lexer lexer 0 len)], [])
 
 seek_lexer :: Lexer -> Int -> Lexer
 seek_lexer l 0 = l
-seek_lexer (Lexer sf loc remain before l c) n =
+seek_lexer lexer@(Lexer sf loc remain before l c _) n =
     let (before', changed, remain')
             | n > 0 =
                 let (into_before, r) = splitAt n remain
@@ -722,7 +768,7 @@ seek_lexer (Lexer sf loc remain before l c) n =
             | numnl == 0 = c + n
             | otherwise = 1 + length (takeWhile (/='\n') before')
 
-    in Lexer
+    in lexer
        { sourcefile = sf
        , source_location = loc + n
        , remaining = remain'

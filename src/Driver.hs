@@ -53,10 +53,8 @@ add_errors = ErrorAcc ()
 -- stages {{{1
 lex_stage :: File -> ErrorAccumulated [Located Tokens.Token]
 lex_stage contents =
-    let lexed = Tokens.lex contents
-        errs = [Message.to_diagnostic x | Left x <- lexed]
-        toks = [x | Right x <- lexed]
-    in add_errors errs >> return toks
+    let (errs, toks) = Tokens.lex contents
+    in add_errors (Message.to_diagnostic <$> errs) >> return toks
 
 parse_stage :: [Located Tokens.Token] -> ErrorAccumulated (Maybe AST.LDModule)
 parse_stage toks =
