@@ -15,7 +15,7 @@ import Location
 
 import Data.Char(isDigit, isAlpha, isHexDigit, isOctDigit, digitToInt, isSpace)
 import Data.List(foldl', elemIndex, elemIndices)
-import Data.Maybe(catMaybes, fromMaybe)
+import Data.Maybe(mapMaybe, fromMaybe)
 
 import qualified Message
 import qualified Message.Underlines as MsgUnds
