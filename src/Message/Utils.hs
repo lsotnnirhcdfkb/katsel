@@ -7,6 +7,8 @@ import Data.Char(isSpace)
 
 import qualified System.Console.ANSI as ANSI
 
+-- TODO: clean up everything in the Message.* modules
+
 data DiagLine = DiagLine String Char String
 
 draw_box :: Span -> Char -> [ANSI.SGR] -> ([DiagLine], Int, Int)
@@ -44,7 +46,7 @@ draw_box (Span sp_start sp_before _) border_char sgr =
 
         padded_border_char = [' ', border_char, ' ']
 
-        get_line n = case drop (n - 1) $ lines $ source $ file_of_loc sp_start of
+        get_line n = case drop (n - 1) $ lines $ file_source $ file_of_loc sp_start of
             x:_ -> x
             [] -> ""
 
@@ -109,6 +111,6 @@ replace_at ind fill change orig =
 
 get_line_from_file :: File -> Int -> String
 get_line_from_file file lnnr =
-    case drop (lnnr - 1) (lines $ source file) of
+    case drop (lnnr - 1) (lines $ file_source file) of
         x:_ -> x
         [] -> ""

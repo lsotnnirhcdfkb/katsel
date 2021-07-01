@@ -34,7 +34,7 @@ make_location_from_ind :: File -> Int -> Location
 make_location_from_ind file ind = Location file ind (find_lnn file ind) (find_coln file ind)
 
 fmt_location :: Location -> String
-fmt_location (Location file _ lnnr coln) = name file ++ ":" ++ show lnnr ++ ":" ++ show coln
+fmt_location (Location file _ lnnr coln) = file_name file ++ ":" ++ show lnnr ++ ":" ++ show coln
 
 data Span = Span Location Location Location
     deriving Eq
@@ -42,7 +42,7 @@ fmt_span :: Span -> String
 fmt_span (Span (Location sfile _ slnnr scoln) _ (Location efile _ elnnr ecoln)) =
     if sfile /= efile
     then error "span that spans over different files"
-    else name sfile ++ ":(" ++ show slnnr ++ ":" ++ show scoln ++ " " ++ show elnnr ++ ":" ++ show ecoln ++ ")"
+    else file_name sfile ++ ":(" ++ show slnnr ++ ":" ++ show scoln ++ " " ++ show elnnr ++ ":" ++ show ecoln ++ ")"
 
 join_span :: Span -> Span -> Span
 join_span (Span s1 b1 e1) (Span s2 b2 e2) =
@@ -67,10 +67,10 @@ instance Functor Located where
     fmap f (Located sp v) = Located sp (f v)
 
 find_lnn :: File -> Int -> Int
-find_lnn file ind = 1 + length (filter ('\n'==) (take ind $ source file))
+find_lnn file ind = 1 + length (filter ('\n'==) (take ind $ file_source file))
 
 find_coln :: File -> Int -> Int
-find_coln file ind = 1 + length (takeWhile (/='\n') $ reverse $ take ind $ source file)
+find_coln file ind = 1 + length (takeWhile (/='\n') $ reverse $ take ind $ file_source file)
 
 is_single_line :: Span -> Bool
 is_single_line (Span start before_end _) = lnn_of_loc start == lnn_of_loc before_end

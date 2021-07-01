@@ -253,7 +253,7 @@ new_lexer :: File -> Lexer
 new_lexer file = Lexer
             { sourcefile = file
             , source_location = 0
-            , remaining = source file
+            , remaining = file_source file
             , rev_str_before_lexer = ""
             , linen = 1
             , coln = 1
@@ -551,14 +551,15 @@ lex_number lexer =
                     where
                         (d, after) = span isHexDigit after_base
 
-                (decimal_digits, decimal_len, _) =
+                (decimal_digits, decimal_len) =
                     case after_digits of
                         '.':rest@(first_digit:_)
                             | isHexDigit first_digit ->
-                                (Just f, length f + 1, drop 1 more)
-                                where (f, more) = span isHexDigit rest
+                                (Just f, length f + 1)
+                                where
+                                    f = takeWhile isHexDigit rest
 
-                        after -> (Nothing, 0, after)
+                        _ -> (Nothing, 0)
 
                 total_len = base_len + digits_len + decimal_len
 
@@ -592,16 +593,14 @@ lex_number lexer =
                 Just 'o' ->
                     check_int_no_float isOctDigit $ IntLit Oct $ read_lit_digits 8 (^)
                 Nothing ->
-                    if not $ null digits
-                    then
-                        let invalid_digits = get_invalid_digits isDigit
-                        in if null invalid_digits
-                            then
-                                case decimal_digits of
-                                    Nothing -> single_tok lexer total_len (IntLit Dec $ read_lit_digits 10 (^)) True
-                                    Just dd -> single_tok lexer total_len (FloatLit $ fromIntegral (read_lit_digits 10 (^)) + read_digits (map (fromIntegral . negate) [1..decimal_len]) 10 dd (**)) True
-                            else Just (True, Just $ seek_lexer lexer total_len, make_errors_from_invalid_digits invalid_digits, [])
-                    else single_err lexer total_len MissingDigits True
+                    -- 'not (null digits)' is always true becasue if there is no base then there has to be at least 1 digit for the number to be processed
+                    let invalid_digits = get_invalid_digits isDigit
+                    in if null invalid_digits
+                        then
+                            case decimal_digits of
+                                Nothing -> single_tok lexer total_len (IntLit Dec $ read_lit_digits 10 (^)) True
+                                Just dd -> single_tok lexer total_len (FloatLit $ fromIntegral (read_lit_digits 10 (^)) + read_digits (map (fromIntegral . negate) [1..decimal_len]) 10 dd (**)) True
+                        else Just (True, Just $ seek_lexer lexer total_len, make_errors_from_invalid_digits invalid_digits, [])
 
                 Just b -> single_err lexer total_len (InvalidBase b $ make_span_from_lexer lexer 1 1) True
 
@@ -728,7 +727,7 @@ lex_indent lexer last_tok =
                         from_last_tok =
                             last_tok >>= \ (Located (Span _ _ endloc) _) ->
                             let endind = ind_of_loc endloc
-                            in elemIndex '\n' (drop endind $ source $ sourcefile lexer) >>= \ from_tok_ind ->
+                            in elemIndex '\n' (drop endind $ file_source $ sourcefile lexer) >>= \ from_tok_ind ->
                             Just $ from_tok_ind + endind - source_location lexer
 
                         from_cur_pos =
@@ -787,7 +786,7 @@ seek_lexer lexer@(Lexer sf loc remain before l c _) n =
 -- tests {{{1
 tests :: Test
 tests = DescribeModule "Tokens" $
-    let fake_file = File "fake_file"
+    let fake_file = make_file "fake_file"
         lex_test fun contents check = check $ fun $ new_lexer $ fake_file contents
 
     in [ DescribeFunction "lex_eof"
@@ -979,6 +978,12 @@ tests = DescribeModule "Tokens" $
                     | remaining l == "" -> pass_test
                 _ -> fail_test
 
+        , ItCan "report an unterminated multiline string literal that has another character" $
+            lex_test lex_str_or_char_lit "\"abc\n\"def\na" $ \case
+                Just (True, Just l, [UntermStr _], [])
+                    | remaining l == "\na" -> pass_test
+                _ -> fail_test
+
         , ItCan "report an unterminated multiline character literal" $
             lex_test lex_str_or_char_lit "'abc\n'def\n" $ \case
                 Just (True, Just l, [UntermChar _], [])
@@ -989,6 +994,12 @@ tests = DescribeModule "Tokens" $
             lex_test lex_str_or_char_lit "'abc\n'def" $ \case
                 Just (True, Just l, [UntermChar _], [])
                     | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "report an unterminated multiline character literal that has another character" $
+            lex_test lex_str_or_char_lit "'abc\n'def\na" $ \case
+                Just (True, Just l, [UntermChar _], [])
+                    | remaining l == "\na" -> pass_test
                 _ -> fail_test
 
         , ItCan "ignore other characters" $
@@ -1002,6 +1013,24 @@ tests = DescribeModule "Tokens" $
         [ ItCan "lex identifiers" $
             lex_test lex_iden "abc" $ \case
                 Just (True, Just l, [], [Located _ (Identifier "abc")])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "lex identifiers that start with '_'" $
+            lex_test lex_iden "_a" $ \case
+                Just (True, Just l, [], [Located _ (Identifier "_a")])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "lex identifiers with numbers" $
+            lex_test lex_iden "a23" $ \case
+                Just (True, Just l, [], [Located _ (Identifier "a23")])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "lex identifiers with apostrophes" $
+            lex_test lex_iden "a''" $ \case
+                Just (True, Just l, [], [Located _ (Identifier "a''")])
                     | remaining l == "" -> pass_test
                 _ -> fail_test
 
@@ -1112,11 +1141,32 @@ tests = DescribeModule "Tokens" $
                 Just (True, Just l, [], [Located _ Boom])
                     | remaining l == "" -> pass_test
                 _ -> fail_test
+
+        , ItCan "ignore initial numbers" $
+            lex_test lex_iden "2a" $ \case
+                Nothing -> pass_test
+                _ -> fail_test
+
+        , ItCan "ignore initial apostrophes" $
+            lex_test lex_iden "'a" $ \case
+                Nothing -> pass_test
+                _ -> fail_test
+
+        , ItCan "ignore other characters" $
+            lex_test lex_iden "'" $ \case
+                Nothing -> pass_test
+                _ -> fail_test
         ]
 
     , DescribeFunction "lex_number"
         [ ItCan "identify a decimal number" $
             lex_test lex_number "1234" $ \case
+                Just (True, Just l, [], [Located _ (IntLit Dec 1234)])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "identify a number with a starting 0" $
+            lex_test lex_number "01234" $ \case
                 Just (True, Just l, [], [Located _ (IntLit Dec 1234)])
                     | remaining l == "" -> pass_test
                 _ -> fail_test
@@ -1166,6 +1216,12 @@ tests = DescribeModule "Tokens" $
                     | remaining l == "." -> pass_test
                 _ -> fail_test
 
+        , ItCan "ignore a dot followed by invalid digits" $
+            lex_test lex_number "123.x" $ \case
+                Just (True, Just l, [], [Located _ (IntLit Dec 123)])
+                    | remaining l == ".x" -> pass_test
+                _ -> fail_test
+
         , ItCan "report a binary number with decimals" $
             lex_test lex_number "0b101.1" $ \case
                 Just (True, Just l, [NonDecimalFloat _], [])
@@ -1174,13 +1230,13 @@ tests = DescribeModule "Tokens" $
 
         , ItCan "report a binary number with invalid digits" $
             lex_test lex_number "0b29a" $ \case
-                Just (True, Just l, [InvalidDigit _ _ _, InvalidDigit _ _ _, InvalidDigit _ _ _], [])
+                Just (True, Just l, [InvalidDigit '2' _ _, InvalidDigit '9' _ _, InvalidDigit 'a' _ _], [])
                     | remaining l == "" -> pass_test
                 _ -> fail_test
 
         , ItCan "report a decimal number with invalid digits" $
             lex_test lex_number "20ab3" $ \case
-                Just (True, Just l, [InvalidDigit _ _ _, InvalidDigit _ _ _], [])
+                Just (True, Just l, [InvalidDigit 'a' _ _, InvalidDigit 'b' _ _], [])
                     | remaining l == "" -> pass_test
                 _ -> fail_test
 
@@ -1198,13 +1254,24 @@ tests = DescribeModule "Tokens" $
 
         , ItCan "report a octal number with invalid digits" $
             lex_test lex_number "0o79a" $ \case
-                Just (True, Just l, [InvalidDigit _ _ _, InvalidDigit _ _ _], [])
+                Just (True, Just l, [InvalidDigit '9' _ _, InvalidDigit 'a' _ _], [])
                     | remaining l == "" -> pass_test
                 _ -> fail_test
 
-        , ItCan "report an invalid base" $
+        , ItCan "report a floating point number with no digits" $
+            lex_test lex_number "0b.1" $ \case
+                Just (True, Just l, [MissingDigits _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "report an invalid base 1" $
             lex_test lex_number "0a98a" $ \case
-                Just (True, Just l, [InvalidBase _ _ _], [])
+                Just (True, Just l, [InvalidBase 'a' _ _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+        , ItCan "report an invalid base 2" $
+            lex_test lex_number "0j" $ \case
+                Just (True, Just l, [InvalidBase 'j' _ _], [])
                     | remaining l == "" -> pass_test
                 _ -> fail_test
         ]
