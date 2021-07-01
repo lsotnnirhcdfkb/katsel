@@ -3,7 +3,7 @@ version: 0.0.0
 maintainer: Jason Nguyen <lsotnnirhcdfkb@gmail.com>
 github: lsotnnirhcdfkb/brace
 
-ghc-options: -Wall
+ghc-options: -Wall -O0
 
 default-extensions:
   - LambdaCase
@@ -15,15 +15,29 @@ dependencies:
   - containers
   - template-haskell
 
+internal-libraries:
+  brace-internal:
+    source-dirs:
+      - src
+
+    dependencies:
+      - brace-test-lib
+
+  brace-test-lib:
+    source-dirs:
+      - test
+
 executable:
-  main: Main.hs
-  source-dirs:
-    - src
-    - test
+  main: src/Main.hs
+
+  dependencies:
+    - brace-internal
+    - brace-test-lib
 
 tests:
   brace-test:
-    main: test.hs
-    source-dirs:
-      - src
-      - test
+    main: test/test.hs
+
+    dependencies:
+      - brace-internal
+      - brace-test-lib
