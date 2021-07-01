@@ -4,7 +4,11 @@ module Tokens
     ( Token(..)
     , Tokens.lex
     , format_token
+
+    , tests
     ) where
+
+import Test
 
 import File
 import Location
@@ -245,18 +249,21 @@ instance Message.ToDiagnostic LexError where
             simple sp code nm msg = Message.SimpleDiag Message.Error (Just sp) (Message.make_code code) (Just nm)
                     [Message.Underlines [MsgUnds.Underline sp MsgUnds.Primary [MsgUnds.Message MsgUnds.Error msg]]]
 
+new_lexer :: File -> Lexer
+new_lexer file = Lexer
+            { sourcefile = file
+            , source_location = 0
+            , remaining = source file
+            , rev_str_before_lexer = ""
+            , linen = 1
+            , coln = 1
+            , indent_stack = [IndentationSensitive 0]
+            }
+
 lex :: File -> ([LexError], [Located Token])
 lex f =
     let start_lexer =
-            ( Just $ Lexer
-                     { sourcefile = f
-                     , source_location = 0
-                     , remaining = source f
-                     , rev_str_before_lexer = ""
-                     , linen = 1
-                     , coln = 1
-                     , indent_stack = [IndentationSensitive 0]
-                     }
+            ( Just $ new_lexer f
             , []
             , []
             )
@@ -290,7 +297,7 @@ lex' lexer last_tok =
             , make_bad_char
             ]
 
-        (include_indent, lexer', errs, toks) = head $ catMaybes $ map ($ lexer) lex_choices
+        (include_indent, lexer', errs, toks) = head $ mapMaybe ($ lexer) lex_choices
         (next_indent_stack, indent_errs, indent_toks) = lex_indent lexer last_tok
 
     in if include_indent
@@ -776,3 +783,555 @@ seek_lexer lexer@(Lexer sf loc remain before l c _) n =
        , linen = new_linen
        , coln = new_coln
        }
+
+-- tests {{{1
+tests :: Test
+tests = DescribeModule "Tokens" $
+    let fake_file = File "fake_file"
+        lex_test fun contents check = check $ fun $ new_lexer $ fake_file contents
+
+    in [ DescribeFunction "lex_eof"
+        [ ItCan "create an EOF token when there is no more input without indentation tokens or errors and end lexing" $
+            lex_test lex_eof "" $ \case
+                Just (False, Nothing, [], [Located _ EOF]) -> pass_test
+                _ -> fail_test
+
+        , ItCan "emit dedent tokens at the end 1" $
+            let f = fake_file ""
+                l = (new_lexer f)
+                    { indent_stack = [IndentationSensitive 4, IndentationSensitive 0]
+                    }
+            in case lex_eof l of
+                Just (False, Nothing, [], [Located _ Newline, Located _ Dedent, Located _ EOF]) -> pass_test
+                _ -> fail_test
+
+        , ItCan "emit dedent tokens at the end 2" $
+            let f = fake_file ""
+                l = (new_lexer f)
+                    { indent_stack = [IndentationSensitive 8, IndentationSensitive 4, IndentationSensitive 0]
+                    }
+            in case lex_eof l of
+                Just (False, Nothing, [], [Located _ Newline, Located _ Dedent, Located _ Dedent, Located _ EOF]) -> pass_test
+                _ -> fail_test
+
+        , ItCan "ignore indentation insensitive frames 1" $
+            let f = fake_file ""
+                l = (new_lexer f)
+                    { indent_stack = [IndentationInsensitive, IndentationSensitive 4, IndentationInsensitive, IndentationSensitive 0]
+                    }
+            in case lex_eof l of
+                Just (False, Nothing, [], [Located _ Newline, Located _ Dedent, Located _ EOF]) -> pass_test
+                _ -> fail_test
+
+        , ItCan "ignore indentation insensitive frames 2" $
+            let f = fake_file ""
+                l = (new_lexer f)
+                    { indent_stack = [IndentationInsensitive, IndentationInsensitive, IndentationSensitive 0]
+                    }
+            in case lex_eof l of
+                Just (False, Nothing, [], [Located _ EOF]) -> pass_test
+                _ -> fail_test
+
+        , ItCan "do nothing when there is input" $
+            lex_test lex_eof "a" $ \case
+                Nothing -> pass_test
+                Just _ -> fail_test
+        ]
+
+    , DescribeFunction "lex_comment"
+        [ ItCan "lex single line comments" $
+            lex_test lex_comment "// asdf\nafter\n" $ \case
+                Just (False, Just l', [], [])
+                    | remaining l' == "after\n" -> pass_test
+                _ -> fail_test
+
+        , ItCan "lex single line comments that don't have a terminating newline" $
+            lex_test lex_comment "// asdf" $ \case
+                Just (False, Just l', [], [])
+                    | remaining l' == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "lex multiline comments 1" $
+            lex_test lex_comment "/* abcdef\nabcdef */" $ \case
+                Just (False, Just l', [], [])
+                    | remaining l' == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "lex multiline comments 2" $
+            lex_test lex_comment "/* abcdef\nabcdef */\nafter\n" $ \case
+                Just (False, Just l', [], [])
+                    | remaining l' == "\nafter\n" -> pass_test
+                _ -> fail_test
+
+        , ItCan "lex multiline comments that nest" $
+            lex_test lex_comment "/* level 1 /* level 2 /* level 3 */ */ /* more */ */" $ \case
+                Just (False, Just l', [], [])
+                    | remaining l' == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "return an error on multiline comments that don't have a terminator" $
+            lex_test lex_comment "/* comment" $ \case
+                Just (False, Just l', [UntermMultilineComment _], [])
+                    | remaining l' == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "return an error on nested unterminated multiline comments" $
+            lex_test lex_comment "/* /* */" $ \case
+                Just (False, Just l', [UntermMultilineComment _], [])
+                    | remaining l' == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "ignore non-comments" $
+            lex_test lex_comment "a" $ \case
+                Nothing -> pass_test
+                _ -> fail_test
+        ]
+
+    , DescribeFunction "lex_braces_semi"
+        [ ItCan "skip '{'" $
+            lex_test lex_braces_semi "{" $ \case
+                Just (True, Just l', [], [])
+                    | remaining l' == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "skip '}'" $
+            lex_test lex_braces_semi "}" $ \case
+                Just (True, Just l', [], [])
+                    | remaining l' == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "skip ';'" $
+            lex_test lex_braces_semi ";" $ \case
+                Just (True, Just l', [], [])
+                    | remaining l' == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "disregard any other character" $
+            lex_test lex_braces_semi "a" $ \case
+                Nothing -> pass_test
+                _ -> fail_test
+        ]
+
+    , DescribeFunction "lex_str_or_char_lit"
+        [ ItCan "lex character literals" $
+            lex_test lex_str_or_char_lit "'a'" $ \case
+                Just (True, Just l, [], [Located _ (CharLit 'a')])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "lex string literals" $
+            lex_test lex_str_or_char_lit "\"abcdef\"" $ \case
+                Just (True, Just l, [], [Located _ (StringLit "abcdef")])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "lex multiline character literals" $
+            lex_test lex_str_or_char_lit "'a\n'b'" $ \case
+                Just (True, Just l, [MulticharChar _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "lex multiline string literals" $
+            lex_test lex_str_or_char_lit "\"line 1\n\"line 2\"\n" $ \case
+                Just (True, Just l, [], [Located _ (StringLit "line 1\nline 2")])
+                    | remaining l == "\n" -> pass_test
+                _ -> fail_test
+
+        , ItCan "ignore whitespace after incomplete character literals" $
+            lex_test lex_str_or_char_lit "'abc\n        'b'" $ \case
+                Just (True, Just l, [MulticharChar _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "ignore whitespace after incomplete string literals" $
+            lex_test lex_str_or_char_lit "\"line 1\n             \"line 2\"\n" $ \case
+                Just (True, Just l, [], [Located _ (StringLit "line 1\nline 2")])
+                    | remaining l == "\n" -> pass_test
+                _ -> fail_test
+
+        , ItCan "report an character literal with more than one character" $
+            lex_test lex_str_or_char_lit "'abc'" $ \case
+                Just (True, Just l, [MulticharChar _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "report an unterminated string literal" $
+            lex_test lex_str_or_char_lit "\"abc" $ \case
+                Just (True, Just l, [UntermStr _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "report an unterminated character literal" $
+            lex_test lex_str_or_char_lit "\'abc" $ \case
+                Just (True, Just l, [UntermChar _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "report an unterminated multiline string literal" $
+            lex_test lex_str_or_char_lit "\"abc\n\"def\n" $ \case
+                Just (True, Just l, [UntermStr _], [])
+                    | remaining l == "\n" -> pass_test
+                _ -> fail_test
+
+        , ItCan "report an unterminated multiline string literal that ends with no newline" $
+            lex_test lex_str_or_char_lit "\"abc\n\"def" $ \case
+                Just (True, Just l, [UntermStr _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "report an unterminated multiline character literal" $
+            lex_test lex_str_or_char_lit "'abc\n'def\n" $ \case
+                Just (True, Just l, [UntermChar _], [])
+                    | remaining l == "\n" -> pass_test
+                _ -> fail_test
+
+        , ItCan "report an unterminated multiline character literal that ends with no newline" $
+            lex_test lex_str_or_char_lit "'abc\n'def" $ \case
+                Just (True, Just l, [UntermChar _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "ignore other characters" $
+            lex_test lex_str_or_char_lit "a" $ \case
+                Nothing -> pass_test
+                _ -> fail_test
+
+        ]
+
+    , DescribeFunction "lex_iden"
+        [ ItCan "lex identifiers" $
+            lex_test lex_iden "abc" $ \case
+                Just (True, Just l, [], [Located _ (Identifier "abc")])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'data' keyword" $
+            lex_test lex_iden "data" $ \case
+                Just (True, Just l, [], [Located _ Data])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'impl' keyword" $
+            lex_test lex_iden "impl" $ \case
+                Just (True, Just l, [], [Located _ Impl])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'fun' keyword" $
+            lex_test lex_iden "fun" $ \case
+                Just (True, Just l, [], [Located _ Fun])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'root' keyword" $
+            lex_test lex_iden "root" $ \case
+                Just (True, Just l, [], [Located _ Root])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'mut' keyword" $
+            lex_test lex_iden "mut" $ \case
+                Just (True, Just l, [], [Located _ Mut])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'let' keyword" $
+            lex_test lex_iden "let" $ \case
+                Just (True, Just l, [], [Located _ Let])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'this' keyword" $
+            lex_test lex_iden "this" $ \case
+                Just (True, Just l, [], [Located _ This])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'return' keyword" $
+            lex_test lex_iden "return" $ \case
+                Just (True, Just l, [], [Located _ Return])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'while' keyword" $
+            lex_test lex_iden "while" $ \case
+                Just (True, Just l, [], [Located _ While])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'for' keyword" $
+            lex_test lex_iden "for" $ \case
+                Just (True, Just l, [], [Located _ For])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'if' keyword" $
+            lex_test lex_iden "if" $ \case
+                Just (True, Just l, [], [Located _ If])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'else' keyword" $
+            lex_test lex_iden "else" $ \case
+                Just (True, Just l, [], [Located _ Else])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'case' keyword" $
+            lex_test lex_iden "case" $ \case
+                Just (True, Just l, [], [Located _ Case])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'break' keyword" $
+            lex_test lex_iden "break" $ \case
+                Just (True, Just l, [], [Located _ Break])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'continue' keyword" $
+            lex_test lex_iden "continue" $ \case
+                Just (True, Just l, [], [Located _ Continue])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'true' keyword" $
+            lex_test lex_iden "true" $ \case
+                Just (True, Just l, [], [Located _ (BoolLit True)])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'false' keyword" $
+            lex_test lex_iden "false" $ \case
+                Just (True, Just l, [], [Located _ (BoolLit False)])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "recognize the 'boom' keyword" $
+            lex_test lex_iden "boom" $ \case
+                Just (True, Just l, [], [Located _ Boom])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+        ]
+
+    , DescribeFunction "lex_number"
+        [ ItCan "identify a decimal number" $
+            lex_test lex_number "1234" $ \case
+                Just (True, Just l, [], [Located _ (IntLit Dec 1234)])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "identify a floating point number" $
+            lex_test lex_number "1234.1234" $ \case
+                Just (True, Just l, [], [Located _ (FloatLit 1234.1234)])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "identify a valid binary number" $
+            lex_test lex_number "0b101" $ \case
+                Just (True, Just l, [], [Located _ (IntLit Bin 5)])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "identify a valid hex number" $
+            lex_test lex_number "0xf1abcABC" $ \case
+                Just (True, Just l, [], [Located _ (IntLit Hex 4054567612)])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "identify a valid octal number" $
+            lex_test lex_number "0o765" $ \case
+                Just (True, Just l, [], [Located _ (IntLit Oct 501)])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "ignore a non-digit starting character 1" $
+            lex_test lex_number ".123" $ \case
+                Nothing -> pass_test
+                _ -> fail_test
+
+        , ItCan "ignore a non-digit starting character 2" $
+            lex_test lex_number "abc023" $ \case
+                Nothing -> pass_test
+                _ -> fail_test
+
+        , ItCan "ignore an empty string" $
+            lex_test lex_number "" $ \case
+                Nothing -> pass_test
+                _ -> fail_test
+
+        , ItCan "ignore a trailing dot" $
+            lex_test lex_number "123." $ \case
+                Just (True, Just l, [], [Located _ (IntLit Dec 123)])
+                    | remaining l == "." -> pass_test
+                _ -> fail_test
+
+        , ItCan "report a binary number with decimals" $
+            lex_test lex_number "0b101.1" $ \case
+                Just (True, Just l, [NonDecimalFloat _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "report a binary number with invalid digits" $
+            lex_test lex_number "0b29a" $ \case
+                Just (True, Just l, [InvalidDigit _ _ _, InvalidDigit _ _ _, InvalidDigit _ _ _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "report a decimal number with invalid digits" $
+            lex_test lex_number "20ab3" $ \case
+                Just (True, Just l, [InvalidDigit _ _ _, InvalidDigit _ _ _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "report a hex number with decimals" $
+            lex_test lex_number "0xabc.1a" $ \case
+                Just (True, Just l, [NonDecimalFloat _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "report a octal number with decimals" $
+            lex_test lex_number "0o76.4" $ \case
+                Just (True, Just l, [NonDecimalFloat _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "report a octal number with invalid digits" $
+            lex_test lex_number "0o79a" $ \case
+                Just (True, Just l, [InvalidDigit _ _ _, InvalidDigit _ _ _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "report an invalid base" $
+            lex_test lex_number "0a98a" $ \case
+                Just (True, Just l, [InvalidBase _ _ _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+        ]
+
+    , DescribeFunction "lex_space"
+        [ ItCan "skip ' ' (spaces)" $
+            lex_test lex_space " a" $ \case
+                Just (False, Just l, [], [])
+                    | remaining l == "a" -> pass_test
+                _ -> fail_test
+
+        , ItCan "skip '\\n' (newlines)" $
+            lex_test lex_space "\na" $ \case
+                Just (False, Just l, [], [])
+                    | remaining l == "a" -> pass_test
+                _ -> fail_test
+
+        , ItCan "skip '\\t' (tabs)" $
+            lex_test lex_space "\ta" $ \case
+                Just (False, Just l, [], [])
+                    | remaining l == "a" -> pass_test
+                _ -> fail_test
+
+        , ItCan "skip '\\v' (vertical tabs)" $
+            lex_test lex_space "\va" $ \case
+                Just (False, Just l, [], [])
+                    | remaining l == "a" -> pass_test
+                _ -> fail_test
+
+        , ItCan "ignore non-whitespace" $
+            lex_test lex_space "a" $ \case
+                Nothing -> pass_test
+                _ -> fail_test
+        ]
+
+    , DescribeFunction "make_bad_char"
+        [ ItCan "report a character" $
+            lex_test make_bad_char "a" $ \case
+                Just (True, Just l, [BadChar 'a' _], [])
+                    | remaining l == "" -> pass_test
+                _ -> fail_test
+
+        , ItCan "ignore an empty input" $
+            lex_test make_bad_char "" $ \case
+                Nothing -> pass_test
+                _ -> fail_test
+        ]
+
+    , DescribeFunction "lex_indent"
+        [ ItCan "do things" pending_test
+        ]
+
+    , DescribeFunction "seek_lexer" $
+        let contents = "abcdef\nghijkl\nmnopqr\n"
+            file = fake_file contents
+            orig_source_location = 10
+            orig_rem = drop orig_source_location contents
+            orig_rev_before = reverse $ take orig_source_location contents
+            orig_linen = 2
+            orig_coln = 4
+
+            lexer = Lexer
+                    { sourcefile = file
+                    , source_location = orig_source_location
+                    , remaining = orig_rem
+                    , rev_str_before_lexer = orig_rev_before
+                    , linen = orig_linen
+                    , coln = orig_coln
+                    , indent_stack = [IndentationSensitive 0]
+                    }
+
+        in
+        [ ItCan "return an identical lexer when seeking by 0" $
+            case seek_lexer lexer 0 of
+                Lexer file' source_location' rem' rev_before' linen' coln' _
+                    | file == file' &&
+                      orig_source_location == source_location' &&
+                      orig_rem == rem' &&
+                      orig_rev_before == rev_before' &&
+                      orig_linen == linen' &&
+                      orig_coln == coln' -> pass_test
+                _ -> fail_test
+
+        , When "seeking forward"
+            [ ItCan "seek forward" $
+                case seek_lexer lexer 2 of
+                    Lexer file' source_location' rem' rev_before' linen' coln' _
+                        | file == file' &&
+                          source_location' == 12 &&
+                          rem' == "l\nmnopqr\n" &&
+                          rev_before' == "kjihg\nfedcba" &&
+                          linen' == 2 &&
+                          coln' == 6 -> pass_test
+                    _ -> fail_test
+
+            , ItCan "properly handle going over a newline" $
+                case seek_lexer lexer 6 of
+                    Lexer file' source_location' rem' rev_before' linen' coln' _
+                        | file == file' &&
+                          source_location' == 16 &&
+                          rem' == "opqr\n" &&
+                          rev_before' == "nm\nlkjihg\nfedcba" &&
+                          linen' == 3 &&
+                          coln' == 3 -> pass_test
+                    _ -> fail_test
+            ]
+        , When "seeking backward"
+            [ ItCan "seek backward" $
+                case seek_lexer lexer (-2) of
+                    Lexer file' source_location' rem' rev_before' linen' coln' _
+                        | file == file' &&
+                          source_location' == 8 &&
+                          rem' == "hijkl\nmnopqr\n" &&
+                          rev_before' == "g\nfedcba" &&
+                          linen' == 2 &&
+                          coln' == 2 -> pass_test
+                    _ -> fail_test
+
+            , ItCan "properly handle going over a newline" $
+                case seek_lexer lexer (-6) of
+                    Lexer file' source_location' rem' rev_before' linen' coln' _
+                        | file == file' &&
+                          source_location' == 4 &&
+                          rem' == "ef\nghijkl\nmnopqr\n" &&
+                          rev_before' == "dcba" &&
+                          linen' == 1 && coln' == 5 -> pass_test
+                    _ -> fail_test
+            ]
+        ]
+    ]
