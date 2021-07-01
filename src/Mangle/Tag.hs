@@ -5,8 +5,8 @@ module Mangle.Tag
 
 import Mangle.TagName
 
-import Numeric(showHex)
-import Data.Char(isAscii, isAlpha, isDigit, ord)
+import Numeric (showHex)
+import Data.Char (isAscii, isAlpha, isDigit, ord)
 
 data Tag = Tag (TagName TagTagName) [Tag] | StrTag (TagName StrTagName) String
 

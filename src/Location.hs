@@ -15,8 +15,8 @@ module Location
     ) where
 
 import File
-import Data.List(minimumBy, maximumBy)
-import Data.Function(on)
+import Data.List (minimumBy, maximumBy)
+import Data.Function (on)
 
 data Location
     = Location

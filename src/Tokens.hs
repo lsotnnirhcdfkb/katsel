@@ -13,14 +13,14 @@ import Test
 import File
 import Location
 
-import Data.Char(isDigit, isAlpha, isHexDigit, isOctDigit, digitToInt, isSpace)
-import Data.List(foldl', elemIndex, elemIndices)
-import Data.Maybe(mapMaybe, fromMaybe)
+import Data.Char (isDigit, isAlpha, isHexDigit, isOctDigit, digitToInt, isSpace)
+import Data.List (foldl', elemIndex, elemIndices)
+import Data.Maybe (mapMaybe, fromMaybe)
 
 import qualified Message
 import qualified Message.Underlines as MsgUnds
 
-import Data.Data(Data)
+import Data.Data (Data)
 
 data IntLitBase
     = Dec

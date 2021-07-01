@@ -15,7 +15,7 @@ import IR.Value
 
 import Interner
 
-import qualified Data.Map as Map(empty)
+import qualified Data.Map as Map (empty)
 
 data ConstFunctionPointer = ConstFunctionPointer { get_ty :: InternerIdx Type, get_function_idx :: InternerIdx Function }
 

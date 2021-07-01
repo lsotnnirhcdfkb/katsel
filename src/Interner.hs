@@ -10,7 +10,7 @@ module Interner
     , replace_in_interner
     ) where
 
-import Data.List(findIndex)
+import Data.List (findIndex)
 
 newtype Interner a = Interner [a]
 newtype InternerIdx a = InternerIdx Int deriving Eq

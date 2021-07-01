@@ -20,12 +20,12 @@ module Message.PrettyPrint
     -- , pprint_limpl_entity
     ) where
 
-import Control.Monad.State.Lazy(State, state, execState)
+import Control.Monad.State.Lazy (State, state, execState)
 
 import qualified AST
 import Location
 
-import Data.List(foldl', intersperse)
+import Data.List (foldl', intersperse)
 
 import Message.PrettyPrintTH
 

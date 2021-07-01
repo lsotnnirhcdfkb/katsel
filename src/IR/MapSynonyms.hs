@@ -4,7 +4,7 @@ module IR.MapSynonyms
     , VMap
     ) where
 
-import Data.Map(Map)
+import Data.Map (Map)
 
 import IR.DeclSymbol
 import IR.Value

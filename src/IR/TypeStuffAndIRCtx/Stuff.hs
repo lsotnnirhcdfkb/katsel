@@ -12,7 +12,7 @@ import IR.Parent
 import IR.Value
 import {-# SOURCE #-} IR.Function
 
-import Data.List(intercalate)
+import Data.List (intercalate)
 import qualified Data.Map as Map
 
 data IRCtx = IRCtx { get_type_interner :: Interner Type, get_function_interner :: Interner Function }

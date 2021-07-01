@@ -19,7 +19,7 @@ import IR.Value
 import {-# SOURCE #-} IR.Module
 import {-# SOURCE #-} IR.Type
 
-import Data.Typeable(Typeable, cast)
+import Data.Typeable (Typeable, cast)
 
 class (Typeable d, DeclSpan d, Parent d DeclSymbol String, Parent d Value String, ApplyToDS d) => IsDeclSymbol d where
 

@@ -21,7 +21,7 @@ import IR.IRCtx
 import Interner
 
 import qualified Data.Map as Map
-import Data.List(intercalate)
+import Data.List (intercalate)
 
 -- TODO: print irctx
 

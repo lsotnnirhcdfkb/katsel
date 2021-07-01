@@ -3,7 +3,7 @@
 module Message.PrettyPrintTH where
 
 import Language.Haskell.TH
-import Control.Applicative(liftA2)
+import Control.Applicative (liftA2)
 
 make_print_variants :: String -> Q [Dec]
 make_print_variants name =

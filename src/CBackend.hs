@@ -7,7 +7,7 @@ import qualified Mangle
 
 import Interner
 
-import Data.List(intercalate)
+import Data.List (intercalate)
 
 lower_mod_to_c :: IR.IRCtx -> IR.Module -> String
 lower_mod_to_c irctx root =

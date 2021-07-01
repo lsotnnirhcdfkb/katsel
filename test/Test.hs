@@ -12,9 +12,9 @@ module Test
 
 -- inspired by RSpec
 
-import Control.Monad(when)
+import Control.Monad (when)
 
-import System.Exit(exitFailure)
+import System.Exit (exitFailure)
 
 data TestSuite = TestSuite [Test]
 data Test

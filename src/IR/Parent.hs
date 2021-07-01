@@ -9,7 +9,7 @@ module IR.Parent
 
 import {-# SOURCE #-} IR.IRCtx
 
-import Data.Map(Map)
+import Data.Map (Map)
 import qualified Data.Map as Map
 
 class Ord i => Parent p c i | p c -> i where

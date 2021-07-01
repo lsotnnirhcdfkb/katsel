@@ -12,7 +12,7 @@ import Location
 
 import qualified System.Console.ANSI as ANSI
 
-import Message.Underlines(Underline, show_underlines_section)
+import Message.Underlines (Underline, show_underlines_section)
 import Message.Arrows
 import Message.Utils
 

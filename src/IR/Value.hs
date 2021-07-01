@@ -12,7 +12,7 @@ import IR.Typed
 
 import {-# SOURCE #-} IR.ConstFunctionPointer
 
-import Data.Typeable(Typeable, cast)
+import Data.Typeable (Typeable, cast)
 
 class (Typeable v, DeclSpan v, Typed v, ApplyToV v) => IsValue v where
 

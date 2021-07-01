@@ -15,8 +15,8 @@ import Message.Utils
 
 import qualified Colors
 
-import Data.List(nub, sortBy, partition, findIndex)
-import Data.Maybe(maybeToList)
+import Data.List (nub, sortBy, partition, findIndex)
+import Data.Maybe (maybeToList)
 
 import qualified System.Console.ANSI as ANSI
 

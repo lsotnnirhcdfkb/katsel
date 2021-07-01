@@ -9,8 +9,8 @@ import Message.Utils
 
 import qualified Colors
 
-import Data.Maybe(maybeToList, isJust)
-import Data.List(mapAccumL)
+import Data.Maybe (maybeToList, isJust)
+import Data.List (mapAccumL)
 
 import qualified System.Console.ANSI as ANSI
 

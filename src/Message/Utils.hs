@@ -3,7 +3,7 @@ module Message.Utils where
 import File
 import Location
 
-import Data.Char(isSpace)
+import Data.Char (isSpace)
 
 import qualified System.Console.ANSI as ANSI
 

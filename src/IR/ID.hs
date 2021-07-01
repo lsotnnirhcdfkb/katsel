@@ -17,9 +17,9 @@ import IR.Value
 import IR.Module
 import IR.IRCtx
 
-import Data.Typeable(Typeable, cast)
+import Data.Typeable (Typeable, cast)
 
-import Data.List(foldl', intercalate)
+import Data.List (foldl', intercalate)
 
 data DSIRId resolve = DSIRId [String] deriving Eq
 data VIRId resolve = VIRId (DSIRId DeclSymbol) String deriving Eq

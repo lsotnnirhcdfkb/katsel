@@ -19,8 +19,8 @@ import IR.IRCtx
 
 import Interner
 
-import Data.List(mapAccumL, nub)
-import Data.Map(Map)
+import Data.List (mapAccumL, nub)
+import Data.Map (Map)
 import qualified Data.Map as Map
 
 data Graph = Graph Node Node

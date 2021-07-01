@@ -62,8 +62,8 @@ import Interner
 import qualified Message
 import qualified Message.Underlines as MsgUnds
 
-import Data.List(intercalate, findIndex)
-import Data.Maybe(mapMaybe, fromJust)
+import Data.List (intercalate, findIndex)
+import Data.Maybe (mapMaybe, fromJust)
 
 data Function
     = Function

@@ -9,7 +9,7 @@ import IR.Module
 import IR.Value
 import IR.ID
 
-import Data.Typeable(Typeable)
+import Data.Typeable (Typeable)
 
 import qualified Data.Map as Map
 

@@ -74,10 +74,10 @@ import Interner
 
 import qualified Data.Map as Map
 
-import Data.List(foldl', find)
-import Data.Maybe(catMaybes)
+import Data.List (foldl', find)
+import Data.Maybe (catMaybes)
 
-import qualified Control.Monad.State.Lazy as State(State, state, execState, runState, get, put)
+import qualified Control.Monad.State.Lazy as State (State, state, execState, runState, get, put)
 
 -- build_ir {{{1
 build_ir :: AST.LDModule -> (Module, IRCtx, [IRBuildError])

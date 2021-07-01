@@ -1,9 +1,9 @@
 module Main where
 
-import System.Environment(getArgs, getProgName)
-import System.IO(stderr, hPutStrLn)
+import System.Environment (getArgs, getProgName)
+import System.IO (stderr, hPutStrLn)
 
-import qualified Driver
+import Driver qualified
 
 main :: IO ()
 main =

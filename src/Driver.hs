@@ -8,22 +8,22 @@ module Driver
 import File
 import Location
 
-import qualified Message
+import Message qualified
 
-import qualified Tokens
-import qualified AST
-import qualified IR
-import qualified CBackend
+import Tokens qualified
+import AST qualified
+import IR qualified
+import CBackend qualified
 
-import qualified Colors
+import Colors qualified
 
-import System.IO(hPutStr, hFlush, stdout, stderr)
-import Control.Exception(SomeException, try, evaluate, displayException)
+import System.IO (hPutStr, hFlush, stdout, stderr)
+import Control.Exception (SomeException, try, evaluate, displayException)
 
-import Data.Maybe(catMaybes)
-import Data.List(intersperse, sortBy)
+import Data.Maybe (catMaybes)
+import Data.List (intersperse, sortBy)
 
-import qualified System.Console.ANSI as ANSI
+import System.Console.ANSI qualified as ANSI
 
 -- data Backend = CBackend
 

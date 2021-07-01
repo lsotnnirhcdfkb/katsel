@@ -43,11 +43,11 @@ import qualified Tokens
 import qualified Message
 import qualified Message.Underlines as MsgUnds
 
-import Data.List(foldl', nub)
-import Data.Data(toConstr, Data)
-import Data.Maybe(fromMaybe)
+import Data.List (foldl', nub)
+import Data.Data (toConstr, Data)
+import Data.Maybe (fromMaybe)
 
-import Control.Monad.State.Lazy(State, state, runState)
+import Control.Monad.State.Lazy (State, state, runState)
 
 {-
     most asts are just a plain adt, but some asts are required in multiple asts
