@@ -1330,7 +1330,8 @@ tests = DescribeModule "Tokens" $
                           source_location' == 4 &&
                           rem' == "ef\nghijkl\nmnopqr\n" &&
                           rev_before' == "dcba" &&
-                          linen' == 1 && coln' == 5 -> pass_test
+                          linen' == 1 &&
+                          coln' == 5 -> pass_test
                     _ -> fail_test
             ]
         ]
