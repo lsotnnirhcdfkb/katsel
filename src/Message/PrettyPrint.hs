@@ -52,7 +52,7 @@ process_two_segments Newline Indent = [Semi]
 process_two_segments x _ = [x]
 
 stringify_segments :: [PPrintSegment] -> String
-stringify_segments segments = stringify $ process segments
+stringify_segments = stringify . process
     where
         stringify s = snd $ foldl' segment_to_str (IndentAmt 0, "") s
 

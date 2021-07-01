@@ -10,16 +10,16 @@ import Message.Utils
 import qualified Colors
 
 import Data.Maybe(maybeToList, isJust)
-import Data.List(foldl')
+import Data.List(mapAccumL)
 
 import qualified System.Console.ANSI as ANSI
 
 show_arrows :: [(Span, String)] -> [DiagLine]
-show_arrows places = fst $ foldl' f ([], Nothing) places
+show_arrows = concat . snd . mapAccumL f Nothing
     where
-        f (acc, last_iter) cur@(sp, _) =
+        f last_iter cur@(sp, _) =
             let (cur_lines, end_col) = show_place cur last_iter
-            in (acc ++ cur_lines, Just (sp, end_col))
+            in (Just (sp, end_col), cur_lines)
 
 show_place :: (Span, String) -> Maybe (Span, Int) -> ([DiagLine], Int)
 show_place (sp@(Span cur_start cur_before _), msg) m_last =

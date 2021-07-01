@@ -19,7 +19,7 @@ import IR.IRCtx
 
 import Interner
 
-import Data.List(foldl', nub)
+import Data.List(mapAccumL, nub)
 import Data.Map(Map)
 import qualified Data.Map as Map
 
@@ -86,11 +86,8 @@ str_node node_ids node@(Node name fields) =
 
         make_connection nids (field_id, (_, _, Right pointee)) =
             let (connection_to_id, nids') = get_node_id nids pointee
-            in (nodeid ++ ":port" ++ show field_id ++ " -> " ++ connection_to_id ++ ";", nids')
-        make_connection nids _ = ("", nids)
-        chain_connections (acc, nids) connection =
-            let (cur_conn, nids') = make_connection nids connection
-            in (acc ++ cur_conn, nids')
+            in (nids', nodeid ++ ":port" ++ show field_id ++ " -> " ++ connection_to_id ++ ";")
+        make_connection nids _ = (nids, "")
 
         numbered_fields :: [(Int, (FieldColor, String, Either String Node))]
         numbered_fields = zip [0..] fields
@@ -99,9 +96,9 @@ str_node node_ids node@(Node name fields) =
         html_rows = name_row ++ concatMap make_row numbered_fields
 
         node_def = nodeid ++ " [label=<<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">" ++ html_rows ++ "</table>>];"
-        (connections, node_ids'') = foldl' chain_connections ([], node_ids') numbered_fields
+        (node_ids'', connections) = mapAccumL make_connection node_ids' numbered_fields
 
-    in (node_def ++ connections, node_ids'')
+    in (node_def ++ concat connections, node_ids'')
 
 str_node node_ids node@(Cluster name nodes) =
     let (nodeid, node_ids') = get_node_id node_ids node

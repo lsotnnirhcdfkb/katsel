@@ -635,7 +635,7 @@ lex_indent lexer last_tok =
 
         cur_indent = foldl' count_indent (Just 0) str_before_lexer'
             where
-                str_before_lexer' = takeWhile (/='\n') $ rev_str_before_lexer lexer
+                str_before_lexer' = reverse $ takeWhile (/='\n') $ rev_str_before_lexer lexer
 
                 count_indent (Just acc) ' ' = Just $ acc + 1
                 count_indent (Just acc) '\t' = Just $ (acc `div` 8 + 1) * 8

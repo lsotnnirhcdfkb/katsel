@@ -179,10 +179,9 @@ instance Message.ToDiagnostic (IRBuildError, IRCtx) where
 
 -- helper functions {{{1
 lower_all_in_list :: Lowerable l p => [l] -> (l -> Module -> p -> IRBuilder -> (p, IRBuilder)) -> Module -> p -> IRBuilder -> (p, IRBuilder)
-lower_all_in_list things fun root start irb = foldl' (flip (.)) id funs (start, irb)
+lower_all_in_list things fun root start irb = foldl' apply_fun (start, irb) things
     where
-        apply_fun thing (p, irb') = fun thing root p irb'
-        funs = map apply_fun things
+        apply_fun (p, irb') thing = fun thing root p irb'
 
 lower_all_in_list_s :: Lowerable l p => [l] -> (l -> Module -> p -> IRBuilder -> (p, IRBuilder)) -> Module -> p -> State.State IRBuilder p
 lower_all_in_list_s things fun root start = State.state $ lower_all_in_list things fun root start
