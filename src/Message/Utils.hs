@@ -30,10 +30,10 @@ draw_box (Span sp_start sp_before _) border_char sgr =
     where
         colorify x = ANSI.setSGRCode sgr ++ x ++ ANSI.setSGRCode []
 
-        first_line_nr = lnn_of_loc sp_start
-        last_line_nr = lnn_of_loc sp_before
-        first_col = coln_of_loc sp_start
-        last_col = coln_of_loc sp_before
+        first_line_nr = line_of_loc sp_start
+        last_line_nr = line_of_loc sp_before
+        first_col = col_of_loc sp_start
+        last_col = col_of_loc sp_before
 
         min_col = 1 + minimum (map amt_wh [first_line_nr + 1 .. last_line_nr])
             where

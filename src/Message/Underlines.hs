@@ -62,7 +62,7 @@ show_quote_and_underlines file line_nr underlines =
     underline_line ++ message_lines
     where
         underlines_on_line = filter (is_on_line . get_span_of_underline) underlines
-        is_on_line (Span start _ _) = file_of_loc start == file && lnn_of_loc start == line_nr
+        is_on_line (Span start _ _) = file_of_loc start == file && line_of_loc start == line_nr
 
         quote = case drop (line_nr - 1) $ lines $ file_source file of
             x:_ -> x
@@ -75,18 +75,18 @@ show_quote_and_underlines file line_nr underlines =
                     get_und col = head $ concatMap (in_col col) underlines_on_line ++ [" "]
                         where
                             in_col c (Underline (Span start before _) imp msgs)
-                                | coln_of_loc start <= c && coln_of_loc before >= c =
+                                | col_of_loc start <= c && col_of_loc before >= c =
                                     let sgr = sgr_of_msgs msgs
                                     in [ANSI.setSGRCode sgr ++ [char_of_imp imp] ++ ANSI.setSGRCode []]
 
                                 | otherwise = []
 
                     max_col = maximum $ map (get_end_col . get_span_of_underline) underlines_on_line
-                    get_end_col (Span _ before _) = coln_of_loc before
+                    get_end_col (Span _ before _) = col_of_loc before
 
         message_assignments = assign_messages $ concatMap get_messages underlines_on_line
             where
-                get_messages (Underline (Span _ before _) _ msgs) = map (coln_of_loc before,) msgs
+                get_messages (Underline (Span _ before _) _ msgs) = map (col_of_loc before,) msgs
 
         message_lines = map draw_message_line message_assignments
         draw_message_line msgs = DiagLine "" '|' $ draw msgs 1 ""
@@ -145,7 +145,7 @@ get_lines_shown :: [Underline] -> [(File, Int)]
 get_lines_shown = sortBy sort_comparator . nub . concatMap (get_dim_lines . get_starts . get_span_of_underline)
     where
         get_dim_lines (fl, lnnr) = map (fl,) $ filter (>=1) $ map (lnnr+) [-2..2]
-        get_starts (Span start _ _) = (file_of_loc start, lnn_of_loc start)
+        get_starts (Span start _ _) = (file_of_loc start, line_of_loc start)
 
         sort_comparator (fl1, nr1) (fl2, nr2)
             | fl1 == fl2 = nr1 `compare` nr2

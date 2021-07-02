@@ -744,7 +744,7 @@ make_span_from_lexer lexer start len = Span (make_loc_from_lexer start_lexer) (m
         end_lexer = before_lexer `seek_lexer` 1
 
 make_loc_from_lexer :: Lexer -> Location
-make_loc_from_lexer l = make_location (sourcefile l) (source_location l) (linen l) (coln l)
+make_loc_from_lexer l = make_location (sourcefile l) (source_location l) (make_linecol (linen l) (coln l))
 
 single_tok :: Lexer -> Int -> Token -> Bool -> Maybe (Bool, Maybe Lexer, [LexError], [Located Token])
 single_tok lexer len tok b = Just (b, Just $ seek_lexer lexer len, [], [Located (make_span_from_lexer lexer 0 len) tok])

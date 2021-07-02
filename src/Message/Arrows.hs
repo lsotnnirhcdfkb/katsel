@@ -34,7 +34,7 @@ show_place (sp@(Span cur_start cur_before _), msg) m_last =
         ]
     , end_col)
     where
-        cur_start_line = lnn_of_loc cur_start
+        cur_start_line = line_of_loc cur_start
 
         replace_with_pipe last_ind = replace_at last_ind ' ' '|'
 
@@ -46,14 +46,14 @@ show_place (sp@(Span cur_start cur_before _), msg) m_last =
         file_line =
             case m_last of
                 Just (Span last_start _ _, _)
-                    | file_of_loc last_start == file_of_loc cur_start && lnn_of_loc last_start <= cur_start_line -> Nothing
+                    | file_of_loc last_start == file_of_loc cur_start && line_of_loc last_start <= cur_start_line -> Nothing
 
                 _ -> Just $ DiagLine "" '>' (ANSI.setSGRCode Colors.file_path_sgr ++ file_name (file_of_loc cur_start) ++ ANSI.setSGRCode [])
 
         elipsis_line =
             case (m_last, file_line) of
                 (Just (Span last_start _ _, last_end_col), Nothing)
-                    | lnn_of_loc last_start + 1 /= cur_start_line -> Just $ DiagLine "..." '|' (replace_with_pipe (last_end_col - 1) "...")
+                    | line_of_loc last_start + 1 /= cur_start_line -> Just $ DiagLine "..." '|' (replace_with_pipe (last_end_col - 1) "...")
 
                 _ -> Nothing
 
@@ -82,9 +82,9 @@ show_place (sp@(Span cur_start cur_before _), msg) m_last =
                 ( (case drop (cur_start_line - 1) $ lines $ file_source $ file_of_loc cur_start of
                       x:_ -> [DiagLine (show cur_start_line) '|' x]
                       [] -> [DiagLine (show cur_start_line) '|' ""]
-                  ) ++ [DiagLine "" '|' $ replicate (coln_of_loc cur_start - 1) ' ' ++ ANSI.setSGRCode Colors.empty_underline_sgr ++ replicate (coln_of_loc cur_before - coln_of_loc cur_start + 1) '^' ++ ANSI.setSGRCode []]
-                , coln_of_loc cur_start
-                , coln_of_loc cur_before
+                  ) ++ [DiagLine "" '|' $ replicate (col_of_loc cur_start - 1) ' ' ++ ANSI.setSGRCode Colors.empty_underline_sgr ++ replicate (col_of_loc cur_before - col_of_loc cur_start + 1) '^' ++ ANSI.setSGRCode []]
+                , col_of_loc cur_start
+                , col_of_loc cur_before
                 )
 
             | otherwise = draw_box sp '^' Colors.empty_underline_sgr
