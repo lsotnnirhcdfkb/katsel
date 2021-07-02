@@ -5,9 +5,11 @@ module Test
     , Test(..)
     , TestResult(..)
     , run_test_suite
+
     , pass_test
     , fail_test
     , pending_test
+    , pass_if
     ) where
 
 -- inspired by RSpec
@@ -84,3 +86,8 @@ pass_test, fail_test, pending_test :: IO TestResult
 pass_test = return Pass
 fail_test = return Fail
 pending_test = return TestPending
+
+pass_if :: Bool -> IO TestResult
+pass_if b
+    | b = pass_test
+    | otherwise = fail_test

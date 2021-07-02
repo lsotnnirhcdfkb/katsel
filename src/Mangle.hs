@@ -4,7 +4,11 @@ module Mangle
     , mangle_dsid
     , mangle_vid
     , mangle_fun
+
+    , Mangle.tests
     ) where
+
+import Test
 
 import qualified IR
 
@@ -31,3 +35,9 @@ segments_tag _ [] = error "cannot make tag for 0 segments"
 
 mangle_fun :: InternerIdx IR.Function -> MangledName
 mangle_fun fidx = to_mn $ Tag tn'funidx [StrTag tn'idx (show fidx)]
+
+-- tests {{{1
+tests :: Test
+tests = DescribeModule "Mangle"
+    [ Mangle.Tag.tests
+    ]
