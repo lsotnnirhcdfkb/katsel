@@ -66,12 +66,12 @@ tests =
 
         , DescribeFunction "encode"
             [ ItCan "encode an empty string" $
-                pass_if $ encode "" == "" 
+                pass_if $ encode "" == ""
             ]
 
         , DescribeFunction "encode_ch"
             [ When "the character being encoded is the first character"
-                [ ItCan "encode an ascii alphabetical character" $ 
+                [ ItCan "encode an ascii alphabetical character" $
                     pass_if $ encode_ch True 'a' == "a"
 
                 , ItCan "encode an ascii number" $
