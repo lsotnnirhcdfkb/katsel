@@ -20,6 +20,8 @@ source-repository head
 library brace-internal
   exposed-modules:
       AST
+      AST.Datatypes
+      AST.Parsing
       CBackend
       Colors
       Driver

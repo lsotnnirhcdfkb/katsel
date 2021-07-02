@@ -8,14 +8,14 @@ module Driver
 import File
 import Location
 
-import Message qualified
+import qualified Message 
 
-import Tokens qualified
-import AST qualified
-import IR qualified
-import CBackend qualified
+import qualified Tokens 
+import qualified AST 
+import qualified IR 
+import qualified CBackend 
 
-import Colors qualified
+import qualified Colors 
 
 import System.IO (hPutStr, hFlush, stdout, stderr)
 import Control.Exception (SomeException, try, evaluate, displayException)
@@ -23,7 +23,7 @@ import Control.Exception (SomeException, try, evaluate, displayException)
 import Data.Maybe (catMaybes)
 import Data.List (intersperse, sortBy)
 
-import System.Console.ANSI qualified as ANSI
+import qualified System.Console.ANSI as ANSI
 
 -- data Backend = CBackend
 
@@ -56,15 +56,10 @@ lex_stage contents =
     let (errs, toks) = Tokens.lex contents
     in add_errors (Message.to_diagnostic <$> errs) >> return toks
 
-parse_stage :: [Located Tokens.Token] -> ErrorAccumulated (Maybe AST.LDModule)
+parse_stage :: [Located Tokens.Token] -> ErrorAccumulated AST.LDModule
 parse_stage toks =
-    case AST.parse toks of
-        Right result ->
-            return $ Just result
-
-        Left errs ->
-            add_errors errs >>
-            return Nothing
+    let (errs, res) = AST.parse_from_toks toks
+    in add_errors (map Message.to_diagnostic errs) >> return res
 
 lower_ast_stage :: AST.LDModule -> ErrorAccumulated (IR.Module, IR.IRCtx)
 lower_ast_stage mod_ast =
@@ -83,12 +78,10 @@ compile num max_num filename =
     open_file filename >>= \ file ->
     let (ErrorAcc result diagnostics) =
             lex_stage file >>=
-            parse_stage >>= \case
-                Just ast ->
-                    lower_ast_stage ast >>= \ ir'@(ir, irctx) ->
-                    lower_to_c_stage irctx ir >>= \ ccode ->
-                    return (Just (ir', ccode))
-                Nothing -> return Nothing
+            parse_stage >>= 
+            lower_ast_stage >>= \ ir'@(ir, irctx) ->
+            lower_to_c_stage irctx ir >>= \ ccode ->
+            return (Just (ir', ccode))
 
         sorted_diagnostics =
             sortBy type_comparator diagnostics
