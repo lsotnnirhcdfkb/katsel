@@ -3,7 +3,7 @@ module Main where
 import System.Environment (getArgs, getProgName)
 import System.IO (stderr, hPutStrLn)
 
-import Driver qualified
+import qualified Driver
 
 main :: IO ()
 main =
