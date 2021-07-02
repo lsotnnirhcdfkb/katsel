@@ -67,22 +67,21 @@ report' (SimpleDiag ty maybe_span maybe_diag_code maybe_name sections) =
     "\n"
     where
         header =
-            ANSI.setSGRCode (sgr_of_diag_type ty) ++ text_of_diag_type ty ++ ANSI.setSGRCode [] ++
+            enclose_sgr (sgr_of_diag_type ty) (text_of_diag_type ty) ++
             (case maybe_span of
-                Just sp -> " at " ++ ANSI.setSGRCode Colors.file_path_sgr ++ fmt_span sp ++ ANSI.setSGRCode []
+                Just sp -> " at " ++ enclose_sgr Colors.file_path_sgr (fmt_span sp)
                 Nothing -> ""
             ) ++ ":\n"
 
         footer =
             case (maybe_diag_code, maybe_name) of
-                (Just (DiagCode diag_code), Just diag_name) -> prefix ++ bracketify (add_sgr Colors.diagcode_sgr diag_code) ++ ": " ++ add_sgr Colors.diagname_sgr diag_name ++ "\n"
-                (Nothing                  , Just diag_name) -> prefix ++ add_sgr Colors.diagname_sgr diag_name ++ "\n"
-                (Just (DiagCode diag_code), Nothing       ) -> prefix ++ bracketify (add_sgr Colors.diagcode_sgr diag_code) ++ "\n"
+                (Just (DiagCode diag_code), Just diag_name) -> prefix ++ bracketify (enclose_sgr Colors.diagcode_sgr diag_code) ++ ": " ++ enclose_sgr Colors.diagname_sgr diag_name ++ "\n"
+                (Nothing                  , Just diag_name) -> prefix ++ enclose_sgr Colors.diagname_sgr diag_name ++ "\n"
+                (Just (DiagCode diag_code), Nothing       ) -> prefix ++ bracketify (enclose_sgr Colors.diagcode_sgr diag_code) ++ "\n"
 
                 _ -> ""
             where
                 bracketify = enclose "[" "]"
-                add_sgr sgr thing = ANSI.setSGRCode sgr ++ thing ++ ANSI.setSGRCode []
                 prefix = replicate (indent_amt + 1) ' ' ++ "==> "
 
         diag_lines = concatMap show_section sections
@@ -102,9 +101,6 @@ report' (SimpleDiag ty maybe_span maybe_diag_code maybe_name sections) =
 show_section :: Section -> [DiagLine]
 show_section (SimpleText text) = [DiagLine "" '=' text]
 show_section (SimpleMultilineText text) = map (DiagLine "" '=') $ lines text
-show_section (Note text) = [DiagLine "" '\\' $ notesgr ++ "note" ++ resetsgr ++ ": " ++ notesgr ++ text ++ resetsgr ++ "\n"]
-    where
-        notesgr = ANSI.setSGRCode Colors.note_sgr
-        resetsgr = ANSI.setSGRCode []
+show_section (Note text) = [DiagLine "" '\\' $ enclose_sgr Colors.note_sgr "note" ++ ": " ++ enclose_sgr Colors.note_sgr text ++ "\n"]
 show_section (Underlines us) = show_underlines_section us
 show_section (Arrows places) = show_arrows places

@@ -58,7 +58,7 @@ show_quote_and_underlines file line_nr underlines =
                             in_col c (Underline (Span start before _) imp msgs)
                                 | col_of_loc start <= c && col_of_loc before >= c =
                                     let sgr = sgr_of_msgs msgs
-                                    in [ANSI.setSGRCode sgr ++ [char_of_imp imp] ++ ANSI.setSGRCode []]
+                                    in [enclose_sgr sgr [char_of_imp imp]]
 
                                 | otherwise = []
 
@@ -81,7 +81,7 @@ show_quote_and_underlines file line_nr underlines =
                             [(_, Message ty str)] ->
                                 let len = length str
                                     sgr = sgr_of_ty ty
-                                in draw rest (col + len + 4) (acc ++ ANSI.setSGRCode sgr ++ "`-- " ++ str ++ ANSI.setSGRCode [])
+                                in draw rest (col + len + 4) (acc ++ enclose_sgr sgr ("`-- " ++ str))
 
                             _ -> error "multiple messages on the same column"
 
@@ -145,4 +145,4 @@ show_multiline_underlines = concatMap show_multiline_underline
                 (box_lines, _, box_end_col) = draw_box sp impchar tycolor
                 msgs_lines = map (DiagLine "" '|' . show_msg) msgs
                     where
-                        show_msg (Message ty str) = replicate (box_end_col - 1) ' ' ++ ANSI.setSGRCode (sgr_of_ty ty) ++ "`-- " ++ str ++ ANSI.setSGRCode []
+                        show_msg (Message ty str) = replicate (box_end_col - 1) ' ' ++ enclose_sgr (sgr_of_ty ty) ("`-- " ++ str)

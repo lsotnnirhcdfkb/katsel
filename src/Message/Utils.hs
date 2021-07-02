@@ -127,7 +127,7 @@ elipsis_line :: DiagLine
 elipsis_line = DiagLine "..." '|' "..."
 
 file_line :: File -> DiagLine
-file_line f = DiagLine "" '>' $ ANSI.setSGRCode Colors.file_path_sgr ++ file_name f ++ ANSI.setSGRCode []
+file_line f = DiagLine "" '>' $ enclose_sgr Colors.file_path_sgr (file_name f)
 
 quote_line :: File -> Int -> DiagLine
 quote_line f l = DiagLine (show l) '|' (get_line_from_file f l)

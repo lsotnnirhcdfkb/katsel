@@ -11,8 +11,6 @@ import qualified Colors
 import Data.Maybe (maybeToList, isJust)
 import Data.List (mapAccumL)
 
-import qualified System.Console.ANSI as ANSI
-
 show_arrows :: [(Span, String)] -> [DiagLine]
 show_arrows places = concat $ snd $ mapAccumL f Nothing $ zip places $ add_file_and_elipsis_lines_grouped $ map into_flnr places
     where
@@ -41,7 +39,7 @@ show_place ((sp@(Span cur_start cur_before _), msg), file_elipsis_reses) m_last 
         cur_file = file_of_loc cur_start
         cur_start_line = line_of_loc cur_start
 
-        message_lines = [DiagLine "" '|' $ replicate (end_col - 1) ' ' ++ ANSI.setSGRCode Colors.empty_underline_sgr ++ "`-- " ++ msg ++ ANSI.setSGRCode []]
+        message_lines = [DiagLine "" '|' $ replicate (end_col - 1) ' ' ++ enclose_sgr Colors.empty_underline_sgr ("`-- " ++ msg)]
 
         replace_with_pipe last_ind = replace_at last_ind ' ' '|'
 
@@ -73,7 +71,7 @@ show_place ((sp@(Span cur_start cur_before _), msg), file_elipsis_reses) m_last 
         (underline_lines, start_col, end_col)
             | is_single_line sp =
                 ( [ DiagLine (show cur_start_line) '|' $ get_line_from_file cur_file cur_start_line
-                  , DiagLine "" '|' $ ANSI.setSGRCode Colors.empty_underline_sgr ++ horiz_line '^' (col_of_loc cur_start) (col_of_loc cur_before) ++ ANSI.setSGRCode []
+                  , DiagLine "" '|' $ enclose_sgr Colors.empty_underline_sgr (horiz_line '^' (col_of_loc cur_start) (col_of_loc cur_before))
                   ]
                 , col_of_loc cur_start
                 , col_of_loc cur_before
