@@ -75,14 +75,14 @@ report' (SimpleDiag ty maybe_span maybe_diag_code maybe_name sections) =
 
         footer =
             case (maybe_diag_code, maybe_name) of
-                (Just (DiagCode diag_code), Just diag_name) -> prefix ++ surround '[' ']' (add_sgr Colors.diagcode_sgr diag_code) ++ ": " ++ add_sgr Colors.diagname_sgr diag_name ++ "\n"
+                (Just (DiagCode diag_code), Just diag_name) -> prefix ++ bracketify (add_sgr Colors.diagcode_sgr diag_code) ++ ": " ++ add_sgr Colors.diagname_sgr diag_name ++ "\n"
                 (Nothing                  , Just diag_name) -> prefix ++ add_sgr Colors.diagname_sgr diag_name ++ "\n"
-                (Just (DiagCode diag_code), Nothing       ) -> prefix ++ surround '[' ']' (add_sgr Colors.diagcode_sgr diag_code) ++ "\n"
+                (Just (DiagCode diag_code), Nothing       ) -> prefix ++ bracketify (add_sgr Colors.diagcode_sgr diag_code) ++ "\n"
 
                 _ -> ""
             where
+                bracketify = enclose "[" "]"
                 add_sgr sgr thing = ANSI.setSGRCode sgr ++ thing ++ ANSI.setSGRCode []
-                surround x y z = [x] ++ z ++ [y]
                 prefix = replicate (indent_amt + 1) ' ' ++ "==> "
 
         diag_lines = concatMap show_section sections

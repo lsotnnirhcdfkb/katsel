@@ -33,7 +33,7 @@ draw_box (Span sp_start sp_before _) border_char sgr =
     , last_col + 3 + 2
     )
     where
-        colorify x = ANSI.setSGRCode sgr ++ x ++ ANSI.setSGRCode []
+        colorify = enclose_sgr sgr
 
         first_line_nr = line_of_loc sp_start
         last_line_nr = line_of_loc sp_before
@@ -148,7 +148,7 @@ data FileElipsisRes
     | QuoteLine File Int
 
 add_file_and_elipsis_lines :: [(File, Int)] -> [FileElipsisRes]
-add_file_and_elipsis_lines = concat . add_file_and_elipsis_lines
+add_file_and_elipsis_lines = concat . add_file_and_elipsis_lines_grouped
 
 add_file_and_elipsis_lines_grouped :: [(File, Int)] -> [[FileElipsisRes]]
 add_file_and_elipsis_lines_grouped lns = zipWith make_lines lns (Nothing : map Just lns)
@@ -167,3 +167,12 @@ add_file_and_elipsis_lines_grouped lns = zipWith make_lines lns (Nothing : map J
                 _ -> []
             ) ++
             [QuoteLine file line]
+
+enclose :: [a] -> [a] -> [a] -> [a]
+enclose open close contents = open ++ contents ++ close
+
+enclose_sgr :: [ANSI.SGR] -> String -> String
+enclose_sgr sgr = enclose (ANSI.setSGRCode sgr) (ANSI.setSGRCode [])
+
+surround :: [a] -> [a] -> [a]
+surround d = enclose d d
