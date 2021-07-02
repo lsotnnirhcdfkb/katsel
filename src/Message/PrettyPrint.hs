@@ -103,10 +103,10 @@ maybe_do :: (a -> State [PPrintSegment] ()) -> Maybe a -> State [PPrintSegment] 
 maybe_do = maybe (return ())
 
 pprint_list :: (a -> State [PPrintSegment] ()) -> [a] -> State [PPrintSegment] ()
-pprint_list pprintfun things = foldl' (>>) (return ()) $ map pprintfun things
+pprint_list pprintfun = foldl' (>>) (return ()) . map pprintfun
 
 pprint_list_delim :: (a -> State [PPrintSegment] ()) -> State [PPrintSegment] () -> [a] -> State [PPrintSegment] ()
-pprint_list_delim pprintfun delim things = foldl' (>>) (return ()) $ intersperse delim $ map pprintfun things
+pprint_list_delim pprintfun delim = foldl' (>>) (return ()) . intersperse delim . map pprintfun
 -- AST.DModule {{{1
 pprint_mod_s :: AST.DModule -> State [PPrintSegment] ()
 pprint_mod_s (AST.DModule' decls) = pprint_list (pprint_decl_s . unlocate) decls
