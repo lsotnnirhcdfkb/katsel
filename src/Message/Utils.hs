@@ -1,9 +1,14 @@
+{-# LANGUAGE TupleSections #-}
+
 module Message.Utils where
 
 import File
 import Location
 
+import qualified Colors
+
 import Data.Char (isSpace)
+import Data.List (nub, sortBy)
 
 import qualified System.Console.ANSI as ANSI
 
@@ -103,6 +108,9 @@ draw_box (Span sp_start sp_before _) border_char sgr =
         last_quote_line = [DiagLine (show last_line_nr) '|' (surround_line (get_line last_line_nr) min_col last_col)]
         after_last_quote_line = [DiagLine "" '|' (top_or_bottom min_col last_col)]
 
+horiz_line :: Char -> Int -> Int -> String
+horiz_line ch start end = replicate (start - 1) ' ' ++ replicate (end - start + 1) ch
+
 replace_at :: Int -> a -> a -> [a] -> [a]
 replace_at ind fill change orig =
     let extended = orig ++ repeat fill
@@ -114,3 +122,48 @@ get_line_from_file file lnnr =
     case drop (lnnr - 1) (lines $ file_source file) of
         x:_ -> x
         [] -> ""
+
+elipsis_line :: DiagLine
+elipsis_line = DiagLine "..." '|' "..."
+
+file_line :: File -> DiagLine
+file_line f = DiagLine "" '>' $ ANSI.setSGRCode Colors.file_path_sgr ++ file_name f ++ ANSI.setSGRCode []
+
+quote_line :: File -> Int -> DiagLine
+quote_line f l = DiagLine (show l) '|' (get_line_from_file f l)
+
+add_context_lines :: [(File, Int)] -> [(File, Int)]
+add_context_lines = sortBy flnr_sort_comparator . nub . concatMap add_contexts
+    where
+        add_contexts (fl, lnnr) = map (fl,) $ filter (>=1) $ map (lnnr+) [-2..2]
+
+flnr_sort_comparator :: (File, Int) -> (File, Int) -> Ordering
+flnr_sort_comparator (fl1, nr1) (fl2, nr2)
+    | fl1 == fl2 = nr1 `compare` nr2
+    | otherwise = file_name fl1 `compare` file_name fl2
+
+data FileElipsisRes
+    = FileLine File
+    | ElipsisLine
+    | QuoteLine File Int
+
+add_file_and_elipsis_lines :: [(File, Int)] -> [FileElipsisRes]
+add_file_and_elipsis_lines = concat . add_file_and_elipsis_lines
+
+add_file_and_elipsis_lines_grouped :: [(File, Int)] -> [[FileElipsisRes]]
+add_file_and_elipsis_lines_grouped lns = zipWith make_lines lns (Nothing : map Just lns)
+    where
+        make_lines (file, line) last_flnr =
+            (case last_flnr of
+                Just (last_fl, _)
+                    | last_fl == file -> []
+
+                _ -> [FileLine file]
+            ) ++
+            (case last_flnr of
+                Just (last_fl, last_nr)
+                    | last_fl == file && last_nr + 1 /= line -> [ElipsisLine]
+
+                _ -> []
+            ) ++
+            [QuoteLine file line]

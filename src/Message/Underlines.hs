@@ -15,8 +15,7 @@ import Message.Utils
 
 import qualified Colors
 
-import Data.List (nub, sortBy, partition, findIndex)
-import Data.Maybe (maybeToList)
+import Data.List (sortBy, partition, findIndex)
 
 import qualified System.Console.ANSI as ANSI
 
@@ -34,27 +33,11 @@ show_underlines_section underlines = singleline_underlines' ++ multiline_underli
         multiline_underlines' = show_multiline_underlines multiline_underlines
 
 show_singleline_underlines :: [Underline] -> [DiagLine]
-show_singleline_underlines underlines = concat $ zipWith make_lines lines_shown (Nothing : map Just lines_shown)
+show_singleline_underlines underlines = concatMap show_line $ add_file_and_elipsis_lines $ add_context_lines $ get_lines_shown underlines
     where
-        lines_shown = get_lines_shown underlines
-
-        make_lines (fl, nr) m_last_flnr = maybeToList file_line ++ maybeToList elipsis_line ++ content_lines
-            where
-                file_line =
-                    case m_last_flnr of
-                        Just (last_fl, _)
-                            | last_fl == fl -> Nothing
-
-                        _ -> Just $ DiagLine "" '>' (ANSI.setSGRCode Colors.file_path_sgr ++ file_name fl ++ ANSI.setSGRCode [])
-
-                elipsis_line =
-                    case m_last_flnr of
-                        Just (last_fl, last_nr)
-                            | last_fl == fl && last_nr + 1 /= nr -> Just $ DiagLine "..." '|' "..."
-
-                        _ -> Nothing
-
-                content_lines = show_quote_and_underlines fl nr underlines
+        show_line (FileLine fl) = [file_line fl]
+        show_line ElipsisLine = [elipsis_line]
+        show_line (QuoteLine fl nr) = show_quote_and_underlines fl nr underlines
 
 show_quote_and_underlines :: File -> Int -> [Underline] -> [DiagLine]
 show_quote_and_underlines file line_nr underlines =
@@ -64,9 +47,7 @@ show_quote_and_underlines file line_nr underlines =
         underlines_on_line = filter (is_on_line . get_span_of_underline) underlines
         is_on_line (Span start _ _) = file_of_loc start == file && line_of_loc start == line_nr
 
-        quote = case drop (line_nr - 1) $ lines $ file_source file of
-            x:_ -> x
-            [] -> ""
+        quote = get_line_from_file file line_nr
 
         underline_line
             | null underlines_on_line = []
@@ -142,22 +123,16 @@ sgr_of_msgs [] = Colors.empty_underline_sgr
 sgr_of_msgs (Message ty _ : _) = sgr_of_ty ty
 
 get_lines_shown :: [Underline] -> [(File, Int)]
-get_lines_shown = sortBy sort_comparator . nub . concatMap (get_dim_lines . get_starts . get_span_of_underline)
+get_lines_shown = map (get_starts . get_span_of_underline)
     where
-        get_dim_lines (fl, lnnr) = map (fl,) $ filter (>=1) $ map (lnnr+) [-2..2]
         get_starts (Span start _ _) = (file_of_loc start, line_of_loc start)
 
-        sort_comparator (fl1, nr1) (fl2, nr2)
-            | fl1 == fl2 = nr1 `compare` nr2
-            | otherwise = file_name fl1 `compare` file_name fl2
-
--- TODO: clean up this code, lots of magic numbers and stuff
 show_multiline_underlines :: [Underline] -> [DiagLine]
 show_multiline_underlines = concatMap show_multiline_underline
     where
         show_multiline_underline (Underline sp@(Span sp_start _ _) imp msgs) =
                 concat
-                [ file_line
+                [ file_line'
                 , box_lines
                 , msgs_lines
                 ]
@@ -166,7 +141,7 @@ show_multiline_underlines = concatMap show_multiline_underline
                 tycolor = sgr_of_msgs msgs
                 impchar = char_of_imp imp
 
-                file_line = [DiagLine "" '>' $ ANSI.setSGRCode Colors.file_path_sgr ++ file_name (file_of_loc sp_start) ++ ANSI.setSGRCode []]
+                file_line' = [file_line (file_of_loc sp_start)]
                 (box_lines, _, box_end_col) = draw_box sp impchar tycolor
                 msgs_lines = map (DiagLine "" '|' . show_msg) msgs
                     where
