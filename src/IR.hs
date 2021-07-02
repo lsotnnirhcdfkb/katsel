@@ -49,6 +49,7 @@ import qualified AST
 import qualified Message
 import qualified Message.Underlines as MsgUnds
 
+import MonadUtils
 import Location
 
 import IR.ID
@@ -185,14 +186,6 @@ lower_all_in_list things fun root start irb = foldl' apply_fun (start, irb) thin
 
 lower_all_in_list_s :: Lowerable l p => [l] -> (l -> Module -> p -> IRBuilder -> (p, IRBuilder)) -> Module -> p -> State.State IRBuilder p
 lower_all_in_list_s things fun root start = State.state $ lower_all_in_list things fun root start
-
-(>>=?) :: Monad m => m (Maybe a) -> m b -> (a -> m b) -> m b
-(>>=?) m f c = m >>= maybe f c
-infixl 1 >>=?
-
-(>>=<>) :: Monad m => m (Either e r) -> (e -> m f) -> (r -> m f) -> m f
-(>>=<>) m onleft onright = m >>= either onleft onright
-infixl 1 >>=<>
 
 add_error :: IRBuildError -> IRBuilder -> IRBuilder
 add_error err (IRBuilder irctx errs) = IRBuilder irctx (errs ++ [err])

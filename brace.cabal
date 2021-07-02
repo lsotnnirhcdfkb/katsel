@@ -55,6 +55,7 @@ library brace-internal
       Message.PrettyPrintTH
       Message.Underlines
       Message.Utils
+      MonadUtils
       Tokens
   other-modules:
       Paths_brace
