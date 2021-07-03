@@ -37,6 +37,11 @@ type SynchronizationPredicate = ParserPredicate
 type StopPredicate = ParserPredicate
 
 type TokenPredicate = Located Tokens.Token -> Bool
+-- span_from_list {{{1
+span_from_list :: [Located a] -> Span -> Span
+span_from_list [] s = s
+span_from_list items _ = get_span (head items) `join_span` get_span (last items)
+
 -- predicates {{{1
 constr_eq :: (Data a, Data b) => a -> b -> Bool
 constr_eq a b = toConstr a == toConstr b
@@ -51,7 +56,16 @@ is_tt_s :: Tokens.Token -> Located Tokens.Token -> Maybe Span
 is_tt_s a b@(Located sp _) = if is_tt a b then Just sp else Nothing
 
 is_at_end :: ParserPredicate
-is_at_end = is_tt Tokens.EOF . head . get_token_stream
+is_at_end = peek_matches_pred $ is_tt Tokens.EOF
+-- predicate combinators {{{1
+predicate_or :: (a -> Bool) -> (a -> Bool) -> a -> Bool
+predicate_or p1 p2 a = p1 a || p2 a
+
+predicate_and :: (a -> Bool) -> (a -> Bool) -> a -> Bool
+predicate_and p1 p2 a = p1 a && p2 a
+
+peek_matches_pred :: TokenPredicate -> ParserPredicate
+peek_matches_pred pred = pred . head . get_token_stream
 -- basic functions {{{1
 peek :: ParseFun (Located Tokens.Token)
 peek = state $ \ parser -> (head $ get_token_stream parser, parser)
@@ -65,12 +79,16 @@ parser_matches predicate = state $ \ parser -> (predicate parser, parser)
 advance :: ParseFun ()
 advance = state $ \ parser ->
     let l:ts = get_token_stream parser
-    in ( ()
-       , parser
-         { get_token_stream = ts
-         , last_token = Just l
-         }
-       )
+    in
+    if null ts
+        then error "advance past EOF"
+        else
+            ( ()
+            , parser
+             { get_token_stream = ts
+             , last_token = Just l
+             }
+            )
 
 consume :: TokenPredicate -> ParseFunM (Located Tokens.Token)
 consume predicate =
@@ -85,9 +103,9 @@ synchronize :: SynchronizationPredicate -> ParseFun ()
 synchronize sync_predicate = advance >> go
     where
         go =
-            (,) <$> parser_matches sync_predicate <*> parser_matches is_at_end >>= \case
-                (False, False) -> advance >> go
-                _ -> return ()
+            parser_matches (sync_predicate `predicate_or` is_at_end) >>= \case
+                True -> return ()
+                False -> advance >> go
 -- combinators {{{1
 braced, indented, blocked :: ParseFunM a -> ParseFunM (Span, a)
 (braced, indented) = (surround_with Tokens.OBrace Tokens.CBrace, surround_with Tokens.Indent Tokens.Dedent)
@@ -107,8 +125,10 @@ thing_list_no_separator :: StopPredicate -> SynchronizationPredicate -> ParseFun
 thing_list_no_separator stop_predicate sync_predicate parse_fun = go []
     where
         go things =
-            (,) <$> parser_matches stop_predicate <*> parser_matches is_at_end >>= \case
-                (False, False) ->
+            parser_matches (stop_predicate `predicate_or` is_at_end) >>= \case
+                True -> return things
+
+                False ->
                     parse_fun >>= \case
                         Just thing ->
                             go $ things ++ [thing]
@@ -116,11 +136,20 @@ thing_list_no_separator stop_predicate sync_predicate parse_fun = go []
                             synchronize sync_predicate >>
                             go things
 
-                _ -> return things
--- parsing {{{1
+-- parse_decl {{{1
+parse_decl :: ParseFunM LDDecl
+parse_decl = undefined
+-- parse_module {{{1
 parse_module :: ParseFun LDModule
-parse_module = undefined
-
+parse_module =
+    (thing_list_no_separator
+        (const False) -- stop predicate: will never stop until EOF
+        (peek_matches_pred $ is_tt Tokens.Fun) -- synchronization predicate: will stop before 'fun'
+        parse_decl
+    ) >>= \ decl_list ->
+    peek >>= \ (Located eof_span _) ->
+    return (Located (span_from_list decl_list eof_span) (DModule' decl_list))
+-- parsing entry point{{{1
 parse_from_toks :: [Located Tokens.Token] -> ([ParseError], LDModule)
 parse_from_toks toks =
     let parser = Parser [] toks Nothing

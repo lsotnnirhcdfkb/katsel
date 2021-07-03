@@ -31,7 +31,7 @@ module IR.Function
     , get_ret_type
     , get_param_types
     , get_register
-    , get_span
+    , get_function_span
 
     , function_not_defined
 
@@ -80,7 +80,7 @@ data Function
 
       , get_instruction_pool :: [Instruction]
 
-      , get_span :: Span
+      , get_function_span :: Span
       }
       deriving Eq
 newtype BlockIdx = BlockIdx Int deriving Eq
@@ -121,7 +121,7 @@ instance Typed Register where
     type_of _ (Register ty _) = ty
 
 instance DeclSpan Function where
-    decl_span _ f = Just $ get_span f
+    decl_span _ f = Just $ get_function_span f
 
 instance DeclSpan (Function, LValue) where
     decl_span irctx (f, LVRegister reg) = decl_span irctx $ get_register f reg

@@ -58,7 +58,7 @@ join_span (Span s1 b1 e1) (Span s2 b2 e2) =
 
 data Located a
     = Located
-      { just_span :: Span
+      { get_span :: Span
       , unlocate :: a
       }
     deriving Eq

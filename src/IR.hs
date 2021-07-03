@@ -449,7 +449,7 @@ lower_body_expr body root =
 
     add_basic_block_s "end_block" >>= \ end_block ->
     add_br_s (make_br_goto end_block) (bgc_cont expr_blocks) >>
-    make_copy_s root (Located (get_span fun) (LVRegister $ get_ret_reg fun)) "function's return type" res "return value's type" >>=<> ((>> (fail_block >>= link_block_to_function)) . report_type_error) $ \ copy_instr ->
+    make_copy_s root (Located (get_function_span fun) (LVRegister $ get_ret_reg fun)) "function's return type" res "return value's type" >>=<> ((>> (fail_block >>= link_block_to_function)) . report_type_error) $ \ copy_instr ->
     add_instruction_s copy_instr end_block >>
 
     link_block_to_function (bgc_start expr_blocks, end_block)
@@ -656,7 +656,7 @@ lower_expr (Located sp (AST.DExpr'Ret expr)) root =
 
     add_br_s (make_br_goto put_block) (bgc_cont expr_ir) >>
 
-    make_copy_s root (Located (get_span fun) (LVRegister $ get_ret_reg fun)) "function's return type" expr_val "return value's type" >>=<> ((>>return Nothing) . report_type_error) $ \ copy_instr ->
+    make_copy_s root (Located (get_function_span fun) (LVRegister $ get_ret_reg fun)) "function's return type" expr_val "return value's type" >>=<> ((>>return Nothing) . report_type_error) $ \ copy_instr ->
     add_instruction_s copy_instr put_block >>
     add_br_s (make_br_goto $ get_exit_block fun) put_block >>
 
