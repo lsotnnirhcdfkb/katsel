@@ -138,7 +138,12 @@ thing_list_no_separator stop_predicate sync_predicate parse_fun = go []
 
 -- parse_decl {{{1
 parse_decl :: ParseFunM LDDecl
-parse_decl = undefined
+parse_decl =
+    parse_fun >>=? return Nothing $ \ fun@(Located fun_sp _) ->
+    return (Just $ Located fun_sp (DDecl'Fun fun))
+-- parse_fun {{{2
+parse_fun :: ParseFunM LSFunDecl
+parse_fun = _
 -- parse_module {{{1
 parse_module :: ParseFun LDModule
 parse_module =

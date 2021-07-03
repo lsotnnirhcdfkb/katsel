@@ -49,6 +49,7 @@ library brace-internal
       Mangle
       Mangle.Tag
       Mangle.TagName
+      MaybeWithError
       Message
       Message.Arrows
       Message.PrettyPrint
