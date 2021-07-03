@@ -231,4 +231,4 @@ parse_from_toks :: [Located Tokens.Token] -> ([ParseError], LDModule)
 parse_from_toks toks =
     let parser = Parser [] toks Nothing
         (res, Parser errs _ _) = runState parse_module parser
-    in (errs, res)
+    in (reverse errs, res)
