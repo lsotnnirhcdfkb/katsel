@@ -54,7 +54,7 @@ add_error :: ParseError -> ParseFun (ErrorLoggedPromise ParseError)
 add_error err = state $ \ parser -> (error_logged_promise err, parser { get_parse_errors = err : get_parse_errors parser })
 
 add_error_and_nothing :: ParseError -> ParseFunMWE r
-add_error_and_nothing err = add_error err >>= return . NothingWithError
+add_error_and_nothing err = NothingWithError <$> add_error err
 -- span_from_list {{{1
 span_from_list :: [Located a] -> Span -> Span
 span_from_list [] s = s
@@ -89,10 +89,10 @@ peek :: ParseFun (Located Tokens.Token)
 peek = state $ \ parser -> (head $ get_token_stream parser, parser)
 
 peek_span :: ParseFun Span
-peek_span = peek >>= return . get_span
+peek_span = get_span <$> peek
 
 peek_matches :: TokenPredicate -> ParseFun Bool
-peek_matches predicate = peek >>= return . predicate
+peek_matches predicate = predicate <$> peek
 
 peek_match :: [(TokenPredicate, ParseFun a)] -> ParseFun a -> ParseFun a
 peek_match predicates fallback =
@@ -123,13 +123,13 @@ advance = state $ \ parser ->
 consume :: TokenPredicate -> ParseFunM (Located Tokens.Token)
 consume predicate =
     peek_matches predicate >>= \case
-        True -> advance >>= return . Just
+        True -> Just <$> advance
         False -> return Nothing
 
 consume_or_error :: ParseErrorSpanPending -> TokenPredicate -> ParseFunMWE (Located Tokens.Token)
 consume_or_error err predicate =
     peek_matches predicate >>= \case
-        True -> advance >>= return . JustWithError
+        True -> JustWithError <$> advance
         False -> peek >>= \ (Located sp _) -> add_error_and_nothing (err sp)
 
 synchronize :: SynchronizationPredicate -> ParseFun ()
@@ -177,16 +177,16 @@ line_ending :: ParseFunMWE Span
 line_ending =
     peek_span >>= \ next_span ->
     peek_match
-        [ (is_tt Tokens.Newline, advance >>= return . JustWithError . get_span)
-        , (is_tt Tokens.Semicolon, advance >>= return . JustWithError . get_span)
+        [ (is_tt Tokens.Newline, JustWithError . get_span <$> advance)
+        , (is_tt Tokens.Semicolon, JustWithError . get_span <$> advance)
         ]
         (add_error_and_nothing (Expected "line ending" next_span))
 
 optional_line_ending :: ParseFunM Span
 optional_line_ending =
     peek_match
-        [ (is_tt Tokens.Newline, advance >>= return . Just . get_span)
-        , (is_tt Tokens.Semicolon, advance >>= return . Just . get_span)
+        [ (is_tt Tokens.Newline, Just . get_span <$> advance)
+        , (is_tt Tokens.Semicolon, Just . get_span <$> advance)
         ]
         (return Nothing)
 -- parse_expr {{{1
@@ -219,11 +219,11 @@ parse_fun (Located fun_sp _) =
 -- parse_module {{{1
 parse_module :: ParseFun LDModule
 parse_module =
-    (thing_list_no_separator
+    thing_list_no_separator
         (const False) -- stop predicate: will never stop until EOF
         (peek_matches_pred $ is_tt Tokens.Fun) -- synchronization predicate: will stop before 'fun'
         parse_decl
-    ) >>= \ decl_list ->
+     >>= \ decl_list ->
     peek >>= \ (Located eof_span _) ->
     return (Located (span_from_list decl_list eof_span) (DModule' decl_list))
 -- parsing entry point{{{1

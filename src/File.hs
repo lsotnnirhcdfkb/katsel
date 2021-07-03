@@ -30,4 +30,4 @@ open_file filename =
            }
 
 make_file :: String -> String -> File
-make_file name contents = FakeFile ("<" ++ name ++ ">") contents
+make_file name = FakeFile ("<" ++ name ++ ">")
