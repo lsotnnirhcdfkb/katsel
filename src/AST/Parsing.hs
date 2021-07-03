@@ -5,6 +5,7 @@ module AST.Parsing
 
 import Location
 import MonadUtils
+import MaybeWithError
 
 import AST.Datatypes
 
@@ -31,12 +32,19 @@ data Parser
 -- type synonyms {{{1
 type ParseFun = State Parser
 type ParseFunM a = ParseFun (Maybe a)
+type ParseFunMWE a = ParseFun (MaybeWithError a ParseError)
 
 type ParserPredicate = Parser -> Bool
 type SynchronizationPredicate = ParserPredicate
 type StopPredicate = ParserPredicate
 
 type TokenPredicate = Located Tokens.Token -> Bool
+-- error helpers {{{1
+add_error :: ParseError -> ParseFun (ErrorLoggedPromise ParseError)
+add_error err = state $ \ parser -> (error_logged_promise err, parser { get_parse_errors = err : get_parse_errors parser })
+
+add_error_and_nothing :: ParseError -> ParseFunMWE r
+add_error_and_nothing err = add_error err >>= return . NothingWithError
 -- span_from_list {{{1
 span_from_list :: [Located a] -> Span -> Span
 span_from_list [] s = s
@@ -96,9 +104,6 @@ consume predicate =
         True -> peek >>= \ tok -> advance >> return (Just tok)
         False -> return Nothing
 
-add_err :: ParseError -> ParseFun ()
-add_err err = state $ \ parser -> ((), parser { get_parse_errors = err : get_parse_errors parser })
-
 synchronize :: SynchronizationPredicate -> ParseFun ()
 synchronize sync_predicate = advance >> go
     where
@@ -107,43 +112,43 @@ synchronize sync_predicate = advance >> go
                 True -> return ()
                 False -> advance >> go
 -- combinators {{{1
-braced, indented, blocked :: ParseFunM a -> ParseFunM (Span, a)
+braced, indented, blocked :: ParseFunMWE a -> ParseFunMWE (Span, a)
 (braced, indented) = (surround_with Tokens.OBrace Tokens.CBrace, surround_with Tokens.Indent Tokens.Dedent)
     where
-        surround_with :: Tokens.Token -> Tokens.Token -> ParseFunM a -> ParseFunM (Span, a)
+        surround_with :: Tokens.Token -> Tokens.Token -> ParseFunMWE a -> ParseFunMWE (Span, a)
         surround_with open close pf =
-            consume (is_tt open) >>=? return Nothing $ \ (Located open_sp _) ->
-            pf >>=? return Nothing $ \ inside ->
-            consume (is_tt close) >>=? return Nothing $ \ (Located close_sp _) ->
-            return (Just (open_sp `join_span` close_sp, inside))
+            consume (is_tt open) >>=? return (NothingWithError undefined) $ \ (Located open_sp _) ->
+            pf >>=??> \ inside ->
+            consume (is_tt close) >>=? return (NothingWithError undefined) $ \ (Located close_sp _) ->
+            return (JustWithError (open_sp `join_span` close_sp, inside))
 
 blocked pf = peek_matches (is_tt Tokens.OBrace) >>= \case
         True -> braced pf
         False -> blocked pf
 
-thing_list_no_separator :: StopPredicate -> SynchronizationPredicate -> ParseFunM a -> ParseFun [a]
-thing_list_no_separator stop_predicate sync_predicate parse_fun = go []
+thing_list_no_separator :: StopPredicate -> SynchronizationPredicate -> ParseFunMWE a -> ParseFun [a]
+thing_list_no_separator stop_predicate sync_predicate pf = go []
     where
         go things =
             parser_matches (stop_predicate `predicate_or` is_at_end) >>= \case
                 True -> return things
 
                 False ->
-                    parse_fun >>= \case
-                        Just thing ->
+                    pf >>= \case
+                        JustWithError thing ->
                             go $ things ++ [thing]
-                        Nothing ->
+                        NothingWithError _ ->
                             synchronize sync_predicate >>
                             go things
 
 -- parse_decl {{{1
-parse_decl :: ParseFunM LDDecl
+parse_decl :: ParseFunMWE LDDecl
 parse_decl =
-    parse_fun >>=? return Nothing $ \ fun@(Located fun_sp _) ->
-    return (Just $ Located fun_sp (DDecl'Fun fun))
+    parse_fun >>=??> \ fun@(Located fun_sp _) ->
+    return (JustWithError $ Located fun_sp (DDecl'Fun fun))
 -- parse_fun {{{2
-parse_fun :: ParseFunM LSFunDecl
-parse_fun = _
+parse_fun :: ParseFunMWE LSFunDecl
+parse_fun = undefined
 -- parse_module {{{1
 parse_module :: ParseFun LDModule
 parse_module =
