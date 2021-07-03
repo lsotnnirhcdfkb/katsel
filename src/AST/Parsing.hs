@@ -89,7 +89,7 @@ peek :: ParseFun (Located Tokens.Token)
 peek = state $ \ parser -> (head $ get_token_stream parser, parser)
 
 peek_span :: ParseFun Span
-peek_span = peek >>= \ (Located sp _) -> return sp
+peek_span = peek >>= return . get_span
 
 peek_matches :: TokenPredicate -> ParseFun Bool
 peek_matches predicate = peek >>= return . predicate
@@ -172,7 +172,27 @@ thing_list_no_separator stop_predicate sync_predicate pf = go []
                         NothingWithError _ ->
                             synchronize sync_predicate >>
                             go things
+-- line endings {{{1
+line_ending :: ParseFunMWE Span
+line_ending =
+    peek_span >>= \ next_span ->
+    peek_match
+        [ (is_tt Tokens.Newline, advance >>= return . JustWithError . get_span)
+        , (is_tt Tokens.Semicolon, advance >>= return . JustWithError . get_span)
+        ]
+        (add_error_and_nothing (Expected "line ending" next_span))
 
+optional_line_ending :: ParseFunM Span
+optional_line_ending =
+    peek_match
+        [ (is_tt Tokens.Newline, advance >>= return . Just . get_span)
+        , (is_tt Tokens.Semicolon, advance >>= return . Just . get_span)
+        ]
+        (return Nothing)
+-- parse_expr {{{1
+-- parse_block {{{2
+parse_block :: ParseFunMWE LSBlockExpr
+parse_block = undefined
 -- parse_decl {{{1
 parse_decl :: ParseFunMWE LDDecl
 parse_decl =
@@ -186,7 +206,16 @@ parse_decl =
         (add_error_and_nothing (Expected "a declaration" next_span))
 -- parse_fun {{{2
 parse_fun :: Located Tokens.Token -> ParseFunMWE LSFunDecl
-parse_fun = undefined
+parse_fun (Located fun_sp _) =
+    consume_or_error (Expected "function name") (is_tt (Tokens.Identifier "")) >>=??> \ (Located name_sp (Tokens.Identifier name)) ->
+    consume_or_error (Expected "'('") (is_tt Tokens.OParen) >>=??> \ _ ->
+    -- TODO: parameters
+    consume_or_error (Expected "')'") (is_tt Tokens.CParen) >>=??> \ (Located cparen_sp _) ->
+    -- TODO: return type
+
+    parse_block >>=??> \ body ->
+    optional_line_ending >>
+    return (JustWithError $ Located (fun_sp `join_span` cparen_sp) (SFunDecl' Nothing (Located name_sp name) [] body))
 -- parse_module {{{1
 parse_module :: ParseFun LDModule
 parse_module =

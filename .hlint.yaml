@@ -1,5 +1,4 @@
 - ignore: {name: Use camelCase}
-- ignore: {name: Use const, within: [AST]}
 - ignore: {name: Use when}
 - ignore: {name: Use record patterns}
 - ignore: {name: Use list comprehension}
