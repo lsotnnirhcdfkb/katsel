@@ -21,7 +21,6 @@ import Control.Monad.State.Lazy (State, state, runState)
 -- ParseError {{{1
 data ParseError
     = Expected String Span
-    | NeededHere String Span
 
 type ParseErrorSpanPending = Span -> ParseError
 
@@ -30,13 +29,6 @@ instance Message.ToDiagnostic ParseError where
         Message.SimpleDiag Message.Error (Just span) Nothing Nothing
             [ Message.Underlines
                 [ MsgUnds.Underline span MsgUnds.Primary [MsgUnds.Message MsgUnds.Error $ "expected " ++ thing]
-                ]
-            ]
-
-    to_diagnostic (NeededHere thing span) =
-        Message.SimpleDiag Message.Error (Just span) Nothing Nothing
-            [ Message.Underlines
-                [ MsgUnds.Underline span MsgUnds.Primary [MsgUnds.Message MsgUnds.Error $ thing ++ " is needed here"]
                 ]
             ]
 
@@ -191,7 +183,7 @@ parse_decl =
             return (JustWithError $ Located fun_sp (DDecl'Fun fun))
           )
         ]
-        (add_error_and_nothing (NeededHere "a declaration" next_span))
+        (add_error_and_nothing (Expected "a declaration" next_span))
 -- parse_fun {{{2
 parse_fun :: Located Tokens.Token -> ParseFunMWE LSFunDecl
 parse_fun = undefined
