@@ -14,11 +14,15 @@ import qualified Message
 import qualified Message.Underlines as MsgUnds
 
 import Data.Data (toConstr, Data)
+import Data.List (find)
 
 import Control.Monad.State.Lazy (State, state, runState)
 
 -- ParseError {{{1
 data ParseError
+    = Expected String Span
+
+type ParseErrorSpanPending = Span -> ParseError
 
 instance Message.ToDiagnostic ParseError where
 
@@ -73,25 +77,37 @@ predicate_and :: (a -> Bool) -> (a -> Bool) -> a -> Bool
 predicate_and p1 p2 a = p1 a && p2 a
 
 peek_matches_pred :: TokenPredicate -> ParserPredicate
-peek_matches_pred pred = pred . head . get_token_stream
+peek_matches_pred predicate = predicate . head . get_token_stream
 -- basic functions {{{1
 peek :: ParseFun (Located Tokens.Token)
 peek = state $ \ parser -> (head $ get_token_stream parser, parser)
 
+peek_span :: ParseFun Span
+peek_span = peek >>= \ (Located sp _) -> return sp
+
 peek_matches :: TokenPredicate -> ParseFun Bool
 peek_matches predicate = peek >>= return . predicate
+
+peek_match :: [(TokenPredicate, ParseFun a)] -> ParseFun a -> ParseFun a
+peek_match predicates fallback =
+    peek >>= \ tok ->
+    let results = map (\ (predicate, act) -> (predicate tok, act)) predicates
+    in case find fst results of
+        Just (_, act) -> act
+        Nothing -> fallback
+
 
 parser_matches :: ParserPredicate -> ParseFun Bool
 parser_matches predicate = state $ \ parser -> (predicate parser, parser)
 
-advance :: ParseFun ()
+advance :: ParseFun (Located Tokens.Token)
 advance = state $ \ parser ->
     let l:ts = get_token_stream parser
     in
     if null ts
         then error "advance past EOF"
         else
-            ( ()
+            ( l
             , parser
              { get_token_stream = ts
              , last_token = Just l
@@ -101,8 +117,14 @@ advance = state $ \ parser ->
 consume :: TokenPredicate -> ParseFunM (Located Tokens.Token)
 consume predicate =
     peek_matches predicate >>= \case
-        True -> peek >>= \ tok -> advance >> return (Just tok)
+        True -> advance >>= return . Just
         False -> return Nothing
+
+consume_or_error :: ParseErrorSpanPending -> TokenPredicate -> ParseFunMWE (Located Tokens.Token)
+consume_or_error err predicate =
+    peek_matches predicate >>= \case
+        True -> advance >>= return . JustWithError
+        False -> peek >>= \ (Located sp _) -> add_error_and_nothing (err sp)
 
 synchronize :: SynchronizationPredicate -> ParseFun ()
 synchronize sync_predicate = advance >> go
@@ -117,14 +139,18 @@ braced, indented, blocked :: ParseFunMWE a -> ParseFunMWE (Span, a)
     where
         surround_with :: Tokens.Token -> Tokens.Token -> ParseFunMWE a -> ParseFunMWE (Span, a)
         surround_with open close pf =
-            consume (is_tt open) >>=? return (NothingWithError undefined) $ \ (Located open_sp _) ->
+            consume_or_error (Expected $ Tokens.format_token open) (is_tt open) >>=??> \ (Located open_sp _) ->
             pf >>=??> \ inside ->
-            consume (is_tt close) >>=? return (NothingWithError undefined) $ \ (Located close_sp _) ->
+            consume_or_error (Expected $ Tokens.format_token close) (is_tt close) >>=??> \ (Located close_sp _) ->
             return (JustWithError (open_sp `join_span` close_sp, inside))
 
-blocked pf = peek_matches (is_tt Tokens.OBrace) >>= \case
-        True -> braced pf
-        False -> blocked pf
+blocked pf =
+    peek_span >>= \ next_span ->
+    peek_match
+        [ (is_tt Tokens.OBrace, braced pf)
+        , (is_tt Tokens.Indent, indented pf)
+        ]
+        (add_error_and_nothing (Expected "block" next_span))
 
 thing_list_no_separator :: StopPredicate -> SynchronizationPredicate -> ParseFunMWE a -> ParseFun [a]
 thing_list_no_separator stop_predicate sync_predicate pf = go []
