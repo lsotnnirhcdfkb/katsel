@@ -21,6 +21,7 @@ import Control.Monad.State.Lazy (State, state, runState)
 -- ParseError {{{1
 data ParseError
     = Expected String Span
+    | NeededHere String Span
 
 type ParseErrorSpanPending = Span -> ParseError
 
@@ -170,10 +171,16 @@ thing_list_no_separator stop_predicate sync_predicate pf = go []
 -- parse_decl {{{1
 parse_decl :: ParseFunMWE LDDecl
 parse_decl =
-    parse_fun >>=??> \ fun@(Located fun_sp _) ->
-    return (JustWithError $ Located fun_sp (DDecl'Fun fun))
+    peek_span >>= \ next_span ->
+    peek_match
+        [ (is_tt Tokens.Fun,
+            advance >>= parse_fun >>=??> \ fun@(Located fun_sp _) ->
+            return (JustWithError $ Located fun_sp (DDecl'Fun fun))
+          )
+        ]
+        (add_error_and_nothing (NeededHere "a declaration" next_span))
 -- parse_fun {{{2
-parse_fun :: ParseFunMWE LSFunDecl
+parse_fun :: Located Tokens.Token -> ParseFunMWE LSFunDecl
 parse_fun = undefined
 -- parse_module {{{1
 parse_module :: ParseFun LDModule
