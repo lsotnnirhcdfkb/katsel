@@ -25,10 +25,10 @@ data ParseError
 type ParseErrorSpanPending = Span -> ParseError
 
 instance Message.ToDiagnostic ParseError where
-    to_diagnostic (Expected thing span) =
-        Message.SimpleDiag Message.Error (Just span) Nothing Nothing
+    to_diagnostic (Expected thing sp) =
+        Message.SimpleDiag Message.Error (Just sp) Nothing Nothing
             [ Message.Underlines
-                [ MsgUnds.Underline span MsgUnds.Primary [MsgUnds.Message MsgUnds.Error $ "expected " ++ thing]
+                [ MsgUnds.Underline sp MsgUnds.Primary [MsgUnds.Message MsgUnds.Error $ "expected " ++ thing]
                 ]
             ]
 
