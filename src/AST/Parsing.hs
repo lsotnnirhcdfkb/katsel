@@ -109,8 +109,7 @@ parser_matches predicate = state $ \ parser -> (predicate parser, parser)
 advance :: ParseFun (Located Tokens.Token)
 advance = state $ \ parser ->
     let l:ts = get_token_stream parser
-    in
-    if null ts
+    in if null ts
         then error "advance past EOF"
         else
             ( l
@@ -119,6 +118,14 @@ advance = state $ \ parser ->
              , last_token = Just l
              }
             )
+
+advance_match :: [(TokenPredicate, Located Tokens.Token -> ParseFun a)] -> ParseFun a -> ParseFun a
+advance_match predicates fallback =
+    peek >>= \ tok ->
+    let results = map (\ (predicate, act) -> (predicate tok, act)) predicates
+    in case find fst results of
+        Just (_, act) -> advance >>= act
+        Nothing -> fallback
 
 consume :: TokenPredicate -> ParseFunM (Located Tokens.Token)
 consume predicate =
@@ -176,17 +183,17 @@ thing_list_no_separator stop_predicate sync_predicate pf = go []
 line_ending :: ParseFunMWE Span
 line_ending =
     peek_span >>= \ next_span ->
-    peek_match
-        [ (is_tt Tokens.Newline, JustWithError . get_span <$> advance)
-        , (is_tt Tokens.Semicolon, JustWithError . get_span <$> advance)
+    advance_match
+        [ (is_tt Tokens.Newline, return . JustWithError . get_span)
+        , (is_tt Tokens.Semicolon, return . JustWithError . get_span)
         ]
         (add_error_and_nothing (Expected "line ending" next_span))
 
 optional_line_ending :: ParseFunM Span
 optional_line_ending =
-    peek_match
-        [ (is_tt Tokens.Newline, Just . get_span <$> advance)
-        , (is_tt Tokens.Semicolon, Just . get_span <$> advance)
+    advance_match
+        [ (is_tt Tokens.Newline, return . Just . get_span)
+        , (is_tt Tokens.Semicolon, return . Just . get_span)
         ]
         (return Nothing)
 -- parse_expr {{{1
@@ -197,10 +204,11 @@ parse_block = undefined
 parse_decl :: ParseFunMWE LDDecl
 parse_decl =
     peek_span >>= \ next_span ->
-    peek_match
+    advance_match
         [ (is_tt Tokens.Fun,
-            advance >>= parse_fun >>=??> \ fun@(Located fun_sp _) ->
-            return (JustWithError $ Located fun_sp (DDecl'Fun fun))
+            \ fun_tok ->
+                parse_fun fun_tok >>=??> \ fun@(Located fun_sp _) ->
+                return (JustWithError $ Located fun_sp (DDecl'Fun fun))
           )
         ]
         (add_error_and_nothing (Expected "a declaration" next_span))
