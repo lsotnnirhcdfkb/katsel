@@ -16,7 +16,11 @@ module Message.PrettyPrint
     , pprint_lstmt
     , pprint_ltype
     -- , pprint_limpl_entity
+
+    , tests
     ) where
+
+import Test
 
 import qualified Tokens
 import qualified AST
@@ -386,3 +390,10 @@ pprint_lstmt :: AST.LDStmt -> String
 pprint_lstmt = stringify_segments . to_segments_lstmt
 pprint_ltype :: AST.LDType -> String
 pprint_ltype = stringify_segments . to_segments_ltype
+-- tests {{{1
+-- TODO
+tests :: Test
+tests =
+    DescribeModule "Message.PrettyPrint"
+        [
+        ]
