@@ -2,6 +2,7 @@
 
 module Tokens
     ( Token(..)
+    , IntLitBase(..)
     , Tokens.lex
     , format_token
 

@@ -50,7 +50,6 @@ library brace-internal
       Message
       Message.Arrows
       Message.PrettyPrint
-      Message.PrettyPrintTH
       Message.Underlines
       Message.Utils
       Tokens
