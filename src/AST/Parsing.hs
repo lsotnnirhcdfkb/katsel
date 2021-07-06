@@ -213,10 +213,13 @@ parse_type :: ParseFunMWE LDType
 parse_type = undefined
 -- parse_type_annotation {{{1
 parse_type_annotation :: ParseFunMWE LDType
-parse_type_annotation = undefined
+parse_type_annotation = consume_or_error (Expected "':'") (is_tt Tokens.Colon) >>=??> \ _ -> parse_type
 -- parse_param {{{1
 parse_param :: ParseFunMWE LDParam
-parse_param = undefined
+parse_param =
+    consume_or_error (Expected "parameter name") (is_tt $ Tokens.Identifier "") >>=??> \ (Located name_sp (Tokens.Identifier name)) ->
+    parse_type_annotation >>=??> \ ty ->
+    return (JustWithError $ Located (name_sp `join_span` get_span ty) (DParam'Normal ty (Located name_sp name)))
 -- parse_expr {{{1
 -- parse_block {{{2
 parse_block :: ParseFunMWE LSBlockExpr
