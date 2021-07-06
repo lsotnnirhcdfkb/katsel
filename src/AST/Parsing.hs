@@ -179,6 +179,18 @@ thing_list_no_separator stop_predicate sync_predicate pf = go []
                         NothingWithError _ ->
                             synchronize sync_predicate >>
                             go things
+
+thing_list_with_separator :: TokenPredicate -> ParseFunMWE a -> ParseFunMWE [a]
+thing_list_with_separator delim_predicate pf = go []
+    where
+        -- TODO: maybe synchronize to delimiter on error
+        go things =
+            peek_matches delim_predicate >>= \case
+                True ->
+                    pf >>=??> \ thing ->
+                    go (things ++ [thing])
+
+                False -> return $ JustWithError things
 -- line endings {{{1
 line_ending :: ParseFunMWE Span
 line_ending =
@@ -196,6 +208,15 @@ optional_line_ending =
         , (is_tt Tokens.Semicolon, return . Just . get_span)
         ]
         (return Nothing)
+-- parse_type {{{1
+parse_type :: ParseFunMWE LDType
+parse_type = undefined
+-- parse_type_annotation {{{1
+parse_type_annotation :: ParseFunMWE LDType
+parse_type_annotation = undefined
+-- parse_param {{{1
+parse_param :: ParseFunMWE LDParam
+parse_param = undefined
 -- parse_expr {{{1
 -- parse_block {{{2
 parse_block :: ParseFunMWE LSBlockExpr
@@ -217,13 +238,19 @@ parse_fun :: Located Tokens.Token -> ParseFunMWE LSFunDecl
 parse_fun (Located fun_sp _) =
     consume_or_error (Expected "function name") (is_tt (Tokens.Identifier "")) >>=??> \ (Located name_sp (Tokens.Identifier name)) ->
     consume_or_error (Expected "'('") (is_tt Tokens.OParen) >>=??> \ _ ->
-    -- TODO: parameters
+
+    thing_list_with_separator (is_tt Tokens.Comma) parse_param >>=??> \ params ->
+
     consume_or_error (Expected "')'") (is_tt Tokens.CParen) >>=??> \ (Located cparen_sp _) ->
-    -- TODO: return type
+
+    (peek_matches (is_tt Tokens.Colon) >>= \case
+        True -> parse_type_annotation >>=?? return Nothing $ return . Just
+        False -> return Nothing
+    ) >>= \ return_type ->
 
     parse_block >>=??> \ body ->
     optional_line_ending >>
-    return (JustWithError $ Located (fun_sp `join_span` cparen_sp) (SFunDecl' Nothing (Located name_sp name) [] body))
+    return (JustWithError $ Located (fun_sp `join_span` cparen_sp) (SFunDecl' return_type (Located name_sp name) params body))
 -- parse_module {{{1
 parse_module :: ParseFun LDModule
 parse_module =
