@@ -39,6 +39,9 @@ instance Message.ToDiagnostic ParseError where
                 ]
             ]
 
+    to_diagnostic TestError = error "cannot convert TestError to SimpleDiag"
+    to_diagnostic (TestErrorWithSpan _) = error "cannot convert TestErrorWithSpan to SimpleDiag"
+
 -- Parser {{{1
 data Parser
     = Parser
@@ -117,7 +120,7 @@ advance :: ParseFun (Located Tokens.Token)
 advance = state $ \ parser ->
     let l:ts = get_token_stream parser
     in if null ts
-        then error "advance past EOF"
+        then error "advance past last token of the token stream"
         else
             ( l
             , parser
@@ -187,17 +190,18 @@ thing_list_no_separator stop_predicate sync_predicate pf = go []
                             synchronize sync_predicate >>
                             go things
 
-thing_list_with_separator :: TokenPredicate -> ParseFunMWE a -> ParseFunMWE [a]
+thing_list_with_separator :: TokenPredicate -> ParseFunMWE a -> ParseFun [a]
 thing_list_with_separator delim_predicate pf = go []
     where
         -- TODO: maybe synchronize to delimiter on error
         go things =
             peek_matches delim_predicate >>= \case
                 True ->
-                    pf >>=??> \ thing ->
-                    go (things ++ [thing])
+                    pf >>= \case
+                        JustWithError thing -> go (things ++ [thing])
+                        NothingWithError _ -> go things
 
-                False -> return $ JustWithError things
+                False -> return things
 -- line endings {{{1
 line_ending :: ParseFunMWE Span
 line_ending =
@@ -249,7 +253,7 @@ parse_fun (Located fun_sp _) =
     consume_or_error (Expected "function name") (is_tt (Tokens.Identifier "")) >>=??> \ (Located name_sp (Tokens.Identifier name)) ->
     consume_or_error (Expected "'('") (is_tt Tokens.OParen) >>=??> \ _ ->
 
-    thing_list_with_separator (is_tt Tokens.Comma) parse_param >>=??> \ params ->
+    thing_list_with_separator (is_tt Tokens.Comma) parse_param >>= \ params ->
 
     consume_or_error (Expected "')'") (is_tt Tokens.CParen) >>=??> \ (Located cparen_sp _) ->
 
@@ -497,7 +501,7 @@ tests =
             ]
 
         , DescribeFunction "consume"
-            [ ItCan "consume the next token if it matches the predicate" $  
+            [ ItCan "consume the next token if it matches the predicate" $
                 let fake_file = make_file "fake_file" "a"
                     sp = Span start before end
                         where
@@ -536,7 +540,7 @@ tests =
             ]
 
         , DescribeFunction "consume_or_error"
-            [ ItCan "consume the next token if it matches the predicate" $  
+            [ ItCan "consume the next token if it matches the predicate" $
                 let fake_file = make_file "fake_file" "a"
                     sp = Span start before end
                         where
@@ -617,9 +621,103 @@ tests =
                     else fail_test
             ]
 
-        , DescribeFunction "thing_list_no_separator" []
+        -- TODO: reduce duplicate copy-pasted code in tests for braced, indented, and blocked
+        , DescribeFunction "braced"
+            [ ItCan "parse a thing enclosed in '{' and '}'" $
+                let action = braced (consume_or_error TestErrorWithSpan (is_tt $ Tokens.IntLit Tokens.Dec 0))
+                    tokens = [Located undefined Tokens.OBrace, Located undefined (Tokens.IntLit Tokens.Dec 2), Located undefined Tokens.CBrace, Located undefined Tokens.EOF]
 
-        , DescribeFunction "thing_list_with_separator" []
+                    res = run_parse_fun action tokens
+                in case res of
+                    ([], JustWithError (_, Located _ (Tokens.IntLit Tokens.Dec 2))) -> pass_test
+                    _ -> fail_test
+            ]
+
+        , DescribeFunction "indented"
+            [ ItCan "parse a thing enclosed in indent and dedent tokens" $
+                let action = indented (consume_or_error TestErrorWithSpan (is_tt $ Tokens.IntLit Tokens.Dec 0))
+                    tokens = [Located undefined Tokens.Indent, Located undefined (Tokens.IntLit Tokens.Dec 2), Located undefined Tokens.Dedent, Located undefined Tokens.EOF]
+
+                    res = run_parse_fun action tokens
+                in case res of
+                    ([], JustWithError (_, Located _ (Tokens.IntLit Tokens.Dec 2))) -> pass_test
+                    _ -> fail_test
+            ]
+
+        , DescribeFunction "blocked"
+            [ ItCan "parse a thing enclosed in '{' and '}'" $
+                let action = blocked (consume_or_error TestErrorWithSpan (is_tt $ Tokens.IntLit Tokens.Dec 0))
+                    tokens = [Located undefined Tokens.OBrace, Located undefined (Tokens.IntLit Tokens.Dec 2), Located undefined Tokens.CBrace, Located undefined Tokens.EOF]
+
+                    res = run_parse_fun action tokens
+                in case res of
+                    ([], JustWithError (_, Located _ (Tokens.IntLit Tokens.Dec 2))) -> pass_test
+                    _ -> fail_test
+
+            , ItCan "parse a thing enclosed in indent and dedent tokens" $
+                let action = blocked (consume_or_error TestErrorWithSpan (is_tt $ Tokens.IntLit Tokens.Dec 0))
+                    tokens = [Located undefined Tokens.Indent, Located undefined (Tokens.IntLit Tokens.Dec 2), Located undefined Tokens.Dedent, Located undefined Tokens.EOF]
+
+                    res = run_parse_fun action tokens
+                in case res of
+                    ([], JustWithError (_, Located _ (Tokens.IntLit Tokens.Dec 2))) -> pass_test
+                    _ -> fail_test
+            ]
+
+        , DescribeFunction "thing_list_no_separator"
+            [ ItCan "repeatedly parse a thing until the stop predicate holds" $
+                let action = thing_list_no_separator
+                        (peek_matches_pred $ is_tt Tokens.Semicolon) -- stop predicate
+                        undefined -- synchronization predicate
+                        (consume_or_error TestErrorWithSpan $ is_tt Tokens.Colon) -- thing
+                    tokens = [Located undefined Tokens.Colon, Located undefined Tokens.Colon, Located undefined Tokens.Semicolon]
+
+                    res = run_parse_fun action tokens
+                in case res of
+                    ([], [Located _ Tokens.Colon, Located _ Tokens.Colon]) -> pass_test
+                    _ -> fail_test
+
+            , ItCan "stop at an eof token" $
+                let action =
+                        thing_list_no_separator
+                            (const False) -- stop predicate
+                            (peek_matches_pred $ is_tt Tokens.Colon) -- synchronization predicate
+                            (consume_or_error TestErrorWithSpan $ is_tt Tokens.Colon) -- thing
+                        >>
+                        peek
+                    tokens = [Located undefined Tokens.Colon, Located undefined Tokens.Colon, Located undefined Tokens.EOF]
+
+                    (_, res) = run_parse_fun action tokens
+                in case res of
+                    Located _ Tokens.EOF -> pass_test
+                    _ -> fail_test
+
+            , ItCan "synchronize when it encounters a malformed thing" $
+                let action = thing_list_no_separator
+                        (peek_matches_pred $ is_tt Tokens.Semicolon) -- stop predicate
+                        (peek_matches_pred $ is_tt Tokens.Colon) -- synchronization predicate
+                        (consume_or_error TestErrorWithSpan $ is_tt Tokens.Colon) -- thing
+
+                    tokens = [Located undefined Tokens.Colon, Located undefined Tokens.OParen, Located undefined Tokens.Colon, Located undefined Tokens.Semicolon]
+
+                    res = run_parse_fun action tokens
+                in case res of
+                    ([_], [Located _ Tokens.Colon, Located _ Tokens.Colon]) -> pass_test
+                    _ -> fail_test
+            ]
+
+        , DescribeFunction "thing_list_with_separator"
+            [ ItCan "repeatedly parse a thing while it finds a delimiter token" $
+                let action = thing_list_with_separator
+                        (is_tt Tokens.Comma) -- delimiter predicate
+                        (consume_or_error TestErrorWithSpan $ is_tt Tokens.Colon) -- thing
+                    tokens = [Located undefined Tokens.Colon, Located undefined Tokens.Comma, Located undefined Tokens.Colon]
+
+                    res = run_parse_fun action tokens
+                in case res of
+                    ([_], [Located _ Tokens.Colon, Located _ Tokens.Colon]) -> pass_test
+                    _ -> fail_test
+            ]
 
         , DescribeFunction "line_ending" []
 
