@@ -195,13 +195,13 @@ thing_list_with_separator delim_predicate pf = go []
     where
         -- TODO: maybe synchronize to delimiter on error
         go things =
+            pf >>= \case
+                JustWithError thing -> return $ things ++ [thing]
+                NothingWithError _ -> return things
+            >>= \ things' ->
             peek_matches delim_predicate >>= \case
-                True ->
-                    pf >>= \case
-                        JustWithError thing -> go (things ++ [thing])
-                        NothingWithError _ -> go things
-
-                False -> return things
+                True -> advance >> go things'
+                False -> return things'
 -- line endings {{{1
 line_ending :: ParseFunMWE Span
 line_ending =
@@ -711,11 +711,11 @@ tests =
                 let action = thing_list_with_separator
                         (is_tt Tokens.Comma) -- delimiter predicate
                         (consume_or_error TestErrorWithSpan $ is_tt Tokens.Colon) -- thing
-                    tokens = [Located undefined Tokens.Colon, Located undefined Tokens.Comma, Located undefined Tokens.Colon]
+                    tokens = [Located undefined Tokens.Colon, Located undefined Tokens.Comma, Located undefined Tokens.Colon, Located undefined Tokens.EOF]
 
                     res = run_parse_fun action tokens
                 in case res of
-                    ([_], [Located _ Tokens.Colon, Located _ Tokens.Colon]) -> pass_test
+                    ([], [Located _ Tokens.Colon, Located _ Tokens.Colon]) -> pass_test
                     _ -> fail_test
             ]
 
