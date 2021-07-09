@@ -281,7 +281,18 @@ parse_from_toks = run_parse_fun parse_module
 -- tests {{{1
 tests :: Test
 tests =
-    DescribeModule "AST.Parsing"
+    let can_fully_parse action toks check =
+            let action' =
+                    action >>= \ res ->
+                    parser_matches is_at_end >>= \ ae ->
+                    return (ae, res)
+
+                (errs, (at_end, action_res)) = run_parse_fun action' toks
+            in if null errs && at_end && check action_res
+                then pass_test
+                else fail_test
+
+    in DescribeModule "AST.Parsing"
         [ DescribeFunction "add_error"
             [ ItCan "add an error and return a promise" $
                 let (errs, promise) = run_parse_fun (add_error TestError) []
@@ -719,23 +730,77 @@ tests =
                     _ -> fail_test
             ]
 
-        , DescribeFunction "line_ending" []
+        , DescribeFunction "line_ending"
+            [ ItCan "parse a newline" $ can_fully_parse line_ending [Located undefined Tokens.Newline, Located undefined Tokens.EOF] (const True)
+            , ItCan "parse a semicolon" $ can_fully_parse line_ending [Located undefined Tokens.Semicolon, Located undefined Tokens.EOF] (const True)
+            ]
 
-        , DescribeFunction "optional_line_ending" []
+        , DescribeFunction "optional_line_ending"
+            [ ItCan "parse a newline" $ can_fully_parse optional_line_ending [Located undefined Tokens.Newline, Located undefined Tokens.EOF] (const True)
+            , ItCan "parse a semicolon" $ can_fully_parse optional_line_ending [Located undefined Tokens.Semicolon, Located undefined Tokens.EOF] (const True)
+            , ItCan "ignore anything else" $ can_fully_parse optional_line_ending [Located undefined Tokens.EOF] (const True)
+            ]
 
         , DescribeFunction "parse_type" []
 
-        , DescribeFunction "parse_type_annotation" []
+        , DescribeFunction "parse_type_annotation"
+            [ ItCan "parse a type annotation" $
+                can_fully_parse parse_type_annotation [Located undefined Tokens.Colon, Located undefined $ Tokens.Identifier "a", Located undefined Tokens.EOF] $
+                    \case
+                        JustWithError _ -> True
+                        _ -> False
+            ]
 
-        , DescribeFunction "parse_param" []
+        , DescribeFunction "parse_param"
+            [ ItCan "parse a parameter" $
+                can_fully_parse parse_param [Located undefined (Tokens.Identifier "a"), Located undefined Tokens.Colon, Located undefined $ Tokens.Identifier "b", Located undefined Tokens.EOF] $
+                    \case
+                        JustWithError (Located _ (DParam'Normal _ (Located _ "a"))) -> True
+                        _ -> False
+            ]
 
         , DescribeFunction "parse_block" []
 
-        , DescribeFunction "parse_decl" []
+        , DescribeFunction "parse_decl"
+            [ ItCan "parse a function declaration" $
+                can_fully_parse parse_decl
+                    [ Located undefined Tokens.Fun
+                    , Located undefined $ Tokens.Identifier "a"
+                    , Located undefined Tokens.OParen
+                    , Located undefined Tokens.CParen
+                    , Located undefined Tokens.OBrace
+                    , Located undefined Tokens.CBrace
+                    ] $
+                    \case
+                        JustWithError (Located _ (DDecl'Fun _)) -> True
+                        _ -> False
+            ]
 
-        , DescribeFunction "parse_fun" []
+        , DescribeFunction "parse_fun"
+            [ ItCan "parse a function declaration with a return type annotation" $
+                can_fully_parse (parse_fun $ Located undefined Tokens.Fun)
+                    [ Located undefined $ Tokens.Identifier "a"
+                    , Located undefined Tokens.OParen
+                    , Located undefined Tokens.CParen
+                    , Located undefined Tokens.Colon
+                    , Located undefined $ Tokens.Identifier "b"
+                    , Located undefined Tokens.OBrace
+                    , Located undefined Tokens.CBrace
+                    ] $
+                    \case
+                        JustWithError (Located _ (SFunDecl' (Just _) (Located _ "a") [] _)) -> True
+                        _ -> False
 
-        , DescribeFunction "parse_module" []
-
-        , DescribeFunction "parse_from_toks" []
+            , ItCan "parse a function declaration without a return type annotation" $
+                can_fully_parse (parse_fun $ Located undefined Tokens.Fun)
+                    [ Located undefined $ Tokens.Identifier "a"
+                    , Located undefined Tokens.OParen
+                    , Located undefined Tokens.CParen
+                    , Located undefined Tokens.OBrace
+                    , Located undefined Tokens.CBrace
+                    ] $
+                    \case
+                        JustWithError (Located _ (SFunDecl' Nothing (Located _ "a") [] _)) -> True
+                        _ -> False
+            ]
         ]
