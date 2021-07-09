@@ -13,6 +13,7 @@ module Test
 -- inspired by RSpec
 
 import Control.Monad (when)
+import Control.Exception (try, SomeException)
 
 import System.Exit (exitFailure)
 
@@ -59,14 +60,21 @@ run_test indent_amt (When context test_list) = heading_and_children indent_amt (
 
 run_test indent_amt (ItCan action result) =
     indent_put_str indent_amt "it " >>
-    result >>= \ result' ->
+    try result >>= \ result' ->
     (case result' of
-        Pass -> putStr $ "can " ++ action
-        Fail -> putStr $ "CANNOT " ++ action ++ "!"
-        TestPending -> putStr $ "maybe can " ++ action
+        Right Pass -> putStrLn $ "can " ++ action
+        Right Fail -> putStrLn $ "CANNOT " ++ action ++ "!"
+        Right TestPending -> putStrLn $ "maybe can " ++ action
+        Left exc ->
+            let _ = exc :: SomeException
+            in putStrLn ("CANNOT " ++ action ++ " without raising an exception!:") >>
+            mapM_ (indent_put_str (indent_amt + 4) . (++"\n")) (lines $ show exc)
     ) >>
-    putStr "\n" >>
-    return [result']
+    return
+        [ case result' of
+            Right x -> x
+            Left _ -> Fail
+        ]
 
 heading_and_children :: Int -> String -> [Test] -> IO [TestResult]
 heading_and_children indent_amt msg test_list = indent_put_str indent_amt msg >> run_test_list (indent_amt + 4) test_list
