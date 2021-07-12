@@ -26,6 +26,7 @@ library brace-internal
       File
       Interner
       IR
+      IR.ChildList
       IR.ConstFunctionPointer
       IR.DeclSpan
       IR.DeclSymbol
