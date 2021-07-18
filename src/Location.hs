@@ -34,7 +34,10 @@ data Location
       , linecol_of_loc :: LineCol
       }
     deriving Eq
+
+line_of_loc :: Location -> Int
 line_of_loc = line_of_linecol . linecol_of_loc
+col_of_loc :: Location -> Int
 col_of_loc = col_of_linecol . linecol_of_loc
 
 data LineCol = LineCol { line_of_linecol :: Int, col_of_linecol :: Int } deriving Eq
