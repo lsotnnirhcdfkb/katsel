@@ -26,23 +26,6 @@ library brace-internal
       File
       Interner
       IR
-      IR.ChildList
-      IR.ConstFunctionPointer
-      IR.DeclSpan
-      IR.DeclSymbol
-      IR.Dot
-      IR.Function
-      IR.ID
-      IR.IRCtx
-      IR.MapSynonyms
-      IR.Module
-      IR.Parent
-      IR.Print
-      IR.RecFindEntities
-      IR.Type
-      IR.Typed
-      IR.TypeStuffAndIRCtx.Stuff
-      IR.Value
       Location
       Main
       Mangle
