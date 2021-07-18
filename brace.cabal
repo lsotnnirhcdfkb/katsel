@@ -26,6 +26,11 @@ library brace-internal
       File
       Interner
       IR
+      IR.ChildList
+      IR.DeclSpan
+      IR.DeclSymbol
+      IR.IRCtx
+      IR.Value
       Location
       Main
       Mangle
@@ -49,6 +54,7 @@ library brace-internal
     , base
     , brace-test-lib
     , containers
+    , lens
     , mtl
     , template-haskell
   default-language: Haskell2010
@@ -67,6 +73,7 @@ library brace-test-lib
       ansi-terminal
     , base
     , containers
+    , lens
     , mtl
     , template-haskell
   default-language: Haskell2010
@@ -84,6 +91,7 @@ executable brace
     , brace-internal
     , brace-test-lib
     , containers
+    , lens
     , mtl
     , template-haskell
   default-language: Haskell2010
@@ -102,6 +110,7 @@ test-suite brace-test
     , brace-internal
     , brace-test-lib
     , containers
+    , lens
     , mtl
     , template-haskell
   default-language: Haskell2010
