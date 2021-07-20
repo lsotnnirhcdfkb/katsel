@@ -2,13 +2,13 @@
 
 module IR.IRCtx
     ( IRCtx
-    , ds_interner
-    , v_interner
+    , ds_pool
+    , v_pool
     , ds_child_list
     , v_child_list
     ) where
 
-import Interner
+import Pool
 
 import IR.ChildList
 
@@ -22,10 +22,10 @@ type Value' = Value IRCtx
 
 data IRCtx
     = IRCtx
-      { _ds_interner :: Interner DeclSymbol'
-      , _v_interner :: Interner Value'
-      , _ds_child_list :: ChildList (InternerIdx DeclSymbol') (InternerIdx DeclSymbol') String
-      , _v_child_list :: ChildList (InternerIdx DeclSymbol') (InternerIdx Value') String
+      { _ds_pool :: Pool DeclSymbol'
+      , _v_pool :: Pool Value'
+      , _ds_child_list :: ChildList (PoolIdx DeclSymbol') (PoolIdx DeclSymbol') String
+      , _v_child_list :: ChildList (PoolIdx DeclSymbol') (PoolIdx Value') String
       }
 
 $(makeLenses ''IRCtx)

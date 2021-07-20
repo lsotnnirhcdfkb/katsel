@@ -24,7 +24,6 @@ library brace-internal
       Colors
       Driver
       File
-      Interner
       IR
       IR.ChildList
       IR.DeclSpan
@@ -41,6 +40,7 @@ library brace-internal
       Message.PrettyPrint
       Message.Underlines
       Message.Utils
+      Pool
       Tokens
   other-modules:
       Paths_brace
