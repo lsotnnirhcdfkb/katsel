@@ -14,7 +14,6 @@ dependencies:
   - mtl
   - containers
   - template-haskell
-  - lens
 
 internal-libraries:
   brace-internal:
@@ -33,7 +32,6 @@ executable:
 
   dependencies:
     - brace-internal
-    - brace-test-lib
 
 tests:
   brace-test:
