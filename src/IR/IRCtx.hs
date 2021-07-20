@@ -2,6 +2,10 @@
 
 module IR.IRCtx
     ( IRCtx
+
+    , DeclSymbol'
+    , Value'
+
     , ds_pool
     , v_pool
     , ds_child_list
@@ -28,4 +32,4 @@ data IRCtx
       , _v_child_list :: ChildList (PoolIdx DeclSymbol') (PoolIdx Value') String
       }
 
-$(makeLenses ''IRCtx)
+makeLenses ''IRCtx
