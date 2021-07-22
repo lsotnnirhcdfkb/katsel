@@ -42,4 +42,7 @@ new_module sp irctx =
 instance DeclSpan IRCtx Module where
     decl_span _ (Module sp) = Just sp
 
+instance Eq Module where
+    _ == _ = True
+
 instance IsDeclSymbol IRCtx Module

@@ -60,7 +60,7 @@ ds_child_list = Lens _ds_child_list (\ a b -> a { _ds_child_list = b })
 v_child_list :: Lens IRCtx (ChildList (InternerIdx DeclSymbol') (InternerIdx Value') String)
 v_child_list = Lens _v_child_list (\ a b -> a { _v_child_list = b })
 
-newtype DSIdx d = DSIdx { upcast_dsidx :: InternerIdx DeclSymbol' }
+newtype DSIdx d = DSIdx { upcast_dsidx :: InternerIdx DeclSymbol' } deriving (Eq, Ord)
 
 downcast_dsidx :: IsDeclSymbol' d => InternerIdx DeclSymbol' -> IRCtx -> Maybe (DSIdx d)
 downcast_dsidx idx irctx =
@@ -83,7 +83,7 @@ resolve_dsidx (DSIdx iidx) irctx =
         Nothing -> error "DSIdx does not have correct type"
 
 
-newtype VIdx v = VIdx { upcast_vidx :: InternerIdx Value' }
+newtype VIdx v = VIdx { upcast_vidx :: InternerIdx Value' } deriving (Eq, Ord)
 
 downcast_vidx :: IsValue' v => InternerIdx Value' -> IRCtx -> Maybe (VIdx v)
 downcast_vidx idx irctx =

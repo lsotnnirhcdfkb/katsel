@@ -18,9 +18,9 @@ import IR.IRCtx
 
 import Data.List (intercalate)
 
-data Signedness = Signed | Unsigned
-data FloatSize = F32 | F64
-data IntSize = I8 | I16 | I32 | I64
+data Signedness = Signed | Unsigned deriving Eq
+data FloatSize = F32 | F64 deriving Eq
+data IntSize = I8 | I16 | I32 | I64 deriving Eq
 data Type
     = FloatType FloatSize
     | IntType IntSize Signedness
@@ -28,6 +28,7 @@ data Type
     | BoolType
     | UnitType
     | FunctionPointerType (DSIdx Type) [DSIdx Type]
+    deriving Eq
 
 instance Show FloatSize where
     show F32 = "32"
