@@ -9,6 +9,8 @@ module IR.Type
 
     , stringify_ty
     , match_signedness
+
+    , builtin_types
     ) where
 
 import IR.DeclSpan
@@ -71,3 +73,20 @@ stringify_ty irctx (FunctionPointerType retty params) =
     let ret_str = stringify_ty irctx (resolve_dsidx retty irctx)
         param_strs = map (stringify_ty irctx . flip resolve_dsidx irctx) params
     in "fun(" ++ intercalate ", " param_strs ++ "): " ++ ret_str
+
+builtin_types :: [(String, Type)]
+builtin_types =
+    [ ("unit", UnitType)
+    , ("float", FloatType F32)
+    , ("double", FloatType F64)
+    , ("bool", BoolType)
+    , ("char", CharType)
+    , ("uint8", IntType I8 Unsigned)
+    , ("uint16", IntType I16 Unsigned)
+    , ("uint32", IntType I32 Unsigned)
+    , ("uint64", IntType I64 Unsigned)
+    , ("sint8", IntType I8 Signed)
+    , ("sint16", IntType I16 Signed)
+    , ("sint32", IntType I32 Signed)
+    , ("sint64", IntType I64 Signed)
+    ]

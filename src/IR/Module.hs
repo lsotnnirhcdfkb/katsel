@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 module IR.Module
@@ -19,6 +20,8 @@ import IR.IRCtx
 
 import IR.ChildList
 
+import IR.Type (builtin_types)
+
 import Data.List (mapAccumL, foldl')
 
 data Module = Module Span
@@ -28,12 +31,10 @@ new_module sp irctx =
     let (mod_idx, irctx') = get_ds (Module sp) irctx
 
         get_tyidx ctx (tyn, ty) =
-            let (tyidx, ctx') = modify ds_interner (get_from_interner ty) (ctx :: IRCtx)
+            let (tyidx, ctx') = modify ds_interner (get_from_interner $ DeclSymbol ty) (ctx :: IRCtx)
             in (ctx', (tyn, tyidx))
 
-        (irctx'', tyidxs) =
-            mapAccumL get_tyidx irctx'
-                []
+        (irctx'', tyidxs) = mapAccumL get_tyidx irctx' builtin_types
 
         irctx''' = foldl' (\ i (tyn, tyidx) -> over ds_child_list (add_replace (upcast_dsidx mod_idx) tyn tyidx) i) irctx'' tyidxs
             
