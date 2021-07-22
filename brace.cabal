@@ -24,11 +24,14 @@ library brace-internal
       Colors
       Driver
       File
+      Interner
       IR
       IR.ChildList
       IR.DeclSpan
       IR.DeclSymbol
       IR.IRCtx
+      IR.Module
+      IR.Type
       IR.Value
       Location
       Main
