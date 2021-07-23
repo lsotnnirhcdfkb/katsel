@@ -36,10 +36,12 @@ import IR.ChildList
 import IR.DeclSymbol
 import IR.Value
 
+import {-# SOURCE #-} IR.Type
+
 type IsDeclSymbol' = IsDeclSymbol IRCtx
 type DeclSymbol' = DeclSymbol IRCtx
-type IsValue' = IsValue IRCtx
-type Value' = Value IRCtx
+type IsValue' = IsValue IRCtx (DSIdx Type)
+type Value' = Value IRCtx (DSIdx Type)
 
 data IRCtx
     = IRCtx

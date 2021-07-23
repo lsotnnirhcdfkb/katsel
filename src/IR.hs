@@ -3,6 +3,7 @@ module IR where
 import IR.ChildList
 
 import IR.DeclSpan
+import IR.Typed
 
 import IR.DeclSymbol
 import IR.Module
